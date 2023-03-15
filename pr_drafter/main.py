@@ -1,7 +1,9 @@
 import tempfile
 
 from git import Repo
-from pr_drafter.rails import generate_pr
+from pr_drafter.generation_service import RailsGenerationService
+
+import validators
 
 
 def main(
@@ -14,13 +16,15 @@ def main(
     repo = Repo(repo_path)
     branch_name = f'autopr-issue-{issue_number}'
 
+    generator = RailsGenerationService()
+
     # If branch already exists, delete it
     if branch_name in repo.heads:
         repo.delete_head(branch_name)
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree
-    pr = generate_pr(tree, issue_title, issue_body)
+    pr = generator.generate_pr(tree, issue_title, issue_body)
 
     # Create new branch with create_new_ref
     repo.create_head(branch_name, base_branch_name)

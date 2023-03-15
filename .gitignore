@@ -2,3 +2,5 @@
 .DS_Store
 *.log
 __pycache__/
+*.diff
+*.patch
