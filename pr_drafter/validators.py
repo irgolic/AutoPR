@@ -26,12 +26,13 @@ class GitPatch(Validator):
         # and pass the file path to git apply --check
         with tempfile.NamedTemporaryFile() as f:
             f.write(value.encode())
-            if not repo.git.execute(["git", "apply", "--check", f.name]):
+            out_str = repo.git.execute(["git", "apply", "--check", f.name])
+            if out_str:
                 raise EventDetail(
                     key,
                     value,
                     schema,
-                    f"Value {value} is not a valid git patch.",
+                    out_str,
                     None,
                 )
 

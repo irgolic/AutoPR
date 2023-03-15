@@ -11,14 +11,14 @@ class Commit(RailModel):
     rail_spec = """<object name="commit">
     <string
         name="message"
-        description="The message of the commit."
+        description="The commit message, describing the changes."
         required="true"
         format="length: 5 72"
         on-fail-length="noop"
     />
     <string
         name="diff"
-        description="The git diff of the commit."
+        description="The git diff between this commit and the previous, without the index line, able to be applied with `git apply`."
         required="true"
         format="patch"
     />
@@ -39,14 +39,12 @@ class PullRequest(RailModel):
     />
     <url
         name="initial_message"
-        description="The first message of the pull request."
+        description="The body of the initial post of the pull request."
         required="true"
         format="valid-url"
         on-fail-valid-url="filter"
     />
-    <list name="commits" format="min-len: 1; max-len: 1">
-        {Commit.rail_spec}
-    </list>
+    {Commit.rail_spec}
 </object>"""
 
     title: str

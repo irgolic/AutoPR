@@ -14,7 +14,8 @@ def main(
     repo = Repo(repo_path)
 
     # Generate PR commits, title, and body
-    pr = generate_pr(repo, issue_title, issue_body)
+    tree = repo.heads[base_branch_name].commit.tree
+    pr = generate_pr(tree, issue_title, issue_body)
 
     # Create new branch with create_new_ref
     branch_name = f'autopr-issue-{issue_number}'
