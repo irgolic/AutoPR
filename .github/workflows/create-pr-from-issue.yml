@@ -1,0 +1,15 @@
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        issue_number: ${{ github.event.issue.number }}
+        issue_title: ${{ github.event.issue.title }}
+        issue_body: ${{ github.event.issue.body }}

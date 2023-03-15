@@ -1,0 +1,24 @@
+name: 'Pull Request Drafter'
+description: 'On a new issue, create and push a new branch of AI-generated code, and open a draft pull request'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'code'
+  color: 'blue'
+inputs:
+  token:
+    description: 'GitHub token'
+    required: true
+  issue_number:
+    description: 'Branch name'
+    required: true
+  issue_title:
+    description: 'Issue title'
+    required: true
+  issue_body:
+    description: 'Issue body'
+    required: true
+  base_branch:
+    description: 'Base branch'
+    default: 'main'
