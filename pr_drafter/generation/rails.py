@@ -4,6 +4,9 @@ from git import Repo, Tree
 import guardrails as gd
 from pr_drafter.models import PullRequest
 
+# init patch validator
+import validators
+
 
 rail_spec = f"""
 <rail version="0.1">
@@ -49,12 +52,13 @@ def repo_to_codebase(tree: Tree):
 
 def generate_pr(repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
     codebase = repo_to_codebase(repo_tree)
-    smth = pr_guard(
+    raw_o, dict_o = pr_guard(
         openai.Completion.create,
         model='text-davinci-003',
+        max_tokens=1000,
         prompt_params={
             'codebase': codebase,
             'issue': f"Title: {issue_title}\nBody: {issue_body}",
         },
     )
-    return PullRequest.parse_obj(smth[1])
+    return PullRequest.parse_obj(dict_o['pull_request'])

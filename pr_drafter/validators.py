@@ -3,6 +3,8 @@ import os
 import tempfile
 from typing import Union, Any, Dict, List
 
+from git import GitCommandError
+
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
 import git
@@ -19,20 +21,21 @@ class GitPatch(Validator):
 
     def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
         logger.debug(f"Validating {value} is git patch...")
-        repo_path = os.environ["GIT_REPOSITORY_PATH"]
+        repo_path = os.environ["GITHUB_WORKSPACE"]
         repo = git.Repo(repo_path)
 
         # Create a temporary file with tempfile.NamedTemporaryFile
         # and pass the file path to git apply --check
         with tempfile.NamedTemporaryFile() as f:
             f.write(value.encode())
-            out_str = repo.git.execute(["git", "apply", "--check", f.name])
-            if out_str:
+            try:
+                out_str = repo.git.execute(["git", "apply", "--check", f.name])
+            except GitCommandError as e:
                 raise EventDetail(
                     key,
                     value,
                     schema,
-                    out_str,
+                    e.stderr,
                     None,
                 )
 

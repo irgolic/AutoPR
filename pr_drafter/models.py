@@ -37,14 +37,15 @@ class PullRequest(RailModel):
         format="length: 10 200"
         on-fail-length="noop"
     />
-    <url
+    <string
         name="initial_message"
         description="The body of the initial post of the pull request."
         required="true"
-        format="valid-url"
-        on-fail-valid-url="filter"
+        format="length: 10 2000"
     />
-    {Commit.rail_spec}
+    <list name="commits" required="true" filter="length 1">
+        {Commit.rail_spec}
+    </list>
 </object>"""
 
     title: str
