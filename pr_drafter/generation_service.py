@@ -26,7 +26,9 @@ class GenerationService:
                 for ending in ['.py', '.md']
             ):
                 continue
-            codebase += f"# Path: {blob.path}\n\n{blob.data_stream.read().decode()}\n\n"
+            if codebase:
+                codebase += "\n"
+            codebase += f"# Path: {blob.path}\n{blob.data_stream.read().decode()}"
         return codebase
 
 
@@ -39,32 +41,24 @@ class RailsGenerationService(GenerationService):
 <prompt>
 Oh skilled research analyst, with all your programming might and wisdom, please open a pull request for me.
 This is the codebase:
-```
-{{{{codebase}}}}
-```
+```{{{{codebase}}}}```
 
 Please address the following issue:
-```
-{{{{issue}}}}
-```
+```{{{{issue}}}}```
 
 This is an example git diff:
-```
-diff --git a/pyproject.toml b/pyproject.toml
---- a/pyproject.toml
-+++ b/pyproject.toml
-@@ -11,8 +11,9 @@ poetry = "^1.1.11"
- python = "^3.9"
- guardrails-ai = "^0.1.0"
- pydantic = "^1.10.6"
- gitpython = "^3.1.31"
-+langchain = "^0.0.112"
- 
- [build-system]
- requires = ["poetry-core"]
- build-backend = "poetry.core.masonry.api"
-
-```
+```--- /path/to/original	timestamp
++++ /path/to/new	timestamp
+@@ -1,3 +1,9 @@
++This is an important
++notice! It should
++therefore be located at
++the beginning of this
++document!
++
+ This part of the
+ document has stayed the
+ same from version to```
 
 @xml_prefix_prompt
 

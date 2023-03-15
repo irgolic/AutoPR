@@ -18,10 +18,10 @@ class Commit(RailModel):
 />
 <string
     name="diff"
-    description="The git diff between this commit and the previous, without the index line, able to be applied with `git apply`."
+    description="Difference before and after the commit is applied, in unified format (unidiff), as output by `diff -u file1 file2`."
     required="true"
-    format="patch"
-    on-fail-patch="fix"
+    format="unidiff"
+    on-fail-unidiff="reask"
 />
 </object>"""
 

@@ -29,6 +29,7 @@ class GitPatch(Validator):
         # if os.path.exists(filename):
         #     os.remove(filename)
         # with open(filename, "w") as f:
+
         # Create a temporary file with tempfile.NamedTemporaryFile
         # and pass the file path to git apply --check
         with tempfile.NamedTemporaryFile() as f:
