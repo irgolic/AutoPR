@@ -56,19 +56,6 @@ This is the codebase:
 Please address the following issue:
 ```{{{{issue}}}}```
 
-This is an example unidiff:
-```--- Dockerfile
-+++ Dockerfile
-@@ -5,1 +5,3 @@
- 
- # Set up entrypoint
- COPY entrypoint.sh /entrypoint.sh
-+
-+# Make entrypoint executable
- RUN chmod +x /entrypoint.sh
- 
- # Run the app```
-
 @xml_prefix_prompt
 
 {{output_schema}}

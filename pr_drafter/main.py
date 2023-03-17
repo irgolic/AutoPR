@@ -18,6 +18,9 @@ def main(
 
     generator = RailsGenerationService()
 
+    # Checkout base branch
+    repo.heads[base_branch_name].checkout()
+
     # If branch already exists, delete it
     if branch_name in repo.heads:
         repo.delete_head(branch_name)
@@ -28,6 +31,9 @@ def main(
 
     # Create new branch with create_new_ref
     repo.create_head(branch_name, base_branch_name)
+
+    # Checkout new branch
+    repo.heads[branch_name].checkout()
 
     # Create new commits with create_new_commit
     for commit in pr.commits:
@@ -43,3 +49,6 @@ def main(
 
     # Push branch to remote
     repo.git.execute(["git", "push", "origin", branch_name])
+
+    # TODO Create PR
+

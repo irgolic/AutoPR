@@ -148,6 +148,21 @@ class Unidiff(Validator):
             line if line else " "
             for line in value.splitlines()
         ]
+
+        # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
+        # the filename after +++ matches the filename after ---
+        for i, line in enumerate(lines):
+            if line.startswith("---"):
+                # Extract the filename after ---
+                filename_match = re.match(r"--- (.+)", line)
+                filename = filename_match.group(1)
+
+                # Check if the next line starts with +++ and the line after that starts with @@
+                if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
+                        i + 2 < len(lines) and lines[i + 2].startswith("@@"):
+                    # Update the next line's filename to match the filename after ---
+                    lines[i + 1] = f"+++ {filename}"
+
         value = "\n".join(lines)
 
         # Recalculate the line counts in the unidiff
@@ -161,6 +176,9 @@ class Unidiff(Validator):
             self.validate(error.key, value, error.schema)
         except EventDetail:
             return super().fix(error)
+
+        # TODO try to apply the patch with git apply --check
+        # and if it fails, reask
 
         error.schema[error.key] = value
         return error.schema
