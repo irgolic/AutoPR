@@ -1,8 +1,11 @@
 import logging
 import os
+import re
 import tempfile
 from typing import Union, Any, Dict, List
 
+import unidiff
+import unidiff.errors
 from git import GitCommandError
 
 from guardrails import register_validator, Validator
@@ -62,3 +65,102 @@ class GitPatch(Validator):
             pass
 
         return super().fix(error)
+
+
+def fix_unidiff_line_counts(corrupted_unidiff: str) -> str:
+    lines = corrupted_unidiff.splitlines()
+    corrected_lines = []
+
+    for i, line in enumerate(lines):
+        if line.startswith("@@"):
+            # Extract the original x and y values
+            match = re.match(r"@@ -(\d+),\d+ \+(\d+),\d+ @@", line)
+            start_x, start_y = int(match.group(1)), int(match.group(2))
+
+            # Calculate the correct y values based on the hunk content
+            x_count, y_count = 0, 0
+            j = i + 1
+            while j < len(lines):
+                # Check if the next hunk is detected
+                if (
+                    j + 2 < len(lines) and
+                    lines[j].startswith("---") and
+                    lines[j + 1].startswith("+++") and
+                    lines[j + 2].startswith("@@")
+                ):
+                    break
+
+                if lines[j].startswith("-"):
+                    x_count += 1
+                elif lines[j].startswith("+"):
+                    y_count += 1
+                elif not lines[j].startswith("\\"):
+                    x_count += 1
+                    y_count += 1
+
+                j += 1
+
+            # Update the @@ line with the correct y values
+            corrected_line = f"@@ -{start_x},{x_count} +{start_y},{y_count} @@"
+            corrected_lines.append(corrected_line)
+        else:
+            corrected_lines.append(line)
+
+    return "\n".join(corrected_lines)
+
+
+@register_validator(name="unidiff", data_type="string")
+class Unidiff(Validator):
+    """Validate value is a valid unidiff.
+    - Name for `format` attribute: `unidiff`
+    - Supported data types: `string`
+    """
+
+    def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+        logger.debug(f"Validating {value} is unidiff...")
+
+        if not value.endswith("\n"):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                "Unidiff must end with a newline",
+                None,
+            )
+
+        try:
+            unidiff.PatchSet(value)
+        except unidiff.errors.UnidiffParseError as e:
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                str(e),
+                None,
+            )
+        return schema
+
+    def fix(self, error: EventDetail) -> Any:
+        value = error.value
+
+        # Add space at the start of any line that's empty
+        lines = [
+            line if line else " "
+            for line in value.splitlines()
+        ]
+        value = "\n".join(lines)
+
+        # Recalculate the line counts in the unidiff
+        value = fix_unidiff_line_counts(value)
+
+        # Add a newline at the end of the unidiff
+        if not value.endswith("\n"):
+            value += "\n"
+
+        try:
+            self.validate(error.key, value, error.schema)
+        except EventDetail:
+            return super().fix(error)
+
+        error.schema[error.key] = value
+        return error.schema

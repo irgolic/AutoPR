@@ -23,12 +23,22 @@ class GenerationService:
             # If the blob is not a code file, skip it
             if not any(
                 blob.path.endswith(ending)
-                for ending in ['.py', '.md']
+                for ending in ['.md']
             ):
                 continue
+
+            # Separate files with a newline
             if codebase:
                 codebase += "\n"
-            codebase += f"# Path: {blob.path}\n{blob.data_stream.read().decode()}"
+
+            # Add path
+            codebase += f"Path: {blob.path}\n"
+
+            # Add file contents, with line numbers
+            blob_text = blob.data_stream.read().decode()
+            for i, line in enumerate(blob_text.split('\n')):
+                codebase += f"{i+1} {line}\n"
+
         return codebase
 
 
@@ -39,26 +49,25 @@ class RailsGenerationService(GenerationService):
 {PullRequest.rail_spec}
 </output>
 <prompt>
-Oh skilled research analyst, with all your programming might and wisdom, please open a pull request for me.
+Oh skilled senior software developer, with all your programming might and wisdom, please write a pull request for me.
 This is the codebase:
 ```{{{{codebase}}}}```
 
 Please address the following issue:
 ```{{{{issue}}}}```
 
-This is an example git diff:
-```--- /path/to/original	timestamp
-+++ /path/to/new	timestamp
-@@ -1,3 +1,9 @@
-+This is an important
-+notice! It should
-+therefore be located at
-+the beginning of this
-+document!
+This is an example unidiff:
+```--- Dockerfile
++++ Dockerfile
+@@ -5,1 +5,3 @@
+ 
+ # Set up entrypoint
+ COPY entrypoint.sh /entrypoint.sh
 +
- This part of the
- document has stayed the
- same from version to```
++# Make entrypoint executable
+ RUN chmod +x /entrypoint.sh
+ 
+ # Run the app```
 
 @xml_prefix_prompt
 
@@ -86,6 +95,8 @@ This is an example git diff:
                 'issue': f"Title: {issue_title}\nBody: {issue_body}",
             },
         )
+        if dict_o is None:
+            raise RuntimeError("No valid PR generated", raw_o)
         return PullRequest.parse_obj(dict_o['pull_request'])
 
 

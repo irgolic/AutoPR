@@ -8,7 +8,7 @@ class RailModel(pydantic.BaseModel):
 
 
 class Commit(RailModel):
-    rail_spec = """<object name="commit">
+    rail_spec = """<object>
 <string
     name="message"
     description="The commit message, describing the changes."
@@ -21,7 +21,7 @@ class Commit(RailModel):
     description="Difference before and after the commit is applied, in unified format (unidiff), as output by `diff -u file1 file2`."
     required="true"
     format="unidiff"
-    on-fail-unidiff="reask"
+    on-fail-unidiff="fix"
 />
 </object>"""
 

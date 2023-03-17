@@ -35,6 +35,7 @@ def main(
 
         with tempfile.NamedTemporaryFile() as f:
             f.write(diff.encode())
+            f.flush()
             repo.git.execute(["git", "apply", f.name])
 
         repo.git.execute(["git", "add", "."])
