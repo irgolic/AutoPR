@@ -20,10 +20,14 @@ class GenerationService:
 
         codebase = ""
         for blob in tree.traverse():
-            # If the blob is not a code file, skip it
-            if not any(
+            # Skip directories
+            if blob.type == 'tree':
+                continue
+
+            # Skip lock file
+            if any(
                 blob.path.endswith(ending)
-                for ending in ['.md']
+                for ending in ['.lock']
             ):
                 continue
 
@@ -72,10 +76,10 @@ Please address the following issue:
         )
         codebase = self.repo_to_codebase(repo_tree)
         raw_o, dict_o = pr_guard(
-            # openai.ChatCompletion.create,
-            # model='gpt-3.5-turbo',
-            openai.Completion.create,
-            model='text-davinci-003',
+            openai.ChatCompletion.create,
+            model='gpt-4',
+            # openai.Completion.create,
+            # model='text-davinci-003',
             max_tokens=1000,
             prompt_params={
                 'codebase': codebase,

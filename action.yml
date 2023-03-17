@@ -7,8 +7,11 @@ branding:
   icon: 'code'
   color: 'blue'
 inputs:
-  token:
+  github_token:
     description: 'GitHub token'
+    required: true
+  openai_api_key:
+    description: 'OpenAI api key'
     required: true
   issue_number:
     description: 'Branch name'

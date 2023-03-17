@@ -1,12 +1,15 @@
 import tempfile
 
-from git import Repo
-from pr_drafter.generation_service import RailsGenerationService
 
-import validators
+from git import Repo
+from pr_drafter.services.generation_service import RailsGenerationService
+from pr_drafter.services.pull_request_service import GithubPullRequestService
+
+from validators import create_unidiff_validator
 
 
 def main(
+    github_token: str,
     repo_path: str,
     base_branch_name: str,
     issue_number: int,
@@ -14,8 +17,23 @@ def main(
     issue_body: str,
 ):
     repo = Repo(repo_path)
-    branch_name = f'autopr-issue-{issue_number}'
+    branch_name = f'autopr/issue-{issue_number}'
 
+    # Create unidiff validator for guardrails
+    create_unidiff_validator(repo)
+
+    # Get repo owner and name from remote URL
+    remote_url = repo.remotes.origin.url
+    owner, repo_name = remote_url.split('/')[-2:]
+
+    # Initialize services
+    pr_service = GithubPullRequestService(
+        token=github_token,
+        owner=owner,
+        repo_name=repo_name,
+        head_branch=branch_name,
+        base_branch=base_branch_name,
+    )
     generator = RailsGenerationService()
 
     # Checkout base branch
@@ -50,5 +68,5 @@ def main(
     # Push branch to remote
     repo.git.execute(["git", "push", "origin", branch_name])
 
-    # TODO Create PR
-
+    # Create PR
+    pr_service.publish(pr)

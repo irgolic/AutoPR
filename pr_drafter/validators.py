@@ -109,76 +109,90 @@ def fix_unidiff_line_counts(corrupted_unidiff: str) -> str:
     return "\n".join(corrected_lines)
 
 
-@register_validator(name="unidiff", data_type="string")
-class Unidiff(Validator):
-    """Validate value is a valid unidiff.
-    - Name for `format` attribute: `unidiff`
-    - Supported data types: `string`
-    """
+def create_unidiff_validator(repo: git.Repo):
+    @register_validator(name="unidiff", data_type="string")
+    class Unidiff(Validator):
+        """Validate value is a valid unidiff.
+        - Name for `format` attribute: `unidiff`
+        - Supported data types: `string`
+        """
 
-    def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-        logger.debug(f"Validating {value} is unidiff...")
+        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+            logger.debug(f"Validating {value} is unidiff...")
 
-        if not value.endswith("\n"):
-            raise EventDetail(
-                key,
-                value,
-                schema,
-                "Unidiff must end with a newline",
-                None,
-            )
+            if not value.endswith("\n"):
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    "Unidiff must end with a newline",
+                    None,
+                )
 
-        try:
-            unidiff.PatchSet(value)
-        except unidiff.errors.UnidiffParseError as e:
-            raise EventDetail(
-                key,
-                value,
-                schema,
-                str(e),
-                None,
-            )
-        return schema
+            try:
+                unidiff.PatchSet(value)
+            except unidiff.errors.UnidiffParseError as e:
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    str(e),
+                    None,
+                )
 
-    def fix(self, error: EventDetail) -> Any:
-        value = error.value
+            # try to apply the patch with git apply --check
+            with tempfile.NamedTemporaryFile() as f:
+                f.write(value.encode())
+                f.flush()
+                try:
+                    repo.git.execute(["git", "apply", "--check", f.name])
+                except GitCommandError as e:
+                    raise EventDetail(
+                        key,
+                        value,
+                        schema,
+                        e.stderr,
+                        None,
+                    )
 
-        # Add space at the start of any line that's empty
-        lines = [
-            line if line else " "
-            for line in value.splitlines()
-        ]
+            return schema
 
-        # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
-        # the filename after +++ matches the filename after ---
-        for i, line in enumerate(lines):
-            if line.startswith("---"):
-                # Extract the filename after ---
-                filename_match = re.match(r"--- (.+)", line)
-                filename = filename_match.group(1)
+        def fix(self, error: EventDetail) -> Any:
+            value = error.value
 
-                # Check if the next line starts with +++ and the line after that starts with @@
-                if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
-                        i + 2 < len(lines) and lines[i + 2].startswith("@@"):
-                    # Update the next line's filename to match the filename after ---
-                    lines[i + 1] = f"+++ {filename}"
+            # Add space at the start of any line that's empty, and ensure it ends with a newline
+            if value.endswith("\n"):
+                value = value[:-1]
+            lines = [
+                line if line else " "
+                for line in value.splitlines()
+            ] + [""]
 
-        value = "\n".join(lines)
+            # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
+            # the filename after +++ matches the filename after ---
+            for i, line in enumerate(lines):
+                if line.startswith("---"):
+                    # Extract the filename after ---
+                    filename_match = re.match(r"--- (.+)", line)
+                    filename = filename_match.group(1)
 
-        # Recalculate the line counts in the unidiff
-        value = fix_unidiff_line_counts(value)
+                    # Check if the next line starts with +++ and the line after that starts with @@
+                    if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
+                            i + 2 < len(lines) and lines[i + 2].startswith("@@"):
+                        # Update the next line's filename to match the filename after ---
+                        lines[i + 1] = f"+++ {filename}"
 
-        # Add a newline at the end of the unidiff
-        if not value.endswith("\n"):
-            value += "\n"
+            # Recalculate the line counts in the unidiff
+            value = fix_unidiff_line_counts(value)
 
-        try:
-            self.validate(error.key, value, error.schema)
-        except EventDetail:
-            return super().fix(error)
+            # Add a newline at the end of the unidiff
+            if not value.endswith("\n"):
+                value += "\n"
 
-        # TODO try to apply the patch with git apply --check
-        # and if it fails, reask
+            try:
+                self.validate(error.key, value, error.schema)
+            except EventDetail:
+                return super().fix(error)
 
-        error.schema[error.key] = value
-        return error.schema
+            error.schema[error.key] = value
+            return error.schema
