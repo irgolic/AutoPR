@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "pr-drafter"
+name = "autopr"
 version = "0.1.0"
 description = ""
 authors = ["Rafael Irgolic <hello@irgolic.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "pr_drafter"}]
+packages = [{include = "autopr"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

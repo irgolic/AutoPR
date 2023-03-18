@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  create-pr:
+  autopr:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

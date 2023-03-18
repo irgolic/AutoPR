@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 import guardrails as gd
 
-from pr_drafter.models import PullRequest, Commit
+from autopr.models import PullRequest, Commit
 
 
 class GenerationService:
@@ -156,6 +156,7 @@ This is the pull request that was generated:
             self.completion_func,
             model=self.completion_model,
             max_tokens=self.max_tokens,
+            temperature=self.temperature,
             prompt_params={
                 'files': list_of_files,
                 'issue': issue_text,

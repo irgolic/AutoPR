@@ -2,8 +2,8 @@ import tempfile
 
 
 from git import Repo
-from pr_drafter.services.generation_service import RailsGenerationService
-from pr_drafter.services.pull_request_service import GithubPullRequestService
+from autopr.services.generation_service import RailsGenerationService
+from autopr.services.pull_request_service import GithubPullRequestService
 
 from .validators import create_unidiff_validator, create_filepath_validator
 

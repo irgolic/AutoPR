@@ -1,6 +1,6 @@
 import os
 
-from pr_drafter.main import main
+from autopr.main import main
 
 
 if __name__ == '__main__':

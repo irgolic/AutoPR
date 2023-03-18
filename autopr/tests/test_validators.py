@@ -3,7 +3,7 @@ from unittest.mock import Mock, MagicMock
 import pytest
 
 from guardrails.validators import EventDetail
-from pr_drafter.validators import create_unidiff_validator
+from autopr.validators import create_unidiff_validator
 
 dockerfile = """FROM duffn/python-poetry:3.9-slim
 
