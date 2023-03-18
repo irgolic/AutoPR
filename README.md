@@ -1,6 +1,21 @@
 # 🚀 Automatic Pull Request Github Action 🤖
 
-The following input variables are documented in the `action.yml` file:
+This Github Action automatically writes code in pull requests using GPT-4.
+
+## Roadmap
+
+Features:
+- [X] On new issue, generate code, push a branch, and open a pull request
+- [ ] Generate multiple commits
+- [ ] Update pull request on new issue/pull request comment
+- [ ] Update pull request based on code review comments
+- [ ] Update pull request based on code review comments
+
+## Usage
+
+**This Github Action is currently in development.**
+
+The following input variables are used by the action:
 
 - `github_token`: The GitHub token to use for the action. This is automatically provided by GitHub, you do not need to create your own token.
 - `openai_api_key`: The OpenAI API key to use for generating the pull request.
@@ -15,7 +30,7 @@ To include this Github action in your own repository, you can use the following 
 on:
   issues:
     types:
-      - edited
+      - opened
 
 jobs:
   autopr:
@@ -23,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Automatic Pull Request
-        uses: ./
+        uses: irgolic/autopr@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
@@ -32,6 +47,4 @@ jobs:
           issue_body: ${{ github.event.issue.body }}
 ```
 
-## Environment Variables
-
-- `GITHUB_TOKEN` - The GitHub token to use for the action. This is automatically provided by GitHub, you do not need to create your own token.
+Whenever a new issue is opened, the action will push a branch named `autopr/issue-#` and open a pull request to the base branch.
