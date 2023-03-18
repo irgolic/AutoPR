@@ -1,5 +1,5 @@
 name: 'Automatic Pull Request'
-description: 'Fix issues with AI-generated pull requests, powered by ChatGPT GPT-4'
+description: 'Fix issues with AI-generated pull requests, powered by ChatGPT GPT-4 (AutoPR)'
 runs:
   using: 'docker'
   image: 'Dockerfile'
