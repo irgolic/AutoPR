@@ -154,6 +154,22 @@ wrong_readme_unidiff = """diff --git a/README.md b/README.md
 +To include the Automatic Pull Request Github Action in your own repository, add its configuration to your `.github/workflows` directory. Follow the documentation in `action.yml` for further guidance.
 """
 
+new_file_unidiff = """--- /dev/null
++++ README.md
+@@ -0,0 +1,4 @@
++# Pull Request Drafter Github Action
++
++## Environment Variables
++ 
+"""
+missing_minusminusminus_unidiff = """+++ README.md
+@@ -0,0 +1,4 @@
++# Pull Request Drafter Github Action
++
++## Environment Variables
++ 
+"""
+
 
 @pytest.mark.parametrize(
     "file_contents, correct_unidiff, cases",
@@ -191,6 +207,16 @@ wrong_readme_unidiff = """diff --git a/README.md b/README.md
                 (
                     "Unidiff contains git --diff line",
                     wrong_readme_unidiff,
+                ),
+            ],
+        ),
+        (
+            "",
+            new_file_unidiff,
+            [
+                (
+                    "Unidiff is missing ---",
+                    missing_minusminusminus_unidiff,
                 ),
             ],
         ),

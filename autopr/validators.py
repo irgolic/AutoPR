@@ -180,6 +180,15 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             if not lines[-1] == "":
                 lines.append("")
 
+            # If there are any +++ @@ lines, without a preceding --- line,
+            # add a `--- /dev/null` line before it
+            insert_indices: list[int] = []
+            for i, line in enumerate(lines):
+                if line.startswith("+++ ") and lines[i + 1].startswith('@@ ') and not lines[i - 1].startswith("---"):
+                    insert_indices.append(i)
+            for i, index in enumerate(insert_indices):
+                lines.insert(index + i, "--- /dev/null")
+
             # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
             # the filename after +++ matches the filename after ---
             # Except the filename after --- is /dev/null
