@@ -85,11 +85,11 @@ Please address the following issue:
 <prompt>
 Oh skilled senior software developer, with all your programming might and wisdom, let's write a pull request.
 
-This is the list of files in the repo:
-```{{{{files}}}}```
-
 This is the issue that was opened:
 ```{{{{issue}}}}```
+
+This is the list of files in the repo:
+```{{{{files}}}}```
 
 Which files should we take a look at?
 
