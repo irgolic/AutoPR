@@ -182,8 +182,9 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
 
             # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
             # the filename after +++ matches the filename after ---
+            # Except the filename after --- is /dev/null
             for i, line in enumerate(lines):
-                if line.startswith("---"):
+                if line.startswith("---") and not line.startswith("--- /dev/null"):
                     # Extract the filename after ---
                     filename_match = re.match(r"--- (.+)", line)
                     filename = filename_match.group(1)
