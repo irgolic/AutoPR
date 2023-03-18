@@ -4,6 +4,8 @@ from pr_drafter.main import main
 
 
 if __name__ == '__main__':
+    print("Starting gh_actions_entrypoint.py")
+
     repo_path = os.environ['GITHUB_WORKSPACE']
 
     github_token = os.environ['INPUT_GITHUB_TOKEN']

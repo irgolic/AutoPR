@@ -18,6 +18,15 @@ def main(
 ):
     branch_name = f'autopr/issue-{issue_number}'
     repo = Repo(repo_path)
+
+    # Checkout base branch
+    print(f'Checking out {base_branch_name}...')
+    repo.heads[base_branch_name].checkout()
+
+    # Pull latest changes
+    print('Pulling latest changes...')
+    repo.remotes.origin.pull()
+
     tree = repo.heads[base_branch_name].commit.tree
 
     # Create validators for guardrails
@@ -30,14 +39,6 @@ def main(
 
     # Create generator service
     generator = RailsGenerationService()
-
-    # Checkout base branch
-    print(f'Checking out {base_branch_name}...')
-    repo.heads[base_branch_name].checkout()
-
-    # Pull latest changes
-    print('Pulling latest changes...')
-    repo.remotes.origin.pull()
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree

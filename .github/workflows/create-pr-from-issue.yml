@@ -3,7 +3,7 @@ on:
     types: [opened, edited]
 
 permissions:
-  contents: read
+  contents: write
   issues: read
   pull-requests: write
 
@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: main
+        fetch-depth: 1
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -19,3 +22,4 @@ jobs:
         issue_number: ${{ github.event.issue.number }}
         issue_title: ${{ github.event.issue.title }}
         issue_body: ${{ github.event.issue.body }}
+        base_branch: main

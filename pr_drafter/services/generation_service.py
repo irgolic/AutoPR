@@ -2,6 +2,7 @@ from typing import Callable
 
 import openai
 from git import Tree
+from pydantic import ValidationError
 
 import guardrails as gd
 
@@ -132,11 +133,13 @@ This is the pull request that was generated:
         completion_func: Callable = openai.ChatCompletion.create,
         completion_model: str = 'gpt-4',
         num_reasks: int = 3,
+        temperature: float = 0.1,
     ):
         self.max_tokens = max_tokens
         self.completion_func = completion_func
         self.completion_model = completion_model
         self.num_reasks = num_reasks
+        self.temperature = temperature
 
     def get_filepath_list(self, repo_tree: Tree, issue_text: str) -> list[str]:
         pr_guard = gd.Guard.from_rail_string(
@@ -160,10 +163,13 @@ This is the pull request that was generated:
         )
         if dict_o is None:
             raise RuntimeError("No valid list of files generated", raw_o)
+        if any(fp is None for fp in dict_o['filepaths']):
+            print(f'Got None in filepaths list: {dict_o["filepaths"]}')
+        filepaths = [fp for fp in dict_o['filepaths'] if fp is not None]
         print(f'Got filepaths:')
-        for filepath in dict_o['filepaths']:
+        for filepath in filepaths:
             print(f' -  {filepath}')
-        return dict_o['filepaths']
+        return filepaths
 
     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
         issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
@@ -186,9 +192,10 @@ This is the pull request that was generated:
                 'issue': issue_text
             },
         )
-        if dict_o is None:
+        try:
+            pr_model = PullRequest.parse_obj(dict_o['pull_request'])
+        except ValidationError:
             raise RuntimeError("No valid PR generated", raw_o)
-        pr_model = PullRequest.parse_obj(dict_o['pull_request'])
 
         # Print the PR
         print('Generated preliminary PR:')
@@ -215,7 +222,10 @@ This is the pull request that was generated:
         )
         if dict_o is None:
             raise RuntimeError("PR verification failed", raw_o)
-        pr_model = PullRequest.parse_obj(dict_o['pull_request'])
+        try:
+            pr_model = PullRequest.parse_obj(dict_o['pull_request'])
+        except ValidationError:
+            raise RuntimeError("No valid PR generated", raw_o)
 
         # Print the PR
         print('Verified the PR:')
@@ -224,6 +234,8 @@ This is the pull request that was generated:
         for commit in pr_model.commits:
             print(f"Commit message:\n{commit.message}\n")
             print(f"Commit diff:\n{commit.diff}")
+
+        return pr_model
 
 
 # from langchain import LLMChain
