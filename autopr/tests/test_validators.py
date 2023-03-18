@@ -91,6 +91,34 @@ plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
  
  # Run the app
 """
+correct_multisection_dockerfile_unidiff = """--- Dockerfile
++++ Dockerfile
+@@ -3,1 +3,2 @@
+ # Install git
++
+ RUN apt-get update && apt-get install -y git
+--- Dockerfile
++++ Dockerfile
+@@ -8,3 +8,5 @@
+ RUN chmod +x /entrypoint.sh
+ 
++ Ha
++ Haha
+ # Run the app
+"""
+incorrect_multisection_dockerfile_unidiff = """--- Dockerfile
++++ Dockerfile
+@@ -3,0 +3,1 @@
+ # Install git
++
+ RUN apt-get update && apt-get install -y git
+@@ -9,3 +9,5 @@
+ RUN chmod +x /entrypoint.sh
+
++ Ha
++ Haha
+ # Run the app
+"""
 
 readme = """# Pull Request Drafter Github Action
 
@@ -208,6 +236,16 @@ new_lockfile_incorrect_unidiff = """--- .gptignore
                 (
                     "+++ name is wrong",
                     plusplusplus_name_is_wrong_dockerfile_unidiff,
+                ),
+            ],
+        ),
+        (
+            dockerfile,
+            correct_multisection_dockerfile_unidiff,
+            [
+                (
+                    "multisection does not have headers for each hunk",
+                    incorrect_multisection_dockerfile_unidiff,
                 ),
             ],
         ),

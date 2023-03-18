@@ -109,7 +109,7 @@ def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
                         if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
                             current_line_number = check_line_number + 1
                             # Fix @@ line
-                            cleaned_lines[-1] = re.sub(r"(\d+),\d+", f"{check_line_number + 1},1", cleaned_lines[-1])
+                            cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
                             cleaned_lines.append(line)
                             break
         else:
@@ -222,7 +222,20 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                     except KeyError:
                         lines[i] = f"--- /dev/null"
 
-            # Remove any hallucinated lines prefixed with whitespace
+            # If there is a lone @@ line, prefix it with the --- and +++ lines from the previous block
+            current_block: list[str] = []
+            insertions: list[tuple[int, list[str]]] = []
+            for i, line in enumerate(lines):
+                if line.startswith("---") and lines[i + 1].startswith("+++ ") and lines[i + 2].startswith("@@"):
+                    current_block = [lines[i], lines[i + 1]]
+                if line.startswith("@@") and not lines[i - 1].startswith("+++ "):
+                    insertions.append((i, current_block))
+            for i, (index, newlines) in enumerate(insertions):
+                actual_index = index + i * 2
+                lines.insert(actual_index, newlines[0])
+                lines.insert(actual_index + 1, newlines[1])
+
+            # Recalculate the @@ line
             lines = remove_hallucinated_lines(lines, tree)
 
             # Recalculate the line counts in the unidiff
