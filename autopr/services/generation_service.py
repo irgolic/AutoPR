@@ -129,7 +129,7 @@ This is the pull request that was generated:
 
     def __init__(
         self,
-        max_tokens: int = 1000,
+        max_tokens: int = 2000,
         completion_func: Callable = openai.ChatCompletion.create,
         completion_model: str = 'gpt-4',
         num_reasks: int = 3,
