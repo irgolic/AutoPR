@@ -19,7 +19,7 @@ jobs:
     - name: AutoPR
       uses: ./
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GH_TOKEN }}
         openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         issue_number: ${{ github.event.issue.number }}
         issue_title: ${{ github.event.issue.title }}
