@@ -170,6 +170,17 @@ missing_minusminusminus_unidiff = """+++ README.md
 + 
 """
 
+new_lockfile_unidiff = """--- /dev/null
++++ .gptignore
+@@ -0,0 +1,1 @@
++*.lock
+"""
+new_lockfile_incorrect_unidiff = """--- .gptignore
++++ .gptignore_new
+@@ -0,0 +1 @@
++*.lock
+"""
+
 
 @pytest.mark.parametrize(
     "file_contents, correct_unidiff, cases",
@@ -220,6 +231,16 @@ missing_minusminusminus_unidiff = """+++ README.md
                 ),
             ],
         ),
+        (
+            "",
+            new_lockfile_unidiff,
+            [
+                (
+                    "Unidiff contains incorrect filepaths",
+                    new_lockfile_incorrect_unidiff,
+                ),
+            ],
+        ),
     ],
 )
 def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: list[tuple[str, str]]) -> None:
@@ -228,7 +249,13 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
     mock_tree = MagicMock()
     mock_blob = MagicMock()
     mock_blob.data_stream.read.return_value = file_contents.encode()
-    mock_tree.__truediv__.return_value = mock_blob
+
+    def truediv_side_effect(path):
+        if path == '.gptignore':
+            raise KeyError('.gptignore not found')
+        return mock_blob
+
+    mock_tree.__truediv__.side_effect = truediv_side_effect
     validator_class = create_unidiff_validator(mock_repo, mock_tree)
     validator = validator_class(on_fail="fix")
     for reason, corrupted_unidiff in cases:
@@ -243,4 +270,5 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
                 None,
             )
             fixed_schema = validator.fix(error)
+            print(fixed_schema['diff'])
             assert fixed_schema['diff'] == correct_schema['diff']
