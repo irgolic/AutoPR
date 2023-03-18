@@ -1,11 +1,8 @@
 import logging
-import os
 import re
 import tempfile
 from typing import Union, Any, Dict, List
 
-import unidiff
-import unidiff.errors
 from git import GitCommandError
 
 from guardrails import register_validator, Validator
@@ -214,3 +211,36 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             return error.schema
 
     return register_validator(name="unidiff", data_type="string")(Unidiff)
+
+
+def create_filepath_validator(tree: git.Tree):
+    class FilePath(Validator):
+        """Validate value is a valid file path.
+        - Name for `format` attribute: `filepath`
+        - Supported data types: `string`
+        """
+        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+            # Check if the filepath exists in the repo
+            try:
+                blob = tree / value
+            except KeyError:
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    f"File path '{value}' does not exist in the repo.",
+                    None,
+                )
+
+            if blob.type != "blob":
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    f"File path '{value}' is not a file.",
+                    None,
+                )
+
+            return schema
+
+    return register_validator(name="filepath", data_type="string")(FilePath)

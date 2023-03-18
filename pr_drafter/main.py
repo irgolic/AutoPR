@@ -5,7 +5,7 @@ from git import Repo
 from pr_drafter.services.generation_service import RailsGenerationService
 from pr_drafter.services.pull_request_service import GithubPullRequestService
 
-from validators import create_unidiff_validator
+from .validators import create_unidiff_validator, create_filepath_validator
 
 
 def main(
@@ -20,8 +20,9 @@ def main(
     repo = Repo(repo_path)
     tree = repo.heads[base_branch_name].commit.tree
 
-    # Create unidiff validator for guardrails
+    # Create validators for guardrails
     create_unidiff_validator(repo, tree)
+    create_filepath_validator(tree)
 
     # Get repo owner and name from remote URL
     remote_url = repo.remotes.origin.url
@@ -31,17 +32,25 @@ def main(
     generator = RailsGenerationService()
 
     # Checkout base branch
+    print(f'Checking out {base_branch_name}...')
     repo.heads[base_branch_name].checkout()
 
-    # If branch already exists, delete it
-    if branch_name in repo.heads:
-        repo.delete_head(branch_name)
+    # Pull latest changes
+    print('Pulling latest changes...')
+    repo.remotes.origin.pull()
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree
+    print('Generating PR...')
     pr = generator.generate_pr(tree, issue_title, issue_body, issue_number)
 
+    # If branch already exists, delete it
+    if branch_name in repo.heads:
+        print(f'Deleting existing branch {branch_name}...')
+        repo.delete_head(branch_name, force=True)
+
     # Create new branch with create_new_ref
+    print(f'Creating new branch {branch_name}...')
     repo.create_head(branch_name, base_branch_name)
 
     # Checkout new branch
@@ -54,13 +63,15 @@ def main(
         with tempfile.NamedTemporaryFile() as f:
             f.write(diff.encode())
             f.flush()
+            print('Applying diff...')
             repo.git.execute(["git", "apply", f.name])
 
         repo.git.execute(["git", "add", "."])
         repo.git.execute(["git", "commit", "-m", commit.message])
 
     # Push branch to remote
-    repo.git.execute(["git", "push", "origin", branch_name])
+    print(f'Pushing branch {branch_name} to remote...')
+    repo.git.execute(["git", "push", "-f", "origin", branch_name])
 
     # Create PR
     pr_service = GithubPullRequestService(
@@ -70,4 +81,5 @@ def main(
         head_branch=branch_name,
         base_branch=base_branch_name,
     )
+    print('Creating PR...')
     pr_service.publish(pr)

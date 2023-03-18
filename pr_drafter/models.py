@@ -40,7 +40,7 @@ class PullRequest(RailModel):
 />
 <string
     name="initial_message"
-    description="The body of the initial post of the pull request. Should include a description of the changes in pseudocode, and a link to the issue."
+    description="The body of the initial post of the pull request. Should include a description of the changes in pseudocode, and a 'Fixes #issue_number' line."
     required="true"
     format="length: 10 2000"
 />
