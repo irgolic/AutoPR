@@ -65,3 +65,5 @@ jobs:
 
 Whenever a new issue is opened or edited, the action will push a branch named `autopr/issue-#` and open a pull request to the base branch.
 Please note that if the branch already exists (on issue edit), it will be overwritten.
+
+- Credit to [Irgolic](https://github.com/irgolic/AutoPR) for creating this repo..
