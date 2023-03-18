@@ -92,6 +92,68 @@ plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
  # Run the app
 """
 
+readme = """# Pull Request Drafter Github Action
+
+## Environment Variables
+
+- `GITHUB_TOKEN` - The GitHub token to use for the action. This is automatically provided by GitHub, you do not need to create your own token.
+"""
+
+correct_readme_unidiff = """--- README.md
++++ README.md
+@@ -1,4 +1,20 @@
+-# Pull Request Drafter Github Action
++# Automatic Pull Request Github Action 🎉🚀
+ 
+-## Environment Variables
++## Input Variables
++
++The input variables for this Github Action are documented in `action.yml`. They include:
++
++- `github_token`
++- `openai_api_key`
++- `issue_number`
++- `issue_title`
++- `issue_body`
++- `base_branch`
+ 
++## Guardrails Library
++
++This Github Action utilizes the guardrails library, which can be found in `generation_service.py` and `validators.py`. The library helps in generating and validating pull requests based on the input variables and the codebase.
++
++## Including the Github Action in Your Repository
++
++To include the Automatic Pull Request Github Action in your own repository, add its configuration to your `.github/workflows` directory. Follow the documentation in `action.yml` for further guidance.
+"""
+
+wrong_readme_unidiff = """diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,18 @@
+-# Pull Request Drafter Github Action
++# Automatic Pull Request Github Action 🎉🚀
+ 
+-## Environment Variables
++## Input Variables
++
++The input variables for this Github Action are documented in `action.yml`. They include:
++
++- `github_token`
++- `openai_api_key`
++- `issue_number`
++- `issue_title`
++- `issue_body`
++- `base_branch`
+ 
++## Guardrails Library
++
++This Github Action utilizes the guardrails library, which can be found in `generation_service.py` and `validators.py`. The library helps in generating and validating pull requests based on the input variables and the codebase.
++
++## Including the Github Action in Your Repository
++
++To include the Automatic Pull Request Github Action in your own repository, add its configuration to your `.github/workflows` directory. Follow the documentation in `action.yml` for further guidance.
+"""
+
 
 @pytest.mark.parametrize(
     "file_contents, correct_unidiff, cases",
@@ -119,6 +181,16 @@ plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
                 (
                     "+++ name is wrong",
                     plusplusplus_name_is_wrong_dockerfile_unidiff,
+                ),
+            ],
+        ),
+        (
+            readme,
+            correct_readme_unidiff,
+            [
+                (
+                    "Unidiff contains git --diff line",
+                    wrong_readme_unidiff,
                 ),
             ],
         ),
