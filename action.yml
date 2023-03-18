@@ -1,11 +1,11 @@
-name: 'Pull Request Drafter'
-description: 'On a new issue, create and push a new branch of AI-generated code, and open a draft pull request'
+name: 'AutoPR'
+description: 'Fix issues with AI-generated pull requests, powered by ChatGPT GPT-4'
 runs:
   using: 'docker'
   image: 'Dockerfile'
 branding:
-  icon: 'code'
-  color: 'blue'
+  icon: 'git-pull-request'
+  color: 'purple'
 inputs:
   github_token:
     description: 'GitHub token'
