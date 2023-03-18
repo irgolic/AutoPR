@@ -134,7 +134,12 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                 f.write(value.encode())
                 f.flush()
                 try:
-                    repo.git.execute(["git", "apply", "--check", "--unidiff-zero", "--ignore-whitespace", f.name])
+                    repo.git.execute(["git",
+                                      "apply",
+                                      "--check",
+                                      "--unidiff-zero",
+                                      "--inaccurate-eof",
+                                      f.name])
                 except GitCommandError as e:
                     raise EventDetail(
                         key,

@@ -65,7 +65,11 @@ def main(
             f.write(diff.encode())
             f.flush()
             print('Applying diff...')
-            repo.git.execute(["git", "apply", "--unidiff-zero", "--ignore-whitespace", f.name])
+            repo.git.execute(["git",
+                              "apply",
+                              "--unidiff-zero",
+                              "--inaccurate-eof",
+                              f.name])
 
         repo.git.execute(["git", "add", "."])
         repo.git.execute(["git", "commit", "-m", commit.message])
