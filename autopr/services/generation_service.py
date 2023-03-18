@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 import openai
 from git import Tree
@@ -133,7 +133,7 @@ This is the pull request that was generated:
         completion_func: Callable = openai.ChatCompletion.create,
         completion_model: str = 'gpt-4',
         num_reasks: int = 3,
-        temperature: float = 0.1,
+        temperature: float = 0.8,
     ):
         self.max_tokens = max_tokens
         self.completion_func = completion_func
@@ -156,7 +156,7 @@ This is the pull request that was generated:
             self.completion_func,
             model=self.completion_model,
             max_tokens=self.max_tokens,
-            temperature=self.temperature,
+            temperature=0.2,
             prompt_params={
                 'files': list_of_files,
                 'issue': issue_text,
@@ -172,40 +172,28 @@ This is the pull request that was generated:
             print(f' -  {filepath}')
         return filepaths
 
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
-        issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
-
-        # Get the list of files to look at
+    def _generate_pr(self, codebase: str, issue_text: str) -> Optional[PullRequest]:
         pr_guard = gd.Guard.from_rail_string(
             self.rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
-        filepath_list = self.get_filepath_list(repo_tree, issue_text)
-        codebase = self.repo_to_codebase(repo_tree, filepath_list)
-
-        # Generate the PR
         raw_o, dict_o = pr_guard(
             self.completion_func,
             model=self.completion_model,
             max_tokens=self.max_tokens,
+            temperature=self.temperature,
             prompt_params={
                 'codebase': codebase,
                 'issue': issue_text
             },
         )
         try:
-            pr_model = PullRequest.parse_obj(dict_o['pull_request'])
+            return PullRequest.parse_obj(dict_o['pull_request'])
         except ValidationError:
-            raise RuntimeError("No valid PR generated", raw_o)
+            print(f'Got invalid PR: {raw_o}')
+            return None
 
-        # Print the PR
-        print('Generated preliminary PR:')
-        print(f"Title: {pr_model.title}")
-        print(f"Body: {pr_model.initial_message}")
-        for commit in pr_model.commits:
-            print(f"Commit message: {commit.message}")
-            print(f"Commit diff: {commit.diff}")
-
+    def _verify_pr(self, codebase: str, issue_text: str, pr_model: PullRequest) -> PullRequest:
         # Verify if the PR is valid
         pr_guard = gd.Guard.from_rail_string(
             self.pr_verification_spec,  # make sure to import custom validators before this
@@ -215,14 +203,13 @@ This is the pull request that was generated:
             self.completion_func,
             model=self.completion_model,
             max_tokens=self.max_tokens,
+            temperature=self.temperature,
             prompt_params={
                 'codebase': codebase,
                 'issue': issue_text,
                 'pull_request': pr_model.json(),
             },
         )
-        if dict_o is None:
-            raise RuntimeError("PR verification failed", raw_o)
         try:
             pr_model = PullRequest.parse_obj(dict_o['pull_request'])
         except ValidationError:
@@ -235,6 +222,31 @@ This is the pull request that was generated:
         for commit in pr_model.commits:
             print(f"Commit message:\n{commit.message}\n")
             print(f"Commit diff:\n{commit.diff}")
+
+        return pr_model
+
+    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
+        issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
+
+        # Get the list of files to look at
+        filepath_list = self.get_filepath_list(repo_tree, issue_text)
+        codebase = self.repo_to_codebase(repo_tree, filepath_list)
+
+        # Generate the PR
+        for _ in range(self.num_reasks):
+            pr_model = self._generate_pr(codebase, issue_text)
+            if pr_model is not None:
+                break
+        else:
+            raise RuntimeError("Could not generate valid PR")
+
+        # Print the PR
+        print('Generated preliminary PR:')
+        print(f"Title: {pr_model.title}")
+        print(f"Body: {pr_model.initial_message}")
+        for commit in pr_model.commits:
+            print(f"Commit message: {commit.message}")
+            print(f"Commit diff: {commit.diff}")
 
         return pr_model
 
