@@ -1,4 +1,4 @@
-name: 'Auto Pull Request'
+name: 'Automatic Pull Request'
 description: 'Fix issues with AI-generated pull requests, powered by ChatGPT GPT-4'
 runs:
   using: 'docker'
