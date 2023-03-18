@@ -19,7 +19,7 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
     for i, line in enumerate(lines):
         if line.startswith("@@"):
             # Extract the original x and y values
-            match = re.match(r"@@ -(\d+),\d+ \+(\d+),\d+ @@", line)
+            match = re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line)
             start_x, start_y = int(match.group(1)), int(match.group(2))
 
             # Calculate the correct y values based on the hunk content
@@ -32,7 +32,7 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
                     lines[j].startswith("---") and
                     lines[j + 1].startswith("+++") and
                     lines[j + 2].startswith("@@")
-                ):
+                ) or lines[j].startswith("@@"):
                     break
 
                 if lines[j].startswith("-"):
@@ -79,7 +79,7 @@ def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
 
             cleaned_lines.append(line)
         elif line.startswith("@@"):
-            current_line_number = int(re.match(r"@@ -(\d+),\d+ \+\d+,\d+ @@", line).group(1)) - 1
+            current_line_number = int(re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line).group(1)) - 1
             cleaned_lines.append(line)
             first_line = 2
         elif line.startswith("+++"):
@@ -203,6 +203,19 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                             i + 2 < len(lines) and lines[i + 2].startswith("@@"):
                         # Update the next line's filename to match the filename after ---
                         lines[i + 1] = f"+++ {filename}"
+
+            # If the file referenced on --- and +++ lines is not in the repo, replace it with /dev/null
+            for i, line in enumerate(lines):
+                if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
+                    # Extract the filename after +++
+                    filename_match = re.match(r"\+\+\+ (.+)", lines[i + 1])
+                    filename = filename_match.group(1)
+
+                    # Check if the file is in the tree
+                    try:
+                        tree / filename
+                    except KeyError:
+                        lines[i] = f"--- /dev/null"
 
             # Remove any hallucinated lines prefixed with whitespace
             lines = remove_hallucinated_lines(lines, tree)
