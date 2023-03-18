@@ -27,6 +27,9 @@ The following input variables are used by the action:
 
 To include this Github action in your own repository, you can use the following example in your workflow file:
 
+  # Only run the action if the issue is created by the repository owner
+  if: github.event.issue.user.login == github.repository_owner
+
 ```yaml
 on:
   issues:
