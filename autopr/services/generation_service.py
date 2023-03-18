@@ -165,11 +165,12 @@ This is the pull request that was generated:
         if dict_o is None:
             raise RuntimeError("No valid list of files generated", raw_o)
         if any(fp is None for fp in dict_o['filepaths']):
-            print(f'Got None in filepaths list: {dict_o["filepaths"]}')
+            print(f'Got None in filepaths list: {raw_o}')
         filepaths = [fp for fp in dict_o['filepaths'] if fp is not None]
-        print(f'Got filepaths:')
-        for filepath in filepaths:
-            print(f' -  {filepath}')
+        if filepaths:
+            print(f'Got filepaths:')
+            for filepath in filepaths:
+                print(f' -  {filepath}')
         return filepaths
 
     def _generate_pr(self, codebase: str, issue_text: str) -> Optional[PullRequest]:
