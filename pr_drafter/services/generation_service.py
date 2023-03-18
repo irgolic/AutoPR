@@ -3,15 +3,11 @@ from git import Tree
 
 import guardrails as gd
 
-from langchain import LLMChain
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.chat_models import ChatOpenAI
-
 from pr_drafter.models import PullRequest, Commit
 
 
 class GenerationService:
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
+    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
         raise NotImplementedError
 
     @staticmethod
@@ -69,7 +65,7 @@ Please address the following issue:
 </rail>
     """
 
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
+    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
         pr_guard = gd.Guard.from_rail_string(
             self.rail_spec,  # make sure to import custom validators before this
             num_reasks=3,
@@ -83,7 +79,7 @@ Please address the following issue:
             max_tokens=1000,
             prompt_params={
                 'codebase': codebase,
-                'issue': f"Title: {issue_title}\nBody: {issue_body}",
+                'issue': f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}",
             },
         )
         if dict_o is None:
@@ -91,46 +87,50 @@ Please address the following issue:
         return PullRequest.parse_obj(dict_o['pull_request'])
 
 
-class SingleLangchainGenerationService(GenerationService):
-    system_message_template = SystemMessagePromptTemplate.from_template(
-        "You are a helpful contributor to the project, tasked with preparing pull requests for issues."
-    )
-    human_template = HumanMessagePromptTemplate.from_template("""
-Given the following codebase:
-{codebase}
-
-And the following issue:
-Title: {issue_title}
-Body: {issue_body}
-
-ONLY return a valid git patch (no other text is necessary). Omit the `index 0000000..0000000` line.
-    """)
-
-    def generate_patch(self, repo_tree: Tree, issue_title: str, issue_body: str) -> str:
-        codebase = self.repo_to_codebase(repo_tree)
-        chat = ChatOpenAI(temperature=0)
-        chat_prompt = ChatPromptTemplate.from_messages([
-            self.system_message_template,
-            self.human_template,
-        ])
-
-        chain = LLMChain(llm=chat, prompt=chat_prompt, verbose=True)
-        return chain.run(
-            codebase=codebase,
-            issue_title=issue_title,
-            issue_body=issue_body,
-        )
-
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
-        patch = self.generate_patch(repo_tree, issue_title, issue_body)
-        # TODO describe the patch in the PR body
-        return PullRequest(
-            title=f"Fix {issue_title}",
-            body="",
-            commits=[
-                Commit(
-                    message=f"Fix {issue_title}",
-                    diff=patch,
-                )
-            ],
-        )
+# from langchain import LLMChain
+# from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
+# from langchain.chat_models import ChatOpenAI
+#
+# class SingleLangchainGenerationService(GenerationService):
+#     system_message_template = SystemMessagePromptTemplate.from_template(
+#         "You are a helpful contributor to the project, tasked with preparing pull requests for issues."
+#     )
+#     human_template = HumanMessagePromptTemplate.from_template("""
+# Given the following codebase:
+# {codebase}
+#
+# And the following issue:
+# Title: {issue_title}
+# Body: {issue_body}
+#
+# ONLY return a valid git patch (no other text is necessary). Omit the `index 0000000..0000000` line.
+#     """)
+#
+#     def generate_patch(self, repo_tree: Tree, issue_title: str, issue_body: str) -> str:
+#         codebase = self.repo_to_codebase(repo_tree)
+#         chat = ChatOpenAI(temperature=0)
+#         chat_prompt = ChatPromptTemplate.from_messages([
+#             self.system_message_template,
+#             self.human_template,
+#         ])
+#
+#         chain = LLMChain(llm=chat, prompt=chat_prompt, verbose=True)
+#         return chain.run(
+#             codebase=codebase,
+#             issue_title=issue_title,
+#             issue_body=issue_body,
+#         )
+#
+#     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
+#         patch = self.generate_patch(repo_tree, issue_title, issue_body)
+#         # TODO describe the patch in the PR body
+#         return PullRequest(
+#             title=f"Fix {issue_title}",
+#             body="",
+#             commits=[
+#                 Commit(
+#                     message=f"Fix {issue_title}",
+#                     diff=patch,
+#                 )
+#             ],
+#         )

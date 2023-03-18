@@ -16,24 +16,18 @@ def main(
     issue_title: str,
     issue_body: str,
 ):
-    repo = Repo(repo_path)
     branch_name = f'autopr/issue-{issue_number}'
+    repo = Repo(repo_path)
+    tree = repo.heads[base_branch_name].commit.tree
 
     # Create unidiff validator for guardrails
-    create_unidiff_validator(repo)
+    create_unidiff_validator(repo, tree)
 
     # Get repo owner and name from remote URL
     remote_url = repo.remotes.origin.url
     owner, repo_name = remote_url.split('/')[-2:]
 
-    # Initialize services
-    pr_service = GithubPullRequestService(
-        token=github_token,
-        owner=owner,
-        repo_name=repo_name,
-        head_branch=branch_name,
-        base_branch=base_branch_name,
-    )
+    # Create generator service
     generator = RailsGenerationService()
 
     # Checkout base branch
@@ -45,7 +39,7 @@ def main(
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree
-    pr = generator.generate_pr(tree, issue_title, issue_body)
+    pr = generator.generate_pr(tree, issue_title, issue_body, issue_number)
 
     # Create new branch with create_new_ref
     repo.create_head(branch_name, base_branch_name)
@@ -69,4 +63,11 @@ def main(
     repo.git.execute(["git", "push", "origin", branch_name])
 
     # Create PR
+    pr_service = GithubPullRequestService(
+        token=github_token,
+        owner=owner,
+        repo_name=repo_name,
+        head_branch=branch_name,
+        base_branch=base_branch_name,
+    )
     pr_service.publish(pr)
