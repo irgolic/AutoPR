@@ -1,6 +1,8 @@
+import random
 from typing import Callable, Optional
 
 import openai
+import transformers
 from git import Tree
 from pydantic import ValidationError
 
@@ -130,34 +132,48 @@ This is the pull request that was generated:
     def __init__(
         self,
         max_tokens: int = 2000,
+        min_tokens: int = 1000,
+        context_limit: int = 8192,
         completion_func: Callable = openai.ChatCompletion.create,
         completion_model: str = 'gpt-4',
         num_reasks: int = 3,
         temperature: float = 0.8,
     ):
         self.max_tokens = max_tokens
+        self.min_tokens = min_tokens
+        self.context_limit = context_limit
         self.completion_func = completion_func
         self.completion_model = completion_model
         self.num_reasks = num_reasks
         self.temperature = temperature
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
 
-    def get_filepath_list(self, repo_tree: Tree, issue_text: str) -> list[str]:
+    def run_rail(self, rail_spec: str, prompt_params: dict) -> tuple[str, dict]:
         pr_guard = gd.Guard.from_rail_string(
-            self.file_select_spec,  # make sure to import custom validators before this
+            rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
+        length = self.calculate_prompt_length(rail_spec, prompt_params)
+        max_tokens = min(self.max_tokens, self.context_limit - length)
+        raw_o, dict_o = pr_guard(
+            self.completion_func,
+            model=self.completion_model,
+            max_tokens=max_tokens,
+            temperature=self.temperature,
+            prompt_params=prompt_params,
+        )
+        return raw_o, dict_o
+
+    def get_filepath_list(self, repo_tree: Tree, issue_text: str) -> list[str]:
         list_of_files = "\n".join(
             blob.path
             for blob in repo_tree.traverse()
             if blob.type != 'tree'
         )
         print('Getting filepaths to look at...')
-        raw_o, dict_o = pr_guard(
-            self.completion_func,
-            model=self.completion_model,
-            max_tokens=self.max_tokens,
-            temperature=0.2,
-            prompt_params={
+        raw_o, dict_o = self.run_rail(
+            self.file_select_spec,
+            {
                 'files': list_of_files,
                 'issue': issue_text,
             },
@@ -174,20 +190,12 @@ This is the pull request that was generated:
         return filepaths
 
     def _generate_pr(self, codebase: str, issue_text: str) -> Optional[PullRequest]:
-        pr_guard = gd.Guard.from_rail_string(
-            self.rail_spec,  # make sure to import custom validators before this
-            num_reasks=self.num_reasks,
-        )
-        raw_o, dict_o = pr_guard(
-            self.completion_func,
-            model=self.completion_model,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            prompt_params={
-                'codebase': codebase,
-                'issue': issue_text
-            },
-        )
+        raw_o, dict_o = self.run_rail(self.rail_spec, {
+            'codebase': codebase,
+            'issue': issue_text,
+        })
+        if dict_o is None:
+            raise RuntimeError("No valid PR generated", raw_o)
         try:
             return PullRequest.parse_obj(dict_o['pull_request'])
         except ValidationError:
@@ -196,16 +204,9 @@ This is the pull request that was generated:
 
     def _verify_pr(self, codebase: str, issue_text: str, pr_model: PullRequest) -> PullRequest:
         # Verify if the PR is valid
-        pr_guard = gd.Guard.from_rail_string(
-            self.pr_verification_spec,  # make sure to import custom validators before this
-            num_reasks=self.num_reasks,
-        )
-        raw_o, dict_o = pr_guard(
-            self.completion_func,
-            model=self.completion_model,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            prompt_params={
+        raw_o, dict_o = self.run_rail(
+            self.pr_verification_spec,
+            {
                 'codebase': codebase,
                 'issue': issue_text,
                 'pull_request': pr_model.json(),
@@ -226,19 +227,33 @@ This is the pull request that was generated:
 
         return pr_model
 
+    def calculate_prompt_length(self, spec: str, prompt_params: dict) -> int:
+        pr_guard = gd.Guard.from_rail_string(spec)
+        prompt = pr_guard.base_prompt.format(**prompt_params)
+        return len(self.tokenizer.encode(prompt))
+
     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
         issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
+
+        def get_length() -> int:
+            return self.calculate_prompt_length(self.rail_spec, {
+                'codebase': codebase,
+                'issue': issue_text,
+            })
 
         # Get the list of files to look at
         filepath_list = self.get_filepath_list(repo_tree, issue_text)
         codebase = self.repo_to_codebase(repo_tree, filepath_list)
 
+        # Make sure there are at least `min_tokens` tokens left
+        while self.context_limit - get_length() < self.min_tokens:
+            # Drop the last file TODO make this smarter
+            filepath_list = filepath_list[:-1]
+            codebase = self.repo_to_codebase(repo_tree, filepath_list)
+
         # Generate the PR
-        for _ in range(self.num_reasks):
-            pr_model = self._generate_pr(codebase, issue_text)
-            if pr_model is not None:
-                break
-        else:
+        pr_model = self._generate_pr(codebase, issue_text)
+        if pr_model is None:
             raise RuntimeError("Could not generate valid PR")
 
         # Print the PR
