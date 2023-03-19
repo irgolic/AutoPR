@@ -221,7 +221,9 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                         tree / filename
                     except KeyError:
                         # See if any of the filepaths in the tree end with the filename
-                        for path in tree:
+                        # If so, use that as the filename
+                        for tree_file in tree.traverse():
+                            path = tree_file.path
                             if path.endswith(filename):
                                 lines[i] = f"--- {path}"
                                 lines[i + 1] = f"+++ {path}"
