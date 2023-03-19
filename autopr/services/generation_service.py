@@ -146,7 +146,7 @@ This is the pull request that was generated:
         self.completion_model = completion_model
         self.num_reasks = num_reasks
         self.temperature = temperature
-        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
 
     def run_rail(self, rail_spec: str, prompt_params: dict) -> tuple[str, dict]:
         pr_guard = gd.Guard.from_rail_string(
