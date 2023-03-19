@@ -220,7 +220,14 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                     try:
                         tree / filename
                     except KeyError:
-                        lines[i] = f"--- /dev/null"
+                        # See if any of the filepaths in the tree end with the filename
+                        for path in tree:
+                            if path.endswith(filename):
+                                lines[i] = f"--- {path}"
+                                lines[i + 1] = f"+++ {path}"
+                                break
+                        else:
+                            lines[i] = f"--- /dev/null"
 
             # If there is a lone @@ line, prefix it with the --- and +++ lines from the previous block
             current_block: list[str] = []
