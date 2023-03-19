@@ -32,20 +32,43 @@ on:
   issues:
     types: [opened, edited]
 
+permissions:
+  contents: write
+  issues: read
+  pull-requests: write
+
 jobs:
   autopr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: AutoPR
-        uses: irgolic/AutoPR@v0.1.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          issue_number: ${{ github.event.issue.number }}
-          issue_title: ${{ github.event.issue.title }}
-          issue_body: ${{ github.event.issue.body }}
+    - name: Install jq
+      run: sudo apt-get install jq
+    - name: Check if issue is created by collaborator
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        is_collaborator=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.event.issue.user.login }}" | jq -r '.message')
+
+        if [ "$is_collaborator" == "Not Found" ]; then
+          echo "Issue not created by a collaborator. Skipping action."
+          exit 78
+        fi
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: main
+        fetch-depth: 1
+    - name: AutoPR
+      uses: ./
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+        issue_number: ${{ github.event.issue.number }}
+        issue_title: ${{ github.event.issue.title }}
+        issue_body: ${{ github.event.issue.body }}
+        base_branch: main
+
 ```
 
 Whenever a new issue is opened or edited, the action will push a branch named `autopr/issue-#` and open a pull request to the base branch.
