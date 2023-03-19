@@ -60,7 +60,7 @@ jobs:
         ref: main
         fetch-depth: 1
     - name: AutoPR
-      uses: ./
+      uses: irgolic/AutoPR@main
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         openai_api_key: ${{ secrets.OPENAI_API_KEY }}
