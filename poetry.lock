@@ -481,14 +481,14 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "guardrails-ai"
-version = "0.1.3"
+version = "0.1.4"
 description = "Adding guardrails to large language models."
 category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "guardrails-ai-0.1.3.tar.gz", hash = "sha256:bb9d870fee55655effc2034ebc008969c5e91b4115a832b24856a55ada3d8c11"},
-    {file = "guardrails_ai-0.1.3-py2.py3-none-any.whl", hash = "sha256:1bd7c6889b9bb7c966e773608d5138b860efa2e19db1352fcb2e22473a574a86"},
+    {file = "guardrails-ai-0.1.4.tar.gz", hash = "sha256:f70b6590f8c70a5e847bb6592d2405ed0d88b7f6aaf771b00705530824db0227"},
+    {file = "guardrails_ai-0.1.4-py2.py3-none-any.whl", hash = "sha256:c6b8bbfde507aeb453400f6df071661345dbb8be1539c0a69bf2c410df90a195"},
 ]
 
 [package.dependencies]
@@ -496,24 +496,25 @@ eliot = "*"
 eliot-tree = "*"
 lxml = "*"
 openai = "*"
+pydantic = "*"
 rich = "*"
 
 [package.extras]
 critique = ["inspiredco"]
-dev = ["black (==22.12.0)", "docformatter (>=1.4)", "flake8 (>=3.8.4)", "isort (>=5.12.0)", "mkdocs", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "mknotebooks", "pre-commit (>=2.9.3)", "pytest-cov (>=2.10.1)", "twine"]
+dev = ["black (==22.12.0)", "docformatter (>=1.4)", "flake8 (>=3.8.4)", "isort (>=5.12.0)", "mkdocs", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "mknotebooks", "pre-commit (>=2.9.3)", "pypdfium2", "pytest-cov (>=2.10.1)", "pytest-mock", "twine"]
 profanity = ["alt-profanity-check"]
 sql = ["sqlvalidator"]
 
 [[package]]
 name = "huggingface-hub"
-version = "0.13.2"
+version = "0.13.3"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
 category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "huggingface_hub-0.13.2-py3-none-any.whl", hash = "sha256:745c4cbd97a27fc5c1c6c89cb477662004c88bc3dd89bafc1a27ef24af77f944"},
-    {file = "huggingface_hub-0.13.2.tar.gz", hash = "sha256:246e8eb39b6e6e9d9d5846e4b56c265cdf1872f48ba5a13a1321295d371626f5"},
+    {file = "huggingface_hub-0.13.3-py3-none-any.whl", hash = "sha256:f73a298a55028575334f9670d86b8171a4dd890b320315f3ad28a20b9eb3b5bc"},
+    {file = "huggingface_hub-0.13.3.tar.gz", hash = "sha256:1f95f65c5e7aa76728701402f55b697ee8a8b50234adda91fbdbb81038fbcd21"},
 ]
 
 [package.dependencies]
@@ -1359,14 +1360,14 @@ telegram = ["requests"]
 
 [[package]]
 name = "transformers"
-version = "4.27.1"
+version = "4.27.2"
 description = "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow"
 category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "transformers-4.27.1-py3-none-any.whl", hash = "sha256:b8cf844cbeaefd24b07f7ab1550af11b5d9cf0a7d09e5f4fedede9b15a3da2c0"},
-    {file = "transformers-4.27.1.tar.gz", hash = "sha256:05120d91e407c0d3db364f5d0710cdacccd15f67114b075f161a71535c133695"},
+    {file = "transformers-4.27.2-py3-none-any.whl", hash = "sha256:499a5ac4c1160f27b71bbd3c080e36ee3fd8cc2922aeaa52a8b163adf5ff4f19"},
+    {file = "transformers-4.27.2.tar.gz", hash = "sha256:940a6c0e04d89d14d012ee7214f8fd4e2aa2924a70a41106e0beb6ff25227752"},
 ]
 
 [package.dependencies]
