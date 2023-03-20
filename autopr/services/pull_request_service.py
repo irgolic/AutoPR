@@ -1,23 +1,13 @@
-import pydantic
 import requests
 
-
-class Commit(pydantic.BaseModel):
-    message: str
-    diff: str
-
-
-class PullRequest(pydantic.BaseModel):
-    title: str
-    initial_message: str
-    commits: list[Commit]
+from autopr.models.repo import RepoPullRequest
 
 
 class PullRequestService:
-    def publish(self, pr: PullRequest):
+    def publish(self, pr: RepoPullRequest):
         raise NotImplementedError
 
-    def update(self, pr: PullRequest):
+    def update(self, pr: RepoPullRequest):
         raise NotImplementedError
 
 
@@ -36,21 +26,21 @@ class GithubPullRequestService(PullRequestService):
             'X-GitHub-Api-Version': '2022-11-28',
         }
 
-    def publish(self, pr: PullRequest):
+    def publish(self, pr: RepoPullRequest):
         existing_pr = self._find_existing_pr()
         if existing_pr:
             self.update(pr)
         else:
             self._create_pr(pr)
 
-    def _create_pr(self, pr: PullRequest):
+    def _create_pr(self, pr: RepoPullRequest):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         data = {
             'head': self.head_branch,
             'base': self.base_branch,
             'title': pr.title,
-            'body': pr.initial_message,
+            'body': pr.body,
         }
         response = requests.post(url, json=data, headers=headers)
 
@@ -61,7 +51,7 @@ class GithubPullRequestService(PullRequestService):
             print('Failed to create pull request')
             print(response.text)
 
-    def update(self, pr: PullRequest):
+    def update(self, pr: RepoPullRequest):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
             print("No existing pull request found to update")
@@ -71,7 +61,7 @@ class GithubPullRequestService(PullRequestService):
         headers = self._get_headers()
         data = {
             'title': pr.title,
-            'body': pr.initial_message,
+            'body': pr.body,
         }
         response = requests.patch(url, json=data, headers=headers)
 

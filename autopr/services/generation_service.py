@@ -1,28 +1,41 @@
-import random
-from typing import Callable, Optional
-
-import openai
+import pydantic
 import transformers
 from git import Tree
-from pydantic import ValidationError
 
-import guardrails as gd
-
-from autopr.models import PullRequest, Commit
+from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse, \
+    Diff
+from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
+    NewDiff, FileDescriptor
+from autopr.models.repo import RepoCommit
+from autopr.services.pull_request_service import RepoPullRequest
+from autopr.services.rail_service import RailService
 
 
 class GenerationService:
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
-        raise NotImplementedError
+    def __init__(
+        self,
+        rail_service: RailService,
+        file_context_token_limit: int = 5000,
+        file_chunk_size: int = 512,
+    ):
+        self.rail_service = rail_service
+        self.file_context_token_limit = file_context_token_limit
+        self.file_chunk_size = file_chunk_size
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
 
     @staticmethod
-    def repo_to_codebase(tree: Tree, filepath_list: list[str] = None):
+    def repo_to_codebase(
+        tree: Tree,
+        included_filepaths: list[str] = None,
+        excluded_filepaths: list[str] = None,
+    ) -> list[tuple[str, str]]:
         # Concatenate all the files in the repo,
 
-        codebase = ""
+        filenames_and_contents = []
         for blob in tree.traverse():
-            # Only include files in filepath_list
-            if filepath_list is not None and blob.path not in filepath_list:
+            if included_filepaths is not None and blob.path not in included_filepaths:
+                continue
+            if excluded_filepaths is not None and blob.path in excluded_filepaths:
                 continue
 
             # Skip directories
@@ -36,270 +49,228 @@ class GenerationService:
             ):
                 continue
 
-            # Separate files with a newline
-            if codebase:
-                codebase += "\n"
-
-            # Add path
-            codebase += f"Path: {blob.path}\n"
-
             # Add file contents, with line numbers
             blob_text = blob.data_stream.read().decode()
+            blob_contents_with_line_numbers = ""
             for i, line in enumerate(blob_text.split('\n')):
-                codebase += f"{i+1} {line}\n"
+                blob_contents_with_line_numbers += f"{i+1} {line}\n"
 
-        return codebase
+            filenames_and_contents += [(blob.path, blob_contents_with_line_numbers)]
 
+        return filenames_and_contents
 
-class RailsGenerationService(GenerationService):
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{PullRequest.rail_spec}
-</output>
-<prompt>
-Oh skilled senior software developer, with all your programming might and wisdom, please write a pull request for me.
-This is the codebase subset we decided to look at:
-```{{{{codebase}}}}```
-
-Please address the following issue:
-```{{{{issue}}}}```
-
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-    """
-    file_select_spec = f"""
-<rail version="0.1">
-<output>
-    <list name="filepaths">
-        <string
-            description="The path to the file in the repo."
-            format="filepath"
-            on-fail="reask"
-        />
-    </list>
-</output>
-<prompt>
-Oh skilled senior software developer, with all your programming might and wisdom, let's write a pull request.
-
-This is the issue that was opened:
-```{{{{issue}}}}```
-
-This is the list of files in the repo:
-```{{{{files}}}}```
-
-Which files should we take a look at?
-
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
-    pr_verification_spec = f"""
-<rail version="0.1">
-<output>
-{PullRequest.rail_spec}
-</output>
-<prompt>
-Oh skilled senior software developer, with all your programming might and wisdom, please make sure that this pull request addresses the issue, and is accurately described.
-
-This is the codebase subset we decided to look at:
-```{{{{codebase}}}}```
-
-This is the issue that was opened:
-```{{{{issue}}}}```
-
-This is the pull request that was generated:
-```{{{{pull_request}}}}```
-
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
-
-    def __init__(
+    def _repo_to_files_and_token_lengths(
         self,
-        max_tokens: int = 2000,
-        min_tokens: int = 1000,
-        context_limit: int = 8192,
-        completion_func: Callable = openai.ChatCompletion.create,
-        completion_model: str = 'gpt-4',
-        num_reasks: int = 3,
-        temperature: float = 0.8,
-    ):
-        self.max_tokens = max_tokens
-        self.min_tokens = min_tokens
-        self.context_limit = context_limit
-        self.completion_func = completion_func
-        self.completion_model = completion_model
-        self.num_reasks = num_reasks
-        self.temperature = temperature
-        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
+        repo_tree: Tree,
+        excluded_files: list[str] = None,
+    ) -> list[tuple[str, int]]:
+        files_with_token_lengths = []
+        for blob in repo_tree.traverse():
+            if blob.type == 'tree':
+                continue
+            if excluded_files is not None and blob.path in excluded_files:
+                continue
+            content = blob.data_stream.read().decode()
+            token_length = len(self.rail_service.tokenizer.encode(content))
+            files_with_token_lengths.append((blob.path, token_length))
+        return files_with_token_lengths
 
-    def run_rail(self, rail_spec: str, prompt_params: dict) -> tuple[str, dict]:
-        pr_guard = gd.Guard.from_rail_string(
-            rail_spec,  # make sure to import custom validators before this
-            num_reasks=self.num_reasks,
-        )
-        length = self.calculate_prompt_length(rail_spec, prompt_params)
-        max_tokens = min(self.max_tokens, self.context_limit - length)
-        raw_o, dict_o = pr_guard(
-            self.completion_func,
-            model=self.completion_model,
-            max_tokens=max_tokens,
-            temperature=self.temperature,
-            prompt_params=prompt_params,
-        )
-        return raw_o, dict_o
+    def _repo_to_file_descriptors(self, repo_tree: Tree) -> list[FileDescriptor]:
+        file_descriptor_list = []
+        for blob in repo_tree.traverse():
+            if blob.type == 'tree':
+                continue
+            content = blob.data_stream.read().decode()
+            tokens = self.tokenizer.encode(content)
 
-    def get_filepath_list(self, repo_tree: Tree, issue_text: str) -> list[str]:
-        list_of_files = "\n".join(
-            blob.path
-            for blob in repo_tree.traverse()
-            if blob.type != 'tree'
-        )
+            # Split into chunks up to the last newline
+            chunks: list[list[tuple[int, str]]] = []
+            line_buffer = []
+            for i, line in enumerate(content.splitlines()):
+                line_buffer.append((i, line))
+                # FIXME speed this up
+                token_length = len(self.tokenizer.encode(
+                    '\n'.join([l[1] for l in line_buffer])
+                ))
+                if token_length >= self.file_chunk_size:
+                    chunks.append(line_buffer)
+                    line_buffer = []
+            if line_buffer:
+                chunks.append(line_buffer)
+
+            token_length = len(tokens)
+            file_descriptor_list.append(FileDescriptor(
+                path=blob.path,
+                token_length=token_length,
+                chunks=chunks,
+            ))
+        return file_descriptor_list
+
+    def get_initial_filepaths(self, files: list[FileDescriptor], issue_text: str) -> list[str]:
         print('Getting filepaths to look at...')
-        raw_o, dict_o = self.run_rail(
-            self.file_select_spec,
-            {
-                'files': list_of_files,
-                'issue': issue_text,
-            },
+
+        response: InitialFileSelectResponse = self.rail_service.run_rail(
+            InitialFileSelectRail(
+                issue=issue_text,
+                file_descriptors=files,
+                token_limit=self.file_context_token_limit
+            )
         )
-        if dict_o is None:
-            raise RuntimeError("No valid list of files generated", raw_o)
-        if any(fp is None for fp in dict_o['filepaths']):
-            print(f'Got None in filepaths list: {raw_o}')
-        filepaths = [fp for fp in dict_o['filepaths'] if fp is not None]
-        if filepaths:
-            print(f'Got filepaths:')
-            for filepath in filepaths:
-                print(f' -  {filepath}')
-        return filepaths
+        if response is None:
+            real_filepaths = []
+        else:
+            real_filepaths = [fp for fp in response.filepaths if fp is not None]
+            if len(response.filepaths) != len(real_filepaths):
+                print(f'Got hallucinated filepaths: {set(response.filepaths) - set(real_filepaths)}')
+            if real_filepaths:
+                print(f'Got filepaths:')
+                for filepath in real_filepaths:
+                    print(f' -  {filepath}')
 
-    def _generate_pr(self, codebase: str, issue_text: str) -> Optional[PullRequest]:
-        raw_o, dict_o = self.run_rail(self.rail_spec, {
-            'codebase': codebase,
-            'issue': issue_text,
-        })
-        if dict_o is None:
-            raise RuntimeError("No valid PR generated", raw_o)
-        try:
-            return PullRequest.parse_obj(dict_o['pull_request'])
-        except ValidationError:
-            print(f'Got invalid PR: {raw_o}')
-            return None
+        return real_filepaths
 
-    def _verify_pr(self, codebase: str, issue_text: str, pr_model: PullRequest) -> PullRequest:
-        # Verify if the PR is valid
-        raw_o, dict_o = self.run_rail(
-            self.pr_verification_spec,
-            {
-                'codebase': codebase,
-                'issue': issue_text,
-                'pull_request': pr_model.json(),
-            },
+    def write_notes_about_files(self, files: list[FileDescriptor], issue_text: str, filepaths: list[str]) -> str:
+        print('Looking at files...')
+
+        file_contents = [
+            f.copy(deep=True) for f in files
+            if f.path in filepaths
+        ]
+        rail = LookAtFiles(
+            issue=issue_text,
+            selected_file_contents=file_contents,
+            prospective_file_descriptors=[f.copy(deep=True) for f in files],
+            token_limit=self.file_context_token_limit,
         )
-        try:
-            pr_model = PullRequest.parse_obj(dict_o['pull_request'])
-        except ValidationError:
-            raise RuntimeError("No valid PR generated", raw_o)
+        response: LookAtFilesResponse = self.rail_service.run_rail(rail)
+        if response is None:
+            raise ValueError('Error looking at files')
+        filepaths = response.filepaths_we_should_look_at
+        notes = response.notes
 
-        # Print the PR
-        print('Verified the PR:')
-        print(f"Title:\n{pr_model.title}\n")
-        print(f"Body:\n{pr_model.initial_message}\n")
-        for commit in pr_model.commits:
-            print(f"Commit message:\n{commit.message}\n")
-            print(f"Commit diff:\n{commit.diff}")
+        viewed_filepaths_up_to_chunk: dict[str, int] = {}
+        reasks = self.rail_service.num_reasks
+        while filepaths and reasks > 0:
+            reasks -= 1
+            print(f'Looking at more files... ({reasks} reasks left)')
+            for fp in rail.selected_file_contents:
+                viewed_filepaths_up_to_chunk[fp.path] = \
+                    -1 if fp.end_chunk == len(fp.chunks) else fp.end_chunk
+            file_contents = []
+            for f in files:
+                if f.path not in filepaths:
+                    continue
+                if f.path in viewed_filepaths_up_to_chunk:
+                    chunk_num = viewed_filepaths_up_to_chunk[f.path]
+                    if chunk_num == -1:
+                        continue
+                    new_f = f.copy(deep=True)
+                    new_f.start_chunk = chunk_num
+                else:
+                    new_f = f.copy(deep=True)
+                file_contents.append(new_f)
+            rail = ContinueLookingAtFiles(
+                issue=issue_text,
+                notes=notes,
+                selected_file_contents=file_contents,
+                prospective_file_descriptors=rail._filtered_prospective_file_descriptors,
+                token_limit=self.file_context_token_limit,
+            )
+            response: LookAtFilesResponse = self.rail_service.run_rail(rail)
+            if response is None:
+                filepaths = []
+            else:
+                filepaths = response.filepaths_we_should_look_at
+                notes += f'\n{response.notes}'
 
-        return pr_model
+        return notes
 
-    def calculate_prompt_length(self, spec: str, prompt_params: dict) -> int:
-        pr_guard = gd.Guard.from_rail_string(spec)
-        prompt = pr_guard.base_prompt.format(**prompt_params)
-        return len(self.tokenizer.encode(prompt))
+    def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
+        print('Getting commit messages...')
+        commit_plans: PullRequestDescription = self.rail_service.run_rail(
+            ProposePullRequest(
+                issue=issue_text,
+                notes_taken_while_looking_at_files=notes,
+            )
+        )
+        if commit_plans is None:
+            raise ValueError('Error proposing pull request')
+        return commit_plans
 
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> PullRequest:
+    def generate_patch(self, files: list[FileDescriptor], issue_text: str, pr_desc: PullRequestDescription, relevant_filepaths: list[str]) -> str:
+        print('Generating patch...')
+        pr_text_description = f"Title: {pr_desc.title}\n\n{pr_desc.body}\n\nCommits:\n"
+        for commit_plan in pr_desc.commits:
+            pr_text_description += f" - {commit_plan.message}\n"
+
+        files_subset = [
+            f.copy(deep=True) for f in files
+            if f.path in relevant_filepaths
+        ]
+
+        patch: Diff = self.rail_service.run_rail(
+            NewDiff(
+                issue=issue_text,
+                pull_request_description=pr_text_description,
+                selected_file_contents=files_subset,
+            )
+        )
+        if patch is None:
+            raise ValueError('Error generating patch')
+        return patch.text
+
+    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> RepoPullRequest:
         issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
 
-        def get_length() -> int:
-            return self.calculate_prompt_length(self.rail_spec, {
-                'codebase': codebase,
-                'issue': issue_text,
-            })
+        # Get file descriptors from repo
+        files = self._repo_to_file_descriptors(repo_tree)
 
-        # Get the list of files to look at
-        filepath_list = self.get_filepath_list(repo_tree, issue_text)
-        codebase = self.repo_to_codebase(repo_tree, filepath_list)
+        # Get the filepaths to look at
+        filepaths = self.get_initial_filepaths(files, issue_text)
 
-        # Make sure there are at least `min_tokens` tokens left
-        while self.context_limit - get_length() < self.min_tokens:
-            # Drop the last file TODO make this smarter
-            filepath_list = filepath_list[:-1]
-            codebase = self.repo_to_codebase(repo_tree, filepath_list)
+        # Look at the files
+        notes = self.write_notes_about_files(files, issue_text, filepaths)
 
-        # Generate the PR
-        pr_model = self._generate_pr(codebase, issue_text)
-        if pr_model is None:
-            raise RuntimeError("Could not generate valid PR")
+        # Get the commit messages and relevant filepaths
+        pr_desc = self.propose_pull_request(issue_text, notes)
+
+        # Generate the patch
+        commits = []
+        for commit_plan in pr_desc.commits:
+            diff = self.generate_patch(
+                files,
+                issue_text,
+                pr_desc,
+                commit_plan.relevant_filepaths
+            )
+            commits.append(RepoCommit(
+                message=commit_plan.message,
+                diff=diff,
+            ))
+
+        pr_model = RepoPullRequest(
+            title=pr_desc.title,
+            body=pr_desc.body,
+            commits=commits,
+        )
 
         # Print the PR
-        print('Generated preliminary PR:')
-        print(f"Title: {pr_model.title}")
-        print(f"Body: {pr_model.initial_message}")
+        print(f"""PR title: {pr_model.title}
+
+{pr_model.body}
+
+Commits:""")
         for commit in pr_model.commits:
-            print(f"Commit message: {commit.message}")
-            print(f"Commit diff: {commit.diff}")
+            print(f""" - {commit.message}
+
+{commit.diff}\n\n""")
 
         return pr_model
 
 
-# from langchain import LLMChain
-# from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-# from langchain.chat_models import ChatOpenAI
 #
 # class SingleLangchainGenerationService(GenerationService):
-#     system_message_template = SystemMessagePromptTemplate.from_template(
-#         "You are a helpful contributor to the project, tasked with preparing pull requests for issues."
-#     )
-#     human_template = HumanMessagePromptTemplate.from_template("""
-# Given the following codebase:
-# {codebase}
-#
-# And the following issue:
-# Title: {issue_title}
-# Body: {issue_body}
-#
-# ONLY return a valid git patch (no other text is necessary). Omit the `index 0000000..0000000` line.
-#     """)
-#
-#     def generate_patch(self, repo_tree: Tree, issue_title: str, issue_body: str) -> str:
-#         codebase = self.repo_to_codebase(repo_tree)
-#         chat = ChatOpenAI(temperature=0)
-#         chat_prompt = ChatPromptTemplate.from_messages([
-#             self.system_message_template,
-#             self.human_template,
-#         ])
-#
-#         chain = LLMChain(llm=chat, prompt=chat_prompt, verbose=True)
-#         return chain.run(
-#             codebase=codebase,
-#             issue_title=issue_title,
-#             issue_body=issue_body,
-#         )
+
 #
 #     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
 #         patch = self.generate_patch(repo_tree, issue_title, issue_body)

@@ -2,8 +2,9 @@ import tempfile
 
 
 from git import Repo
-from autopr.services.generation_service import RailsGenerationService
 from autopr.services.pull_request_service import GithubPullRequestService
+from .services.generation_service import GenerationService
+from .services.rail_service import RailService
 
 from .validators import create_unidiff_validator, create_filepath_validator
 
@@ -38,7 +39,10 @@ def main(
     owner, repo_name = remote_url.split('/')[-2:]
 
     # Create generator service
-    generator = RailsGenerationService()
+    rail_service = RailService()
+    generator = GenerationService(
+        rail_service=rail_service,
+    )
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree
