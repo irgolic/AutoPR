@@ -167,6 +167,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                                       "--check",
                                       "--unidiff-zero",
                                       "--inaccurate-eof",
+                                      "--allow-empty",
                                       f.name])
                 except GitCommandError as e:
                     raise EventDetail(

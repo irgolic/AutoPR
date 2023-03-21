@@ -73,10 +73,11 @@ def main(
                               "apply",
                               "--unidiff-zero",
                               "--inaccurate-eof",
+                              "--allow-empty",
                               f.name])
 
         repo.git.execute(["git", "add", "."])
-        repo.git.execute(["git", "commit", "-m", commit.message])
+        repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.message])
 
     # Push branch to remote
     print(f'Pushing branch {branch_name} to remote...')
