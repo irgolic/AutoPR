@@ -54,12 +54,20 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
     return corrected_lines
 
 
-def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
+def adjust_line_indentation(line: str, indentation_offset: int) -> str:
+    if indentation_offset >= 0:
+        return indentation_offset * ' ' + line
+    else:
+        return line[-indentation_offset:]
+
+
+def remove_hallucinated_lines(lines: List[str], tree: git.Tree) -> List[str]:
     cleaned_lines = []
     current_file_content = None
     current_line_number = 0
-    search_range = 1
+    search_range = 3
     first_line = 0
+    indentation_offset = 0
 
     for i, line in enumerate(lines):
         first_line = max(0, first_line - 1)
@@ -81,41 +89,61 @@ def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
         elif line.startswith("@@"):
             current_line_number = int(re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line).group(1)) - 1
             cleaned_lines.append(line)
+            indentation_offset = 0
             first_line = 2
         elif line.startswith("+++"):
             cleaned_lines.append(line)
         elif line.startswith("-"):
+            offset_fixed_line = adjust_line_indentation(line[1:], indentation_offset)
             if current_file_content and current_line_number < len(current_file_content):
-                if line[1:] == current_file_content[current_line_number]:
-                    cleaned_lines.append(line)
+                if offset_fixed_line == current_file_content[current_line_number]:
+                    cleaned_lines.append(f"-{offset_fixed_line}")
                 else:
                     # Put the right line into the diff
                     cleaned_lines.append(f"-{current_file_content[current_line_number]}")
                 current_line_number += 1
         elif line.startswith("+"):
-            cleaned_lines.append(line)
+            cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
         elif line.lstrip() != line:
             # Line has a leading whitespace, check if it's in the actual file content
-            if current_file_content:
-                if current_line_number < len(current_file_content) and line[1:] == current_file_content[current_line_number]:
-                    # Line is in the file content
-                    cleaned_lines.append(line)
-                    current_line_number += 1
-                elif first_line:
-                    # Search for the line in the file content
-                    for offset in range(-search_range, search_range + 1):
-                        check_line_number = current_line_number + offset
-                        check_file_line = current_file_content[check_line_number]
-                        if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
-                            current_line_number = check_line_number + 1
-                            # Fix @@ line
-                            cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
-                            cleaned_lines.append(line)
-                            break
+            if not current_file_content:
+                continue
+            offset_fixed_line = adjust_line_indentation(line[1:], indentation_offset)
+            if current_line_number < len(current_file_content) and \
+                    offset_fixed_line == current_file_content[current_line_number]:
+                # Line is in the file content
+                cleaned_lines.append(f' {offset_fixed_line}')
+                current_line_number += 1
+            elif first_line:
+                # Search for the line in the file content
+                for offset in range(-search_range, search_range + 1):
+                    check_line_number = current_line_number + offset
+                    check_file_line = current_file_content[check_line_number]
+                    if not 0 <= check_line_number < len(current_file_content):
+                        continue
+                    if line[1:] == check_file_line:
+                        current_line_number = check_line_number + 1
+                        # Fix @@ line
+                        cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+                        cleaned_lines.append(line)
+                        break
+                    elif line.lstrip() == check_file_line.lstrip():
+                        # Is the indentation off? Judge by the first line
+                        line_indentation = len(line) - len(line.lstrip()) - 1  # -1 because of the leading whitespace
+                        file_line_indentation = len(check_file_line) - len(check_file_line.lstrip())
+                        indentation_offset = file_line_indentation - line_indentation
+
+                        current_line_number = check_line_number + 1
+                        # Fix @@ line
+                        cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+                        cleaned_lines.append(adjust_line_indentation(line, indentation_offset))
+                        break
         else:
-            cleaned_lines.append(line)
+            cleaned_lines.append(adjust_line_indentation(line, indentation_offset))
             current_line_number += 1
 
+    if cleaned_lines[-1] != "":
+        cleaned_lines[-1] = ""
     return cleaned_lines
 
 
