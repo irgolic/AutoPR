@@ -2,6 +2,9 @@ import requests
 
 from autopr.models.repo import RepoPullRequest
 
+import structlog
+log = structlog.get_logger()
+
 
 class PullRequestService:
     def publish(self, pr: RepoPullRequest):
@@ -45,16 +48,14 @@ class GithubPullRequestService(PullRequestService):
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
-            print('Pull request created successfully')
-            print(response.json())
+            log.debug('Pull request created successfully', response=response.json())
         else:
-            print('Failed to create pull request')
-            print(response.text)
+            log.debug('Failed to create pull request', response_text=response.text)
 
     def update(self, pr: RepoPullRequest):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
-            print("No existing pull request found to update")
+            log.debug("No existing pull request found to update")
             return
 
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{existing_pr["number"]}'
@@ -66,11 +67,9 @@ class GithubPullRequestService(PullRequestService):
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            print('Pull request updated successfully')
-            print(response.json())
+            log.debug('Pull request updated successfully', response=response.json())
         else:
-            print('Failed to update pull request')
-            print(response.text)
+            log.debug('Failed to update pull request', response_text=response.text)
 
     def _find_existing_pr(self):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
@@ -83,7 +82,6 @@ class GithubPullRequestService(PullRequestService):
             if prs:
                 return prs[0]  # Return the first pull request found
         else:
-            print('Failed to get pull requests')
-            print(response.text)
+            log.debug('Failed to get pull requests', response_text=response.text)
 
         return None

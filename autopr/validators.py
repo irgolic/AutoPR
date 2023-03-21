@@ -9,7 +9,8 @@ from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
 import git
 
-logger = logging.getLogger(__name__)
+import structlog
+log = structlog.get_logger()
 
 
 def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
@@ -145,7 +146,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         break
         else:
             if line:
-                print("Unknown line: ", line)
+                log.error("Unknown line: ", line)
             cleaned_lines.append(line)
             current_line_number += 1
 
@@ -162,7 +163,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
         """
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            logger.debug(f"Validating {value} is unidiff...")
+            log.debug(f"Validating {value} is unidiff...")
 
             # try to apply the patch with git apply --check
             with tempfile.NamedTemporaryFile() as f:

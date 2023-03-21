@@ -10,6 +10,9 @@ from autopr.models.repo import RepoCommit
 from autopr.services.pull_request_service import RepoPullRequest
 from autopr.services.rail_service import RailService
 
+import structlog
+log = structlog.get_logger()
+
 
 class GenerationService:
     def __init__(
@@ -107,7 +110,7 @@ class GenerationService:
         return file_descriptor_list
 
     def get_initial_filepaths(self, files: list[FileDescriptor], issue_text: str) -> list[str]:
-        print('Getting filepaths to look at...')
+        log.debug('Getting filepaths to look at...')
 
         response: InitialFileSelectResponse = self.rail_service.run_rail(
             InitialFileSelectRail(
@@ -121,16 +124,16 @@ class GenerationService:
         else:
             real_filepaths = [fp for fp in response.filepaths if fp is not None]
             if len(response.filepaths) != len(real_filepaths):
-                print(f'Got hallucinated filepaths: {set(response.filepaths) - set(real_filepaths)}')
+                log.debug(f'Got hallucinated filepaths: {set(response.filepaths) - set(real_filepaths)}')
             if real_filepaths:
-                print(f'Got filepaths:')
+                log.debug(f'Got filepaths:')
                 for filepath in real_filepaths:
-                    print(f' -  {filepath}')
+                    log.debug(f' -  {filepath}')
 
         return real_filepaths
 
     def write_notes_about_files(self, files: list[FileDescriptor], issue_text: str, filepaths: list[str]) -> str:
-        print('Looking at files...')
+        log.debug('Looking at files...')
 
         file_contents = [
             f.copy(deep=True) for f in files
@@ -147,16 +150,15 @@ class GenerationService:
             raise ValueError('Error looking at files')
         filepaths = response.filepaths_we_should_look_at
         notes = response.notes
-        print(f'Wrote notes: {notes}')
 
         viewed_filepaths_up_to_chunk: dict[str, int] = {}
         reasks = self.rail_service.num_reasks
         while filepaths and reasks > 0:
             reasks -= 1
 
-            print(f'Looking at more files... ({reasks} reasks left)')
+            log.debug(f'Looking at more files... ({reasks} reasks left)')
             for fp in filepaths:
-                print(f' - {fp}')
+                log.debug(f' - {fp}')
 
             for fp in rail.selected_file_contents:
                 viewed_filepaths_up_to_chunk[fp.path] = fp.end_chunk
@@ -185,13 +187,12 @@ class GenerationService:
                 filepaths = []
             else:
                 filepaths = response.filepaths_we_should_look_at
-                print(f"Wrote notes: {response.notes}")
                 notes += f'\n{response.notes}'
 
         return notes
 
     def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
-        print('Getting commit messages...')
+        log.debug('Getting commit messages...')
         pr_desc: PullRequestDescription = self.rail_service.run_rail(
             ProposePullRequest(
                 issue=issue_text,
@@ -209,7 +210,7 @@ class GenerationService:
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan
     ) -> str:
-        print('Generating patch...')
+        log.debug('Generating patch...')
         pr_text_description = f"Title: {pr_desc.title}\n\n{pr_desc.body}\n\n"
         for i, commit_plan in enumerate(pr_desc.commits):
             prefix = f" {' ' * len(str(i + 1))}  "
@@ -225,9 +226,9 @@ class GenerationService:
             f.copy(deep=True) for f in files
             if f.path in current_commit.relevant_filepaths
         ]
-        print('Files to look at:')
+        log.debug('Files to look at:')
         for f in files_subset:
-            print(f' - {f.path}')
+            log.debug(f' - {f.path}')
 
         commit_description = current_commit.commit_message + '\n\n' + current_commit.commit_changes_description
 
@@ -260,10 +261,10 @@ class GenerationService:
         reasks = self.rail_service.num_reasks
         while not_looked_at_files and reasks > 0:
             reasks -= 1
-            print(f'Generating patch over more code... ({reasks} reasks left)')
+            log.debug(f'Generating patch over more code... ({reasks} reasks left)')
 
             for f in not_looked_at_files:
-                print(f' - {f.path} ({f.end_chunk - f.start_chunk} chunks left)')
+                log.debug(f' - {f.path} ({f.end_chunk - f.start_chunk} chunks left)')
 
             files_subset = [
                 f.copy(deep=True) for f in files_subset

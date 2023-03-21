@@ -13,6 +13,9 @@ import guardrails as gd
 from autopr.models.rail_objects import RailObject
 from autopr.models.rails import RailUnion
 
+import structlog
+log = structlog.get_logger()
+
 T = TypeVar('T', bound=RailObject)
 
 
@@ -67,23 +70,38 @@ class RailService:
             # Trim the params (by default drops an item from a list)
             if not rail.trim_params():
                 rail_name = rail.__class__.__name__
-                print(f'Could not trim params on rail {rail_name}: {rail.get_string_params()}')
+                log.debug(f'Could not trim params on rail {rail_name}: {rail.get_string_params()}')
                 return None
             token_length = self.calculate_prompt_length(rail)
 
+        log.info('Running rail',
+                 rail_name=rail.__class__.__name__,
+                 raw_message=self.get_prompt_message(rail))
         raw_o, dict_o = self._run_rail(rail)
+        log.info('Ran rail',
+                 rail_name=rail.__class__.__name__,
+                 raw_output=raw_o,
+                 dict_output=dict_o)
         if dict_o is None:
-            print(f'Got None from rail: {raw_o}')
+            log.warning(f'Got None from rail',
+                        rail_name=rail.__class__.__name__,
+                        raw_output=raw_o)
             return None
         try:
             return rail.output_type.parse_obj(dict_o)
         except pydantic.ValidationError:
-            print(f'Got invalid output from rail: {raw_o}, {dict_o}')
+            log.warning(f'Got invalid output from rail',
+                        rail_name=rail.__class__.__name__,
+                        raw_output=raw_o,
+                        dict_output=dict_o)
             return None
 
-    def calculate_prompt_length(self, rail: RailUnion) -> int:
+    def get_prompt_message(self, rail: RailUnion):
         spec = rail.rail_spec
         prompt_params = rail.get_string_params()
         pr_guard = gd.Guard.from_rail_string(spec)
-        prompt = pr_guard.base_prompt.format(**prompt_params)
+        return pr_guard.base_prompt.format(**prompt_params)
+
+    def calculate_prompt_length(self, rail: RailUnion) -> int:
+        prompt = self.get_prompt_message(rail)
         return len(self.tokenizer.encode(prompt))

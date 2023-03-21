@@ -6,6 +6,9 @@ from pydantic import root_validator
 from autopr.models.rail_objects import LookAtFilesResponse, PullRequestDescription, \
     InitialFileSelectResponse, RailObject, Diff
 
+import structlog
+log = structlog.get_logger()
+
 
 class Rail(pydantic.BaseModel):
     rail_spec: ClassVar[str] = ...
@@ -19,7 +22,7 @@ class Rail(pydantic.BaseModel):
         return prompt_params
 
     def trim_params(self) -> bool:
-        print("Warning: naively trimming params")
+        log.warning("Naively trimming params", rail=self)
         prompt_params = dict(self)
         # If there are any lists, remove the last element of the first one you find
         for key, value in prompt_params.items():

@@ -8,6 +8,13 @@ from .services.rail_service import RailService
 
 from .validators import create_unidiff_validator, create_filepath_validator
 
+from log_config import configure_logging
+configure_logging()
+
+import structlog
+
+log = structlog.get_logger()
+
 
 def main(
     github_token: str,
@@ -17,15 +24,17 @@ def main(
     issue_title: str,
     issue_body: str,
 ):
+    log.info('Starting main', repo_path=repo_path, base_branch_name=base_branch_name,
+             issue_number=issue_number, issue_title=issue_title, issue_body=issue_body)
     branch_name = f'autopr/issue-{issue_number}'
     repo = Repo(repo_path)
 
     # Checkout base branch
-    print(f'Checking out {base_branch_name}...')
+    log.debug(f'Checking out {base_branch_name}...')
     repo.heads[base_branch_name].checkout()
 
     # Pull latest changes
-    print('Pulling latest changes...')
+    log.debug('Pulling latest changes...')
     repo.remotes.origin.pull()
 
     tree = repo.heads[base_branch_name].commit.tree
@@ -46,7 +55,7 @@ def main(
 
     # Generate PR commits, title, and body
     tree = repo.heads[base_branch_name].commit.tree
-    print('Generating PR...')
+    log.debug('Generating PR...')
     pr = generator.generate_pr(tree, issue_title, issue_body, issue_number)
 
     # If branch already exists, delete it
@@ -55,7 +64,7 @@ def main(
         repo.delete_head(branch_name, force=True)
 
     # Create new branch with create_new_ref
-    print(f'Creating new branch {branch_name}...')
+    log.debug(f'Creating new branch {branch_name}...')
     repo.create_head(branch_name, base_branch_name)
 
     # Checkout new branch
@@ -68,7 +77,7 @@ def main(
         with tempfile.NamedTemporaryFile() as f:
             f.write(diff.encode())
             f.flush()
-            print('Applying diff...')
+            log.debug('Applying diff...')
             repo.git.execute(["git",
                               "apply",
                               "--unidiff-zero",
@@ -80,7 +89,7 @@ def main(
         repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.message])
 
     # Push branch to remote
-    print(f'Pushing branch {branch_name} to remote...')
+    log.debug(f'Pushing branch {branch_name} to remote...')
     repo.git.execute(["git", "push", "-f", "origin", branch_name])
 
     # Create PR
@@ -91,5 +100,5 @@ def main(
         head_branch=branch_name,
         base_branch=base_branch_name,
     )
-    print('Creating PR...')
+    log.debug('Creating PR...')
     pr_service.publish(pr)
