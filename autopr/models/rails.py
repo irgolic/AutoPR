@@ -11,7 +11,7 @@ log = structlog.get_logger()
 
 
 class Rail(pydantic.BaseModel):
-    rail_spec: ClassVar[str] = ...
+    prompt_spec: ClassVar[str] = ''
     output_type: ClassVar[RailObject] = ...
     extra_params: ClassVar[dict[str, Any]] = {}
 
@@ -30,6 +30,27 @@ class Rail(pydantic.BaseModel):
                 setattr(self, key, value[:-1])
                 return True
         return False
+
+    @classmethod
+    def get_rail_spec(cls):
+        return f"""
+<rail version="0.1">
+<output>
+{cls.output_type.rail_spec}
+</output>
+<prompt>
+```
+{{{{raw_response}}}}
+```
+
+@xml_prefix_prompt
+
+{{output_schema}}
+
+@json_suffix_prompt_v2_wo_none
+</prompt>
+</rail>
+"""
 
 
 class FileDescriptor(pydantic.BaseModel):
@@ -112,30 +133,16 @@ def _filter_seen_chunks(seen_fds: list[FileDescriptor], prospective_fds: list[Fi
 
 class InitialFileSelectRail(Rail):
     # Select files given issue and files in repo
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{InitialFileSelectResponse.rail_spec}
-</output>
-<prompt>
-Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
-```{{{{issue}}}}```
+```{{issue}}```
 
 The list of files in the repo:
-```{{{{filepaths_with_token_lengths}}}}```
+```{{filepaths_with_token_lengths}}```
 
-Which files should we take a look at first? Concisely pick only a few files, our budget is {{{{token_limit}}}} tokens.
+Which files should we take a look at first? Concisely pick only a few files, our budget is {{token_limit}} tokens."""
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
     output_type = InitialFileSelectResponse
     extra_params = {
         'temperature': 0,
@@ -158,33 +165,20 @@ Which files should we take a look at first? Concisely pick only a few files, our
 
 class LookAtFiles(Rail):
     # Select files given issue, unseen files in repo, and notes
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{LookAtFilesResponse.rail_spec}
-</output>
-<prompt>
-Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
-```{{{{issue}}}}```
+```{{issue}}```
 
 We've decided to look at these files:
-```{{{{codebase}}}}```
+```{{codebase}}```
 
 The list of files in the repo that we haven't taken a look at yet:
-```{{{{filepaths_with_token_lengths}}}}```
+```{{filepaths_with_token_lengths}}```
 
-Which files should we take a look at next? Our budget is {{{{token_limit}}}} tokens.
+Take some notes that will help us plan commits and write code to fix the issue. 
+Also, let me know if we should take a look at any other files – our budget is {{token_limit}} tokens."""
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
     output_type = LookAtFilesResponse
     extra_params = {
         'temperature': 0.2,
@@ -220,36 +214,23 @@ Which files should we take a look at next? Our budget is {{{{token_limit}}}} tok
 
 class ContinueLookingAtFiles(Rail):
     # Continue selecting files and generating fp_notes given issue, unseen files in repo, and notes
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{LookAtFilesResponse.rail_spec}
-</output>
-<prompt>
-Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
-```{{{{issue}}}}```
+```{{issue}}```
 
 Some notes we've taken while looking at files so far:
-```{{{{notes}}}}```
+```{{notes}}```
 
 We've decided to look at these files:
-```{{{{codebase}}}}```
+```{{codebase}}```
 
 The list of files in the repo that we haven't taken a look at yet:
-```{{{{filepaths_with_token_lengths}}}}```
+```{{filepaths_with_token_lengths}}```
 
-Which files should we take a look at next? Our budget is {{{{token_limit}}}} tokens.
+Take some notes that will help us plan commits and write code to fix the issue. 
+Also, let me know if we should take a look at any other files – our budget is {{token_limit}} tokens."""
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
     output_type = LookAtFilesResponse
     extra_params = {
         'temperature': 0.2,
@@ -287,30 +268,16 @@ Which files should we take a look at next? Our budget is {{{{token_limit}}}} tok
 
 class ProposePullRequest(Rail):
     # Generate proposed list of commit messages, given notes and issue
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{PullRequestDescription.rail_spec}
-</output>
-<prompt>
-Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
+    prompt_spec = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
 
 These are notes we took while looking at the repo:
-```{{{{notes_taken_while_looking_at_files}}}}```
+```{{notes_taken_while_looking_at_files}}```
 
 This is the issue that was opened:
-```{{{{issue}}}}```
+```{{issue}}```
 
-When you're done, send me the pull request title, body, a list of commits coupled with which files we should look at to write the commit's code.
+When you're done, send me the pull request title, body, and a list of commits coupled with which files we should look at to write the commit's code."""
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
     output_type = PullRequestDescription
     extra_params = {
         'temperature': 0.1,
@@ -322,39 +289,28 @@ When you're done, send me the pull request title, body, a list of commits couple
 
 class NewDiff(Rail):
     # Generate code for a commit, given an issue, a pull request, and a codebase
-    rail_spec = f"""
-<rail version="0.1">
-<output>
-{Diff.rail_spec}
-</output>
-<prompt>
-Hey, now that we've got a plan, let's write some code.
+    prompt_spec = f"""Hey, now that we've got a plan, let's write some code.
 
 This is the issue that was opened:
-```{{{{issue}}}}```
+```{{issue}}```
 
 This is the plan to address it:
-```{{{{pull_request_description}}}}```
+```{{pull_request_description}}```
 
 This is the codebase subset we decided to look at:
-```{{{{codebase}}}}```
+```{{codebase}}```
 
 This is the commit for which we're writing a diff:
-```{{{{commit}}}}```
+```{{commit}}```
 
 Please implement the commit, and send me the diff. 
-Only write a diff in the codebase subset we're looking at, we'll look at the rest later.
-If the codebase subset is irrelevant to the commit, send an empty string.
+Only write a diff in the codebase subset we're looking at.
+If the codebase subset is not relevant to the commit, send me an empty diff."""
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
-</prompt>
-</rail>
-"""
     output_type = Diff
+    extra_params = {
+        'temperature': 0.05,
+    }
 
     issue: str
     pull_request_description: str

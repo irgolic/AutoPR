@@ -146,7 +146,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         break
         else:
             if line:
-                log.error("Unknown line: ", line)
+                log.error("Unknown line: ", line=line)
             cleaned_lines.append(line)
             current_line_number += 1
 

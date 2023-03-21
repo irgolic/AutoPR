@@ -12,5 +12,6 @@ from autopr.models.rails import RailUnion
 )
 def test_guardrails_spec_validity(rail_type):
     """Test that all guardrails specs are valid."""
-    print(rail_type.rail_spec)
-    gd.Guard.from_rail_string(rail_type.rail_spec)
+    rail_spec = rail_type.get_rail_spec()
+    print(rail_spec)
+    gd.Guard.from_rail_string(rail_spec)

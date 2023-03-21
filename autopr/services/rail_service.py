@@ -2,7 +2,7 @@ from typing import Callable, Any, Optional, TypeVar
 from tenacity import (
     retry,
     stop_after_attempt,
-    wait_random_exponential,
+    wait_random_exponential, retry_if_exception_type,
 )  # for exponential backoff
 
 import openai
@@ -29,9 +29,7 @@ class RailService:
         completion_model: str = 'gpt-4',
         num_reasks: int = 2,
         temperature: float = 0.8,
-        system_prompt: str = 'You are a python developer and git nerd, '
-                             'able to express yourself purely through JSON, '
-                             'strictly and precisely adhering to the provided XML schemas.',
+        system_prompt: str = 'You are a software developer and git nerd, a helpful planning and coding assistant.',
     ):
         self.max_tokens = max_tokens
         self.min_tokens = min_tokens
@@ -40,12 +38,33 @@ class RailService:
         self.completion_model = completion_model
         self.num_reasks = num_reasks
         self.temperature = temperature
-        self.system_prompt = system_prompt
+        self.raw_system_prompt = system_prompt
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
 
-    @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-    def _run_rail(self, rail: RailUnion) -> tuple[str, dict]:
-        rail_spec = rail.rail_spec
+    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
+           wait=wait_random_exponential(min=1, max=60),
+           stop=stop_after_attempt(6))
+    def _run_raw(self, rail: RailUnion) -> str:
+        prompt = self.get_prompt_message(rail)
+        length = len(self.tokenizer.encode(prompt))
+        max_tokens = min(self.max_tokens, self.context_limit - length)
+        response = self.completion_func(
+            model=self.completion_model,
+            max_tokens=max_tokens,
+            temperature=self.temperature,
+            messages=[
+                {"role": "system", "content": self.raw_system_prompt},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        log.info('Ran raw completion', response=response)
+        return response['choices'][0]['message']['content']
+
+    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
+           wait=wait_random_exponential(min=1, max=60),
+           stop=stop_after_attempt(6))
+    def _run_rail(self, rail: RailUnion, raw_response: str) -> tuple[str, dict]:
+        rail_spec = rail.get_rail_spec()
         pr_guard = gd.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
@@ -56,8 +75,9 @@ class RailService:
             'model': self.completion_model,
             'max_tokens': max_tokens,
             'temperature': self.temperature,
-            'prompt_params': rail.get_string_params(),
-            'system_prompt': self.system_prompt,
+            'prompt_params': {
+                'raw_response': raw_response,
+            },
             **rail.extra_params,
         }
         raw_o, dict_o = pr_guard(self.completion_func, **options)
@@ -74,14 +94,22 @@ class RailService:
                 return None
             token_length = self.calculate_prompt_length(rail)
 
-        log.info('Running rail',
-                 rail_name=rail.__class__.__name__,
-                 raw_message=self.get_prompt_message(rail))
-        raw_o, dict_o = self._run_rail(rail)
-        log.info('Ran rail',
-                 rail_name=rail.__class__.__name__,
-                 raw_output=raw_o,
-                 dict_output=dict_o)
+        log.debug('Raw prompting',
+                  rail_name=rail.__class__.__name__,
+                  raw_message=self.get_prompt_message(rail))
+        raw_response = self._run_raw(rail)
+        log.debug('Raw prompted',
+                  rail_name=rail.__class__.__name__,
+                  raw_response=raw_response)
+
+        log.debug('Running rail',
+                  rail_name=rail.__class__.__name__,
+                  rail_message=self.get_rail_message(rail, raw_response))
+        raw_o, dict_o = self._run_rail(rail, raw_response)
+        log.debug('Ran rail',
+                  rail_name=rail.__class__.__name__,
+                  raw_output=raw_o,
+                  dict_output=dict_o)
         if dict_o is None:
             log.warning(f'Got None from rail',
                         rail_name=rail.__class__.__name__,
@@ -96,11 +124,17 @@ class RailService:
                         dict_output=dict_o)
             return None
 
-    def get_prompt_message(self, rail: RailUnion):
-        spec = rail.rail_spec
+    @staticmethod
+    def get_prompt_message(rail: RailUnion):
+        spec = rail.prompt_spec
         prompt_params = rail.get_string_params()
+        return spec.format(**prompt_params)
+
+    @staticmethod
+    def get_rail_message(rail: RailUnion, raw_response: str):
+        spec = rail.get_rail_spec()
         pr_guard = gd.Guard.from_rail_string(spec)
-        return pr_guard.base_prompt.format(**prompt_params)
+        return pr_guard.base_prompt.format(raw_response=raw_response)
 
     def calculate_prompt_length(self, rail: RailUnion) -> int:
         prompt = self.get_prompt_message(rail)
