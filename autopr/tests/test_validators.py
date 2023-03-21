@@ -250,8 +250,8 @@ validators_negative_indendation_offset_unidiff = """--- autopr/validators.py
                          # Fix @@ line
                          cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
 """
-validators_correct_unidiff = """--- autopr/validators.py
-+++ autopr/validators.py
+validators_correct_unidiff = """--- autopr/autopr/validators.py
++++ autopr/autopr/validators.py
 @@ -106,4 +106,5 @@
          for offset in range(-search_range, search_range + 1):
              check_line_number = current_line_number + offset
@@ -355,12 +355,15 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
     mock_blob = MagicMock()
     mock_blob.data_stream.read.return_value = file_contents.encode()
 
+    # Make sure gptignore does not exist
     def truediv_side_effect(path):
         if path == '.gptignore':
             raise KeyError('.gptignore not found')
         return mock_blob
-
     mock_tree.__truediv__.side_effect = truediv_side_effect
+
+    # Make this return autopr (repo.remotes.origin.url.split('.git')[0].split('/')[-1])
+    mock_repo.remotes.origin.url = '/autopr.git'
     validator_class = create_unidiff_validator(mock_repo, mock_tree)
     validator = validator_class(on_fail="fix")
     for reason, corrupted_unidiff in cases:
