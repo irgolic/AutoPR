@@ -3,7 +3,7 @@ import transformers
 from git import Tree
 
 from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse, \
-    Diff
+    Diff, CommitPlan
 from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
     NewDiff, FileDescriptor
 from autopr.models.repo import RepoCommit
@@ -147,22 +147,26 @@ class GenerationService:
             raise ValueError('Error looking at files')
         filepaths = response.filepaths_we_should_look_at
         notes = response.notes
+        print(f'Wrote notes: {notes}')
 
         viewed_filepaths_up_to_chunk: dict[str, int] = {}
         reasks = self.rail_service.num_reasks
         while filepaths and reasks > 0:
             reasks -= 1
+
             print(f'Looking at more files... ({reasks} reasks left)')
+            for fp in filepaths:
+                print(f' - {fp}')
+
             for fp in rail.selected_file_contents:
-                viewed_filepaths_up_to_chunk[fp.path] = \
-                    -1 if fp.end_chunk == len(fp.chunks) else fp.end_chunk
+                viewed_filepaths_up_to_chunk[fp.path] = fp.end_chunk
             file_contents = []
             for f in files:
                 if f.path not in filepaths:
                     continue
                 if f.path in viewed_filepaths_up_to_chunk:
                     chunk_num = viewed_filepaths_up_to_chunk[f.path]
-                    if chunk_num == -1:
+                    if chunk_num == f.end_chunk:
                         continue
                     new_f = f.copy(deep=True)
                     new_f.start_chunk = chunk_num
@@ -181,43 +185,103 @@ class GenerationService:
                 filepaths = []
             else:
                 filepaths = response.filepaths_we_should_look_at
+                print(f"Wrote notes: {response.notes}")
                 notes += f'\n{response.notes}'
 
         return notes
 
     def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
         print('Getting commit messages...')
-        commit_plans: PullRequestDescription = self.rail_service.run_rail(
+        pr_desc: PullRequestDescription = self.rail_service.run_rail(
             ProposePullRequest(
                 issue=issue_text,
                 notes_taken_while_looking_at_files=notes,
             )
         )
-        if commit_plans is None:
+        if pr_desc is None:
             raise ValueError('Error proposing pull request')
-        return commit_plans
+        return pr_desc
 
-    def generate_patch(self, files: list[FileDescriptor], issue_text: str, pr_desc: PullRequestDescription, relevant_filepaths: list[str]) -> str:
+    def generate_patch(
+        self,
+        files: list[FileDescriptor],
+        issue_text: str,
+        pr_desc: PullRequestDescription,
+        current_commit: CommitPlan
+    ) -> str:
         print('Generating patch...')
-        pr_text_description = f"Title: {pr_desc.title}\n\n{pr_desc.body}\n\nCommits:\n"
-        for commit_plan in pr_desc.commits:
-            pr_text_description += f" - {commit_plan.message}\n"
+        pr_text_description = f"Title: {pr_desc.title}\n\n{pr_desc.body}\n\n"
+        for i, commit_plan in enumerate(pr_desc.commits):
+            prefix = f" {' ' * len(str(i + 1))}  "
+            changes_prefix = f"\n{prefix}  "
+            pr_text_description += (
+                f"{str(i + 1)}. Commit: {commit_plan.commit_message}\n"
+                f"{prefix}Files: {','.join(commit_plan.relevant_filepaths)}\n"
+                f"{prefix}Changes:"
+                f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
+            )
 
         files_subset = [
             f.copy(deep=True) for f in files
-            if f.path in relevant_filepaths
+            if f.path in current_commit.relevant_filepaths
         ]
+        print('Files to look at:')
+        for f in files_subset:
+            print(f' - {f.path}')
 
-        patch: Diff = self.rail_service.run_rail(
-            NewDiff(
-                issue=issue_text,
-                pull_request_description=pr_text_description,
-                selected_file_contents=files_subset,
-            )
+        commit_description = current_commit.commit_message + '\n\n' + current_commit.commit_changes_description
+
+        rail = NewDiff(
+            issue=issue_text,
+            pull_request_description=pr_text_description,
+            selected_file_contents=files_subset,
+            commit=commit_description,
         )
+        patch: Diff = self.rail_service.run_rail(rail)
         if patch is None:
             raise ValueError('Error generating patch')
-        return patch.text
+        patch_text = patch.text or ''
+
+        # if not all chunks were looked at, keep running the rail until all chunks are looked at
+        not_looked_at_files = []
+
+        def update_not_looked_at_files():
+            nonlocal not_looked_at_files
+
+            not_looked_at_files = []
+            for f in files_subset:
+                if f.end_chunk == len(f.chunks):
+                    continue
+                f.start_chunk = f.end_chunk
+                f.end_chunk = len(f.chunks)
+                not_looked_at_files.append(f)
+
+        update_not_looked_at_files()
+        reasks = self.rail_service.num_reasks
+        while not_looked_at_files and reasks > 0:
+            reasks -= 1
+            print(f'Generating patch over more code... ({reasks} reasks left)')
+
+            for f in not_looked_at_files:
+                print(f' - {f.path} ({f.end_chunk - f.start_chunk} chunks left)')
+
+            files_subset = [
+                f.copy(deep=True) for f in files_subset
+                if f.end_chunk != len(f.chunks)
+            ]
+            rail = NewDiff(
+                issue=issue_text,
+                pull_request_description=pr_text_description,
+                selected_file_contents=not_looked_at_files,
+                commit=commit_description,
+            )
+            patch: Diff = self.rail_service.run_rail(rail)
+            if patch is None:
+                raise ValueError('Error generating patch')
+            patch_text += patch.text or ''
+            update_not_looked_at_files()
+
+        return patch_text
 
     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> RepoPullRequest:
         issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
@@ -241,10 +305,10 @@ class GenerationService:
                 files,
                 issue_text,
                 pr_desc,
-                commit_plan.relevant_filepaths
+                commit_plan
             )
             commits.append(RepoCommit(
-                message=commit_plan.message,
+                message=commit_plan.commit_message,
                 diff=diff,
             ))
 

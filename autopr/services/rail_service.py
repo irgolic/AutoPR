@@ -24,8 +24,11 @@ class RailService:
         context_limit: int = 8192,
         completion_func: Callable = openai.ChatCompletion.create,
         completion_model: str = 'gpt-4',
-        num_reasks: int = 3,
+        num_reasks: int = 2,
         temperature: float = 0.8,
+        system_prompt: str = 'You are a python developer and git nerd, '
+                             'able to express yourself purely through JSON, '
+                             'strictly and precisely adhering to the provided XML schemas.',
     ):
         self.max_tokens = max_tokens
         self.min_tokens = min_tokens
@@ -34,6 +37,7 @@ class RailService:
         self.completion_model = completion_model
         self.num_reasks = num_reasks
         self.temperature = temperature
+        self.system_prompt = system_prompt
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
 
     @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
@@ -50,6 +54,7 @@ class RailService:
             'max_tokens': max_tokens,
             'temperature': self.temperature,
             'prompt_params': rail.get_string_params(),
+            'system_prompt': self.system_prompt,
             **rail.extra_params,
         }
         raw_o, dict_o = pr_guard(self.completion_func, **options)
@@ -72,7 +77,6 @@ class RailService:
             return None
         try:
             return rail.output_type.parse_obj(dict_o)
-# TODO remove this line
         except pydantic.ValidationError:
             print(f'Got invalid output from rail: {raw_o}, {dict_o}')
             return None

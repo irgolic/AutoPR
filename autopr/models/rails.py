@@ -184,7 +184,7 @@ Which files should we take a look at next? Our budget is {{{{token_limit}}}} tok
 """
     output_type = LookAtFilesResponse
     extra_params = {
-        'temperature': 0,
+        'temperature': 0.2,
     }
 
     issue: str
@@ -249,7 +249,7 @@ Which files should we take a look at next? Our budget is {{{{token_limit}}}} tok
 """
     output_type = LookAtFilesResponse
     extra_params = {
-        'temperature': 0,
+        'temperature': 0.2,
     }
 
     issue: str
@@ -299,12 +299,18 @@ This is the issue that was opened:
 ```{{{{issue}}}}```
 
 When you're done, send me the pull request title, body, a list of commits coupled with which files we should look at to write the commit's code.
+
+@xml_prefix_prompt
+
+{{output_schema}}
+
+@json_suffix_prompt_v2_wo_none
 </prompt>
 </rail>
 """
     output_type = PullRequestDescription
     extra_params = {
-        'temperature': 0.2,
+        'temperature': 0.1,
     }
 
     notes_taken_while_looking_at_files: str
@@ -316,12 +322,7 @@ class NewDiff(Rail):
     rail_spec = f"""
 <rail version="0.1">
 <output>
-<string 
-  name="diff" 
-  description="The diff of the commit, in unified format (unidiff), as output by `diff -u`."" 
-  format="unidiff" 
-  on-fail="fix"
-  />
+{Diff.rail_spec}
 </output>
 <prompt>
 Hey, now that we've got a plan, let's write some code.
@@ -335,7 +336,12 @@ This is the plan to address it:
 This is the codebase subset we decided to look at:
 ```{{{{codebase}}}}```
 
-Please address the issue, and send me the diff.
+This is the commit for which we're writing a diff:
+```{{{{commit}}}}```
+
+Please implement the commit, and send me the diff. 
+Only write a diff in the codebase subset we're looking at, we'll look at the rest later.
+If the codebase subset is irrelevant to the commit, send an empty string.
 
 @xml_prefix_prompt
 
@@ -350,15 +356,17 @@ Please address the issue, and send me the diff.
     issue: str
     pull_request_description: str
     selected_file_contents: list[FileDescriptor]
+    commit: str
 
     def get_string_params(self) -> dict[str, str]:
         return {
             'issue': self.issue,
             'pull_request_description': self.pull_request_description,
             'codebase': '\n'.join([
-                file_descriptor.filenames_and_contents_to_str(start_chunk, end_chunk)
-                for file_descriptor, start_chunk, end_chunk in self.selected_file_contents
+                file_descriptor.filenames_and_contents_to_str()
+                for file_descriptor in self.selected_file_contents
             ]),
+            'commit': self.commit,
         }
 
     def trim_params(self) -> bool:

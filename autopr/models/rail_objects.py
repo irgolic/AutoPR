@@ -20,20 +20,19 @@ class InitialFileSelectResponse(RailObject):
 
 
 class LookAtFilesResponse(RailObject):
-    rail_spec = """<list name="filepaths_we_should_look_at">
+    rail_spec = """<string 
+    name="notes" 
+    description="Notes about the files (including line numbers), relevant to the issue at hand, that will help us write code later." 
+    length="1 1000"
+    on-fail="noop" 
+/>
+<list name="filepaths_we_should_look_at">
     <string
         description="The paths to files we should look at next in the repo, out of the ones we haven't taken a look at yet. Empty list if we're done."
         format="filepath"
         on-fail="noop"
     />
-</list>
-<string 
-    name="notes" 
-    description="Notes about the files (including line numbers), relevant to the issue at hand, that will help us write code later." 
-    length="1 1000"
-    format="text" 
-    on-fail="noop" 
-/>"""
+</list>"""
 
     filepaths_we_should_look_at: Optional[List[str]] = None
     notes: str
@@ -43,12 +42,12 @@ class Diff(RailObject):
     rail_spec = """<string
     name="diff"
     description="The diff of the commit, in unified format (unidiff), as output by `diff -u`."
-    required="true"
+    required="false"
     format="unidiff"
     on-fail-unidiff="fix"
 />"""
 
-    text: str
+    text: Optional[str] = None
 
 
 class Commit(RailObject):
@@ -62,14 +61,14 @@ class Commit(RailObject):
 />"""
 
     diff: Diff
-    message: str
+    commit_message: str
 
 
 class CommitPlan(RailObject):
     rail_spec = f"""<string
-    description="The commit message, accurately describing the changes made."
+    name="commit_message"
+    description="The commit message, concisely describing the changes made."
     length="1 100"
-    format="text"
     on-fail="noop"
 />
 <list
@@ -82,10 +81,16 @@ class CommitPlan(RailObject):
         on-fail="fix"
     />
 </list>
-"""
+<string
+    name="commit_changes_description"
+    description="A description of the changes made in this commit, in the form of a list of bullet points."
+    length="1 1000"
+    on-fail="noop"
+/>"""
 
-    message: str
+    commit_message: str
     relevant_filepaths: List[str]
+    commit_changes_description: str
 
 
 class PullRequestDescription(RailObject):
@@ -101,9 +106,7 @@ class PullRequestDescription(RailObject):
     name="commits"
     on-fail="reask"
 >
-<object
-    name="commit"
->
+<object>
 {CommitPlan.rail_spec}
 </object>
 </list>"""
