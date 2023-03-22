@@ -156,7 +156,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     return cleaned_lines
 
 
-def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
+def create_unidiff_validator(repo: git.Repo):
     class Unidiff(Validator):
         """Validate value is a valid unidiff.
         - Name for `format` attribute: `unidiff`
@@ -190,6 +190,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             return schema
 
         def fix(self, error: EventDetail) -> Any:
+            tree = repo.head.commit.tree
             value = error.value
             lines = value.splitlines()
 
@@ -318,7 +319,8 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
     return register_validator(name="unidiff", data_type="string")(Unidiff)
 
 
-def create_filepath_validator(tree: git.Tree):
+def create_filepath_validator(repo: git.Repo):
+    # TODO I don't think we need this validator anymore
     class FilePath(Validator):
         """Validate value is a valid file path.
         - Name for `format` attribute: `filepath`
@@ -328,6 +330,7 @@ def create_filepath_validator(tree: git.Tree):
             log.debug("Validating filepath...", key=key, value=value)
 
             # Check if the filepath exists in the repo
+            tree = repo.head.commit.tree
             try:
                 blob = tree / value
             except KeyError:

@@ -47,7 +47,7 @@ class Diff(RailObject):
     on-fail-unidiff="fix"
 />"""
 
-    text: Optional[str] = None
+    diff: Optional[str] = None
 
 
 class Commit(RailObject):

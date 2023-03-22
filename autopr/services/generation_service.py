@@ -1,5 +1,7 @@
 import tempfile
+from typing import Callable
 
+import git
 import pydantic
 import transformers
 from git import Tree
@@ -9,7 +11,7 @@ from autopr.models.rail_objects import PullRequestDescription, InitialFileSelect
 from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
     NewDiff, FileDescriptor
 from autopr.models.repo import RepoCommit
-from autopr.services.pull_request_service import RepoPullRequest
+from autopr.models.repo import RepoPullRequest
 from autopr.services.rail_service import RailService
 
 import structlog
@@ -243,7 +245,7 @@ class GenerationService:
         patch: Diff = self.rail_service.run_rail(rail)
         if patch is None:
             raise ValueError('Error generating patch')
-        patch_text = patch.text or ''
+        patch_text = patch.diff or ''
 
         # if not all chunks were looked at, keep running the rail until all chunks are looked at
         not_looked_at_files = []
@@ -281,15 +283,23 @@ class GenerationService:
             patch: Diff = self.rail_service.run_rail(rail)
             if patch is None:
                 raise ValueError('Error generating patch')
-            patch_text += patch.text or ''
+            patch_text += patch.diff or ''
             update_not_looked_at_files()
 
         return patch_text
 
-    def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str, issue_number: int) -> RepoPullRequest:
+    def generate_pr(
+        self,
+        repo: git.Repo,
+        issue_title: str,
+        issue_body: str,
+        issue_number: int,
+        handle_commit: Callable[[PullRequestDescription, RepoCommit], None]
+    ) -> RepoPullRequest:
         issue_text = f"Issue #{str(issue_number)}\nTitle: {issue_title}\n\n{issue_body}"
 
         # Get file descriptors from repo
+        repo_tree = repo.head.commit.tree
         files = self._repo_to_file_descriptors(repo_tree)
 
         # Get the filepaths to look at
@@ -313,19 +323,12 @@ class GenerationService:
                 pr_desc,
                 commit_plan
             )
-            commits.append(RepoCommit(
+            repo_commit = RepoCommit(
                 message=commit_plan.commit_message,
                 diff=diff,
-            ))
-            # Apply diff to files
-            with tempfile.NamedTemporaryFile() as f:
-                f.flush()
-                repo_tree.repo.git.execute(["git",
-                                            "apply",
-                                            "--unidiff-zero",
-                                            "--inaccurate-eof",
-                                            "--allow-empty",
-                                            f.name])
+            )
+            handle_commit(pr_desc, repo_commit)
+            repo_tree = repo.head.commit.tree
             files = self._repo_to_file_descriptors(repo_tree)
 
         pr_model = RepoPullRequest(
@@ -346,22 +349,3 @@ Commits:""")
 {commit.diff}\n\n""")
 
         return pr_model
-
-
-#
-# class SingleLangchainGenerationService(GenerationService):
-
-#
-#     def generate_pr(self, repo_tree: Tree, issue_title: str, issue_body: str) -> PullRequest:
-#         patch = self.generate_patch(repo_tree, issue_title, issue_body)
-#         # TODO describe the patch in the PR body
-#         return PullRequest(
-#             title=f"Fix {issue_title}",
-#             body="",
-#             commits=[
-#                 Commit(
-#                     message=f"Fix {issue_title}",
-#                     diff=patch,
-#                 )
-#             ],
-#         )

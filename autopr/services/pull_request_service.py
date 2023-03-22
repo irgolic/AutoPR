@@ -1,16 +1,16 @@
 import requests
 
-from autopr.models.repo import RepoPullRequest
+from autopr.models.rail_objects import PullRequestDescription
 
 import structlog
 log = structlog.get_logger()
 
 
 class PullRequestService:
-    def publish(self, pr: RepoPullRequest):
+    def publish(self, pr: PullRequestDescription):
         raise NotImplementedError
 
-    def update(self, pr: RepoPullRequest):
+    def update(self, pr: PullRequestDescription):
         raise NotImplementedError
 
 
@@ -29,14 +29,14 @@ class GithubPullRequestService(PullRequestService):
             'X-GitHub-Api-Version': '2022-11-28',
         }
 
-    def publish(self, pr: RepoPullRequest):
+    def publish(self, pr: PullRequestDescription):
         existing_pr = self._find_existing_pr()
         if existing_pr:
             self.update(pr)
         else:
             self._create_pr(pr)
 
-    def _create_pr(self, pr: RepoPullRequest):
+    def _create_pr(self, pr: PullRequestDescription):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         data = {
@@ -52,7 +52,7 @@ class GithubPullRequestService(PullRequestService):
         else:
             log.debug('Failed to create pull request', response_text=response.text)
 
-    def update(self, pr: RepoPullRequest):
+    def update(self, pr: PullRequestDescription):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
             log.debug("No existing pull request found to update")
