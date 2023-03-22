@@ -295,8 +295,11 @@ class GenerationService:
         # Get the filepaths to look at
         filepaths = self.get_initial_filepaths(files, issue_text)
 
-        # Look at the files
-        notes = self.write_notes_about_files(files, issue_text, filepaths)
+        if filepaths:
+            # Look at the files
+            notes = self.write_notes_about_files(files, issue_text, filepaths)
+        else:
+            notes = "The repository's files were not looked at."
 
         # Get the commit messages and relevant filepaths
         pr_desc = self.propose_pull_request(issue_text, notes)
