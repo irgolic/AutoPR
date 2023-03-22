@@ -8,9 +8,6 @@ from .services.rail_service import RailService
 
 from .validators import create_unidiff_validator, create_filepath_validator
 
-from log_config import configure_logging
-configure_logging()
-
 import structlog
 
 log = structlog.get_logger()

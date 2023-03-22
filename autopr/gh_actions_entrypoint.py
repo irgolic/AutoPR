@@ -1,5 +1,8 @@
 import os
 
+from autopr.log_config import configure_logging
+configure_logging()
+
 import structlog
 log = structlog.get_logger()
 
