@@ -1,3 +1,5 @@
+import tempfile
+
 import pydantic
 import transformers
 from git import Tree
@@ -312,6 +314,16 @@ class GenerationService:
                 message=commit_plan.commit_message,
                 diff=diff,
             ))
+            # Apply diff to files
+            with tempfile.NamedTemporaryFile() as f:
+                f.flush()
+                repo_tree.repo.git.execute(["git",
+                                            "apply",
+                                            "--unidiff-zero",
+                                            "--inaccurate-eof",
+                                            "--allow-empty",
+                                            f.name])
+            files = self._repo_to_file_descriptors(repo_tree)
 
         pr_model = RepoPullRequest(
             title=pr_desc.title,
