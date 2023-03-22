@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 
@@ -54,6 +55,13 @@ def main(
     tree = repo.heads[base_branch_name].commit.tree
     log.debug('Generating PR...')
     pr = generator.generate_pr(tree, issue_title, issue_body, issue_number)
+
+    # Remove guardrails log if exists (so it's not committed later)
+    if 'guardrails.log' in repo.untracked_files:
+        log.debug('Removing guardrails.log...')
+        os.remove(
+            os.path.join(repo_path, 'guardrails.log')
+        )
 
     # If branch already exists, delete it
     if branch_name in repo.heads:
