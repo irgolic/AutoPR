@@ -70,11 +70,29 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     first_line_semaphore: int = 0
     indentation_offset: int = 0
     is_new_file: bool = False
+    after_changes: bool = False
+
+    def update_after_changes(line_number: int):
+        nonlocal after_changes
+        line_number += 1
+        while line_number < len(lines):
+            if lines[line_number].startswith("---") and \
+                    lines[line_number + 1].startswith("+++") and \
+                    lines[line_number + 2].startswith("@@"):
+                after_changes = True
+                break
+            if any(lines[line_number].startswith(s) for s in ("+", "-")):
+                after_changes = False
+                break
+            line_number += 1
+        if line_number >= len(lines):
+            after_changes = True
 
     for i, line in enumerate(lines):
         first_line_semaphore = max(0, first_line_semaphore - 1)
         if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):  # hunk header
             is_new_file = False
+            after_changes = False
 
             # Extract the filename after ---
             filepath_match = re.match(r"--- (.+)", line)
@@ -98,6 +116,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
         elif line.startswith("+++"):  # filename (hunk header 2/2)
             cleaned_lines.append(line)
         elif line.startswith("-"):  # remove line
+            update_after_changes(i)
             if is_new_file:
                 continue
             line_content = line[1:]
@@ -118,10 +137,15 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 hallucinated_indentation = len(line_content) - len(line_content.lstrip())
                 indentation_offset = real_indentation - hallucinated_indentation
         elif line.startswith("+"):  # new line
+            update_after_changes(i)
             cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
         elif line.lstrip() != line:  # context line
             # Line has a leading whitespace, check if it's in the actual file content
             if is_new_file or current_line_number >= len(current_file_content):
+                continue
+            # Adding context lines after the diff sometimes makes git remove the newline from the last line,
+            # so we're ignoring these for now
+            if after_changes:
                 continue
             file_line = current_file_content[current_line_number]
             if line.lstrip() == file_line.lstrip():
@@ -133,12 +157,15 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 current_line_number += 1
             elif first_line_semaphore:
                 # Search for the line in the file content
-                for offset in range(-search_range, search_range + 1):
+                # Organize the search range from the current line number outward
+                search_offset_list = list(range(-search_range, search_range + 1))
+                search_offset_list.sort(key=abs)
+                for offset in search_offset_list:
                     check_line_number = current_line_number + offset
-                    check_file_line = current_file_content[check_line_number]
                     if not 0 <= check_line_number < len(current_file_content):
                         continue
-                    elif line.lstrip() == check_file_line.lstrip():
+                    check_file_line = current_file_content[check_line_number]
+                    if line.lstrip() == check_file_line.lstrip():
                         current_line_number = check_line_number + 1
                         # Fix @@ line
                         cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
@@ -313,7 +340,7 @@ def create_unidiff_validator(repo: git.Repo):
                             lines[i] = line.replace(f"--- {repo_name}/", f"--- {repo_name}/{repo_name}/")
                             lines[i + 1] = lines[i + 1].replace(f"+++ {repo_name}/", f"+++ {repo_name}/{repo_name}/")
 
-            # Recalculate the @@ line
+            # Recalculate the @@ line and remove hallucinated lines
             lines = remove_hallucinations(lines, tree)
 
             # Recalculate the line counts in the unidiff

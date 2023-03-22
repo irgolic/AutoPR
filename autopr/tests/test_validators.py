@@ -18,15 +18,12 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]"""
 correct_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
-@@ -5,6 +5,8 @@
+@@ -5,3 +5,5 @@
  
  # Set up entrypoint
  COPY entrypoint.sh /entrypoint.sh
 +
 +# Make entrypoint executable
- RUN chmod +x /entrypoint.sh
- 
- # Run the app
 """
 wrong_line_counts_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
@@ -93,18 +90,16 @@ plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
 """
 correct_multisection_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
-@@ -3,2 +3,3 @@
+@@ -3,1 +3,2 @@
  # Install git
 +
- RUN apt-get update && apt-get install -y git
 --- Dockerfile
 +++ Dockerfile
-@@ -8,3 +8,5 @@
+@@ -8,2 +8,4 @@
  RUN chmod +x /entrypoint.sh
  
 + Ha
 + Haha
- # Run the app
 """
 incorrect_multisection_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
@@ -224,7 +219,7 @@ validators_file = '\n' * 102 + """
  """
 validators_correct_unidiff = """--- autopr/autopr/validators.py
 +++ autopr/autopr/validators.py
-@@ -106,7 +106,8 @@
+@@ -106,4 +106,5 @@
          for offset in range(-search_range, search_range + 1):
              check_line_number = current_line_number + offset
 -            check_file_line = current_file_content[check_line_number]
@@ -232,9 +227,6 @@ validators_correct_unidiff = """--- autopr/autopr/validators.py
 +            if 0 <= check_line_number < len(current_file_content):
 +                check_file_line = current_file_content[check_line_number]
 +                if line[1:] == check_file_line:
-                     current_line_number = check_line_number + 1
-                     # Fix @@ line
-                     cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
 """
 validators_positive_indendation_offset_unidiff = """--- autopr/validators.py
 +++ autopr/validators.py
@@ -400,14 +392,11 @@ correct_generation_service_diff = """--- autopr/autopr/services/generation_servi
 +from pathlib import Path
 --- autopr/autopr/services/generation_service.py
 +++ autopr/autopr/services/generation_service.py
-@@ -28,6 +29,7 @@
+@@ -28,3 +29,4 @@
          self.file_context_token_limit = file_context_token_limit
          self.file_chunk_size = file_chunk_size
          self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
 +        self.create_gptignore()
- 
-     @staticmethod
-     def repo_to_codebase(
 --- autopr/autopr/services/generation_service.py
 +++ autopr/autopr/services/generation_service.py
 @@ -67,3 +69,23 @@
