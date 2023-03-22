@@ -164,7 +164,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
         """
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            log.debug(f"Validating unidiff...", key=key, value=value, schema=schema)
+            log.debug(f"Validating unidiff...", key=key, value=value)
 
             # try to apply the patch with git apply --check
             with tempfile.NamedTemporaryFile() as f:
@@ -309,6 +309,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             try:
                 self.validate(error.key, value, error.schema)
             except EventDetail:
+                log.error("Failed to fix unidiff", key=error.key, value=value)
                 return super().fix(error)
 
             error.schema[error.key] = value
@@ -324,7 +325,7 @@ def create_filepath_validator(tree: git.Tree):
         - Supported data types: `string`
         """
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            log.debug("Validating filepath...", key=key, value=value, schema=schema)
+            log.debug("Validating filepath...", key=key, value=value)
 
             # Check if the filepath exists in the repo
             try:
