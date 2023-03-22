@@ -226,10 +226,22 @@ class GenerationService:
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )
 
-        files_subset = [
-            f.copy(deep=True) for f in files
-            if f.path in current_commit.relevant_filepaths
+        files_subset = []
+        for f in files:
+            if f.path in current_commit.relevant_filepaths:
+                files_subset.append(f.copy(deep=True))
+        # If any files are not found, see if they are a stem of a file in the repo
+        subset_paths = [f.path for f in files_subset]
+        fps_not_found = [
+            fp for fp in current_commit.relevant_filepaths
+            if fp not in subset_paths
         ]
+        for fp in fps_not_found:
+            for f in files:
+                if f.path.endswith(fp) and f.path not in subset_paths:
+                    files_subset.append(f.copy(deep=True))
+                    break
+
         log.debug('Files to look at:')
         for f in files_subset:
             log.debug(f' - {f.path}')
