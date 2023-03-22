@@ -163,6 +163,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
             'token_limit': str(self.token_limit),
         }
 
+    @classmethod
     def get_rail_spec(cls):
         return f"""
 <rail version="0.1">
@@ -235,6 +236,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
     def trim_params(self) -> bool:
         return _trim_chunk(self.selected_file_contents)
 
+    @classmethod
     def get_rail_spec(cls):
         return f"""
 <rail version="0.1">
