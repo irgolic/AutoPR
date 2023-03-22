@@ -40,14 +40,14 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
                     x_count += 1
                 elif lines[j].startswith("+"):
                     y_count += 1
-                elif not lines[j].startswith("\\"):
+                elif lines[j]:
                     x_count += 1
                     y_count += 1
 
                 j += 1
 
             # Update the @@ line with the correct y values
-            corrected_line = f"@@ -{start_x},{x_count - 1} +{start_y},{y_count - 1} @@"
+            corrected_line = f"@@ -{start_x},{x_count} +{start_y},{y_count} @@"
             corrected_lines.append(corrected_line)
         else:
             corrected_lines.append(line)

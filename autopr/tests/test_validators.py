@@ -93,7 +93,7 @@ plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
 """
 correct_multisection_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
-@@ -3,1 +3,2 @@
+@@ -3,2 +3,3 @@
  # Install git
 +
  RUN apt-get update && apt-get install -y git
