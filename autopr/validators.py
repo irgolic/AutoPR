@@ -66,7 +66,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     cleaned_lines: list[str] = []
     current_file_content: Optional[list[str]] = None
     current_line_number: int = 0
-    search_range: int = 3
+    search_range: int = 20
     first_line_semaphore: int = 0
     indentation_offset: int = 0
     is_new_file: bool = False
