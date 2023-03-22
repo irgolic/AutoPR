@@ -288,6 +288,7 @@ def create_unidiff_validator(repo: git.Repo):
             # Fix filepaths, such that if it starts with a directory with the same name as the repo,
             # the path is prepended with that name again
             repo_name = repo.remotes.origin.url.split('.git')[0].split('/')[-1]
+            log.debug(f"Repo name: {repo_name}")
             try:
                 tree / repo_name
             except KeyError:

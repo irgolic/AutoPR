@@ -329,6 +329,113 @@ tic_tac_toe_correct = """--- /dev/null
 +    display_board(example_board)
 """
 
+generation_service_file = "\n" * 7 + """
+from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse, \\
+    Diff, CommitPlan
+from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \\
+    NewDiff, FileDescriptor
+from autopr.models.repo import RepoCommit
+from autopr.models.repo import RepoPullRequest
+from autopr.services.rail_service import RailService
+
+import structlog
+log = structlog.get_logger()""" + "\n" * 8 + """    ):
+        self.rail_service = rail_service
+        self.file_context_token_limit = file_context_token_limit
+        self.file_chunk_size = file_chunk_size
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
+
+    @staticmethod
+    def repo_to_codebase(""" + "\n" * 33 + """
+        return filenames_and_contents
+
+    def _repo_to_files_and_token_lengths(
+        self,"""
+incorrect_generation_service_diff = """--- autopr/services/generation_service.py
++++ autopr/services/generation_service.py
+@@ -11,6 +11,7 @@
+ from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest,     NewDiff, FileDescriptor
+ from autopr.models.repo import RepoCommit
+ from autopr.models.repo import RepoPullRequest
++from pathlib import Path
+ from autopr.services.rail_service import RailService
+
+ import structlog
+@@ -28,6 +29,7 @@
+         self.file_context_token_limit = file_context_token_limit
+         self.file_chunk_size = file_chunk_size
+         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
++        self.create_gptignore()
+
+     @staticmethod
+     def repo_to_codebase(
+@@ -67,6 +69,14 @@
+         return filenames_and_contents
+
+     def _repo_to_files_and_token_lengths(
++        self,
++        repo_tree: git.Repo,
++        excluded_files: list[str] = None,
++    ) -> list[tuple[str, int]]:
++        files_with_token_lengths = []
++        for blob in repo_tree.traverse():
++            if blob.type == 'tree':
++                continue
++            if excluded_files is not None and blob.path in excluded_files:
++                continue
++            content = blob.data_stream.read().decode()
++            token_length = len(self.rail_service.tokenizer.encode(content))
++            files_with_token_lengths.append((blob.path, token_length))
++        return files_with_token_lengths
++    
++    def create_gptignore(self):
++        gptignore_path = Path('.gptignore')
++        if not gptignore_path.exists():
++            with gptignore_path.open('w') as gptignore_file:
++                gptignore_file.write('*.lock
+')"""
+correct_generation_service_diff = """--- autopr/autopr/services/generation_service.py
++++ autopr/autopr/services/generation_service.py
+@@ -11,0 +11,1 @@
++from pathlib import Path
+--- autopr/autopr/services/generation_service.py
++++ autopr/autopr/services/generation_service.py
+@@ -28,6 +29,7 @@
+         self.file_context_token_limit = file_context_token_limit
+         self.file_chunk_size = file_chunk_size
+         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
++        self.create_gptignore()
+ 
+     @staticmethod
+     def repo_to_codebase(
+--- autopr/autopr/services/generation_service.py
++++ autopr/autopr/services/generation_service.py
+@@ -67,3 +69,23 @@
+         return filenames_and_contents
+ 
+     def _repo_to_files_and_token_lengths(
++        self,
++        repo_tree: git.Repo,
++        excluded_files: list[str] = None,
++    ) -> list[tuple[str, int]]:
++        files_with_token_lengths = []
++        for blob in repo_tree.traverse():
++            if blob.type == 'tree':
++                continue
++            if excluded_files is not None and blob.path in excluded_files:
++                continue
++            content = blob.data_stream.read().decode()
++            token_length = len(self.rail_service.tokenizer.encode(content))
++            files_with_token_lengths.append((blob.path, token_length))
++        return files_with_token_lengths
++    
++    def create_gptignore(self):
++        gptignore_path = Path('.gptignore')
++        if not gptignore_path.exists():
++            with gptignore_path.open('w') as gptignore_file:
++                gptignore_file.write('*.lock
+"""
+
 
 @pytest.mark.parametrize(
     "cases, file_contents, correct_unidiff",
@@ -431,12 +538,21 @@ tic_tac_toe_correct = """--- /dev/null
             "",
             tic_tac_toe_correct,
         ),
+        (
+            [
+                (
+                    "Unidiff contains incorrect filepaths",
+                    incorrect_generation_service_diff,
+                ),
+            ],
+            generation_service_file,
+            correct_generation_service_diff,
+        ),
     ],
 )
 def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: list[tuple[str, str]]) -> None:
     """Test that the unidiff_fix function fixes unidiffs."""
     mock_repo = MagicMock()
-    mock_tree = MagicMock()
     mock_blob = MagicMock()
     mock_blob.data_stream.read.return_value = file_contents.encode()
 
@@ -448,11 +564,11 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
         ]:
             raise KeyError('.gptignore not found')
         return mock_blob
-    mock_tree.__truediv__.side_effect = truediv_side_effect
+    mock_repo.head.commit.tree.__truediv__.side_effect = truediv_side_effect
 
     # Make this return autopr (repo.remotes.origin.url.split('.git')[0].split('/')[-1])
     mock_repo.remotes.origin.url = '/autopr.git'
-    validator_class = create_unidiff_validator(mock_repo, mock_tree)
+    validator_class = create_unidiff_validator(mock_repo)
     validator = validator_class(on_fail="fix")
     for reason, corrupted_unidiff in cases:
         with subtests.test(msg=reason):
@@ -466,5 +582,4 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
                 None,
             )
             fixed_schema = validator.fix(error)
-            print(fixed_schema['diff'])
             assert fixed_schema['diff'] == correct_schema['diff']
