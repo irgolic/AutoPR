@@ -346,16 +346,16 @@ This is the plan to address it:
 This is the codebase subset we decided to look at:
 ```{{codebase}}```
 
-This is the commit for which we're writing a diff:
+This is the commit for which we're writing a unidiff:
 ```{{commit}}```
 
-Please implement the commit, and send me the diff. 
-Only write a diff in the codebase subset we're looking at.
-If the codebase subset is not relevant to the commit, send me an empty diff."""
+Please implement the commit, and send me the unidiff. 
+Only write a unidiff in the codebase subset we're looking at.
+If the codebase subset is not relevant to the commit, send me an empty unidiff."""
 
     output_type = Diff
     extra_params = {
-        'temperature': 0.05,
+        'temperature': 0.0,
     }
 
     issue: str
