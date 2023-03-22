@@ -145,10 +145,11 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         cleaned_lines.append(f' {check_file_line}')
                         break
         else:
-            if line:
+            if not line:
+                cleaned_lines.append(line)
+                current_line_number += 1
+            else:
                 log.error("Unknown line: ", line=line)
-            cleaned_lines.append(line)
-            current_line_number += 1
 
     if cleaned_lines[-1] != "":
         cleaned_lines[-1] = ""
@@ -163,7 +164,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
         """
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            log.debug(f"Validating {value} is unidiff...")
+            log.debug(f"Validating unidiff...", key=key, value=value, schema=schema)
 
             # try to apply the patch with git apply --check
             with tempfile.NamedTemporaryFile() as f:
@@ -203,14 +204,6 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                         lines[i + 2].startswith("@@"):
                     lines[i] = stripped_line
 
-            # Rename any hunks that start with --- a/ or +++ b/
-            for i, line in enumerate(lines):
-                if len(lines) < i + 2:
-                    break
-                if line.startswith("--- a/") and lines[i + 1].startswith("+++ b/"):
-                    lines[i] = line.replace("--- a/", "--- ")
-                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
-
             # Add space at the start of any line that's empty, except if it precedes a --- line, or is the last line
             for i, line in enumerate(lines):
                 if len(lines) < i + 2:
@@ -230,6 +223,16 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                     insert_indices.append(i)
             for i, index in enumerate(insert_indices):
                 lines.insert(index + i, "--- /dev/null")
+
+            # Rename any hunks that start with --- a/ or +++ b/
+            for i, line in enumerate(lines):
+                if len(lines) < i + 2:
+                    break
+                if line.startswith("--- /dev/null") and lines[i + 1].startswith("+++ b/"):
+                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
+                elif line.startswith("--- a/") and lines[i + 1].startswith("+++ b/"):
+                    lines[i] = line.replace("--- a/", "--- ")
+                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
 
             # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
             # the filename after +++ matches the filename after ---
@@ -321,6 +324,8 @@ def create_filepath_validator(tree: git.Tree):
         - Supported data types: `string`
         """
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+            log.debug("Validating filepath...", key=key, value=value, schema=schema)
+
             # Check if the filepath exists in the repo
             try:
                 blob = tree / value

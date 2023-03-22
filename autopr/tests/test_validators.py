@@ -279,6 +279,37 @@ validators_mixed_indentation_offset_unidiff = """--- autopr/validators.py
                  cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
 """
 
+tic_tac_toe_incorrect = """diff --git a/tic_tac_toe.py b/tic_tac_toe.py
+new file mode 100644
+index 0000000..d1dd6d7
+--- /dev/null
++++ b/tic_tac_toe.py
+@@ -0,0 +1,10 @@
++def display_board(board):
++    for i in range(3):
++        print(" | ".join(board[i * 3:i * 3 + 3]))
++        if i < 2:
++            print("-" * 9)
++
++
++if __name__ == "__main__":
++    example_board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
++    display_board(example_board)
+"""
+tic_tac_toe_correct = """--- /dev/null
++++ tic_tac_toe.py
+@@ -0,0 +1,10 @@
++def display_board(board):
++    for i in range(3):
++        print(" | ".join(board[i * 3:i * 3 + 3]))
++        if i < 2:
++            print("-" * 9)
++
++
++if __name__ == "__main__":
++    example_board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
++    display_board(example_board)
+"""
 
 
 @pytest.mark.parametrize(
@@ -367,6 +398,16 @@ validators_mixed_indentation_offset_unidiff = """--- autopr/validators.py
             ],
             validators_file,
             validators_correct_unidiff,
+        ),
+        (
+            [
+                (
+                    "Unidiff contains incorrect filepaths",
+                    tic_tac_toe_incorrect,
+                ),
+            ],
+            "",
+            tic_tac_toe_correct,
         ),
     ],
 )
