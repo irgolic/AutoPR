@@ -133,15 +133,16 @@ def _filter_seen_chunks(seen_fds: list[FileDescriptor], prospective_fds: list[Fi
 
 class InitialFileSelectRail(Rail):
     # Select files given issue and files in repo
-    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_spec = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
 
-The issue that was opened:
+The issue is:
 ```{{issue}}```
 
-The list of files in the repo:
+The list of files in the repo is:
 ```{{filepaths_with_token_lengths}}```
 
-Which files should we take a look at first? Concisely pick only a few files, our budget is {{token_limit}} tokens."""
+Should we take a look at any files? If so, pick only a few files (max {{token_limit}} tokens). 
+If looking at files would be a waste of time with regard to the issue, let me know."""
 
     output_type = InitialFileSelectResponse
     extra_params = {
@@ -162,6 +163,28 @@ Which files should we take a look at first? Concisely pick only a few files, our
             'token_limit': str(self.token_limit),
         }
 
+    def get_rail_spec(cls):
+        return f"""
+<rail version="0.1">
+<output>
+{cls.output_type.rail_spec}
+</output>
+<prompt>
+```
+{{{{raw_response}}}}
+```
+
+@xml_prefix_prompt
+
+{{output_schema}}
+
+If looking at files would be a waste of time, please submit an empty list.
+
+@json_suffix_prompt_v2_wo_none
+</prompt>
+</rail>
+"""
+
 
 class LookAtFiles(Rail):
     # Select files given issue, unseen files in repo, and notes
@@ -176,8 +199,9 @@ We've decided to look at these files:
 The list of files in the repo that we haven't taken a look at yet:
 ```{{filepaths_with_token_lengths}}```
 
-Take some notes that will help us plan commits and write code to fix the issue. 
-Also, let me know if we should take a look at any other files – our budget is {{token_limit}} tokens."""
+Take some notes that will help us plan our code commits, in an effort to close the issue. 
+Also, should we take a look at any other files? If so, pick only a few files (max {{token_limit}} tokens). 
+If looking at files would be a waste of time with regard to the issue, let me know."""
 
     output_type = LookAtFilesResponse
     extra_params = {
@@ -210,6 +234,28 @@ Also, let me know if we should take a look at any other files – our budget is 
 
     def trim_params(self) -> bool:
         return _trim_chunk(self.selected_file_contents)
+
+    def get_rail_spec(cls):
+        return f"""
+<rail version="0.1">
+<output>
+{cls.output_type.rail_spec}
+</output>
+<prompt>
+```
+{{{{raw_response}}}}
+```
+
+@xml_prefix_prompt
+
+{{output_schema}}
+
+If looking at more files would be a waste of time, please submit an empty list.
+
+@json_suffix_prompt_v2_wo_none
+</prompt>
+</rail>
+"""
 
 
 class ContinueLookingAtFiles(Rail):
@@ -300,16 +346,16 @@ This is the plan to address it:
 This is the codebase subset we decided to look at:
 ```{{codebase}}```
 
-This is the commit for which we're writing a diff:
+This is the commit for which we're writing a unidiff:
 ```{{commit}}```
 
-Please implement the commit, and send me the diff. 
-Only write a diff in the codebase subset we're looking at.
-If the codebase subset is not relevant to the commit, send me an empty diff."""
+Please implement the commit, and send me the unidiff. 
+Only write a unidiff in the codebase subset we're looking at.
+If the codebase subset is not relevant to the commit, send me an empty unidiff."""
 
     output_type = Diff
     extra_params = {
-        'temperature': 0.05,
+        'temperature': 0.0,
     }
 
     issue: str

@@ -9,7 +9,7 @@ import openai
 import pydantic
 import transformers
 
-import guardrails as gd
+import guardrails as gr
 from autopr.models.rail_objects import RailObject
 from autopr.models.rails import RailUnion
 
@@ -41,9 +41,11 @@ class RailService:
         self.raw_system_prompt = system_prompt
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
 
-    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
-           wait=wait_random_exponential(min=1, max=60),
-           stop=stop_after_attempt(6))
+    @retry(
+        # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
+        wait=wait_random_exponential(min=1, max=60),
+        stop=stop_after_attempt(6)
+    )
     def _run_raw(self, rail: RailUnion) -> str:
         prompt = self.get_prompt_message(rail)
         length = len(self.tokenizer.encode(prompt))
@@ -60,12 +62,14 @@ class RailService:
         log.info('Ran raw completion', response=response)
         return response['choices'][0]['message']['content']
 
-    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
-           wait=wait_random_exponential(min=1, max=60),
-           stop=stop_after_attempt(6))
+    @retry(
+        # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
+        wait=wait_random_exponential(min=1, max=60),
+        stop=stop_after_attempt(6)
+    )
     def _run_rail(self, rail: RailUnion, raw_response: str) -> tuple[str, dict]:
         rail_spec = rail.get_rail_spec()
-        pr_guard = gd.Guard.from_rail_string(
+        pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
@@ -133,7 +137,7 @@ class RailService:
     @staticmethod
     def get_rail_message(rail: RailUnion, raw_response: str):
         spec = rail.get_rail_spec()
-        pr_guard = gd.Guard.from_rail_string(spec)
+        pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_response=raw_response)
 
     def calculate_prompt_length(self, rail: RailUnion) -> int:

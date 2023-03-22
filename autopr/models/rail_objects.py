@@ -22,13 +22,13 @@ class InitialFileSelectResponse(RailObject):
 class LookAtFilesResponse(RailObject):
     rail_spec = """<string 
     name="notes" 
-    description="Notes about the files (including line numbers), relevant to the issue at hand, that will help us write code later." 
+    description="Notes relevant to solving the issue, that we will use to plan our code commits." 
     length="1 1000"
     on-fail="noop" 
 />
 <list name="filepaths_we_should_look_at">
     <string
-        description="The paths to files we should look at next in the repo, out of the ones we haven't taken a look at yet. Empty list if we're done."
+        description="The paths to files we should look at next in the repo. Drop any files that are a waste of time with regard to the issue."
         format="filepath"
         on-fail="noop"
     />
@@ -47,7 +47,7 @@ class Diff(RailObject):
     on-fail-unidiff="fix"
 />"""
 
-    text: Optional[str] = None
+    diff: Optional[str] = None
 
 
 class Commit(RailObject):

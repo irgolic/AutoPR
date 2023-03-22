@@ -145,17 +145,18 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         cleaned_lines.append(f' {check_file_line}')
                         break
         else:
-            if line:
-                log.error("Unknown line: ", line=line)
-            cleaned_lines.append(line)
-            current_line_number += 1
+            if not line:
+                cleaned_lines.append(line)
+                current_line_number += 1
+            else:
+                log.warning("Unknown line: ", line=line)
 
     if cleaned_lines[-1] != "":
         cleaned_lines[-1] = ""
     return cleaned_lines
 
 
-def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
+def create_unidiff_validator(repo: git.Repo):
     class Unidiff(Validator):
         """Validate value is a valid unidiff.
         - Name for `format` attribute: `unidiff`
@@ -163,7 +164,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
         """
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            log.debug(f"Validating {value} is unidiff...")
+            log.debug(f"Validating unidiff...", key=key, value=value)
 
             # try to apply the patch with git apply --check
             with tempfile.NamedTemporaryFile() as f:
@@ -189,6 +190,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             return schema
 
         def fix(self, error: EventDetail) -> Any:
+            tree = repo.head.commit.tree
             value = error.value
             lines = value.splitlines()
 
@@ -202,14 +204,6 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                         lines[i + 1].startswith("+++") and \
                         lines[i + 2].startswith("@@"):
                     lines[i] = stripped_line
-
-            # Rename any hunks that start with --- a/ or +++ b/
-            for i, line in enumerate(lines):
-                if len(lines) < i + 2:
-                    break
-                if line.startswith("--- a/") and lines[i + 1].startswith("+++ b/"):
-                    lines[i] = line.replace("--- a/", "--- ")
-                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
 
             # Add space at the start of any line that's empty, except if it precedes a --- line, or is the last line
             for i, line in enumerate(lines):
@@ -230,6 +224,16 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                     insert_indices.append(i)
             for i, index in enumerate(insert_indices):
                 lines.insert(index + i, "--- /dev/null")
+
+            # Rename any hunks that start with --- a/ or +++ b/
+            for i, line in enumerate(lines):
+                if len(lines) < i + 2:
+                    break
+                if line.startswith("--- /dev/null") and lines[i + 1].startswith("+++ b/"):
+                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
+                elif line.startswith("--- a/") and lines[i + 1].startswith("+++ b/"):
+                    lines[i] = line.replace("--- a/", "--- ")
+                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
 
             # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
             # the filename after +++ matches the filename after ---
@@ -306,6 +310,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
             try:
                 self.validate(error.key, value, error.schema)
             except EventDetail:
+                log.error("Failed to fix unidiff", key=error.key, value=value)
                 return super().fix(error)
 
             error.schema[error.key] = value
@@ -314,14 +319,18 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
     return register_validator(name="unidiff", data_type="string")(Unidiff)
 
 
-def create_filepath_validator(tree: git.Tree):
+def create_filepath_validator(repo: git.Repo):
+    # TODO I don't think we need this validator anymore
     class FilePath(Validator):
         """Validate value is a valid file path.
         - Name for `format` attribute: `filepath`
         - Supported data types: `string`
         """
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+            log.debug("Validating filepath...", key=key, value=value)
+
             # Check if the filepath exists in the repo
+            tree = repo.head.commit.tree
             try:
                 blob = tree / value
             except KeyError:
