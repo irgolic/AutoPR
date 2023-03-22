@@ -44,7 +44,6 @@ class Diff(RailObject):
     description="The diff of the commit, in unified format (unidiff), as output by `diff -u`."
     required="false"
     format="unidiff"
-    on-fail-unidiff="fix"
 />"""
 
     diff: Optional[str] = None

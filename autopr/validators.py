@@ -163,6 +163,20 @@ def create_unidiff_validator(repo: git.Repo):
         - Supported data types: `string`
         """
 
+        def validate_with_correction(self, key, value, schema) -> Dict:
+            error_event = EventDetail(key, value, schema, "", None)
+            fixed_schema = self.fix(error_event)
+            fixed_value = fixed_schema[key]
+
+            try:
+                self.validate(key, fixed_value, fixed_schema)
+            except EventDetail:
+                log.error("Failed to fix unidiff, reasking", key=key, value=value)
+                error_event.fix_value = fixed_value
+                return self.reask(error_event)
+
+            return schema
+
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
             log.debug(f"Validating unidiff...", key=key, value=value)
 
@@ -306,12 +320,6 @@ def create_unidiff_validator(repo: git.Repo):
             lines = fix_unidiff_line_counts(lines)
 
             value = "\n".join(lines)
-
-            try:
-                self.validate(error.key, value, error.schema)
-            except EventDetail:
-                log.error("Failed to fix unidiff", key=error.key, value=value)
-                return super().fix(error)
 
             error.schema[error.key] = value
             return error.schema
