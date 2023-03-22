@@ -296,6 +296,24 @@ index 0000000..d1dd6d7
 +    example_board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 +    display_board(example_board)
 """
+tic_tac_toe_nonexistent_whitespace = """diff --git a/tic_tac_toe.py b/tic_tac_toe.py
+new file mode 100644
+index 0000000..d46de12
+--- /dev/null
++++ b/tic_tac_toe.py
+@@ -0,0 +1,18 @@
++def display_board(board):
++    for i in range(3):
++        print(" | ".join(board[i * 3:i * 3 + 3]))
++        if i < 2:
++            print("-" * 9)
++
+
++
++if __name__ == "__main__":
++    example_board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
++    display_board(example_board)
+"""
 tic_tac_toe_correct = """--- /dev/null
 +++ tic_tac_toe.py
 @@ -0,0 +1,10 @@
@@ -405,6 +423,10 @@ tic_tac_toe_correct = """--- /dev/null
                     "Unidiff contains incorrect filepaths",
                     tic_tac_toe_incorrect,
                 ),
+                (
+                    "Unidiff contains whitespaced lines in new file",
+                    tic_tac_toe_nonexistent_whitespace,
+                ),
             ],
             "",
             tic_tac_toe_correct,
@@ -418,9 +440,12 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
     mock_blob = MagicMock()
     mock_blob.data_stream.read.return_value = file_contents.encode()
 
-    # Make sure gptignore does not exist
     def truediv_side_effect(path):
-        if path == '.gptignore':
+        if path in [
+            '.gptignore',
+            'tic_tac_toe.py',
+            '/dev/null'
+        ]:
             raise KeyError('.gptignore not found')
         return mock_blob
     mock_tree.__truediv__.side_effect = truediv_side_effect
