@@ -209,13 +209,82 @@ new_lockfile_incorrect_unidiff = """--- .gptignore
 +*.lock
 """
 
+validators_file = '\n' * 102 + """
+    elif first_line:
+        # Search for the line in the file content
+        for offset in range(-search_range, search_range + 1):
+            check_line_number = current_line_number + offset
+            check_file_line = current_file_content[check_line_number]
+            if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
+                current_line_number = check_line_number + 1
+                # Fix @@ line
+                cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+                cleaned_lines.append(line)
+                break
+ """
+validators_correct_unidiff = """--- autopr/autopr/validators.py
++++ autopr/autopr/validators.py
+@@ -106,7 +106,8 @@
+         for offset in range(-search_range, search_range + 1):
+             check_line_number = current_line_number + offset
+-            check_file_line = current_file_content[check_line_number]
+-            if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
++            if 0 <= check_line_number < len(current_file_content):
++                check_file_line = current_file_content[check_line_number]
++                if line[1:] == check_file_line:
+                     current_line_number = check_line_number + 1
+                     # Fix @@ line
+                     cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+"""
+validators_positive_indendation_offset_unidiff = """--- autopr/validators.py
++++ autopr/validators.py
+@@ -105,8 +105,9 @@
+     for offset in range(-search_range, search_range + 1):
+         check_line_number = current_line_number + offset
+-        check_file_line = current_file_content[check_line_number]
+-        if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
++        if 0 <= check_line_number < len(current_file_content):
++            check_file_line = current_file_content[check_line_number]
++            if line[1:] == check_file_line:
+                 current_line_number = check_line_number + 1
+                 # Fix @@ line
+                 cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+"""
+validators_negative_indendation_offset_unidiff = """--- autopr/validators.py
++++ autopr/validators.py
+@@ -105,8 +105,9 @@
+             for offset in range(-search_range, search_range + 1):
+                 check_line_number = current_line_number + offset
+-                check_file_line = current_file_content[check_line_number]
+-                if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
++                if 0 <= check_line_number < len(current_file_content):
++                    check_file_line = current_file_content[check_line_number]
++                    if line[1:] == check_file_line:
+                         current_line_number = check_line_number + 1
+                         # Fix @@ line
+                         cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+"""
+validators_mixed_indentation_offset_unidiff = """--- autopr/validators.py
++++ autopr/validators.py
+@@ -105,8 +105,9 @@
+                    for offset in range(-search_range, search_range + 1):
+  check_line_number = current_line_number + offset
+-        check_file_line = current_file_content[check_line_number]
+-        if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
++        if 0 <= check_line_number < len(current_file_content):
++            check_file_line = current_file_content[check_line_number]
++            if line[1:] == check_file_line:
+                 current_line_number = check_line_number + 1
+                 # Fix @@ line
+                 cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+"""
+
+
 
 @pytest.mark.parametrize(
-    "file_contents, correct_unidiff, cases",
+    "cases, file_contents, correct_unidiff",
     [
         (
-            dockerfile,
-            correct_dockerfile_unidiff,
             [
                 (
                     "Unidiff line counts are wrong",
@@ -238,46 +307,66 @@ new_lockfile_incorrect_unidiff = """--- .gptignore
                     plusplusplus_name_is_wrong_dockerfile_unidiff,
                 ),
             ],
+            dockerfile,
+            correct_dockerfile_unidiff,
         ),
         (
-            dockerfile,
-            correct_multisection_dockerfile_unidiff,
             [
                 (
                     "multisection does not have headers for each hunk",
                     incorrect_multisection_dockerfile_unidiff,
                 ),
             ],
+            dockerfile,
+            correct_multisection_dockerfile_unidiff,
         ),
         (
-            readme,
-            correct_readme_unidiff,
             [
                 (
                     "Unidiff contains git --diff line",
                     wrong_readme_unidiff,
                 ),
             ],
+            readme,
+            correct_readme_unidiff,
         ),
         (
-            "",
-            new_file_unidiff,
             [
                 (
                     "Unidiff is missing ---",
                     missing_minusminusminus_unidiff,
                 ),
             ],
+            "",
+            new_file_unidiff,
         ),
         (
-            "",
-            new_lockfile_unidiff,
             [
                 (
                     "Unidiff contains incorrect filepaths",
                     new_lockfile_incorrect_unidiff,
                 ),
             ],
+            "",
+            new_lockfile_unidiff,
+        ),
+        (
+            [
+                (
+                    "Unidiff contains not enough leading spaces",
+                    validators_positive_indendation_offset_unidiff,
+                ),
+                (
+                    "Unidiff contains too many leading spaces",
+                    validators_negative_indendation_offset_unidiff,
+                ),
+                (
+                    "Unidiff contains mixed leading spaces",
+                    validators_mixed_indentation_offset_unidiff,
+                ),
+            ],
+            validators_file,
+            validators_correct_unidiff,
         ),
     ],
 )
@@ -288,12 +377,15 @@ def test_unidiff_fix(subtests, file_contents: str, correct_unidiff: str, cases: 
     mock_blob = MagicMock()
     mock_blob.data_stream.read.return_value = file_contents.encode()
 
+    # Make sure gptignore does not exist
     def truediv_side_effect(path):
         if path == '.gptignore':
             raise KeyError('.gptignore not found')
         return mock_blob
-
     mock_tree.__truediv__.side_effect = truediv_side_effect
+
+    # Make this return autopr (repo.remotes.origin.url.split('.git')[0].split('/')[-1])
+    mock_repo.remotes.origin.url = '/autopr.git'
     validator_class = create_unidiff_validator(mock_repo, mock_tree)
     validator = validator_class(on_fail="fix")
     for reason, corrupted_unidiff in cases:

@@ -1,7 +1,7 @@
 import logging
 import re
 import tempfile
-from typing import Union, Any, Dict, List
+from typing import Union, Any, Dict, List, Optional
 
 from git import GitCommandError
 
@@ -9,7 +9,8 @@ from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
 import git
 
-logger = logging.getLogger(__name__)
+import structlog
+log = structlog.get_logger()
 
 
 def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
@@ -54,16 +55,27 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
     return corrected_lines
 
 
-def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
-    cleaned_lines = []
-    current_file_content = None
-    current_line_number = 0
-    search_range = 1
-    first_line = 0
+def adjust_line_indentation(line: str, indentation_offset: int) -> str:
+    if indentation_offset >= 0:
+        return indentation_offset * ' ' + line
+    else:
+        return line[-indentation_offset:]
+
+
+def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
+    cleaned_lines: list[str] = []
+    current_file_content: Optional[list[str]] = None
+    current_line_number: int = 0
+    search_range: int = 3
+    first_line_semaphore: int = 0
+    indentation_offset: int = 0
+    is_new_file: bool = False
 
     for i, line in enumerate(lines):
-        first_line = max(0, first_line - 1)
-        if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
+        first_line_semaphore = max(0, first_line_semaphore - 1)
+        if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):  # hunk header
+            is_new_file = False
+
             # Extract the filename after ---
             filepath_match = re.match(r"--- (.+)", line)
             filepath = filepath_match.group(1)
@@ -73,49 +85,73 @@ def remove_hallucinated_lines(lines: list[str], tree: git.Tree) -> list[str]:
                 blob = tree / filepath
                 current_file_content = blob.data_stream.read().decode().splitlines()
             except KeyError:
-                # TODO remove hunk
+                is_new_file = True
                 current_file_content = None
                 current_line_number = 0
 
             cleaned_lines.append(line)
-        elif line.startswith("@@"):
+        elif line.startswith("@@"):  # line count (hunk header 3/3)
             current_line_number = int(re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line).group(1)) - 1
             cleaned_lines.append(line)
-            first_line = 2
-        elif line.startswith("+++"):
+            indentation_offset = 0
+            first_line_semaphore = 2
+        elif line.startswith("+++"):  # filename (hunk header 2/2)
             cleaned_lines.append(line)
-        elif line.startswith("-"):
-            if current_file_content and current_line_number < len(current_file_content):
-                if line[1:] == current_file_content[current_line_number]:
-                    cleaned_lines.append(line)
-                else:
-                    # Put the right line into the diff
-                    cleaned_lines.append(f"-{current_file_content[current_line_number]}")
-                current_line_number += 1
-        elif line.startswith("+"):
-            cleaned_lines.append(line)
-        elif line.lstrip() != line:
+        elif line.startswith("-"):  # remove line
+            if is_new_file:
+                continue
+            line_content = line[1:]
+            if current_line_number >= len(current_file_content):
+                continue
+            file_line = current_file_content[current_line_number]
+            # Put the right line into the diff
+            cleaned_lines.append(f"-{file_line}")
+            current_line_number += 1
+            if line_content.lstrip() != file_line.lstrip():
+                continue
+            if (
+                line_content != file_line and
+                line_content.lstrip() == file_line.lstrip()
+            ):
+                # Fix indentation also in + lines
+                real_indentation = len(file_line) - len(file_line.lstrip())
+                hallucinated_indentation = len(line_content) - len(line_content.lstrip())
+                indentation_offset = real_indentation - hallucinated_indentation
+        elif line.startswith("+"):  # new line
+            cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
+        elif line.lstrip() != line:  # context line
             # Line has a leading whitespace, check if it's in the actual file content
-            if current_file_content:
-                if current_line_number < len(current_file_content) and line[1:] == current_file_content[current_line_number]:
-                    # Line is in the file content
-                    cleaned_lines.append(line)
-                    current_line_number += 1
-                elif first_line:
-                    # Search for the line in the file content
-                    for offset in range(-search_range, search_range + 1):
-                        check_line_number = current_line_number + offset
-                        check_file_line = current_file_content[check_line_number]
-                        if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:
-                            current_line_number = check_line_number + 1
-                            # Fix @@ line
-                            cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
-                            cleaned_lines.append(line)
-                            break
+            if is_new_file or current_line_number >= len(current_file_content):
+                continue
+            file_line = current_file_content[current_line_number]
+            if line.lstrip() == file_line.lstrip():
+                # If indentation is wrong, use that
+                if indentation_offset:
+                    cleaned_lines.append(f" {adjust_line_indentation(line[1:], indentation_offset)}")
+                else:  # Else, use the real line
+                    cleaned_lines.append(f" {file_line}")
+                current_line_number += 1
+            elif first_line_semaphore:
+                # Search for the line in the file content
+                for offset in range(-search_range, search_range + 1):
+                    check_line_number = current_line_number + offset
+                    check_file_line = current_file_content[check_line_number]
+                    if not 0 <= check_line_number < len(current_file_content):
+                        continue
+                    elif line.lstrip() == check_file_line.lstrip():
+                        current_line_number = check_line_number + 1
+                        # Fix @@ line
+                        cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
+                        cleaned_lines.append(f' {check_file_line}')
+                        break
         else:
+            if line:
+                log.error("Unknown line: ", line=line)
             cleaned_lines.append(line)
             current_line_number += 1
 
+    if cleaned_lines[-1] != "":
+        cleaned_lines[-1] = ""
     return cleaned_lines
 
 
@@ -127,7 +163,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
         """
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            logger.debug(f"Validating {value} is unidiff...")
+            log.debug(f"Validating {value} is unidiff...")
 
             # try to apply the patch with git apply --check
             with tempfile.NamedTemporaryFile() as f:
@@ -139,6 +175,7 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                                       "--check",
                                       "--unidiff-zero",
                                       "--inaccurate-eof",
+                                      "--allow-empty",
                                       f.name])
                 except GitCommandError as e:
                     raise EventDetail(
@@ -244,8 +281,22 @@ def create_unidiff_validator(repo: git.Repo, tree: git.Tree):
                 lines.insert(actual_index, newlines[0])
                 lines.insert(actual_index + 1, newlines[1])
 
+            # Fix filepaths, such that if it starts with a directory with the same name as the repo,
+            # the path is prepended with that name again
+            repo_name = repo.remotes.origin.url.split('.git')[0].split('/')[-1]
+            try:
+                tree / repo_name
+            except KeyError:
+                pass
+            else:
+                for i, line in enumerate(lines):
+                    if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
+                        if lines[i + 1].startswith(f"+++ {repo_name}/"):
+                            lines[i] = line.replace(f"--- {repo_name}/", f"--- {repo_name}/{repo_name}/")
+                            lines[i + 1] = lines[i + 1].replace(f"+++ {repo_name}/", f"+++ {repo_name}/{repo_name}/")
+
             # Recalculate the @@ line
-            lines = remove_hallucinated_lines(lines, tree)
+            lines = remove_hallucinations(lines, tree)
 
             # Recalculate the line counts in the unidiff
             lines = fix_unidiff_line_counts(lines)

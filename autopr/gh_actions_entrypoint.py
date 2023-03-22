@@ -1,10 +1,11 @@
 import os
 
-from autopr.main import main
+import structlog
+log = structlog.get_logger()
 
 
 if __name__ == '__main__':
-    print("Starting gh_actions_entrypoint.py")
+    log.info("Starting gh_actions_entrypoint.py")
 
     repo_path = os.environ['GITHUB_WORKSPACE']
 
@@ -15,6 +16,7 @@ if __name__ == '__main__':
     issue_title = os.environ['INPUT_ISSUE_TITLE']
     issue_body = os.environ['INPUT_ISSUE_BODY']
 
+    from autopr.main import main
     main(
         github_token=github_token,
         repo_path=repo_path,
