@@ -7,5 +7,15 @@ RUN apt-get update && apt-get install -y git
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+COPY pyproject.toml poetry.lock ./
+# Poetry is installed with `pip`, so active our virtual environmennt and install projects dependecies there, so they don't conflict with poetry's dependencies.
+RUN . $VENV_PATH/bin/activate && $POETRY_HOME/poetry install --no-root
+
+WORKDIR /app
+COPY . .
+
+# Install the app
+RUN . $VENV_PATH/bin/activate && $POETRY_HOME/poetry install
+
 # Run the app
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]
