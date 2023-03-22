@@ -19,6 +19,13 @@ if __name__ == '__main__':
     issue_title = os.environ['INPUT_ISSUE_TITLE']
     issue_body = os.environ['INPUT_ISSUE_BODY']
 
+    model = os.environ['INPUT_MODEL']
+    context_limit = int(os.environ['INPUT_CONTEXT_LIMIT'])
+    min_tokens = int(os.environ['INPUT_MIN_TOKENS'])
+    max_tokens = int(os.environ['INPUT_MAX_TOKENS'])
+    num_reasks = int(os.environ['INPUT_NUM_REASKS'])
+
+
     from autopr.main import main
     main(
         github_token=github_token,
@@ -27,4 +34,9 @@ if __name__ == '__main__':
         issue_number=issue_number,
         issue_title=issue_title,
         issue_body=issue_body,
+        model=model,
+        context_limit=context_limit,
+        min_tokens=min_tokens,
+        max_tokens=max_tokens,
+        num_reasks=num_reasks,
     )

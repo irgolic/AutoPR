@@ -25,3 +25,18 @@ inputs:
   base_branch:
     description: 'Base branch'
     default: 'main'
+  model:
+    description: 'Name of the OpenAI chat model'
+    default: 'gpt-4'
+  context_limit:
+    description: 'Maximum size of the context window to use, varies depending on the model and preference'
+    default: '8192'
+  min_tokens:
+    description: 'Minimum number of tokens to be made available for generation'
+    default: '1000'
+  max_tokens:
+    description: 'Maximum number of tokens to generate'
+    default: '2000'
+  num_reasks:
+    description: 'Number of times to re-ask the model in file exploration and commit generation'
+    default: '2'

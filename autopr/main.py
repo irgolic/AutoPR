@@ -23,6 +23,11 @@ def main(
     issue_number: int,
     issue_title: str,
     issue_body: str,
+    model: str = "gpt-4",
+    context_limit: int = 8192,
+    min_tokens: int = 1000,
+    max_tokens: int = 2000,
+    num_reasks: int = 2,
 ):
     log.info('Starting main', repo_path=repo_path, base_branch_name=base_branch_name,
              issue_number=issue_number, issue_title=issue_title, issue_body=issue_body)
@@ -46,7 +51,13 @@ def main(
     owner, repo_name = remote_url.split('/')[-2:]
 
     # Create services
-    rail_service = RailService()
+    rail_service = RailService(
+        completion_model=model,
+        context_limit=context_limit,
+        min_tokens=min_tokens,
+        max_tokens=max_tokens,
+        num_reasks=num_reasks,
+    )
     generator = GenerationService(
         rail_service=rail_service,
     )
