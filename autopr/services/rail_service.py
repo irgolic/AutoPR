@@ -41,7 +41,7 @@ class RailService:
         self.raw_system_prompt = system_prompt
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
 
-    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
+    @retry(retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
            wait=wait_random_exponential(min=1, max=60),
            stop=stop_after_attempt(6))
     def _run_raw(self, rail: RailUnion) -> str:
@@ -60,7 +60,7 @@ class RailService:
         log.info('Ran raw completion', response=response)
         return response['choices'][0]['message']['content']
 
-    @retry(retry=retry_if_exception_type(openai.error.RateLimitError),
+    @retry(retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
            wait=wait_random_exponential(min=1, max=60),
            stop=stop_after_attempt(6))
     def _run_rail(self, rail: RailUnion, raw_response: str) -> tuple[str, dict]:
