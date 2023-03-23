@@ -1,8 +1,14 @@
-# 🤖👨‍💻 Automatic Pull Request Github Action 
+# 🤖👨‍💻 AutoPR Github Action 
 
+<div align="center">
 
-This Github Action automatically writes code in pull requests using GPT-4.
-Built with [Guardrails](https://github.com/ShreyaR/guardrails).
+[![Discord](https://badgen.net/badge/icon/discord?icon=discord&label&color=purple)](https://discord.gg/ykk7Znt3K6)
+
+AutoPR automatically writes pull requests in response to issues using GPT-4.  
+To get started, see [AutoPR-template](https://github.com/irgolic/AutoPR-template).  
+Built with [Guardrails](https://github.com/ShreyaR/guardrails).    
+
+</div>
 
 ## 💪 How does it work?
 
@@ -24,12 +30,6 @@ The action triggers when a new issue is created or edited by a repository collab
 ## 🔨 Usage
 
 Warning: This Github Action is currently **in development**, and in **alpha release**.
-If you're interested in using this action, please reach out on [Discord](https://discord.gg/vz7p9TfHsh).
+If you're interested in using this action, please reach out on [Discord](https://discord.gg/ykk7Znt3K6).
 
-To use the action:
-- In `Settings -> Secrets and variables -> Actions`, enter your Open AI API key as `OPENAI_API_KEY`
-- In `Settings -> Actions -> General`, scroll down to `Workflow permissions` and enable `Allow Github Actions to create and approve pull requests`
-- Include the workflow file in your repository. [For example, you can use it in the same way as this repo](https://github.com/irgolic/autopr/blob/main/.github/workflows/create-pr-from-issue.yml).
-
-Whenever a new issue is opened or edited, the action will push a branch named `autopr/issue-#` and open a pull request to the base branch.
-Please note that if the branch already exists (on issue edit), it will be overwritten.
+See [AutoPR-template](https://github.com/irgolic/AutoPR-template) for a guide and example of how to use this action.
