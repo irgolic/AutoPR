@@ -208,9 +208,8 @@ def create_unidiff_validator(repo: git.Repo):
             try:
                 self.validate(key, fixed_value, fixed_schema)
             except EventDetail:
-                log.error("Failed to fix unidiff, reasking", key=key, value=value)
-                error_event.fix_value = fixed_value
-                return self.reask(error_event)
+                log.warning("Failed to fix unidiff", key=key, value=value)
+                schema[key] = None
 
             return schema
 
