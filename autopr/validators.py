@@ -336,6 +336,9 @@ def create_unidiff_validator(repo: git.Repo):
                 lines.insert(actual_index, newlines[0])
                 lines.insert(actual_index + 1, newlines[1])
 
+            # Recalculate the @@ line and remove hallucinated lines
+            lines = remove_hallucinations(lines, tree)
+
             # Fix filepaths, such that if it starts with a directory with the same name as the repo,
             # the path is prepended with that name again
             repo_name = repo.remotes.origin.url.split('.git')[0].split('/')[-1].lower()
@@ -349,9 +352,6 @@ def create_unidiff_validator(repo: git.Repo):
                         if lines[i + 1].startswith(f"+++ {repo_name}/"):
                             lines[i] = line.replace(f"--- {repo_name}/", f"--- {repo_name}/{repo_name}/")
                             lines[i + 1] = lines[i + 1].replace(f"+++ {repo_name}/", f"+++ {repo_name}/{repo_name}/")
-
-            # Recalculate the @@ line and remove hallucinated lines
-            lines = remove_hallucinations(lines, tree)
 
             # Recalculate the line counts in the unidiff
             lines = fix_unidiff_line_counts(lines)
