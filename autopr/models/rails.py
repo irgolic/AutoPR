@@ -352,8 +352,7 @@ This is the commit for which we're writing a unidiff:
 ```{{commit}}```
 
 Please implement the commit, and send me the unidiff. 
-Only write a unidiff in the codebase subset we're looking at.
-If the codebase subset is not relevant to the commit, send me an empty unidiff."""
+Only write a unidiff in the codebase subset we're looking at."""
 
     output_type = Diff
     extra_params = {
