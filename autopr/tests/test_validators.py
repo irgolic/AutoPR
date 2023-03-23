@@ -425,6 +425,73 @@ correct_generation_service_diff = """--- autopr/autopr/services/generation_servi
 +                gptignore_file.write('*.lock
 """
 
+generation_service_2_file = """import tempfile
+from typing import Callable
+
+import git
+import pydantic
+import transformers
+from git import Tree""" + '\n' * 308 + """        repo_tree = repo.head.commit.tree
+        files = self._repo_to_file_descriptors(repo_tree)
+
+        # Get the filepaths to look at
+        filepaths = self.get_initial_filepaths(files, issue_text)
+
+        if filepaths:"""
+
+generation_service_2_partially_wrong_diff = """--- autopr/services/generation_service.py
++++ autopr/services/generation_service.py
+@@ -1,6 +1,7 @@
+ import re
+ import os
+ import tempfile
++import fnmatch
+ from typing import List, Dict, Tuple
+ from git import Repo, Tree
+ from .file_descriptor import FileDescriptor
+@@ -315,10 +316,18 @@
+     repo_tree = repo.head.commit.tree
+     files = self._repo_to_file_descriptors(repo_tree)
+ 
++    # Load .gptignore patterns
++    with open('.gptignore', 'r') as gptignore_file:
++        ignore_patterns = gptignore_file.read().splitlines()
++
+     # Get the filepaths to look at
+-    filepaths = self.get_initial_filepaths(files, issue_text)
++    filepaths = [
++        filepath for filepath in self.get_initial_filepaths(files, issue_text)
++        if not any(fnmatch.fnmatch(filepath, pattern) for pattern in ignore_patterns)
++    ]
+ 
+     if filepaths:
+         # Look at the files
+         notes = self.write_notes_about_files(files, issue_text, filepaths)
+"""
+
+generation_service_2_expected_diff = """--- autopr/autopr/services/generation_service.py
++++ autopr/autopr/services/generation_service.py
+@@ -1,1 +1,2 @@
+ import tempfile
++import fnmatch
+--- autopr/autopr/services/generation_service.py
++++ autopr/autopr/services/generation_service.py
+@@ -315,5 +316,12 @@
+         repo_tree = repo.head.commit.tree
+         files = self._repo_to_file_descriptors(repo_tree)
+ 
++        # Load .gptignore patterns
++        with open('.gptignore', 'r') as gptignore_file:
++            ignore_patterns = gptignore_file.read().splitlines()
++
+         # Get the filepaths to look at
+-        filepaths = self.get_initial_filepaths(files, issue_text)
++        filepaths = [
++            filepath for filepath in self.get_initial_filepaths(files, issue_text)
++            if not any(fnmatch.fnmatch(filepath, pattern) for pattern in ignore_patterns)
++        ]
+"""
+
 
 @pytest.mark.parametrize(
     "cases, file_contents, correct_unidiff",
@@ -536,6 +603,16 @@ correct_generation_service_diff = """--- autopr/autopr/services/generation_servi
             ],
             generation_service_file,
             correct_generation_service_diff,
+        ),
+        (
+            [
+                (
+                    "Unidiff is wrong in first hunk, correct in second hunk",
+                    generation_service_2_partially_wrong_diff,
+                ),
+            ],
+            generation_service_2_file,
+            generation_service_2_expected_diff,
         ),
     ],
 )

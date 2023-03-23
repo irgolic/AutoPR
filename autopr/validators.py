@@ -138,7 +138,10 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 indentation_offset = real_indentation - hallucinated_indentation
         elif line.startswith("+"):  # new line
             update_after_changes(i)
-            cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
+            if line[1:]:
+                cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
+            else:
+                cleaned_lines.append("+")
         elif line.lstrip() != line:  # context line
             # Line has a leading whitespace, check if it's in the actual file content
             if is_new_file or current_line_number >= len(current_file_content):
@@ -151,9 +154,16 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
             if line.lstrip() == file_line.lstrip():
                 # If indentation is wrong, use that
                 if indentation_offset:
-                    cleaned_lines.append(f" {adjust_line_indentation(line[1:], indentation_offset)}")
+                    if not file_line:
+                        cleaned_lines.append(" ")
+                    else:
+                        cleaned_lines.append(f" {adjust_line_indentation(line[1:], indentation_offset)}")
                 else:  # Else, use the real line
                     cleaned_lines.append(f" {file_line}")
+                    # Fix indentation also in + lines
+                    real_indentation = len(file_line) - len(file_line.lstrip())
+                    hallucinated_indentation = len(line[1:]) - len(line.lstrip())
+                    indentation_offset = real_indentation - hallucinated_indentation
                 current_line_number += 1
             elif first_line_semaphore:
                 # Search for the line in the file content
