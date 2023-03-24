@@ -5,6 +5,7 @@ from typing import Union, Any, Dict, List, Optional
 
 from git import GitCommandError
 
+from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
 import git
@@ -216,26 +217,16 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
             log.debug(f"Validating unidiff...", key=key, value=value)
 
-            # try to apply the patch with git apply --check
-            with tempfile.NamedTemporaryFile() as f:
-                f.write(value.encode())
-                f.flush()
-                try:
-                    repo.git.execute(["git",
-                                      "apply",
-                                      "--check",
-                                      "--unidiff-zero",
-                                      "--inaccurate-eof",
-                                      "--allow-empty",
-                                      f.name])
-                except GitCommandError as e:
-                    raise EventDetail(
-                        key,
-                        value,
-                        schema,
-                        e.stderr,
-                        None,
-                    )
+            try:
+                diff_service.apply_diff(value, check=True)
+            except GitCommandError as e:
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    e.stderr,
+                    None,
+                )
 
             return schema
 

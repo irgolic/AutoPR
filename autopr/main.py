@@ -6,6 +6,8 @@ from git import Repo
 from autopr.services.pull_request_service import GithubPullRequestService
 from .models.rail_objects import PullRequestDescription
 from .models.repo import RepoCommit
+from .services.commit_service import PatchService, CommitService
+from .services.diff_service import GitApplyService
 from .services.generation_service import GenerationService
 from .services.rail_service import RailService
 
@@ -42,10 +44,6 @@ def main(
     log.debug('Pulling latest changes...')
     repo.remotes.origin.pull()
 
-    # Create validators for guardrails
-    create_unidiff_validator(repo)
-    create_filepath_validator(repo)
-
     # Get repo owner and name from remote URL
     remote_url = repo.remotes.origin.url
     owner, repo_name = remote_url.split('/')[-2:]
@@ -68,51 +66,28 @@ def main(
         head_branch=branch_name,
         base_branch=base_branch_name,
     )
+    diff_service = GitApplyService(repo=repo)
+    commit_service = CommitService(
+        repo=repo,
+        diff_service=diff_service,
+        repo_path=repo_path,
+        branch_name=branch_name,
+        base_branch_name=base_branch_name,
+    )
 
-    # If branch already exists, delete it
-    if branch_name in repo.heads:
-        print(f'Deleting existing branch {branch_name}...')
-        repo.delete_head(branch_name, force=True)
+    # Create validators for guardrails
+    create_unidiff_validator(repo, diff_service)
+    create_filepath_validator(repo)
 
-    # Create new branch with create_new_ref
-    log.debug(f'Creating new branch {branch_name}...')
-    repo.create_head(branch_name, base_branch_name)
-
-    # Checkout new branch
-    repo.heads[branch_name].checkout()
+    # Create/Overwrite branch
+    commit_service.switch_to_branch()
 
     pr_pushed = False
 
     def handle_commit(pull_request: PullRequestDescription, commit: RepoCommit):
         nonlocal pr_pushed
 
-        # Remove guardrails log if exists (so it's not committed later)
-        if 'guardrails.log' in repo.untracked_files:
-            log.debug('Removing guardrails.log...')
-            os.remove(
-                os.path.join(repo_path, 'guardrails.log')
-            )
-
-        # Apply diff
-        diff = commit.diff
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(diff.encode())
-            f.flush()
-            log.debug('Applying diff...')
-            repo.git.execute(["git",
-                              "apply",
-                              "--unidiff-zero",
-                              "--inaccurate-eof",
-                              "--allow-empty",
-                              f.name])
-
-        # Add and commit all
-        repo.git.execute(["git", "add", "."])
-        repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.message])
-
-        # Push branch to remote
-        log.debug(f'Pushing branch {branch_name} to remote...')
-        repo.git.execute(["git", "push", "-f", "origin", branch_name])
+        commit_service.commit(commit)
 
         if not pr_pushed:
             # Create PR
