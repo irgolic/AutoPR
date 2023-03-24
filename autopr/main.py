@@ -66,7 +66,7 @@ def main(
         head_branch=branch_name,
         base_branch=base_branch_name,
     )
-    diff_service = GitApplyService(repo=repo)
+    diff_service = PatchService(repo=repo)
     commit_service = CommitService(
         repo=repo,
         diff_service=diff_service,

@@ -858,7 +858,7 @@ def test_unidiff_fix(
     # Set remote
     # repo.create_remote('origin', '/autopr.git')
 
-    diff_service = GitApplyService(
+    diff_service = PatchService(
         repo=repo,
     )
 
