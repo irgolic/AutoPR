@@ -20,7 +20,10 @@ def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
         if line.startswith("@@"):
             # Extract the original x and y values
             match = re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line)
-            start_x, start_y = int(match.group(1)), int(match.group(2))
+            if match is None:
+                start_x, start_y = 0, 0
+            else:
+                start_x, start_y = int(match.group(1)), int(match.group(2))
 
             # Calculate the correct y values based on the hunk content
             x_count, y_count = 0, 0
@@ -90,8 +93,13 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
 
             cleaned_lines.append(line)
         elif line.startswith("@@"):  # line count (hunk header 3/3)
-            current_line_number = int(re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line).group(1)) - 1
-            cleaned_lines.append(line)
+            match = re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line)
+            if match is None:
+                current_line_number = 1
+                cleaned_lines.append("@@ -1,0 +1,0 @@")
+            else:
+                current_line_number = int(match.group(1)) - 1
+                cleaned_lines.append(line)
             indentation_offset = 0
             first_line_semaphore = 2
         elif line.startswith("+++"):  # filename (hunk header 2/2)

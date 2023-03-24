@@ -162,7 +162,7 @@ correct_multisection_dockerfile_unidiff = """--- Dockerfile
 """
 incorrect_multisection_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
-@@ -3,0 +3,1 @@
+@@ -N,0 +N,1 @@
  # Install git
 +
  RUN apt-get update && apt-get install -y git
