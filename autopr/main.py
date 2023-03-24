@@ -6,8 +6,8 @@ from git import Repo
 from autopr.services.pull_request_service import GithubPullRequestService
 from .models.rail_objects import PullRequestDescription
 from .models.repo import RepoCommit
-from .services.commit_service import PatchService, CommitService
-from .services.diff_service import GitApplyService
+from .services.commit_service import CommitService
+from .services.diff_service import GitApplyService, PatchService
 from .services.generation_service import GenerationService
 from .services.rail_service import RailService
 

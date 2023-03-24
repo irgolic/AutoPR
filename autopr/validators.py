@@ -1,6 +1,4 @@
-import logging
 import re
-import tempfile
 from typing import Union, Any, Dict, List, Optional
 
 from git import GitCommandError
