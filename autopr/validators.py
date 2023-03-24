@@ -205,6 +205,8 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
             return schema
 
         def fix(self, error: EventDetail) -> Any:
+            log.debug("Fixing unidiff...", error=error)
+
             tree = repo.head.commit.tree
             value = error.value
             lines = value.splitlines()
