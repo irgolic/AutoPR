@@ -26,7 +26,7 @@ The action triggers when a new issue is created or edited by a repository collab
 - [ ] Update pull request on issue/pull request comment
 - [ ] Update pull request based on code review comments
 - [ ] Explore alternative code generation models
-- [ ] Running tests and taking corrective action
+- [ ] Running CI and taking corrective action on failure
 
 ## 🔨 Usage
 
