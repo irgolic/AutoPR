@@ -1,10 +1,9 @@
-import logging
 import re
-import tempfile
 from typing import Union, Any, Dict, List, Optional
 
 from git import GitCommandError
 
+from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
 import git
@@ -70,29 +69,11 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     first_line_semaphore: int = 0
     indentation_offset: int = 0
     is_new_file: bool = False
-    after_changes: bool = False
-
-    def update_after_changes(line_number: int):
-        nonlocal after_changes
-        line_number += 1
-        while line_number < len(lines):
-            if lines[line_number].startswith("---") and \
-                    lines[line_number + 1].startswith("+++") and \
-                    lines[line_number + 2].startswith("@@"):
-                after_changes = True
-                break
-            if any(lines[line_number].startswith(s) for s in ("+", "-")):
-                after_changes = False
-                break
-            line_number += 1
-        if line_number >= len(lines):
-            after_changes = True
 
     for i, line in enumerate(lines):
         first_line_semaphore = max(0, first_line_semaphore - 1)
         if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):  # hunk header
             is_new_file = False
-            after_changes = False
 
             # Extract the filename after ---
             filepath_match = re.match(r"--- (.+)", line)
@@ -116,7 +97,6 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
         elif line.startswith("+++"):  # filename (hunk header 2/2)
             cleaned_lines.append(line)
         elif line.startswith("-"):  # remove line
-            update_after_changes(i)
             if is_new_file:
                 continue
             line_content = line[1:]
@@ -137,7 +117,6 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 hallucinated_indentation = len(line_content) - len(line_content.lstrip())
                 indentation_offset = real_indentation - hallucinated_indentation
         elif line.startswith("+"):  # new line
-            update_after_changes(i)
             if line[1:]:
                 cleaned_lines.append(f"+{adjust_line_indentation(line[1:], indentation_offset)}")
             else:
@@ -145,10 +124,6 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
         elif line.lstrip() != line:  # context line
             # Line has a leading whitespace, check if it's in the actual file content
             if is_new_file or current_line_number >= len(current_file_content):
-                continue
-            # Adding context lines after the diff sometimes makes git remove the newline from the last line,
-            # so we're ignoring these for now
-            if after_changes:
                 continue
             file_line = current_file_content[current_line_number]
             if line.lstrip() == file_line.lstrip():
@@ -181,6 +156,20 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
                         cleaned_lines.append(f' {check_file_line}')
                         break
+            elif file_line == "":
+                # Look forward for the line, as long as you're looking through empty lines
+                for check_line_number in range(current_line_number + 1, len(current_file_content)):
+                    check_file_line = current_file_content[check_line_number]
+                    if check_file_line == "":
+                        continue
+                    if line.lstrip() != check_file_line.lstrip():
+                        break
+                    # Add as many newlines as needed
+                    newline_count = check_line_number - current_line_number
+                    cleaned_lines += [" "] * newline_count
+                    cleaned_lines.append(f' {check_file_line}')
+                    current_line_number = check_line_number + 1
+                    break
         else:
             if not line:
                 cleaned_lines.append(line)
@@ -193,7 +182,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     return cleaned_lines
 
 
-def create_unidiff_validator(repo: git.Repo):
+def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
     class Unidiff(Validator):
         """Validate value is a valid unidiff.
         - Name for `format` attribute: `unidiff`
@@ -216,30 +205,22 @@ def create_unidiff_validator(repo: git.Repo):
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
             log.debug(f"Validating unidiff...", key=key, value=value)
 
-            # try to apply the patch with git apply --check
-            with tempfile.NamedTemporaryFile() as f:
-                f.write(value.encode())
-                f.flush()
-                try:
-                    repo.git.execute(["git",
-                                      "apply",
-                                      "--check",
-                                      "--unidiff-zero",
-                                      "--inaccurate-eof",
-                                      "--allow-empty",
-                                      f.name])
-                except GitCommandError as e:
-                    raise EventDetail(
-                        key,
-                        value,
-                        schema,
-                        e.stderr,
-                        None,
-                    )
+            try:
+                diff_service.apply_diff(value, check=True)
+            except GitCommandError as e:
+                raise EventDetail(
+                    key,
+                    value,
+                    schema,
+                    e.stderr,
+                    None,
+                )
 
             return schema
 
         def fix(self, error: EventDetail) -> Any:
+            log.debug("Fixing unidiff...", error=error)
+
             tree = repo.head.commit.tree
             value = error.value
             lines = value.splitlines()
@@ -335,22 +316,20 @@ def create_unidiff_validator(repo: git.Repo):
                 lines.insert(actual_index, newlines[0])
                 lines.insert(actual_index + 1, newlines[1])
 
+            # Filter out new lines if they are the first line in a hunk
+            remove_indices = []
+            for i, line in enumerate(lines):
+                if line.startswith("@@"):
+                    # Find the next line that isn't a space
+                    j = i + 1
+                    while lines[j] == " ":
+                        remove_indices.append(j)
+                        j += 1
+            for i in sorted(remove_indices, reverse=True):
+                del lines[i]
+
             # Recalculate the @@ line and remove hallucinated lines
             lines = remove_hallucinations(lines, tree)
-
-            # Fix filepaths, such that if it starts with a directory with the same name as the repo,
-            # the path is prepended with that name again
-            repo_name = repo.remotes.origin.url.split('.git')[0].split('/')[-1].lower()
-            try:
-                tree / repo_name
-            except KeyError:
-                pass
-            else:
-                for i, line in enumerate(lines):
-                    if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
-                        if lines[i + 1].startswith(f"+++ {repo_name}/"):
-                            lines[i] = line.replace(f"--- {repo_name}/", f"--- {repo_name}/{repo_name}/")
-                            lines[i + 1] = lines[i + 1].replace(f"+++ {repo_name}/", f"+++ {repo_name}/{repo_name}/")
 
             # Recalculate the line counts in the unidiff
             lines = fix_unidiff_line_counts(lines)
