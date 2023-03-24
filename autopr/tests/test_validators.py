@@ -42,8 +42,7 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]"""
 correct_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
-@@ -5,6 +5,8 @@
- 
+@@ -6,5 +6,7 @@
  # Set up entrypoint
  COPY entrypoint.sh /entrypoint.sh
 +
@@ -55,18 +54,6 @@ correct_dockerfile_unidiff = """--- Dockerfile
 wrong_line_counts_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile
 @@ -5,505 +5,10 @@
- 
- # Set up entrypoint
- COPY entrypoint.sh /entrypoint.sh
-+
-+# Make entrypoint executable
- RUN chmod +x /entrypoint.sh
- 
- # Run the app
-"""
-wrong_line_numbers_dockerfile_unidiff = """--- Dockerfile
-+++ Dockerfile
-@@ -6,6 +4,8 @@
  
  # Set up entrypoint
  COPY entrypoint.sh /entrypoint.sh
@@ -106,6 +93,31 @@ a_b_filename_dockerfile_unidiff = """--- a/Dockerfile
 plusplusplus_name_is_wrong_dockerfile_unidiff = """--- Dockerfile
 +++ Dockerfile_new
 @@ -5,6 +5,8 @@
+ 
+ # Set up entrypoint
+ COPY entrypoint.sh /entrypoint.sh
++
++# Make entrypoint executable
+ RUN chmod +x /entrypoint.sh
+ 
+ # Run the app
+"""
+
+# subsection for having one of the numbers wrong, diff should still work
+working_wrong_line_number_dockerfile_unidiff = """--- Dockerfile
++++ Dockerfile
+@@ -6,5 +4,7 @@
+ # Set up entrypoint
+ COPY entrypoint.sh /entrypoint.sh
++
++# Make entrypoint executable
+ RUN chmod +x /entrypoint.sh
+ 
+ # Run the app
+"""
+wrong_line_numbers_dockerfile_unidiff = """--- Dockerfile
++++ Dockerfile
+@@ -6,6 +4,8 @@
  
  # Set up entrypoint
  COPY entrypoint.sh /entrypoint.sh
@@ -685,6 +697,139 @@ generation_service_2_partially_wrong_diff = """--- autopr/services/generation_se
          notes = self.write_notes_about_files(files, issue_text, filepaths)
 """
 
+###
+# tic tac toe 2
+###
+
+tic_tac_toe_2_file = """def display_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 9)
+
+
+def check_winner(board, player):
+    for row in board:
+        if all([cell == player for cell in row]):
+            return True
+
+    for col in range(3):
+        if all([board[row][col] == player for row in range(3)]):
+            return True
+
+    if all([board[i][i] == player for i in range(3)]) or all([board[i][2 - i] == player for i in range(3)]):
+        return True
+
+    return False
+
+
+def alternate_player(player):
+    return "X" if player == "O" else "O"
+
+
+if __name__ == "__main__":
+    board = [[" " for _ in range(3)] for _ in range(3)]
+    current_player = "X"
+    display_board(board)
+"""
+tic_tac_toe_2_file_after = """def display_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 9)
+
+
+def check_winner(board, player):
+    for row in board:
+        if all([cell == player for cell in row]):
+            return True
+
+    for col in range(3):
+        if all([board[row][col] == player for row in range(3)]):
+            return True
+
+    if all([board[i][i] == player for i in range(3)]) or all([board[i][2 - i] == player for i in range(3)]):
+        return True
+
+    return False
+
+
+def alternate_player(player):
+    return "X" if player == "O" else "O"
+
+def is_board_full(board):
+    for row in board:
+        if " " in row:
+            return False
+    return True
+
+
+
+if __name__ == "__main__":
+    board = [[" " for _ in range(3)] for _ in range(3)]
+    current_player = "X"
+    display_board(board)
+
+    while not check_winner(board, current_player) and not is_board_full(board):
+        row, col = map(int, input("Enter your move (row, col): ").split(","))
+        board[row-1][col-1] = current_player
+        display_board(board)
+        current_player = alternate_player(current_player)
+
+    print("Game Over!")
+"""
+right_tic_tac_toe_2_unidiff = """--- tic_tac_toe.py
++++ tic_tac_toe.py
+@@ -22,8 +22,23 @@
+ def alternate_player(player):
+     return "X" if player == "O" else "O"
++
++def is_board_full(board):
++    for row in board:
++        if " " in row:
++            return False
++    return True
++
+ 
+ 
+ if __name__ == "__main__":
+     board = [[" " for _ in range(3)] for _ in range(3)]
+     current_player = "X"
+     display_board(board)
++
++    while not check_winner(board, current_player) and not is_board_full(board):
++        row, col = map(int, input("Enter your move (row, col): ").split(","))
++        board[row-1][col-1] = current_player
++        display_board(board)
++        current_player = alternate_player(current_player)
++
++    print("Game Over!")
+"""
+wrong_tic_tac_toe_2_unidiff = """--- tic_tac_toe.py
++++ tic_tac_toe.py
+@@ -18,4 +18,19 @@
+ 
+ def alternate_player(player):
+     return "X" if player == "O" else "O"
++
++def is_board_full(board):
++    for row in board:
++        if " " in row:
++            return False
++    return True
++
+ if __name__ == "__main__":
+     board = [[" " for _ in range(3)] for _ in range(3)]
+     current_player = "X"
+     display_board(board)
++
++    while not check_winner(board, current_player) and not is_board_full(board):
++        row, col = map(int, input("Enter your move (row, col): ").split(","))
++        board[row-1][col-1] = current_player
++        display_board(board)
++        current_player = alternate_player(current_player)
++
++    print("Game Over!")
+"""
+
 
 @pytest.mark.parametrize(
     "filename, file_contents, file_contents_after, correct_unidiff, cases",
@@ -700,10 +845,6 @@ generation_service_2_partially_wrong_diff = """--- autopr/services/generation_se
                     wrong_line_counts_dockerfile_unidiff,
                 ),
                 (
-                    "Unidiff line numbers are wrong",
-                    wrong_line_numbers_dockerfile_unidiff,
-                ),
-                (
                     "Unidiff contains hallucinated lines",
                     hallucinated_lines_dockerfile_unidiff,
                 ),
@@ -715,6 +856,18 @@ generation_service_2_partially_wrong_diff = """--- autopr/services/generation_se
                     "+++ name is wrong",
                     plusplusplus_name_is_wrong_dockerfile_unidiff,
                 ),
+            ],
+        ),
+        (
+            "Dockerfile",
+            dockerfile,
+            dockerfile_after,
+            working_wrong_line_number_dockerfile_unidiff,
+            [
+                (
+                    "Unidiff line numbers are wrong",
+                    wrong_line_numbers_dockerfile_unidiff,
+                )
             ],
         ),
         (
@@ -822,6 +975,18 @@ generation_service_2_partially_wrong_diff = """--- autopr/services/generation_se
                 (
                     "Unidiff is wrong in first hunk, correct in second hunk",
                     generation_service_2_partially_wrong_diff,
+                ),
+            ],
+        ),
+        (
+            "tic_tac_toe.py",
+            tic_tac_toe_2_file,
+            tic_tac_toe_2_file_after,
+            right_tic_tac_toe_2_unidiff,
+            [
+                (
+                    "Both hunks must be present",
+                    wrong_tic_tac_toe_2_unidiff,
                 ),
             ],
         ),

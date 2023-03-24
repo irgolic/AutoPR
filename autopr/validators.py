@@ -156,6 +156,20 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                         cleaned_lines[-1] = f"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@"
                         cleaned_lines.append(f' {check_file_line}')
                         break
+            elif file_line == "":
+                # Look forward for the line, as long as you're looking through empty lines
+                for check_line_number in range(current_line_number + 1, len(current_file_content)):
+                    check_file_line = current_file_content[check_line_number]
+                    if check_file_line == "":
+                        continue
+                    if line.lstrip() != check_file_line.lstrip():
+                        break
+                    # Add as many newlines as needed
+                    newline_count = check_line_number - current_line_number
+                    cleaned_lines += [" "] * newline_count
+                    cleaned_lines.append(f' {check_file_line}')
+                    current_line_number = check_line_number + 1
+                    break
         else:
             if not line:
                 cleaned_lines.append(line)
@@ -301,6 +315,18 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
                 actual_index = index + i * 2
                 lines.insert(actual_index, newlines[0])
                 lines.insert(actual_index + 1, newlines[1])
+
+            # Filter out new lines if they are the first line in a hunk
+            remove_indices = []
+            for i, line in enumerate(lines):
+                if line.startswith("@@"):
+                    # Find the next line that isn't a space
+                    j = i + 1
+                    while lines[j] == " ":
+                        remove_indices.append(j)
+                        j += 1
+            for i in sorted(remove_indices, reverse=True):
+                del lines[i]
 
             # Recalculate the @@ line and remove hallucinated lines
             lines = remove_hallucinations(lines, tree)
