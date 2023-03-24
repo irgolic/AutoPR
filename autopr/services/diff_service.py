@@ -37,14 +37,15 @@ class PatchService(DiffService):
             f.write(diff.encode())
             f.flush()
             log.debug('Applying diff...')
-            commands = ["patch"]
-            if check:
-                commands += ["--dry-run"]
-            commands += [
+            commands = [
+                "patch",
+                "--no-backup-if-mismatch",
                 "--ignore-whitespace",
                 "-p0",
                 "--force",
                 "-i",
                 f.name
             ]
+            if check:
+                commands += ["--dry-run"]
             self.repo.git.execute(commands)
