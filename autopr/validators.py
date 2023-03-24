@@ -211,7 +211,7 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
             return schema
 
         def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
-            log.debug(f"Validating unidiff...", key=key, value=value)
+            log.debug(f"Validating unidiff...", value=value)
 
             try:
                 diff_service.apply_diff(value, check=True)
@@ -227,7 +227,7 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
             return schema
 
         def fix(self, error: EventDetail) -> Any:
-            log.debug("Fixing unidiff...", error=error)
+            log.debug("Fixing unidiff...", value=error.value)
 
             tree = repo.head.commit.tree
             value = error.value
