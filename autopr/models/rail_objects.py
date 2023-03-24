@@ -10,7 +10,7 @@ class RailObject(pydantic.BaseModel):
 class InitialFileSelectResponse(RailObject):
     rail_spec = """<list name="filepaths">
     <string
-        description="The path to the file in the repo."
+        description="Files in this repository that we should look at."
         format="filepath"
         on-fail="noop"
     />
