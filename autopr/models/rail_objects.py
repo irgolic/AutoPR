@@ -1,4 +1,4 @@
-from typing import List, ClassVar, Optional
+from typing import List, ClassVar, Optional, Literal
 
 import pydantic
 
@@ -38,15 +38,112 @@ class LookAtFilesResponse(RailObject):
     notes: str
 
 
-class Diff(RailObject):
+class DiffLine(RailObject):
     rail_spec = """<string
-    name="diff"
-    description="The diff of the commit, in unified format (unidiff), as output by `diff -u`. Changes shown in hunk format, with headers akin to `--- filename\n+++ filename\n@@ .,. @@`."
-    required="false"
-    format="unidiff"
+    name="role"
+    description="Role of this code line: a (added), r (removed), or u (unchanged)."
+    required="true"
+    format="valid-choices: a,r,u"
+    on-fail-valid-choices="reask"
+/>
+<integer
+    name="indent_spaces"
+    description="The number of space characters used for indentation."
+    required="true"
+    format="valid-range: 0"
+    on-fail-valid-range="reask"
+/>
+<string
+    name="content"
+    description="Content of the code line, stripped of leading + or - for added and removed lines, and any leading whitespace."
+    required="true"
+    format="no-leading-whitespace"
+    on-fail-no-leading-whitespace="fix"
 />"""
 
-    diff: Optional[str] = None
+    role: Literal["a", "r", "u"]
+    indent_spaces: int
+    content: str
+
+    def to_str(self):
+        charmap = {
+            "a": "+",
+            "r": "-",
+            "u": " ",
+        }
+        return f"{charmap[self.role]}{' ' * self.indent_spaces}{self.content}"
+
+
+class DiffHunk(RailObject):
+    rail_spec = f"""<string
+    name="file"
+    description="Path to the changed file."
+    required="true"
+/>
+<bool
+    name="new_file"
+    description="Whether this hunk creates a new file."
+    required="true"
+/>
+<integer
+    name="start_line"
+    description="Line number of the first code line in this hunk."
+    required="true"
+/>
+<list
+    name="lines"
+    description="List of lines of code in the hunk."
+    required="true"
+    format="length: 1 100"
+    on-fail-length="noop"
+>
+<object>
+{DiffLine.rail_spec}
+</object>
+</list>"""
+
+    file: str
+    new_file: bool
+    start_line: int = 1
+    lines: List[DiffLine]
+
+    def to_str(self):
+        add_count = 0
+        remove_count = 0
+        for line in self.lines:
+            if line.role == "a":
+                add_count += 1
+            elif line.role == "r":
+                remove_count += 1
+            else:  # if line.role == "u":
+                add_count += 1
+                remove_count += 1
+        return "\n".join([
+            f"--- {self.file}" if not self.new_file else f"--- /dev/null",
+            f"+++ {self.file}",
+            f"@@ -{self.start_line},{remove_count} +{self.start_line},{add_count} @@"
+        ] + [line.to_str() for line in self.lines])
+
+
+class Diff(RailObject):
+    rail_spec = f"""<list
+    name="hunks"
+    description="List of hunks of code changes."
+    required="true"
+    format="unidiff"
+>
+<object>
+{DiffHunk.rail_spec}
+</object>
+</list>"""
+
+    hunks: List[DiffHunk]
+
+    def to_str(self):
+        return "\n".join([
+            hunk.to_str()
+            for hunk in self.hunks
+        ] + [""])
 
 
 class Commit(RailObject):

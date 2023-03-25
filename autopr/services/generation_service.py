@@ -257,7 +257,7 @@ class GenerationService:
         patch: Diff = self.rail_service.run_rail(rail)
         if patch is None:
             raise ValueError('Error generating patch')
-        patch_text = patch.diff or ''
+        patch_text = patch._text
 
         # if not all chunks were looked at, keep running the rail until all chunks are looked at
         not_looked_at_files = []
@@ -295,7 +295,7 @@ class GenerationService:
             patch: Diff = self.rail_service.run_rail(rail)
             if patch is None:
                 raise ValueError('Error generating patch')
-            patch_text += patch.diff or ''
+            patch_text += patch.to_str()
             update_not_looked_at_files()
 
         return patch_text

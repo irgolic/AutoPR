@@ -394,3 +394,32 @@ def create_filepath_validator(repo: git.Repo):
             return error.schema
 
     return register_validator(name="filepath", data_type="string")(FilePath)
+
+
+@register_validator(name="no-leading-whitespace", data_type="string")
+class NoLeadingWhitespace(Validator):
+    """Validate value does not have leading whitespace.
+    - Name for `format` attribute: `no-leading-whitespace`
+    - Supported data types: `string`
+    """
+    def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+        log.debug("Validating no-leading-whitespace...", key=key, value=value)
+
+        if value.startswith(" "):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                "Value must not have leading whitespace.",
+                None,
+            )
+
+        return schema
+
+    def fix(self, error: EventDetail) -> Dict:
+        value = error.value
+        if not isinstance(value, str):
+            value = str(value)
+        value = value.lstrip()
+        error.schema[error.key] = value
+        return error.schema
