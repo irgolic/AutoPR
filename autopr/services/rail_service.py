@@ -50,17 +50,27 @@ class RailService:
         prompt = self.get_prompt_message(rail)
         length = len(self.tokenizer.encode(prompt))
         max_tokens = min(self.max_tokens, self.context_limit - length)
-        response = self.completion_func(
-            model=self.completion_model,
-            max_tokens=max_tokens,
-            temperature=self.temperature,
-            messages=[
-                {"role": "system", "content": self.raw_system_prompt},
-                {"role": "user", "content": prompt},
-            ]
-        )
+        if self.completion_func == openai.Completion.create:
+            response = self.completion_func(
+                model=self.completion_model,
+                max_tokens=max_tokens,
+                temperature=self.temperature,
+                prompt=prompt,
+            )
+            content = response['choices'][0]['text']
+        else:
+            response = self.completion_func(
+                model=self.completion_model,
+                max_tokens=max_tokens,
+                temperature=self.temperature,
+                messages=[
+                    {"role": "system", "content": self.raw_system_prompt},
+                    {"role": "user", "content": prompt},
+                ]
+            )
+            content = response['choices'][0]['message']['content']
         log.info('Ran raw completion', response=response)
-        return response['choices'][0]['message']['content']
+        return content
 
     @retry(
         # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
