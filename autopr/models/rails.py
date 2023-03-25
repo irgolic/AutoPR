@@ -43,11 +43,7 @@ class Rail(pydantic.BaseModel):
 {{{{raw_response}}}}
 ```
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
-@json_suffix_prompt_v2_wo_none
+@complete_json_suffix_v2
 </prompt>
 </rail>
 """
@@ -175,13 +171,9 @@ If looking at files would be a waste of time with regard to the issue, let me kn
 {{{{raw_response}}}}
 ```
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
 If looking at files would be a waste of time, please submit an empty list.
 
-@json_suffix_prompt_v2_wo_none
+@complete_json_suffix_v2
 </prompt>
 </rail>
 """
@@ -248,13 +240,9 @@ If looking at files would be a waste of time with regard to the issue, let me kn
 {{{{raw_response}}}}
 ```
 
-@xml_prefix_prompt
-
-{{output_schema}}
-
 If looking at more files would be a waste of time, please submit an empty list.
 
-@json_suffix_prompt_v2_wo_none
+@complete_json_suffix_v2
 </prompt>
 </rail>
 """
