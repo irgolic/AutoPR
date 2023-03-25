@@ -88,7 +88,7 @@ class CommitPlan(RailObject):
 />"""
 
     commit_message: str
-    relevant_filepaths: List[str]
+    relevant_filepaths: List[str] = pydantic.Field(default_factory=list)
     commit_changes_description: str
 
 
