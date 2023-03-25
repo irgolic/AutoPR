@@ -1,0 +1,10 @@
+--- Dockerfile
++++ Dockerfile
+@@ -6,5 +6,7 @@
+ # Set up entrypoint
+ COPY entrypoint.sh /entrypoint.sh
++
++# Make entrypoint executable
+ RUN chmod +x /entrypoint.sh
+ 
+ # Run the app

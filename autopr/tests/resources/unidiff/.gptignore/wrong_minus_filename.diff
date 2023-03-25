@@ -1,0 +1,4 @@
+--- .gptignore
++++ .gptignore_new
+@@ -0,0 +1 @@
++*.lock

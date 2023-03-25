@@ -3,4 +3,5 @@
 *.log
 __pycache__/
 *.diff
+!autopr/tests/resources/**/*.diff
 *.patch
