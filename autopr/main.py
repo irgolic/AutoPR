@@ -1,7 +1,4 @@
-import os
-import tempfile
-
-
+import openai
 from git import Repo
 from autopr.services.pull_request_service import GithubPullRequestService
 from .models.rail_objects import PullRequestDescription
@@ -48,9 +45,16 @@ def main(
     remote_url = repo.remotes.origin.url
     owner, repo_name = remote_url.split('/')[-2:]
 
+    if any(name in model
+           for name in ("davinci", "curie", "babbage", "ada")):
+        completion_func = openai.Completion.create
+    else:
+        completion_func = openai.ChatCompletion.create
+
     # Create services
     rail_service = RailService(
         completion_model=model,
+        completion_func=completion_func,
         context_limit=context_limit,
         min_tokens=min_tokens,
         max_tokens=max_tokens,
