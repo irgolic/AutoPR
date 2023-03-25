@@ -41,7 +41,7 @@ class LookAtFilesResponse(RailObject):
 class Diff(RailObject):
     rail_spec = """<string
     name="diff"
-    description="The diff of the commit, in unified format (unidiff), as output by `diff -u`. Changes shown in hunk format, with headers akin to `--- <filename>\n+++ <filename>\n@@ .,. @@`."
+    description="The diff of the commit, in unified format (unidiff), as output by `diff -u`. Changes shown in hunk format, with headers akin to `--- filename\n+++ filename\n@@ .,. @@`."
     required="false"
     format="unidiff"
 />"""
