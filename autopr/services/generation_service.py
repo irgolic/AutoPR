@@ -321,7 +321,7 @@ class GenerationService:
             # Look at the files
             notes = self.write_notes_about_files(files, issue_text, filepaths)
         else:
-            notes = "The repository's files were not looked at."
+            notes = "The repository's contents were irrelevant, only create new files to address the issue."
 
         # Get the commit messages and relevant filepaths
         pr_desc = self.propose_pull_request(issue_text, notes)
