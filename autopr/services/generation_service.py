@@ -66,26 +66,6 @@ class GenerationService:
 
         return filenames_and_contents
 
-    def _repo_to_files_and_token_lengths(
-        self,
-        repo_tree: Tree,
-        excluded_files: list[str] = None,
-    ) -> list[tuple[str, int]]:
-        files_with_token_lengths = []
-        for blob in repo_tree.traverse():
-            if blob.type == 'tree':
-                continue
-            if excluded_files is not None and blob.path in excluded_files:
-                continue
-            try:
-                content = blob.data_stream.read().decode()
-            except UnicodeDecodeError:
-                log.debug(f"Error decoding file: {blob.path}")
-                continue
-            token_length = len(self.rail_service.tokenizer.encode(content))
-            files_with_token_lengths.append((blob.path, token_length))
-        return files_with_token_lengths
-
     def _repo_to_file_descriptors(self, repo_tree: Tree) -> list[FileDescriptor]:
         file_descriptor_list = []
         for blob in repo_tree.traverse():
