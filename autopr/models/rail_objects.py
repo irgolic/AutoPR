@@ -104,6 +104,7 @@ class PullRequestDescription(RailObject):
 <list 
     name="commits"
     on-fail="reask"
+    description="The commits that will be made in this pull request. Commits must change the code in the repository, and must not be empty."
 >
 <object>
 {CommitPlan.rail_spec}
