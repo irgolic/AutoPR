@@ -1,0 +1,36 @@
+{
+    "hunks": [
+        {
+            "file": "autopr/validators.py",
+            "new_file": false,
+            "start_line": 105,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 20,
+                    "content": "check_file_line = current_file_content[check_line_number]"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 20,
+                    "content": "if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 20,
+                    "content": "if 0 <= check_line_number < len(current_file_content):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 24,
+                    "content": "check_file_line = current_file_content[check_line_number]"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 24,
+                    "content": "if line[1:] == check_file_line:"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,83 @@
+{
+    "hunks": [
+        {
+            "file": "tic_tac_toe_2.py",
+            "new_file": false,
+            "start_line": 22,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "def alternate_player(player):"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 4,
+                    "content": "return \"X\" if player == \"O\" else \"O\""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "def is_board_full(board):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "for row in board:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "if \" \" in row:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "return False"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "return True"
+                }
+            ]
+        },
+        {
+            "file": "tic_tac_toe_2.py",
+            "new_file": false,
+            "start_line": 31,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "while not check_winner(board, current_player) and not is_board_full(board):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "row, col = map(int, input(\"Enter your move (row, col): \").split(\",\"))"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "board[row-1][col-1] = current_player"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "display_board(board)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "current_player = alternate_player(current_player)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "print(\"Game Over!\")"
+                }
+            ]
+        }
+    ]
+}

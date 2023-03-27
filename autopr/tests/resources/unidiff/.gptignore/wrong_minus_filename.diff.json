@@ -1,0 +1,38 @@
+{
+    "hunks": [
+        {
+            "file": ".gptignore",
+            "new_file": false,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "--- .gptignore"
+                }
+            ]
+        },
+        {
+            "file": ".gptignore_new",
+            "new_file": true,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "+++ .gptignore_new"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "@@ -0,0 +1 @@"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "*.lock"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+{
+    "hunks": [
+        {
+            "file": "Dockerfile_multihunk",
+            "new_file": false,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "Install git"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "RUN apt-get update && apt-get install -y git"
+                }
+            ]
+        },
+        {
+            "file": "Dockerfile_multihunk",
+            "new_file": false,
+            "start_line": 9,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "Ha"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "Haha"
+                }
+            ]
+        }
+    ]
+}

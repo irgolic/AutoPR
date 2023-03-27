@@ -1,0 +1,55 @@
+{
+    "hunks": [
+        {
+            "file": "Dockerfile",
+            "new_file": false,
+            "start_line": 5,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "COPY entrypoint.sh /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "COPY entrypoint.sh /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "HUHU"
+                }
+            ]
+        },
+        {
+            "file": "Dockerfile",
+            "new_file": false,
+            "start_line": 9,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "RUN chmod +x /entrypoint.sh"
+                }
+            ]
+        },
+        {
+            "file": "Dockerfile",
+            "new_file": false,
+            "start_line": 11,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "HIHI"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "HAHA"
+                }
+            ]
+        }
+    ]
+}

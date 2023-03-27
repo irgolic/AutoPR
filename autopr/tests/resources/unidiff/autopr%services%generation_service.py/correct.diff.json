@@ -1,0 +1,130 @@
+{
+    "hunks": [
+        {
+            "file": "autopr/services/generation_service.py",
+            "new_file": false,
+            "start_line": 11,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "from pathlib import Path"
+                }
+            ]
+        },
+        {
+            "file": "autopr/services/generation_service.py",
+            "new_file": false,
+            "start_line": 28,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "self.create_gptignore()"
+                }
+            ]
+        },
+        {
+            "file": "autopr/services/generation_service.py",
+            "new_file": false,
+            "start_line": 67,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "def _repo_to_files_and_token_lengths("
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "repo_tree: git.Repo,"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "excluded_files: list[str] = None,"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": ") -> list[tuple[str, int]]:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "files_with_token_lengths = []"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "for blob in repo_tree.traverse():"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "if blob.type == 'tree':"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 16,
+                    "content": "continue"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "if excluded_files is not None and blob.path in excluded_files:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 16,
+                    "content": "continue"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "content = blob.data_stream.read().decode()"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "token_length = len(self.rail_service.tokenizer.encode(content))"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "files_with_token_lengths.append((blob.path, token_length))"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "return files_with_token_lengths"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "def create_gptignore(self):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "gptignore_path = Path('.gptignore')"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "if not gptignore_path.exists():"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "with gptignore_path.open('w') as gptignore_file:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 16,
+                    "content": "gptignore_file.write('*.lock"
+                }
+            ]
+        }
+    ]
+}

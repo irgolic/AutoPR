@@ -1,0 +1,16 @@
+{
+    "hunks": [
+        {
+            "file": ".gptignore",
+            "new_file": true,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "*.lock"
+                }
+            ]
+        }
+    ]
+}

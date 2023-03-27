@@ -1,0 +1,53 @@
+{
+    "hunks": [
+        {
+            "file": "Dockerfile_multihunk",
+            "new_file": false,
+            "start_line": 3,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "# Install git"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "RUN apt-get update && apt-get install -y git"
+                }
+            ]
+        },
+        {
+            "file": "Dockerfile_multihunk",
+            "new_file": false,
+            "start_line": 8,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 1,
+                    "content": "RUN chmod +x /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "Ha"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "Haha"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "# Run the app"
+                }
+            ]
+        }
+    ]
+}

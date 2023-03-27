@@ -1,0 +1,31 @@
+{
+    "hunks": [
+        {
+            "file": "README_new.md",
+            "new_file": true,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "# Pull Request Drafter Github Action"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "## Environment Variables"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                }
+            ]
+        }
+    ]
+}

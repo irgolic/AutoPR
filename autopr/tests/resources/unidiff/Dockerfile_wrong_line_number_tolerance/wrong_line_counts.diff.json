@@ -1,0 +1,36 @@
+{
+    "hunks": [
+        {
+            "file": "Dockerfile_wrong_line_number_tolerance",
+            "new_file": false,
+            "start_line": 6,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "COPY entrypoint.sh /entrypoint.sh"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "RUN chmod +x /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "COPY entrypoint.sh /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "# Make entrypoint executable"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "RUN chmod +x /entrypoint.sh"
+                }
+            ]
+        }
+    ]
+}

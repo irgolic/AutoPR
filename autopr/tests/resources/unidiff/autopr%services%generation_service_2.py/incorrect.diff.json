@@ -1,0 +1,86 @@
+{
+    "hunks": [
+        {
+            "file": "autopr/services/generation_service_2.py",
+            "new_file": false,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "import tempfile"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "import fnmatch"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "from typing import List, Dict, Tuple"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "from git import Repo, Tree"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "from .file_descriptor import FileDescriptor"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 4,
+                    "content": "repo_tree = repo.head.commit.tree"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "with open('.gptignore', 'r') as gptignore_file:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "ignore_patterns = gptignore_file.read().splitlines()"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 4,
+                    "content": "filepaths = self.get_initial_filepaths(files, issue_text)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "filepaths = ["
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "filepath for filepath in self.get_initial_filepaths(files, issue_text)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "if not any(fnmatch.fnmatch(filepath, pattern) for pattern in ignore_patterns)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "]"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 4,
+                    "content": "if filepaths:"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 8,
+                    "content": "notes = self.write_notes_about_files(files, issue_text, filepaths)"
+                }
+            ]
+        }
+    ]
+}

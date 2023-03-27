@@ -1,0 +1,51 @@
+{
+    "hunks": [
+        {
+            "file": "tic_tac_toe.py",
+            "new_file": true,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "def display_board(board):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "for i in range(3):"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "print(\" | \".join(board[i * 3:i * 3 + 3]))"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 8,
+                    "content": "if i < 2:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 12,
+                    "content": "print(\"-\" * 9)"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "if __name__ == \"__main__\":"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "example_board = [\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\"]"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 4,
+                    "content": "display_board(example_board)"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,51 @@
+{
+    "hunks": [
+        {
+            "file": "Dockerfile",
+            "new_file": false,
+            "start_line": 5,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "--- Dockerfile"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "+++ Dockerfile"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "@@ -5,505 +5,10 @@"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "# Set up entrypoint"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 1,
+                    "content": "COPY entrypoint.sh /entrypoint.sh"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "# Make entrypoint executable"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 1,
+                    "content": "RUN chmod +x /entrypoint.sh"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": "# Run the app"
+                }
+            ]
+        }
+    ]
+}

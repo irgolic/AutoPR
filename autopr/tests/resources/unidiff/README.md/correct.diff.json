@@ -1,0 +1,121 @@
+{
+    "hunks": [
+        {
+            "file": "README.md",
+            "new_file": false,
+            "start_line": 1,
+            "lines": [
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "# Pull Request Drafter Github Action"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "# Automatic Pull Request Github Action \ud83c\udf89\ud83d\ude80"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 0,
+                    "content": "## Environment Variables"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "## Input Variables"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "The input variables for this Github Action are documented in `action.yml`. They include:"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `github_token`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `openai_api_key`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `issue_number`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `issue_title`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `issue_body`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "- `base_branch`"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "## Guardrails Library"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "This Github Action utilizes the guardrails library, which can be found in `generation_service.py` and `validators.py`. The library helps in generating and validating pull requests based on the input variables and the codebase."
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "## Including the Github Action in Your Repository"
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": ""
+                },
+                {
+                    "role": "a",
+                    "indent_spaces": 0,
+                    "content": "To include the Automatic Pull Request Github Action in your own repository, add its configuration to your `.github/workflows` directory. Follow the documentation in `action.yml` for further guidance."
+                }
+            ]
+        }
+    ]
+}
