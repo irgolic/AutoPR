@@ -325,6 +325,19 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
                 lines.insert(actual_index, newlines[0])
                 lines.insert(actual_index + 1, newlines[1])
 
+            # If it's a new file (--- starts with /dev/null), make all the lines in the hunk start with +
+            for i, line in enumerate(lines):
+                if line.startswith("--- /dev/null") and lines[i + 1].startswith("+++ ") and lines[i + 2].startswith("@@"):
+                    j = i + 3
+                    while j < len(lines) and not (lines[j].startswith("---") and lines[j + 1].startswith("+++") and lines[j + 2].startswith("@@")):
+                        if lines[j].startswith(" "):
+                            lines[j] = "+" + lines[j][1:]
+                        elif lines[j].startswith("-"):
+                            lines[j] = "+" + lines[j][1:]
+                        elif not lines[j].startswith("+"):
+                            lines[j] = "+" + lines[j]
+                        j += 1
+
             # Filter out new lines if they are the first line in a hunk
             remove_indices = []
             for i, line in enumerate(lines):
