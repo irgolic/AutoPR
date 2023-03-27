@@ -30,42 +30,6 @@ class GenerationService:
         self.file_chunk_size = file_chunk_size
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
 
-    @staticmethod
-    def repo_to_codebase(
-        tree: Tree,
-        included_filepaths: list[str] = None,
-        excluded_filepaths: list[str] = None,
-    ) -> list[tuple[str, str]]:
-        # Concatenate all the files in the repo,
-
-        filenames_and_contents = []
-        for blob in tree.traverse():
-            if included_filepaths is not None and blob.path not in included_filepaths:
-                continue
-            if excluded_filepaths is not None and blob.path in excluded_filepaths:
-                continue
-
-            # Skip directories
-            if blob.type == 'tree':
-                continue
-
-            # Skip lock file
-            if any(
-                blob.path.endswith(ending)
-                for ending in ['.lock']
-            ):
-                continue
-
-            # Add file contents, with line numbers
-            blob_text = blob.data_stream.read().decode()
-            blob_contents_with_line_numbers = ""
-            for i, line in enumerate(blob_text.split('\n')):
-                blob_contents_with_line_numbers += f"{i+1} {line}\n"
-
-            filenames_and_contents += [(blob.path, blob_contents_with_line_numbers)]
-
-        return filenames_and_contents
-
     def _repo_to_file_descriptors(self, repo_tree: Tree) -> list[FileDescriptor]:
         file_descriptor_list = []
         for blob in repo_tree.traverse():
