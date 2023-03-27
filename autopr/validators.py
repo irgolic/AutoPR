@@ -3,7 +3,9 @@ import re
 from typing import Union, Any, Dict, List, Optional
 
 from git import GitCommandError
+from pydantic import ValidationError
 
+from autopr.models.rail_objects import Diff
 from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
@@ -11,51 +13,6 @@ import git
 
 import structlog
 log = structlog.get_logger()
-
-
-def fix_unidiff_line_counts(lines: list[str]) -> list[str]:
-    # TODO also fix unidiff line numbers
-    corrected_lines = []
-
-    for i, line in enumerate(lines):
-        if line.startswith("@@"):
-            # Extract the original x and y values
-            match = re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line)
-            if match is None:
-                start_x, start_y = 0, 0
-            else:
-                start_x, start_y = int(match.group(1)), int(match.group(2))
-
-            # Calculate the correct y values based on the hunk content
-            x_count, y_count = 0, 0
-            j = i + 1
-            while j < len(lines):
-                # Check if the next hunk is detected
-                if (
-                    j + 2 < len(lines) and
-                    lines[j].startswith("---") and
-                    lines[j + 1].startswith("+++") and
-                    lines[j + 2].startswith("@@")
-                ) or lines[j].startswith("@@"):
-                    break
-
-                if lines[j].startswith("-"):
-                    x_count += 1
-                elif lines[j].startswith("+"):
-                    y_count += 1
-                elif lines[j]:
-                    x_count += 1
-                    y_count += 1
-
-                j += 1
-
-            # Update the @@ line with the correct y values
-            corrected_line = f"@@ -{start_x},{x_count} +{start_y},{y_count} @@"
-            corrected_lines.append(corrected_line)
-        else:
-            corrected_lines.append(line)
-
-    return corrected_lines
 
 
 def adjust_line_indentation(line: str, indentation_offset: int) -> str:
@@ -215,8 +172,9 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
             log.debug(f"Validating unidiff...", value=value)
 
             try:
-                diff_service.apply_diff(value, check=True)
-            except GitCommandError as e:
+                model = Diff.parse_obj({'hunks': value})
+                diff_service.apply_diff(model.to_str(), check=True)
+            except (GitCommandError, ValidationError) as e:
                 raise EventDetail(
                     key,
                     value,
@@ -230,125 +188,47 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
         def fix(self, error: EventDetail) -> Any:
             log.debug("Fixing unidiff...", value=error.value)
 
-            tree = repo.head.commit.tree
             value = error.value
-            lines = value.splitlines()
+            try:
+                model = Diff.parse_obj({'hunks': value})
+            except ValidationError:
+                return error.schema
 
-            # Drop any `diff --git` lines
-            lines = [line for line in lines if not line.startswith("diff --git")]
-
-            # Remove whitespace in front of --- lines if it's there
-            for i, line in enumerate(lines):
-                stripped_line = line.lstrip()
-                if stripped_line.startswith("---") and \
-                        lines[i + 1].startswith("+++") and \
-                        lines[i + 2].startswith("@@"):
-                    lines[i] = stripped_line
-
-            # Add space at the start of any line that's empty, except if it precedes a --- line, or is the last line
-            for i, line in enumerate(lines):
-                if len(lines) < i + 2:
-                    break
-                if line == "" and not lines[i + 1].startswith("---") and i != len(lines) - 1:
-                    lines[i] = " "
-
-            # Ensure the whole thing ends with a newline
-            if not lines[-1] == "":
-                lines.append("")
-
-            # If there are any +++ @@ lines, without a preceding --- line,
-            # add a `--- /dev/null` line before it
-            insert_indices: list[int] = []
-            for i, line in enumerate(lines):
-                if line.startswith("+++ ") and lines[i + 1].startswith('@@ ') and not lines[i - 1].startswith("---"):
-                    insert_indices.append(i)
-            for i, index in enumerate(insert_indices):
-                lines.insert(index + i, "--- /dev/null")
+            tree = repo.head.commit.tree
 
             # Rename any hunks that start with --- a/ or +++ b/
-            for i, line in enumerate(lines):
-                if len(lines) < i + 2:
-                    break
-                if line.startswith("--- /dev/null") and lines[i + 1].startswith("+++ b/"):
-                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
-                elif line.startswith("--- a/") and lines[i + 1].startswith("+++ b/"):
-                    lines[i] = line.replace("--- a/", "--- ")
-                    lines[i + 1] = lines[i + 1].replace("+++ b/", "+++ ")
+            # for hunk in model.hunks:
+            #     if hunk.file.startswith('a/'):
+            #         hunk.file = hunk.file[2:]
+            #     elif hunk.file.startswith('b/'):
+            #         hunk.file = hunk.file[2:]
 
-            # Fix filenames, such that in every block of three consecutive --- +++ @@ lines,
-            # the filename after +++ matches the filename after ---
-            # Except the filename after --- is /dev/null
-            for i, line in enumerate(lines):
-                if line.startswith("---") and not line.startswith("--- /dev/null"):
-                    # Extract the filename after ---
-                    filename_match = re.match(r"--- (.+)", line)
-                    filename = filename_match.group(1)
-
-                    # Check if the next line starts with +++ and the line after that starts with @@
-                    if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
-                            i + 2 < len(lines) and lines[i + 2].startswith("@@"):
-                        # Update the next line's filename to match the filename after ---
-                        lines[i + 1] = f"+++ {filename}"
-
-            # If the file referenced on --- and +++ lines is not in the repo, replace it with /dev/null
-            for i, line in enumerate(lines):
-                if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
-                    # Extract the filename after +++
-                    filename_match = re.match(r"\+\+\+ (.+)", lines[i + 1])
-                    filename = filename_match.group(1)
-
-                    # Check if the file is in the tree
-                    try:
-                        tree / filename
-                    except KeyError:
-                        # See if any of the filepaths in the tree end with the filename
-                        # If so, use that as the filename
-                        for tree_file in tree.traverse():
-                            path = tree_file.path
-                            if path.endswith(filename):
-                                lines[i] = f"--- {path}"
-                                lines[i + 1] = f"+++ {path}"
-                                break
-                        else:
-                            lines[i] = f"--- /dev/null"
-
-            # If there is a lone @@ line, prefix it with the --- and +++ lines from the previous block
-            current_block: list[str] = []
-            insertions: list[tuple[int, list[str]]] = []
-            for i, line in enumerate(lines):
-                if line.startswith("---") and lines[i + 1].startswith("+++ ") and lines[i + 2].startswith("@@"):
-                    current_block = [lines[i], lines[i + 1]]
-                if line.startswith("@@") and not lines[i - 1].startswith("+++ "):
-                    insertions.append((i, current_block))
-            for i, (index, newlines) in enumerate(insertions):
-                actual_index = index + i * 2
-                lines.insert(actual_index, newlines[0])
-                lines.insert(actual_index + 1, newlines[1])
+            # If file does not exist, denote it as a new file
+            for hunk in model.hunks:
+                if hunk.file not in tree:
+                    hunk.new_file = True
 
             # Filter out new lines if they are the first line in a hunk
-            remove_indices = []
-            for i, line in enumerate(lines):
-                if line.startswith("@@"):
-                    # Find the next line that isn't a space
-                    j = i + 1
-                    while lines[j] == " ":
-                        remove_indices.append(j)
-                        j += 1
-            for i in sorted(remove_indices, reverse=True):
-                del lines[i]
+            # remove_indices = []
+            # for i, line in enumerate(lines):
+            #     if line.startswith("@@"):
+            #         # Find the next line that isn't a space
+            #         j = i + 1
+            #         while lines[j] == " ":
+            #             remove_indices.append(j)
+            #             j += 1
+            # for i in sorted(remove_indices, reverse=True):
+            #     del lines[i]
 
             # Recalculate the @@ line and remove hallucinated lines
-            lines = remove_hallucinations(lines, tree)
+            # lines = remove_hallucinations(lines, tree)
 
-            # Recalculate the line counts in the unidiff
-            lines = fix_unidiff_line_counts(lines)
+            # value = "\n".join(lines)
 
-            value = "\n".join(lines)
-
-            error.schema[error.key] = value
+            error.schema[error.key] = model.dict()['hunks']
             return error.schema
 
-    return register_validator(name="unidiff", data_type="string")(Unidiff)
+    return register_validator(name="unidiff", data_type="list")(Unidiff)
 
 
 def create_filepath_validator(repo: git.Repo):
@@ -420,6 +300,11 @@ class NoLeadingWhitespace(Validator):
         value = error.value
         if not isinstance(value, str):
             value = str(value)
+
+        # TODO overwrite `indent` if indentation is more than one space
+
+        # Strip the value
         value = value.lstrip()
+
         error.schema[error.key] = value
         return error.schema
