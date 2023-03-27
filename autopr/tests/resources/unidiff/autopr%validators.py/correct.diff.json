@@ -6,9 +6,24 @@
             "start_line": 106,
             "lines": [
                 {
+                    "role": "u",
+                    "indent_spaces": 8,
+                    "content": "for offset in range(-search_range, search_range + 1):"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 12,
+                    "content": "check_line_number = current_line_number + offset"
+                },
+                {
                     "role": "r",
                     "indent_spaces": 12,
                     "content": "check_file_line = current_file_content[check_line_number]"
+                },
+                {
+                    "role": "r",
+                    "indent_spaces": 12,
+                    "content": "if 0 <= check_line_number < len(current_file_content) and line[1:] == check_file_line:"
                 },
                 {
                     "role": "a",
@@ -24,6 +39,21 @@
                     "role": "a",
                     "indent_spaces": 16,
                     "content": "if line[1:] == check_file_line:"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 20,
+                    "content": "current_line_number = check_line_number + 1"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 20,
+                    "content": "# Fix @@ line"
+                },
+                {
+                    "role": "u",
+                    "indent_spaces": 20,
+                    "content": "cleaned_lines[-1] = f\"@@ -{check_line_number + 1},1 +{check_line_number + 1},1 @@\""
                 }
             ]
         }
