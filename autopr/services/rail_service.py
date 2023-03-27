@@ -83,7 +83,7 @@ class RailService:
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
-        length = self.calculate_prompt_length(rail)
+        length = self.calculate_rail_length(rail, raw_response)
         max_tokens = min(self.max_tokens, self.context_limit - length)
         options = {
             'model': self.completion_model,
@@ -153,3 +153,7 @@ class RailService:
     def calculate_prompt_length(self, rail: RailUnion) -> int:
         prompt = self.get_prompt_message(rail)
         return len(self.tokenizer.encode(prompt))
+
+    def calculate_rail_length(self, rail: RailUnion, raw_response: str) -> int:
+        rail_message = self.get_rail_message(rail, raw_response)
+        return len(self.tokenizer.encode(rail_message))
