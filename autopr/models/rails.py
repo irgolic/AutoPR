@@ -1,12 +1,14 @@
 from typing import ClassVar, Union, Optional, Any
 
 import pydantic
-from pydantic import root_validator
 
 from autopr.models.rail_objects import LookAtFilesResponse, PullRequestDescription, \
     InitialFileSelectResponse, RailObject, Diff
 
 import structlog
+
+from autopr.utils.repo import FileDescriptor, filter_seen_chunks, trim_chunk
+
 log = structlog.get_logger()
 
 
@@ -47,84 +49,6 @@ class Rail(pydantic.BaseModel):
 </prompt>
 </rail>
 """
-
-
-class FileDescriptor(pydantic.BaseModel):
-    path: str
-    token_length: int
-    chunks: list[list[tuple[int, str]]]  # list of (line number, line content) pairs
-    start_chunk: int = 0
-    end_chunk: Optional[int]
-
-    @root_validator(pre=True)
-    def validate_end_chunk(cls, values):
-        if 'end_chunk' not in values:
-            values['end_chunk'] = len(values['chunks'])
-        return values
-
-    def filepaths_with_token_lengths_to_str(self) -> str:
-        # TODO give info on what chunks we've already seen
-        return f'{self.path} ({str(self.token_length)} tokens)'
-        # chunks_left = self.end_chunk - self.start_chunk
-        # return f'{self.path} ({str(self.token_length)} tokens) ({str(chunks_left)} chunks left)'
-
-    def filenames_and_contents_to_str(self) -> str:
-        contents = ''
-        if self.start_chunk > 0:
-            contents += f'... #  (omitting {self.start_chunk} chunks)\n'
-        # TODO make the line numbers right-aligned with padded spaces,
-        #  so that the line numbers don't change the start of the line
-        contents += '\n'.join([
-            f'{str(line_number)} {line_content}'
-            for chunk in self.chunks[self.start_chunk:self.end_chunk]
-            for line_number, line_content in chunk
-        ])
-        if self.end_chunk < len(self.chunks):
-            contents += f'\n... #  (omitting {len(self.chunks) - self.end_chunk} chunks)'
-        return f'>>> Path: {self.path}:\n\n{contents}'
-
-
-def _trim_chunk(file_desc_with_chunk_start_end: list[FileDescriptor]) -> bool:
-    if file_desc_with_chunk_start_end:
-        # Find file with most chunks
-        longest_num = 0
-        longest_i = 0
-        for i, desc in enumerate(file_desc_with_chunk_start_end):
-            num_chunks = desc.end_chunk - desc.start_chunk
-            if num_chunks > longest_num:
-                longest_num = num_chunks
-                longest_i = i
-
-        desc = file_desc_with_chunk_start_end[longest_i]
-
-        # If we've already looked at the whole file, remove it from the list
-        if desc.start_chunk == desc.end_chunk - 1:
-            del file_desc_with_chunk_start_end[longest_i]
-            return True
-
-        # Otherwise, shave a chunk off the end
-        desc.end_chunk -= 1
-        file_desc_with_chunk_start_end[longest_i] = desc
-        return True
-    return False
-
-
-def _filter_seen_chunks(seen_fds: list[FileDescriptor], prospective_fds: list[FileDescriptor]) -> list[FileDescriptor]:
-    fds_copy = [f.copy(deep=True) for f in prospective_fds]
-    omit_prospective_fd_indices = []
-    for selected_fd in seen_fds:
-        # If it's in prospective_file_descriptors, update its start_chunk
-        for prospective_fd in fds_copy:
-            if prospective_fd.path == selected_fd.path:
-                # If we've already looked at the whole file, remove it from the list
-                if prospective_fd.end_chunk == selected_fd.end_chunk:
-                    omit_prospective_fd_indices.append(fds_copy.index(prospective_fd))
-                else:
-                    prospective_fd.start_chunk = selected_fd.end_chunk
-                break
-    for i in sorted(omit_prospective_fd_indices, reverse=True):
-        del fds_copy[i]
-    return fds_copy
 
 
 class InitialFileSelectRail(Rail):
@@ -208,7 +132,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
     _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
 
     def get_string_params(self) -> dict[str, str]:
-        self._filtered_prospective_file_descriptors = _filter_seen_chunks(
+        self._filtered_prospective_file_descriptors = filter_seen_chunks(
             self.selected_file_contents, self.prospective_file_descriptors
         )
 
@@ -226,7 +150,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
         }
 
     def trim_params(self) -> bool:
-        return _trim_chunk(self.selected_file_contents)
+        return trim_chunk(self.selected_file_contents)
 
     @classmethod
     def get_rail_spec(cls):
@@ -280,7 +204,7 @@ Also, let me know if we should take a look at any other files – our budget is 
     _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
 
     def get_string_params(self) -> dict[str, str]:
-        self._filtered_prospective_file_descriptors = _filter_seen_chunks(
+        self._filtered_prospective_file_descriptors = filter_seen_chunks(
             self.selected_file_contents, self.prospective_file_descriptors
         )
 
@@ -299,7 +223,7 @@ Also, let me know if we should take a look at any other files – our budget is 
         }
 
     def trim_params(self) -> bool:
-        return _trim_chunk(self.selected_file_contents)
+        return trim_chunk(self.selected_file_contents)
 
 
 class ProposePullRequest(Rail):
@@ -364,7 +288,7 @@ Only write a unidiff in the codebase subset we're looking at."""
         }
 
     def trim_params(self) -> bool:
-        return _trim_chunk(self.selected_file_contents)
+        return trim_chunk(self.selected_file_contents)
 
 
 RailUnion = Union[tuple(Rail.__subclasses__())]  # type: ignore

@@ -1,11 +1,11 @@
 import os
-import tempfile
 
 import git
 
 import structlog
 
-from autopr.models.repo import RepoCommit
+from autopr.models.artifacts import DiffStr
+from autopr.models.rail_objects import CommitPlan
 from autopr.services.diff_service import DiffService
 
 log = structlog.get_logger()
@@ -15,7 +15,7 @@ class CommitService:
     def __init__(
         self,
         diff_service: DiffService,
-        repo: git.Repo,
+        repo: Repo,
         repo_path: str,
         branch_name: str,
         base_branch_name: str,
@@ -26,7 +26,9 @@ class CommitService:
         self.branch_name = branch_name
         self.base_branch_name = base_branch_name
 
-    def switch_to_branch(self):
+        self.is_published = False
+
+    def overwrite_new_branch(self):
         # If branch already exists, delete it
         if self.branch_name in self.repo.heads:
             log.debug(f'Deleting existing branch {self.branch_name}...')
@@ -39,9 +41,9 @@ class CommitService:
         # Checkout new branch
         self.repo.heads[self.branch_name].checkout()
 
-    def commit(self, commit: RepoCommit) -> None:
+    def commit(self, commit: CommitPlan, diff: DiffStr) -> None:
         # Apply diff
-        self.diff_service.apply_diff(commit.diff)
+        self.diff_service.apply_diff(diff)
 
         # Remove guardrails log if exists (so it's not committed later)
         if 'guardrails.log' in self.repo.untracked_files:
@@ -52,7 +54,7 @@ class CommitService:
 
         # Add and commit all
         self.repo.git.execute(["git", "add", "."])
-        self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.message])
+        self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.commit_message])
 
         # Push branch to remote
         log.debug(f'Pushing branch {self.branch_name} to remote...')

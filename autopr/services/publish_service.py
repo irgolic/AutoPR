@@ -6,7 +6,7 @@ import structlog
 log = structlog.get_logger()
 
 
-class PullRequestService:
+class PublishService:
     def publish(self, pr: PullRequestDescription):
         raise NotImplementedError
 
@@ -14,7 +14,7 @@ class PullRequestService:
         raise NotImplementedError
 
 
-class GithubPullRequestService(PullRequestService):
+class GithubPublishService(PublishService):
     def __init__(self, token: str, owner: str, repo_name: str, head_branch: str, base_branch: str):
         self.token = token
         self.owner = owner

@@ -2,12 +2,12 @@ import os
 import re
 from typing import Union, Any, Dict, List, Optional
 
-from git import GitCommandError
+from git import GitCommandError, Tree
 
 from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
-import git
+from git.repo import Repo
 
 import structlog
 log = structlog.get_logger()
@@ -65,7 +65,7 @@ def adjust_line_indentation(line: str, indentation_offset: int) -> str:
         return line[-indentation_offset:]
 
 
-def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
+def remove_hallucinations(lines: List[str], tree: Tree) -> List[str]:
     cleaned_lines: list[str] = []
     current_file_content: Optional[list[str]] = None
     current_line_number: int = 0
@@ -191,7 +191,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     return cleaned_lines
 
 
-def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
+def create_unidiff_validator(repo: Repo, diff_service: DiffService):
     class Unidiff(Validator):
         """Validate value is a valid unidiff.
         - Name for `format` attribute: `unidiff`
@@ -364,7 +364,7 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
     return register_validator(name="unidiff", data_type="string")(Unidiff)
 
 
-def create_filepath_validator(repo: git.Repo):
+def create_filepath_validator(repo: Repo):
     # TODO I don't think we need this validator anymore
     class FilePath(Validator):
         """Validate value is a valid file path.

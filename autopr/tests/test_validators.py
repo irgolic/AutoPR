@@ -3,7 +3,7 @@ import tempfile
 from typing import Optional
 from unittest.mock import Mock, MagicMock
 
-import git
+from git.repo import Repo
 import pytest
 from git import GitCommandError
 
@@ -30,7 +30,7 @@ def run_diff_tests_for_file(
         with open(os.path.join(tmp_dir.name, filename), 'w') as f:
             f.write(file_contents)
 
-    repo = git.Repo.init(tmp_dir.name)
+    repo = Repo.init(tmp_dir.name)
 
     # Create main branch
     repo.git.checkout('-b', 'main')
