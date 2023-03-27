@@ -17,6 +17,9 @@ transformers = "^4.27.1"
 structlog = "^22.3.0"
 tenacity = "^8.2.2"
 
+[tool.poetry.group.test.dependencies]
+pyright = "^1.1.300"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
