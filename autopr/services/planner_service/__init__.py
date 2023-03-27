@@ -1,6 +1,7 @@
 from os.path import dirname, basename, isfile, join
 import glob
 from typing import Union, Any
+from typing_extensions import TypeAlias
 
 from .base import PlannerServiceBase
 from ..rail_service import RailService
@@ -10,7 +11,7 @@ __all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__
 from . import *
 
 
-PlannerService = Union[tuple(PlannerServiceBase.__subclasses__())]
+PlannerService: TypeAlias = Union[tuple(PlannerServiceBase.__subclasses__())]  # type: ignore
 
 
 def get_planner_service(

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from git import Blob
 from git.repo import Repo
 import pydantic
 
@@ -15,12 +16,22 @@ class FileDescriptor(pydantic.BaseModel):
     token_length: int
     chunks: list[list[tuple[int, str]]]  # list of (line number, line content) pairs
     start_chunk: int = 0
-    end_chunk: int
+    end_chunk_val: Optional[int] = None
+
+    @property
+    def end_chunk(self) -> int:
+        if self.end_chunk_val is None:
+            return len(self.chunks)
+        return self.end_chunk_val
+
+    @end_chunk.setter
+    def end_chunk(self, value: int):
+        self.end_chunk_val = value
 
     @pydantic.root_validator(pre=True)
     def validate_end_chunk(cls, values):
-        if 'end_chunk' not in values:
-            values['end_chunk'] = len(values['chunks'])
+        if 'end_chunk' in values:
+            values['end_chunk_val'] = values['end_chunk']
         return values
 
     def filepaths_with_token_lengths_to_str(self) -> str:
@@ -100,6 +111,9 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
 
     file_descriptor_list = []
     for blob in repo_tree.traverse():
+        if not isinstance(blob, Blob):
+            continue
+
         if blob.type == 'tree':
             continue
         try:
@@ -133,5 +147,5 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
             chunks=chunks,
         ))
 
-    _file_descriptor_cache[repo_tree] = file_descriptor_list
+    _file_descriptor_cache[key] = file_descriptor_list
     return file_descriptor_list

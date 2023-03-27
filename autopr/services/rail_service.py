@@ -16,8 +16,6 @@ from autopr.models.rails import RailUnion
 import structlog
 log = structlog.get_logger()
 
-T = TypeVar('T', bound=RailObject)
-
 
 class RailService:
     def __init__(
@@ -97,7 +95,7 @@ class RailService:
         raw_o, dict_o = pr_guard(self.completion_func, **options)
         return raw_o, dict_o
 
-    def run_rail(self, rail: RailUnion) -> Optional[T]:
+    def run_rail(self, rail: RailUnion) -> Optional[RailObject]:
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:

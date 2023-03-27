@@ -6,7 +6,7 @@ from autopr.models.artifacts import DiffStr
 
 
 class RailObject(pydantic.BaseModel):
-    rail_spec: ClassVar[str] = ...
+    rail_spec: ClassVar[str]
 
 
 class InitialFileSelectResponse(RailObject):

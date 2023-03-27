@@ -1,4 +1,6 @@
+import typing
 from typing import ClassVar, Union, Optional, Any
+from typing_extensions import TypeAlias
 
 import pydantic
 
@@ -14,8 +16,8 @@ log = structlog.get_logger()
 
 class Rail(pydantic.BaseModel):
     prompt_spec: ClassVar[str] = ''
-    output_type: ClassVar[RailObject] = ...
     extra_params: ClassVar[dict[str, Any]] = {}
+    output_type: ClassVar[typing.Type[RailObject]]
 
     def get_string_params(self) -> dict[str, str]:
         prompt_params = dict(self)
@@ -291,4 +293,4 @@ Only write a unidiff in the codebase subset we're looking at."""
         return trim_chunk(self.selected_file_contents)
 
 
-RailUnion = Union[tuple(Rail.__subclasses__())]  # type: ignore
+RailUnion: TypeAlias = Union[tuple(Rail.__subclasses__())]  # type: ignore

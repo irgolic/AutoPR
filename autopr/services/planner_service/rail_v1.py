@@ -1,4 +1,4 @@
-import git
+from git.repo import Repo
 
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse
@@ -29,14 +29,14 @@ class RailPlannerService(PlannerServiceBase):
     ) -> list[str]:
         self.log.debug('Getting filepaths to look at...')
 
-        response: InitialFileSelectResponse = self.rail_service.run_rail(
+        response = self.rail_service.run_rail(
             InitialFileSelectRail(
                 issue=issue_text,
                 file_descriptors=files,
                 token_limit=self.file_context_token_limit
             )
         )
-        if response is None:
+        if response is None or not isinstance(response, InitialFileSelectResponse):
             real_filepaths = []
         else:
             real_filepaths = [fp for fp in response.filepaths if fp is not None]
@@ -62,10 +62,10 @@ class RailPlannerService(PlannerServiceBase):
             prospective_file_descriptors=[f.copy(deep=True) for f in files],
             token_limit=self.file_context_token_limit,
         )
-        response: LookAtFilesResponse = self.rail_service.run_rail(rail)
-        if response is None:
+        response = self.rail_service.run_rail(rail)
+        if response is None or not isinstance(response, LookAtFilesResponse):
             raise ValueError('Error looking at files')
-        filepaths = response.filepaths_we_should_look_at
+        filepaths = response.filepaths_we_should_look_at or []
         notes = response.notes
 
         viewed_filepaths_up_to_chunk: dict[str, int] = {}
@@ -99,24 +99,24 @@ class RailPlannerService(PlannerServiceBase):
                 prospective_file_descriptors=rail._filtered_prospective_file_descriptors,
                 token_limit=self.file_context_token_limit,
             )
-            response: LookAtFilesResponse = self.rail_service.run_rail(rail)
-            if response is None:
+            response = self.rail_service.run_rail(rail)
+            if response is None or not isinstance(response, LookAtFilesResponse):
                 filepaths = []
             else:
-                filepaths = response.filepaths_we_should_look_at
+                filepaths = response.filepaths_we_should_look_at or []
                 notes += f'\n{response.notes}'
 
         return notes
 
     def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
         self.log.debug('Getting commit messages...')
-        pr_desc: PullRequestDescription = self.rail_service.run_rail(
+        pr_desc = self.rail_service.run_rail(
             ProposePullRequest(
                 issue=issue_text,
                 notes_taken_while_looking_at_files=notes,
             )
         )
-        if pr_desc is None:
+        if pr_desc is None or not isinstance(pr_desc, PullRequestDescription):
             raise ValueError('Error proposing pull request')
         return pr_desc
 

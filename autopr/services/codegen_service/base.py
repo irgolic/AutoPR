@@ -2,7 +2,7 @@ from typing import ClassVar
 
 from git.repo import Repo
 
-from autopr.models.artifacts import DiffStr
+from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan
 from autopr.models.rails import FileDescriptor
 from autopr.services.diff_service import DiffService
@@ -33,7 +33,7 @@ class CodegenServiceBase:
     def generate_patch(
         self,
         repo: Repo,
-        issue: str,
+        issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
     ) -> DiffStr:
@@ -45,7 +45,7 @@ class CodegenServiceBase:
     def _generate_patch(
         self,
         repo: Repo,
-        issue: str,
+        issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
     ) -> DiffStr:

@@ -1,6 +1,6 @@
 import os
 
-import git
+from git.repo import Repo
 
 import structlog
 

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
@@ -75,8 +77,8 @@ class RailCodegenService(CodegenServiceBase):
             selected_file_contents=files_subset,
             commit=commit_description,
         )
-        patch: Diff = self.rail_service.run_rail(rail)
-        if patch is None:
+        patch = self.rail_service.run_rail(rail)
+        if patch is None or not isinstance(patch, Diff):
             raise ValueError('Error generating patch')
         patch_text = patch.diff or ''
 
@@ -113,10 +115,10 @@ class RailCodegenService(CodegenServiceBase):
                 selected_file_contents=not_looked_at_files,
                 commit=commit_description,
             )
-            patch: Diff = self.rail_service.run_rail(rail)
-            if patch is None:
+            patch = self.rail_service.run_rail(rail)
+            if patch is None or not isinstance(patch, Diff):
                 raise ValueError('Error generating patch')
             patch_text += patch.diff or ''
             update_not_looked_at_files()
 
-        return patch_text
+        return DiffStr(patch_text)

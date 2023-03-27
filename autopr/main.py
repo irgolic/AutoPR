@@ -1,7 +1,7 @@
 from typing import Optional, Any
 
 import openai
-from git import Repo
+from git.repo import Repo
 
 from .models.artifacts import Issue
 from .services.codegen_service import get_codegen_service
