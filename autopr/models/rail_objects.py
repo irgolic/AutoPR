@@ -87,8 +87,8 @@ class FileHunk(RailObject):
 />"""
 
     filepath: str
-    start_line: int
-    end_line: int
+    start_line: Optional[int] = None
+    end_line: Optional[int] = None
 
 
 class CommitPlan(RailObject):
@@ -99,14 +99,12 @@ class CommitPlan(RailObject):
     on-fail="noop"
 />
 <list
-    name="relevant_filepaths"
+    name="relevant_file_hunks"
     description="The files we should be looking at while writing this commit."
 >
-    <string
-        description="A file path, relative to the root of the repository."
-        format="filepath"
-        on-fail="fix"
-    />
+<object>
+{FileHunk.rail_spec}
+</object>
 </list>
 <string
     name="commit_changes_description"
