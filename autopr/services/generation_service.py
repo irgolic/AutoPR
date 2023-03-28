@@ -35,7 +35,6 @@ class GenerationService:
         self.rail_service = rail_service
         self.commit_service = commit_service
         self.publish_service = publish_service
-        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=8192)
 
     def generate_pr(
         self,

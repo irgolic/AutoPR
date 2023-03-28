@@ -14,6 +14,9 @@ from autopr.models.rail_objects import RailObject
 from autopr.models.rails import RailUnion
 
 import structlog
+
+from autopr.utils import tokenizer
+
 log = structlog.get_logger()
 
 
@@ -37,7 +40,7 @@ class RailService:
         self.num_reasks = num_reasks
         self.temperature = temperature
         self.raw_system_prompt = system_prompt
-        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
+        self.tokenizer = tokenizer.get_tokenizer(max_tokens)
 
     @retry(
         # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
