@@ -46,7 +46,7 @@ class RailService:
         self.tokenizer = tokenizer.get_tokenizer(max_tokens)
 
     @retry(
-        retry=retry_if_exception_type(openai.error.RateLimitError),
+        retry=retry_if_exception_type(openai.error.OpenAIError),
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
