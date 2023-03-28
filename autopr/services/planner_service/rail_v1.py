@@ -2,7 +2,7 @@ from git.repo import Repo
 
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse
-from autopr.models.rails import ProposePullRequest, FileDescriptor, InitialFileSelectRail, LookAtFiles, \
+from autopr.models.prompt_rails import ProposePullRequest, FileDescriptor, InitialFileSelect, LookAtFiles, \
     ContinueLookingAtFiles
 from autopr.services.planner_service.base import PlannerServiceBase
 from autopr.utils.repo import repo_to_file_descriptors
@@ -29,8 +29,8 @@ class RailPlannerService(PlannerServiceBase):
     ) -> list[str]:
         self.log.debug('Getting filepaths to look at...')
 
-        response = self.rail_service.run_rail(
-            InitialFileSelectRail(
+        response = self.rail_service.run_prompt_rail(
+            InitialFileSelect(
                 issue=issue_text,
                 file_descriptors=files,
                 token_limit=self.file_context_token_limit
@@ -62,7 +62,7 @@ class RailPlannerService(PlannerServiceBase):
             prospective_file_descriptors=[f.copy(deep=True) for f in files],
             token_limit=self.file_context_token_limit,
         )
-        response = self.rail_service.run_rail(rail)
+        response = self.rail_service.run_prompt_rail(rail)
         if response is None or not isinstance(response, LookAtFilesResponse):
             raise ValueError('Error looking at files')
         filepaths = response.filepaths_we_should_look_at or []
@@ -104,7 +104,7 @@ class RailPlannerService(PlannerServiceBase):
                 prospective_file_descriptors=rail._filtered_prospective_file_descriptors,
                 token_limit=self.file_context_token_limit,
             )
-            response = self.rail_service.run_rail(rail)
+            response = self.rail_service.run_prompt_rail(rail)
             if response is None or not isinstance(response, LookAtFilesResponse):
                 filepaths = []
             else:
@@ -115,7 +115,7 @@ class RailPlannerService(PlannerServiceBase):
 
     def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
         self.log.debug('Getting commit messages...')
-        pr_desc = self.rail_service.run_rail(
+        pr_desc = self.rail_service.run_prompt_rail(
             ProposePullRequest(
                 issue=issue_text,
                 notes_taken_while_looking_at_files=notes,

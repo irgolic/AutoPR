@@ -4,7 +4,7 @@ from git.repo import Repo
 
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription
-from autopr.models.rails import FileDescriptor
+from autopr.models.prompt_rails import FileDescriptor
 from autopr.services.rail_service import RailService
 
 import structlog

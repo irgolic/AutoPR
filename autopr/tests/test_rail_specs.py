@@ -3,12 +3,12 @@ import typing
 import pytest
 import guardrails as gr
 
-from autopr.models.rails import RailUnion
+from autopr.models.prompt_rails import PromptRailUnion
 
 
 @pytest.mark.parametrize(
     "rail_type",
-    typing.get_args(RailUnion)
+    typing.get_args(PromptRailUnion)
 )
 def test_guardrails_spec_validity(rail_type):
     """Test that all guardrails specs are valid."""

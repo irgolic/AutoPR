@@ -4,7 +4,7 @@ from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan, Diff
-from autopr.models.rails import NewDiff, FileDescriptor
+from autopr.models.prompt_rails import NewDiff, FileDescriptor
 from autopr.services.codegen_service import CodegenServiceBase
 
 import structlog
@@ -77,7 +77,7 @@ class RailCodegenService(CodegenServiceBase):
             selected_file_contents=files_subset,
             commit=commit_description,
         )
-        patch = self.rail_service.run_rail(rail)
+        patch = self.rail_service.run_prompt_rail(rail)
         if patch is None or not isinstance(patch, Diff):
             raise ValueError('Error generating patch')
         patch_text = patch.diff or ''
@@ -115,7 +115,7 @@ class RailCodegenService(CodegenServiceBase):
                 selected_file_contents=not_looked_at_files,
                 commit=commit_description,
             )
-            patch = self.rail_service.run_rail(rail)
+            patch = self.rail_service.run_prompt_rail(rail)
             if patch is None or not isinstance(patch, Diff):
                 raise ValueError('Error generating patch')
             patch_text += patch.diff or ''

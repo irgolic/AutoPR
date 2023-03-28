@@ -11,7 +11,7 @@ import transformers
 
 import guardrails as gr
 from autopr.models.rail_objects import RailObject
-from autopr.models.rails import RailUnion
+from autopr.models.prompt_rails import PromptRailUnion
 
 import structlog
 
@@ -47,7 +47,7 @@ class RailService:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
-    def _run_raw(self, rail: RailUnion) -> str:
+    def _run_raw(self, rail: PromptRailUnion) -> str:
         prompt = self.get_prompt_message(rail)
         length = len(self.tokenizer.encode(prompt))
         max_tokens = min(self.max_tokens, self.context_limit - length)
@@ -78,7 +78,7 @@ class RailService:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
-    def _run_rail(self, rail: RailUnion, raw_response: str) -> tuple[str, dict]:
+    def _run_rail(self, rail: PromptRailUnion, raw_response: str) -> tuple[str, dict]:
         rail_spec = rail.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
@@ -98,7 +98,7 @@ class RailService:
         raw_o, dict_o = pr_guard(self.completion_func, **options)
         return raw_o, dict_o
 
-    def run_rail(self, rail: RailUnion) -> Optional[RailObject]:
+    def run_prompt_rail(self, rail: PromptRailUnion) -> Optional[RailObject]:
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:
@@ -140,21 +140,21 @@ class RailService:
             return None
 
     @staticmethod
-    def get_prompt_message(rail: RailUnion):
+    def get_prompt_message(rail: PromptRailUnion):
         spec = rail.prompt_spec
         prompt_params = rail.get_string_params()
         return spec.format(**prompt_params)
 
     @staticmethod
-    def get_rail_message(rail: RailUnion, raw_response: str):
+    def get_rail_message(rail: PromptRailUnion, raw_response: str):
         spec = rail.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_response=raw_response)
 
-    def calculate_prompt_length(self, rail: RailUnion) -> int:
+    def calculate_prompt_length(self, rail: PromptRailUnion) -> int:
         prompt = self.get_prompt_message(rail)
         return len(self.tokenizer.encode(prompt))
 
-    def calculate_rail_length(self, rail: RailUnion, raw_response: str) -> int:
+    def calculate_rail_length(self, rail: PromptRailUnion, raw_response: str) -> int:
         rail_message = self.get_rail_message(rail, raw_response)
         return len(self.tokenizer.encode(rail_message))
