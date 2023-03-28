@@ -31,7 +31,7 @@ if __name__ == '__main__':
     inputs.update({
         k: v
         for k, v in os.environ.items()
-        if k.startswith('INPUT_') and k.lower() not in inputs
+        if k.startswith('INPUT_') and k[6:].lower() not in inputs and 'API_KEY' not in k
     })
 
     from autopr.main import main
