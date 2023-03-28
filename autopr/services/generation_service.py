@@ -9,7 +9,7 @@ from git import Tree
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse, \
     Diff, CommitPlan
-from autopr.models.rails import InitialFileSelectRail, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
+from autopr.models.prompt_rails import InitialFileSelect, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
     NewDiff, FileDescriptor
 from autopr.services.codegen_service import CodegenService
 from autopr.services.commit_service import CommitService

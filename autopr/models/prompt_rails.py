@@ -14,7 +14,7 @@ from autopr.utils.repo import FileDescriptor, filter_seen_chunks, trim_chunk
 log = structlog.get_logger()
 
 
-class Rail(pydantic.BaseModel):
+class PromptRail(pydantic.BaseModel):
     prompt_spec: ClassVar[str] = ''
     extra_params: ClassVar[dict[str, Any]] = {}
     output_type: ClassVar[typing.Type[RailObject]]
@@ -35,25 +35,8 @@ class Rail(pydantic.BaseModel):
                 return True
         return False
 
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
 
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
-
-class InitialFileSelectRail(Rail):
+class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
     prompt_spec = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
 
@@ -85,27 +68,8 @@ If looking at files would be a waste of time with regard to the issue, let me kn
             'token_limit': str(self.token_limit),
         }
 
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
 
-If looking at files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
-
-class LookAtFiles(Rail):
+class LookAtFiles(PromptRail):
     # Select files given issue, unseen files in repo, and notes
     prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
@@ -154,27 +118,8 @@ If looking at files would be a waste of time with regard to the issue, let me kn
     def trim_params(self) -> bool:
         return trim_chunk(self.selected_file_contents)
 
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
 
-If looking at more files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
-
-class ContinueLookingAtFiles(Rail):
+class ContinueLookingAtFiles(PromptRail):
     # Continue selecting files and generating fp_notes given issue, unseen files in repo, and notes
     prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
@@ -228,7 +173,7 @@ Also, let me know if we should take a look at any other files – our budget is 
         return trim_chunk(self.selected_file_contents)
 
 
-class ProposePullRequest(Rail):
+class ProposePullRequest(PromptRail):
     # Generate proposed list of commit messages, given notes and issue
     prompt_spec = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
 
@@ -249,7 +194,7 @@ When you're done, send me the pull request title, body, and a list of commits co
     issue: str
 
 
-class NewDiff(Rail):
+class NewDiff(PromptRail):
     # Generate code for a commit, given an issue, a pull request, and a codebase
     prompt_spec = f"""Hey, now that we've got a plan, let's write some code.
 
@@ -293,4 +238,4 @@ Only write a unidiff in the codebase subset we're looking at."""
         return trim_chunk(self.selected_file_contents)
 
 
-RailUnion: TypeAlias = Union[tuple(Rail.__subclasses__())]  # type: ignore
+PromptRailUnion: TypeAlias = Union[tuple(PromptRail.__subclasses__())]  # type: ignore
