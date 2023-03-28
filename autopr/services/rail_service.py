@@ -43,7 +43,7 @@ class RailService:
         self.tokenizer = tokenizer.get_tokenizer(max_tokens)
 
     @retry(
-        # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
+        retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
@@ -74,7 +74,7 @@ class RailService:
         return content
 
     @retry(
-        # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
+        retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
