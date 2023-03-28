@@ -40,3 +40,9 @@ inputs:
   num_reasks:
     description: 'Number of times to re-ask the model in file exploration and commit generation'
     default: '2'
+  planner_id:
+    description: 'ID of the planner to use'
+    default: 'rail-v1'
+  codegen_id:
+    description: 'ID of the code generator to use'
+    default: 'rail-v1'
