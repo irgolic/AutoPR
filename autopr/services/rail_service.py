@@ -14,9 +14,10 @@ from autopr.models.rail_objects import RailObject
 from autopr.models.rails import RailUnion
 
 import structlog
-log = structlog.get_logger()
 
-T = TypeVar('T', bound=RailObject)
+from autopr.utils import tokenizer
+
+log = structlog.get_logger()
 
 
 class RailService:
@@ -39,7 +40,7 @@ class RailService:
         self.num_reasks = num_reasks
         self.temperature = temperature
         self.raw_system_prompt = system_prompt
-        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=max_tokens)
+        self.tokenizer = tokenizer.get_tokenizer(max_tokens)
 
     @retry(
         # retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
@@ -97,7 +98,7 @@ class RailService:
         raw_o, dict_o = pr_guard(self.completion_func, **options)
         return raw_o, dict_o
 
-    def run_rail(self, rail: RailUnion) -> Optional[T]:
+    def run_rail(self, rail: RailUnion) -> Optional[RailObject]:
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:

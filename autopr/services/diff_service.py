@@ -1,7 +1,9 @@
 import tempfile
 
-import git
 import structlog
+from git.repo import Repo
+
+from autopr.models.artifacts import DiffStr
 
 log = structlog.get_logger()
 
@@ -9,16 +11,16 @@ log = structlog.get_logger()
 class DiffService:
     def __init__(
         self,
-        repo: git.Repo,
+        repo: Repo,
     ):
         self.repo = repo
 
-    def apply_diff(self, diff: str, check: bool = False) -> None:
+    def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
         raise NotImplementedError()
 
 
 class GitApplyService(DiffService):
-    def apply_diff(self, diff: str, check: bool = False) -> None:
+    def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(diff.encode())
             f.flush()
@@ -32,7 +34,7 @@ class GitApplyService(DiffService):
 
 
 class PatchService(DiffService):
-    def apply_diff(self, diff: str, check: bool = False) -> None:
+    def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
         with tempfile.NamedTemporaryFile(suffix=".diff") as f:
             f.write(diff.encode())
             f.flush()

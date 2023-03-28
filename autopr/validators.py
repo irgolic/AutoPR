@@ -2,12 +2,12 @@ import os
 import re
 from typing import Union, Any, Dict, List, Optional
 
-from git import GitCommandError
+from git import GitCommandError, Tree, Blob
 
 from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
 from guardrails.validators import EventDetail
-import git
+from git.repo import Repo
 
 import structlog
 log = structlog.get_logger()
@@ -65,22 +65,23 @@ def adjust_line_indentation(line: str, indentation_offset: int) -> str:
         return line[-indentation_offset:]
 
 
-def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
+def remove_hallucinations(lines: List[str], tree: Tree) -> List[str]:
     cleaned_lines: list[str] = []
     current_file_content: Optional[list[str]] = None
     current_line_number: int = 0
     search_range: int = 20
     first_line_semaphore: int = 0
     indentation_offset: int = 0
-    is_new_file: bool = False
 
     for i, line in enumerate(lines):
         first_line_semaphore = max(0, first_line_semaphore - 1)
         if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):  # hunk header
-            is_new_file = False
 
             # Extract the filename after ---
             filepath_match = re.match(r"--- (.+)", line)
+            if filepath_match is None:
+                log.error("Invalid diff", diff=lines)
+                raise ValueError(f"Invalid diff line: {line}")
             filepath = filepath_match.group(1)
 
             # Get the file content
@@ -88,7 +89,6 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 blob = tree / filepath
                 current_file_content = blob.data_stream.read().decode().splitlines()
             except KeyError:
-                is_new_file = True
                 current_file_content = None
                 current_line_number = 0
 
@@ -106,7 +106,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
         elif line.startswith("+++"):  # filename (hunk header 2/2)
             cleaned_lines.append(line)
         elif line.startswith("-"):  # remove line
-            if is_new_file:
+            if current_file_content is None:
                 continue
             line_content = line[1:]
             if current_line_number >= len(current_file_content):
@@ -132,7 +132,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
                 cleaned_lines.append("+")
         elif line.lstrip() != line:  # context line
             # Line has a leading whitespace, check if it's in the actual file content
-            if is_new_file or current_line_number >= len(current_file_content):
+            if current_file_content is None or current_line_number >= len(current_file_content):
                 continue
             file_line = current_file_content[current_line_number]
             if line.lstrip() == file_line.lstrip():
@@ -191,7 +191,7 @@ def remove_hallucinations(lines: List[str], tree: git.Tree) -> List[str]:
     return cleaned_lines
 
 
-def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
+def create_unidiff_validator(repo: Repo, diff_service: DiffService):
     class Unidiff(Validator):
         """Validate value is a valid unidiff.
         - Name for `format` attribute: `unidiff`
@@ -211,7 +211,7 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
 
             return schema
 
-        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
             log.debug(f"Validating unidiff...", value=value)
 
             try:
@@ -282,7 +282,10 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
                 if line.startswith("---") and not line.startswith("--- /dev/null"):
                     # Extract the filename after ---
                     filename_match = re.match(r"--- (.+)", line)
-                    filename = filename_match.group(1)
+                    if filename_match is None:
+                        filename = "new_file"
+                    else:
+                        filename = filename_match.group(1)
 
                     # Check if the next line starts with +++ and the line after that starts with @@
                     if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
@@ -295,15 +298,19 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
                 if line.startswith("---") and lines[i + 1].startswith("+++") and lines[i + 2].startswith("@@"):
                     # Extract the filename after +++
                     filename_match = re.match(r"\+\+\+ (.+)", lines[i + 1])
-                    filename = filename_match.group(1)
+                    if filename_match is None:
+                        filename = "new_file"
+                    else:
+                        filename = filename_match.group(1)
 
                     # Check if the file is in the tree
-                    try:
-                        tree / filename
-                    except KeyError:
+                    if filename not in tree:
                         # See if any of the filepaths in the tree end with the filename
                         # If so, use that as the filename
                         for tree_file in tree.traverse():
+                            if not isinstance(tree_file, Blob):
+                                continue
+
                             path = tree_file.path
                             if path.endswith(filename):
                                 lines[i] = f"--- {path}"
@@ -364,14 +371,14 @@ def create_unidiff_validator(repo: git.Repo, diff_service: DiffService):
     return register_validator(name="unidiff", data_type="string")(Unidiff)
 
 
-def create_filepath_validator(repo: git.Repo):
+def create_filepath_validator(repo: Repo):
     # TODO I don't think we need this validator anymore
     class FilePath(Validator):
         """Validate value is a valid file path.
         - Name for `format` attribute: `filepath`
         - Supported data types: `string`
         """
-        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Dict:
+        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
             log.debug("Validating filepath...", key=key, value=value)
 
             # Check if the filepath exists in the repo

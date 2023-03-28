@@ -34,3 +34,8 @@ Warning: This Github Action is currently **in development**, and in **alpha rele
 If you're interested in using this action, please reach out on [Discord](https://discord.gg/ykk7Znt3K6).
 
 See [AutoPR-template](https://github.com/irgolic/AutoPR-template) for a guide and example of how to use this action.
+
+## 📝 Contributing
+
+Got an idea on how to improve AutoPR? 
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
