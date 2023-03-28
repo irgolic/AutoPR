@@ -237,6 +237,9 @@ def create_unidiff_validator(repo: Repo, diff_service: DiffService):
             # Drop any `diff --git` lines
             lines = [line for line in lines if not line.startswith("diff --git")]
 
+            if not lines:
+                return error.schema
+
             # Remove whitespace in front of --- lines if it's there
             for i, line in enumerate(lines):
                 stripped_line = line.lstrip()
