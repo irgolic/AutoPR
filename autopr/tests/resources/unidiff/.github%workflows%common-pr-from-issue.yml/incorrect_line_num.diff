@@ -1,0 +1,23 @@
+--- /dev/null
++++ .github/workflows/common-pr-from-issue.yml
+@@ -1,0 +1,20 @@
++name: Common PR from Issue
++jobs:
++  common-pr:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout repository
++        uses: actions/checkout@v2
++
++      - name: Setup Node.js environment
++        uses: actions/setup-node@v2
++        with:
++          node-version: 14
++
++      - name: Install dependencies
++        run: npm ci
++
++      - name: Create PR from issue
++        env:
++          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++        run: node ./scripts/create-pr-from-issue.js "${{ github.event.inputs.issue_number }}"

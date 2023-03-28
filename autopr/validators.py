@@ -94,6 +94,10 @@ def remove_hallucinations(lines: List[str], tree: Tree) -> List[str]:
 
             cleaned_lines.append(line)
         elif line.startswith("@@"):  # line count (hunk header 3/3)
+            if current_file_content is None:
+                current_line_number = 1
+                cleaned_lines.append("@@ -0,0 +1,0 @@")
+                continue
             match = re.match(r"@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@", line)
             if match is None:
                 current_line_number = 1
