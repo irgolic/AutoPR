@@ -48,7 +48,7 @@ class RailCodegenService(CodegenServiceBase):
         commit_description = current_commit.to_str()
 
         # Grab relevant files
-        relevant_filepaths = [f.filepath for f in current_commit.relevant_file_hunks]
+        relevant_filepaths = [f for f in current_commit.relevant_filepaths]
         files_subset = []
         for f in files:
             if f.path in relevant_filepaths:

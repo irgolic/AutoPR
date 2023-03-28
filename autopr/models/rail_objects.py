@@ -101,12 +101,13 @@ class CommitPlan(RailObject):
     on-fail="noop"
 />
 <list
-    name="relevant_file_hunks"
+    name="relevant_filepaths"
     description="The files we should be looking at while writing this commit."
 >
-<object>
-{FileHunk.rail_spec}
-</object>
+<string
+    format="filepath"
+    on-fail="fix"
+/>
 </list>
 <string
     name="commit_changes_description"
@@ -116,7 +117,7 @@ class CommitPlan(RailObject):
 />"""
 
     commit_message: str
-    relevant_file_hunks: List[FileHunk] = pydantic.Field(default_factory=list)
+    relevant_filepaths: List[str] = pydantic.Field(default_factory=list)
     commit_changes_description: str
 
     def to_str(self):
@@ -154,7 +155,7 @@ class PullRequestDescription(RailObject):
             pr_text_description += (
                 f"{str(i + 1)}. Commit: {commit_plan.commit_message}\n"
                 f"{prefix}Files: "
-                f"{', '.join(f'{f.filepath}: L{f.start_line}-{f.end_line}' for f in commit_plan.relevant_file_hunks)}\n"
+                f"{', '.join(commit_plan.relevant_filepaths)}\n"
                 f"{prefix}Changes:"
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )
