@@ -73,10 +73,7 @@ class RailPlannerService(PlannerServiceBase):
         while filepaths and reasks > 0:
             reasks -= 1
 
-            self.log.debug(f'Looking at more files... ({reasks} reasks left)')
-            for fp in filepaths:
-                self.log.debug(f' - {fp}')
-
+            # See if all requested files have already been viewed
             for fp in rail.selected_file_contents:
                 viewed_filepaths_up_to_chunk[fp.path] = fp.end_chunk
             file_contents = []
@@ -92,6 +89,14 @@ class RailPlannerService(PlannerServiceBase):
                 else:
                     new_f = f.copy(deep=True)
                 file_contents.append(new_f)
+
+            if not file_contents:
+                break
+
+            self.log.debug(f'Looking at more files... ({reasks} reasks left)')
+            for fp in filepaths:
+                self.log.debug(f' - {fp}')
+
             rail = ContinueLookingAtFiles(
                 issue=issue_text,
                 notes=notes,
