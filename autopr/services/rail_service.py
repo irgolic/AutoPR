@@ -1,4 +1,4 @@
-from typing import Callable, Any, Optional, TypeVar
+from typing import Callable, Any, Optional, TypeVar, Type
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -11,7 +11,7 @@ import pydantic
 import transformers
 
 import guardrails as gr
-from autopr.models.rail_objects import RailObject, RailObjectUnion
+from autopr.models.rail_objects import RailObjectUnion
 from autopr.models.prompt_rails import PromptRailUnion
 
 import structlog
@@ -19,6 +19,8 @@ import structlog
 from autopr.utils import tokenizer
 
 log = structlog.get_logger()
+
+T = TypeVar('T', bound=RailObjectUnion)
 
 
 class RailService:
@@ -51,6 +53,8 @@ class RailService:
     def run_raw(self, prompt: str) -> str:
         length = len(self.tokenizer.encode(prompt))
         max_tokens = min(self.max_tokens, self.context_limit - length)
+
+        log.debug('Running raw completion', prompt=prompt)
         if self.completion_func == openai.Completion.create:
             response = self.completion_func(
                 model=self.completion_model,
@@ -78,7 +82,7 @@ class RailService:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
-    def run_rail_object(self, rail_object: RailObjectUnion, raw_document: str) -> tuple[str, dict]:
+    def run_rail_object(self, rail_object: Type[T], raw_document: str) -> Optional[T]:
         rail_spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
@@ -94,10 +98,33 @@ class RailService:
                 'raw_document': raw_document,
             },
         }
-        raw_o, dict_o = pr_guard(self.completion_func, **options)
-        return raw_o, dict_o
 
-    def run_prompt_rail(self, rail: PromptRailUnion) -> Optional[RailObject]:
+        rail_prompt = self.get_rail_message(rail_object, raw_document)
+        log.debug('Running rail',
+                  rail_object=rail_object.__name__,
+                  rail_message=rail_prompt)
+        raw_o, dict_o = pr_guard(self.completion_func, **options)
+        log.debug('Ran rail',
+                  rail_object=rail_object.__name__,
+                  raw_output=raw_o,
+                  dict_output=dict_o)
+
+        if dict_o is None:
+            log.warning(f'Got None from rail',
+                        rail_object=rail_object.__name__,
+                        raw_output=raw_o)
+            return None
+
+        try:
+            return rail_object.parse_obj(dict_o)
+        except pydantic.ValidationError:
+            log.warning(f'Got invalid output from rail',
+                        rail_object=rail_object.__name__,
+                        raw_output=raw_o,
+                        dict_output=dict_o)
+        return None
+
+    def run_prompt_rail(self, rail: PromptRailUnion) -> Optional[RailObjectUnion]:
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:
@@ -109,38 +136,8 @@ class RailService:
             token_length = self.calculate_prompt_length(rail)
 
         prompt = self.get_prompt_message(rail)
-
-        log.debug('Raw prompting',
-                  rail_name=rail.__class__.__name__,
-                  raw_message=prompt)
         raw_response = self.run_raw(prompt)
-        log.debug('Raw prompted',
-                  rail_name=rail.__class__.__name__,
-                  raw_response=raw_response)
-
-        rail_prompt = self.get_rail_message(rail.output_type, raw_response)
-
-        log.debug('Running rail',
-                  rail_name=rail.__class__.__name__,
-                  rail_message=rail_prompt)
-        raw_o, dict_o = self.run_rail_object(rail, raw_response)
-        log.debug('Ran rail',
-                  rail_name=rail.__class__.__name__,
-                  raw_output=raw_o,
-                  dict_output=dict_o)
-        if dict_o is None:
-            log.warning(f'Got None from rail',
-                        rail_name=rail.__class__.__name__,
-                        raw_output=raw_o)
-            return None
-        try:
-            return rail.output_type.parse_obj(dict_o)
-        except pydantic.ValidationError:
-            log.warning(f'Got invalid output from rail',
-                        rail_name=rail.__class__.__name__,
-                        raw_output=raw_o,
-                        dict_output=dict_o)
-            return None
+        return self.run_rail_object(rail.rail_object, raw_response)
 
     @staticmethod
     def get_prompt_message(rail: PromptRailUnion):
