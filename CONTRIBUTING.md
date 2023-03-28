@@ -28,8 +28,8 @@ Example:
     - name: AutoPR
       uses: irgolic/AutoPR@main
       with:
-        codegen-id: my-codegen
-        planner-id: my-planner
+        codegen_id: my-codegen
+        planner_id: my-planner
 ...
 ```
 
