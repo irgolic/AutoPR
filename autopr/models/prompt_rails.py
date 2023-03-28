@@ -35,23 +35,6 @@ class PromptRail(pydantic.BaseModel):
                 return True
         return False
 
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
 
 class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
@@ -84,25 +67,6 @@ If looking at files would be a waste of time with regard to the issue, let me kn
             ]),
             'token_limit': str(self.token_limit),
         }
-
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
-
-If looking at files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
 
 
 class LookAtFiles(PromptRail):
@@ -153,25 +117,6 @@ If looking at files would be a waste of time with regard to the issue, let me kn
 
     def trim_params(self) -> bool:
         return trim_chunk(self.selected_file_contents)
-
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_type.rail_spec}
-</output>
-<prompt>
-```
-{{{{raw_response}}}}
-```
-
-If looking at more files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
 
 
 class ContinueLookingAtFiles(PromptRail):

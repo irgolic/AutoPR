@@ -6,11 +6,12 @@ from tenacity import (
 )  # for exponential backoff
 
 import openai
+import openai.error
 import pydantic
 import transformers
 
 import guardrails as gr
-from autopr.models.rail_objects import RailObject
+from autopr.models.rail_objects import RailObject, RailObjectUnion
 from autopr.models.prompt_rails import PromptRailUnion
 
 import structlog
@@ -43,12 +44,11 @@ class RailService:
         self.tokenizer = tokenizer.get_tokenizer(max_tokens)
 
     @retry(
-        retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
+        retry=retry_if_exception_type(openai.error.RateLimitError),
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
-    def _run_raw(self, rail: PromptRailUnion) -> str:
-        prompt = self.get_prompt_message(rail)
+    def run_raw(self, prompt: str) -> str:
         length = len(self.tokenizer.encode(prompt))
         max_tokens = min(self.max_tokens, self.context_limit - length)
         if self.completion_func == openai.Completion.create:
@@ -78,22 +78,21 @@ class RailService:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6)
     )
-    def _run_rail(self, rail: PromptRailUnion, raw_response: str) -> tuple[str, dict]:
-        rail_spec = rail.get_rail_spec()
+    def run_rail_object(self, rail_object: RailObjectUnion, raw_document: str) -> tuple[str, dict]:
+        rail_spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
-        length = self.calculate_rail_length(rail, raw_response)
+        length = self.calculate_rail_length(rail_object, raw_document)
         max_tokens = min(self.max_tokens, self.context_limit - length)
         options = {
             'model': self.completion_model,
             'max_tokens': max_tokens,
             'temperature': self.temperature,
             'prompt_params': {
-                'raw_response': raw_response,
+                'raw_document': raw_document,
             },
-            **rail.extra_params,
         }
         raw_o, dict_o = pr_guard(self.completion_func, **options)
         return raw_o, dict_o
@@ -109,18 +108,22 @@ class RailService:
                 return None
             token_length = self.calculate_prompt_length(rail)
 
+        prompt = self.get_prompt_message(rail)
+
         log.debug('Raw prompting',
                   rail_name=rail.__class__.__name__,
-                  raw_message=self.get_prompt_message(rail))
-        raw_response = self._run_raw(rail)
+                  raw_message=prompt)
+        raw_response = self.run_raw(prompt)
         log.debug('Raw prompted',
                   rail_name=rail.__class__.__name__,
                   raw_response=raw_response)
 
+        rail_prompt = self.get_rail_message(rail.output_type, raw_response)
+
         log.debug('Running rail',
                   rail_name=rail.__class__.__name__,
-                  rail_message=self.get_rail_message(rail, raw_response))
-        raw_o, dict_o = self._run_rail(rail, raw_response)
+                  rail_message=rail_prompt)
+        raw_o, dict_o = self.run_rail_object(rail, raw_response)
         log.debug('Ran rail',
                   rail_name=rail.__class__.__name__,
                   raw_output=raw_o,
@@ -146,15 +149,15 @@ class RailService:
         return spec.format(**prompt_params)
 
     @staticmethod
-    def get_rail_message(rail: PromptRailUnion, raw_response: str):
-        spec = rail.get_rail_spec()
+    def get_rail_message(rail_object: RailObjectUnion, raw_document: str):
+        spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
-        return pr_guard.base_prompt.format(raw_response=raw_response)
+        return pr_guard.base_prompt.format(raw_document=raw_document)
 
     def calculate_prompt_length(self, rail: PromptRailUnion) -> int:
         prompt = self.get_prompt_message(rail)
         return len(self.tokenizer.encode(prompt))
 
-    def calculate_rail_length(self, rail: PromptRailUnion, raw_response: str) -> int:
-        rail_message = self.get_rail_message(rail, raw_response)
+    def calculate_rail_length(self, rail_object: RailObjectUnion, raw_document: str) -> int:
+        rail_message = self.get_rail_message(rail_object, raw_document)
         return len(self.tokenizer.encode(rail_message))
