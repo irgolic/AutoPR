@@ -5,6 +5,7 @@ from git.repo import Repo
 import pydantic
 
 import structlog
+import os
 
 from autopr.utils.tokenizer import get_tokenizer
 
@@ -139,3 +140,20 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
 
     _file_descriptor_cache[key] = file_descriptor_list
     return file_descriptor_list
+def parse_gptignore(repo: Repo) -> list[str]:
+    gptignore_file = ".gptignore"
+    ignore_patterns = []
+
+    try:
+        gptignore_blob = repo.head.commit.tree / gptignore_file
+        gptignore_content = gptignore_blob.data_stream.read().decode()
+    except FileNotFoundError:
+        return ignore_patterns
+
+    for line in gptignore_content.splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            ignore_patterns.append(line)
+
+    return ignore_patterns
+
