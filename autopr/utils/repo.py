@@ -16,22 +16,12 @@ class FileDescriptor(pydantic.BaseModel):
     token_length: int
     chunks: list[list[tuple[int, str]]]  # list of (line number, line content) pairs
     start_chunk: int = 0
-    end_chunk_val: Optional[int] = None
-
-    @property
-    def end_chunk(self) -> int:
-        if self.end_chunk_val is None:
-            return len(self.chunks)
-        return self.end_chunk_val
-
-    @end_chunk.setter
-    def end_chunk(self, value: int):
-        self.end_chunk_val = value
+    end_chunk: int = -1  # this will be overwritten by the root validator
 
     @pydantic.root_validator(pre=True)
     def validate_end_chunk(cls, values):
-        if 'end_chunk' in values:
-            values['end_chunk_val'] = values['end_chunk']
+        if 'end_chunk' not in values:
+            values['end_chunk'] = len(values['chunks'])
         return values
 
     def filepaths_with_token_lengths_to_str(self) -> str:
