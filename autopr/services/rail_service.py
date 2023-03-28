@@ -11,8 +11,8 @@ import pydantic
 import transformers
 
 import guardrails as gr
-from autopr.models.rail_objects import RailObjectUnion
-from autopr.models.prompt_rails import PromptRailUnion
+from autopr.models.rail_objects import RailObjectUnion, RailObject
+from autopr.models.prompt_rails import PromptRail
 
 import structlog
 
@@ -20,7 +20,7 @@ from autopr.utils import tokenizer
 
 log = structlog.get_logger()
 
-T = TypeVar('T', bound=RailObjectUnion)
+T = TypeVar('T', bound=RailObject)
 
 
 class RailService:
@@ -124,7 +124,7 @@ class RailService:
                         dict_output=dict_o)
         return None
 
-    def run_prompt_rail(self, rail: PromptRailUnion) -> Optional[RailObjectUnion]:
+    def run_prompt_rail(self, rail: PromptRail) -> Optional[RailObject]:
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:
@@ -137,24 +137,24 @@ class RailService:
 
         prompt = self.get_prompt_message(rail)
         raw_response = self.run_raw(prompt)
-        return self.run_rail_object(rail.rail_object, raw_response)
+        return self.run_rail_object(rail.output_type, raw_response)
 
     @staticmethod
-    def get_prompt_message(rail: PromptRailUnion):
+    def get_prompt_message(rail: PromptRail):
         spec = rail.prompt_spec
         prompt_params = rail.get_string_params()
         return spec.format(**prompt_params)
 
     @staticmethod
-    def get_rail_message(rail_object: RailObjectUnion, raw_document: str):
+    def get_rail_message(rail_object: type[RailObject], raw_document: str):
         spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_document=raw_document)
 
-    def calculate_prompt_length(self, rail: PromptRailUnion) -> int:
+    def calculate_prompt_length(self, rail: PromptRail) -> int:
         prompt = self.get_prompt_message(rail)
         return len(self.tokenizer.encode(prompt))
 
-    def calculate_rail_length(self, rail_object: RailObjectUnion, raw_document: str) -> int:
+    def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:
         rail_message = self.get_rail_message(rail_object, raw_document)
         return len(self.tokenizer.encode(rail_message))
