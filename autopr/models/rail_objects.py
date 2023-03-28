@@ -77,12 +77,14 @@ class FileHunk(RailObject):
     name="start_line"
     description="The line number of the first line of the hunk."
     format="positive"
+    required="false"
     on-fail="noop"
 />
 <integer
     name="end_line"
     description="The line number of the last line of the hunk."
     format="positive"
+    required="false"
     on-fail="noop"
 />"""
 
