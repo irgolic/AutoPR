@@ -217,6 +217,7 @@ def create_unidiff_validator(repo: Repo, diff_service: DiffService):
             try:
                 diff_service.apply_diff(value, check=True)
             except GitCommandError as e:
+                log.warning("Failed to apply unidiff", key=key, value=value, stderr=e.stderr)
                 raise EventDetail(
                     key,
                     value,
