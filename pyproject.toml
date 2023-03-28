@@ -27,3 +27,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 exclude = ["**/resources/**"]
+include= ["**/autopr/**"]

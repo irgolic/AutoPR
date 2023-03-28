@@ -24,7 +24,9 @@ if __name__ == '__main__':
         'context_limit': int(os.environ['INPUT_CONTEXT_LIMIT']),
         'min_tokens': int(os.environ['INPUT_MIN_TOKENS']),
         'max_tokens': int(os.environ['INPUT_MAX_TOKENS']),
-        'num_reasks': int(os.environ['INPUT_NUM_REASKS'])
+        'num_reasks': int(os.environ['INPUT_NUM_REASKS']),
+        'planner_id': os.environ['INPUT_PLANNER_ID'],
+        'codegen_id': os.environ['INPUT_CODEGEN_ID'],
     }
     inputs.update({
         k: v

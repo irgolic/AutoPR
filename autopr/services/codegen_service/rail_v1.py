@@ -121,4 +121,4 @@ class RailCodegenService(CodegenServiceBase):
             patch_text += patch.diff or ''
             update_not_looked_at_files()
 
-        return DiffStr(patch_text)
+        return patch_text

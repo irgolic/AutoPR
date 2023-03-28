@@ -1,6 +1,7 @@
 import typing
 
 import pydantic
+from typing_extensions import TypeAlias
 
 
 class Issue(pydantic.BaseModel):
@@ -12,4 +13,4 @@ class Issue(pydantic.BaseModel):
         return f"#{self.number} {self.title}\n\n{self.body}\n\n"
 
 
-DiffStr = typing.NewType("DiffStr", str)
+DiffStr: TypeAlias = str
