@@ -7,6 +7,7 @@ import pydantic
 import structlog
 import os
 
+import fnmatch
 from autopr.utils.tokenizer import get_tokenizer
 
 log = structlog.get_logger()
@@ -97,7 +98,9 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
     repo_tree = repo.head.commit.tree
 
     key = (repo_tree.binsha, context_window, file_chunk_size)
-    if key in _file_descriptor_cache:
+    ignore_patterns = parse_gptignore(repo)
+
+    if key in _file_descriptor_cache and not ignore_patterns:
         return [fd.copy(deep=True) for fd in _file_descriptor_cache[key]]
 
     file_descriptor_list = []
@@ -108,6 +111,10 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
         if blob.type == 'tree':
             continue
         try:
+            if any(fnmatch.fnmatch(blob.path, pattern) for pattern in ignore_patterns):
+                log.debug(f"File ignored: {blob.path}")
+                continue
+
             content = blob.data_stream.read().decode()
         except UnicodeDecodeError:
             log.debug(f"Error decoding file: {blob.path}")
