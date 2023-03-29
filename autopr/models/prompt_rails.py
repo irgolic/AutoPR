@@ -183,7 +183,8 @@ These are notes we took while looking at the repo:
 This is the issue that was opened:
 ```{{issue}}```
 
-When you're done, send me the pull request title, body, and a list of commits coupled with which files we should look at to write the commit's code."""
+When you're done, send me the pull request title, body, and a list of commits, eachcoupled with which files we should be looking at to write the commit's code.
+Ensure you specify the files relevant to the commit, especially if the commit is a refactor."""
 
     output_type = PullRequestDescription
     extra_params = {
