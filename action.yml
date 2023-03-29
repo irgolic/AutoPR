@@ -43,6 +43,6 @@ inputs:
   pull_request_agent_id:
     description: 'ID of the planner to use'
     default: 'rail-v1'
-  codegen_id:
+  codegen_agent_id:
     description: 'ID of the code generator to use'
     default: 'rail-v1'

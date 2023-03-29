@@ -26,7 +26,7 @@ if __name__ == '__main__':
         'max_tokens': int(os.environ['INPUT_MAX_TOKENS']),
         'num_reasks': int(os.environ['INPUT_NUM_REASKS']),
         'pull_request_agent_id': os.environ['INPUT_PULL_REQUEST_AGENT_ID'],
-        'codegen_id': os.environ['INPUT_CODEGEN_ID'],
+        'codegen_agent_id': os.environ['INPUT_CODEGEN_AGENT_ID'],
     }
     inputs.update({
         k: v

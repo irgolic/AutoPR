@@ -17,7 +17,7 @@ CodegenAgent: TypeAlias = Union[tuple(CodegenAgentBase.__subclasses__())]  # typ
 
 
 def get_codegen_agent(
-    codegen_id: str,
+    codegen_agent_id: str,
     rail_service: RailService,
     diff_service: DiffService,
     repo: Repo,
@@ -26,11 +26,11 @@ def get_codegen_agent(
     if extra_params is None:
         extra_params = {}
     for service in CodegenAgentBase.__subclasses__():
-        if service.id == codegen_id:
+        if service.id == codegen_agent_id:
             return service(
                 rail_service=rail_service,
                 diff_service=diff_service,
                 repo=repo,
                 **extra_params
             )
-    raise ValueError(f"Unknown codegen service: {codegen_id}")
+    raise ValueError(f"Unknown codegen service: {codegen_agent_id}")

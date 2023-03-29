@@ -37,7 +37,7 @@ jobs:
         issue_number: ${{ github.event.issue.number }}
         issue_title: ${{ github.event.issue.title }}
         issue_body: ${{ github.event.issue.body }}
-        codegen_id: rail-v1
+        codegen_agent_id: rail-v1
         pull_request_agent_id: rail-v1
         base_branch: main
         model: gpt-4

@@ -26,7 +26,7 @@ def main(
     issue_number: int,
     issue_title: str,
     issue_body: str,
-    codegen_id: str = "rail-v1",
+    codegen_agent_id: str = "rail-v1",
     pull_request_agent_id: str = "rail-v1",
     model: str = "gpt-4",
     context_limit: int = 8192,
@@ -76,7 +76,7 @@ def main(
     )
     diff_service = PatchService(repo=repo)
     codegen_agent = get_codegen_agent(
-        codegen_id=codegen_id,
+        codegen_agent_id=codegen_agent_id,
         diff_service=diff_service,
         rail_service=rail_service,
         repo=repo,

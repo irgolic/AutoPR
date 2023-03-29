@@ -28,7 +28,7 @@ Example:
     - name: AutoPR
       uses: irgolic/AutoPR@main
       with:
-        codegen_id: my-codegen
+        codegen_agent_id: my-codegen
         pull_request_agent_id: my-pr-agent
 ...
 ```
