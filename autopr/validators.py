@@ -287,19 +287,32 @@ def create_unidiff_validator(repo: Repo, diff_service: DiffService):
             # the filename after +++ matches the filename after ---
             # Except the filename after --- is /dev/null
             for i, line in enumerate(lines):
-                if line.startswith("---") and not line.startswith("--- /dev/null"):
-                    # Extract the filename after ---
-                    filename_match = re.match(r"--- (.+)", line)
-                    if filename_match is None:
-                        filename = "new_file"
-                    else:
-                        filename = filename_match.group(1)
+                if len(lines) < i + 3:
+                    break
+                if line.startswith("---") and not line.startswith("--- /dev/null") and \
+                        lines[i + 1].startswith("+++ ") and lines[i + 2].startswith("@@"):
+                    # Extract the filenames
+                    minus_filename_match = re.match(r"--- (.+)", line)
+                    plus_filename_match = re.match(r"\+\+\+ (.+)", lines[i + 1])
 
-                    # Check if the next line starts with +++ and the line after that starts with @@
-                    if i + 1 < len(lines) and lines[i + 1].startswith("+++") and \
-                            i + 2 < len(lines) and lines[i + 2].startswith("@@"):
-                        # Update the next line's filename to match the filename after ---
-                        lines[i + 1] = f"+++ {filename}"
+                    filenames = []
+                    if minus_filename_match is not None:
+                        filenames.append(minus_filename_match.group(1))
+                    if plus_filename_match is not None:
+                        filenames.append(plus_filename_match.group(1))
+                    # If both filenames are present, use the shorter one
+                    if len(filenames) == 2:
+                        filename = min(filenames, key=len)
+                    # If only one filename is present, use that
+                    elif len(filenames) == 1:
+                        filename = filenames[0]
+                    # If neither filename is present, use new_file
+                    else:
+                        filename = "new_file"
+
+                    # Set the filename
+                    lines[i] = f"--- {filename}"
+                    lines[i + 1] = f"+++ {filename}"
 
             # If the file referenced on --- and +++ lines is not in the repo, replace it with /dev/null
             for i, line in enumerate(lines):

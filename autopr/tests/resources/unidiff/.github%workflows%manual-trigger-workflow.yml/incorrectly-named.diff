@@ -1,0 +1,20 @@
+--- .github/workflows/manual-trigger-workflow.yml.old
++++ .github/workflows/manual-trigger-workflow.yml
+@@ -1,15 +1,17 @@
+ name: Manual Trigger Workflow
+ 
+ on:
+   workflow_dispatch:
+     inputs:
+       issue_number:
+         description: 'Issue number to create PR from'
+         required: true
+ 
+ jobs:
+   manual_trigger:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Call common-pr-from-issue workflow
+         uses: ./.github/workflows/common-pr-from-issue.yml
++        with:
++          issue_number: ${{ github.event.inputs.issue_number }}
