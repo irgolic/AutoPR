@@ -1,0 +1,27 @@
+name: Common PR From Issue
+on: workflow_call
+inputs:
+  github_token:
+    required: true
+  issue_number:
+    required: true
+  issue_title:
+    required: true
+  issue_body:
+    required: true
+  base_branch:
+    required: true
+jobs:
+  create_pr_from_issue:
+    runs-on: ubuntu-latest
+    steps:
+    - name: AutoPR
+      uses: ./
+      with:
+        github_token: ${{ inputs.github_token }}
+        issue_number: ${{ inputs.issue_number }}
+        issue_title: ${{ inputs.issue_title }}
+        issue_body: ${{ inputs.issue_body }}
+        base_branch: ${{ inputs.base_branch }}
+
+index 5c5f5a8..1e51637 100644

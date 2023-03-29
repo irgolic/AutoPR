@@ -29,19 +29,11 @@ jobs:
       with:
         ref: main
         fetch-depth: 1
-    - name: AutoPR
-      uses: ./
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-        issue_number: ${{ github.event.issue.number }}
-        issue_title: ${{ github.event.issue.title }}
-        issue_body: ${{ github.event.issue.body }}
-        codegen_id: rail-v1
-        planner_id: rail-v1
-        base_branch: main
-        model: gpt-4
-        context_limit: 8192
-        min_tokens: 1000
-        max_tokens: 2000
-        num_reasks: 2
+        - name: Call Common PR From Issue
+          uses: ./.github/workflows/common-pr-from-issue.yml
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            issue_number: ${{ github.event.issue.number }}
+            issue_title: ${{ github.event.issue.title }}
+            issue_body: ${{ github.event.issue.body }}
+            base_branch: main
