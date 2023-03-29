@@ -32,6 +32,7 @@ jobs:
     - name: AutoPR
       uses: ./
       with:
+        event: ${{ toJson(github.event) }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
         openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         issue_number: ${{ github.event.issue.number }}

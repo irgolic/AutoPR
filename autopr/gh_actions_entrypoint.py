@@ -8,6 +8,8 @@ log = structlog.get_logger()
 
 
 if __name__ == '__main__':
+    log.info(os.environ["INPUT_EVENT"])
+    return
     log.info("Starting gh_actions_entrypoint.py")
 
     repo_path = os.environ['GITHUB_WORKSPACE']
