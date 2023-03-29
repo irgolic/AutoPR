@@ -1,14 +1,17 @@
+from typing import Union
+
 from git.repo import Repo
 
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse
 from autopr.models.prompt_rails import ProposePullRequest, FileDescriptor, InitialFileSelect, LookAtFiles, \
     ContinueLookingAtFiles
-from autopr.services.planner_service.base import PlannerServiceBase
+from .base import PullRequestAgentBase
 from autopr.utils.repo import repo_to_file_descriptors
+from ...models.events import IssueOpenedEvent, IssueCommentEvent
 
 
-class RailPlannerService(PlannerServiceBase):
+class RailPullRequestAgent(PullRequestAgentBase):
     id = 'rail-v1'
 
     def __init__(
@@ -125,11 +128,12 @@ class RailPlannerService(PlannerServiceBase):
             raise ValueError('Error proposing pull request')
         return pr_desc
 
-    def _plan_pr(
+    def _plan_pull_request(
         self,
         repo: Repo,
         issue: Issue,
-    ) -> PullRequestDescription:
+        event: IssueOpenedEvent,
+    ) -> Union[str, PullRequestDescription]:
         # Get files
         files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)
 

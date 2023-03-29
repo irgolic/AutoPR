@@ -11,11 +11,11 @@ from autopr.models.rail_objects import PullRequestDescription, InitialFileSelect
     Diff, CommitPlan
 from autopr.models.prompt_rails import InitialFileSelect, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
     NewDiff, FileDescriptor
-from autopr.services.codegen_service import CodegenService
-from autopr.services.commit_service import CommitService
-from autopr.services.planner_service import PlannerService
-from autopr.services.publish_service import PublishService
-from autopr.services.rail_service import RailService
+from .commit_service import CommitService
+from .publish_service import PublishService
+from .rail_service import RailService
+from ..agents.codegen_agent import CodegenAgent
+from ..agents.pull_request_agent import PullRequestAgent
 
 import structlog
 log = structlog.get_logger()
@@ -24,14 +24,14 @@ log = structlog.get_logger()
 class GenerationService:
     def __init__(
         self,
-        codegen_service: CodegenService,
-        planner_service: PlannerService,
+        codegen_agent: CodegenAgent,
+        pull_request_agent: PullRequestAgent,
         rail_service: RailService,
         commit_service: CommitService,
         publish_service: PublishService,
     ):
-        self.codegen_service = codegen_service
-        self.planner_service = planner_service
+        self.codegen_agent = codegen_agent
+        self.pull_request_agent = pull_request_agent
         self.rail_service = rail_service
         self.commit_service = commit_service
         self.publish_service = publish_service
@@ -45,12 +45,12 @@ class GenerationService:
         self.commit_service.overwrite_new_branch()
 
         # Get the commit messages and relevant filepaths
-        pr_desc = self.planner_service.plan_pr(repo, issue)
+        pr_desc = self.pull_request_agent.plan_pull_request(repo, issue)
 
         is_published = False
         for current_commit in pr_desc.commits:
             # Generate the patch
-            diff = self.codegen_service.generate_patch(
+            diff = self.codegen_agent.generate_patch(
                 repo,
                 issue,
                 pr_desc,

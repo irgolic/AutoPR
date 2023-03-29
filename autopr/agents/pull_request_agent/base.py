@@ -3,14 +3,14 @@ from typing import ClassVar, Union
 from git.repo import Repo
 
 from autopr.models.artifacts import Issue
+from autopr.models.events import IssueCommentEvent, IssueOpenedEvent
 from autopr.models.rail_objects import PullRequestDescription
-from autopr.models.prompt_rails import FileDescriptor
 from autopr.services.rail_service import RailService
 
 import structlog
 
 
-class PlannerServiceBase:
+class PullRequestAgentBase:
     id: ClassVar[str]
 
     def __init__(
@@ -20,32 +20,36 @@ class PlannerServiceBase:
     ):
         self.rail_service = rail_service
 
-        self.log = structlog.get_logger(service="planner",
+        self.log = structlog.get_logger(agent="pull_request",
                                         id=self.id)
         if kwargs:
             self.log.warning("Planner did not use additional options", kwargs=kwargs)
 
-    def plan_pr(
+    def plan_pull_request(
         self,
         repo: Repo,
         issue: Issue,
+        event: IssueOpenedEvent,
     ) -> PullRequestDescription:
-        self.log.info("Planning PR", issue=issue)
-        pr_desc = self._plan_pr(repo, issue)
-        if isinstance(pr_desc, str):
-            self.log.info("Running raw PR description through PullRequestDescription rail", issue=issue, pull_request_string=pr_desc)
-            pr_desc = self.rail_service.run_rail_object(
+        log = self.log.bind(issue_number=issue.number,
+                            event_type=event.event_type)
+        log.info("Planning PR")
+        pull_request = self._plan_pull_request(repo, issue, event)
+        if isinstance(pull_request, str):
+            log.info("Running raw PR description through PullRequestDescription rail")
+            pull_request = self.rail_service.run_rail_object(
                 PullRequestDescription,
-                pr_desc
+                pull_request
             )
-            if pr_desc is None:
+            if pull_request is None:
                 raise ValueError("Failed to parse PR description")
-        self.log.info("Planned PR", issue=issue, pull_request=pr_desc)
-        return pr_desc
+        log.info("Planned PR")
+        return pull_request
 
-    def _plan_pr(
+    def _plan_pull_request(
         self,
         repo: Repo,
         issue: Issue,
+        event: IssueOpenedEvent,
     ) -> Union[str, PullRequestDescription]:
         raise NotImplementedError

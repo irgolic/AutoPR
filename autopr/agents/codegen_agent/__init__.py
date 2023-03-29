@@ -5,27 +5,27 @@ from typing_extensions import TypeAlias
 
 from git.repo import Repo
 
-from .base import CodegenServiceBase
-from ..diff_service import DiffService
-from ..rail_service import RailService
+from .base import CodegenAgentBase
+from autopr.services.diff_service import DiffService
+from autopr.services.rail_service import RailService
 
 modules = glob.glob(join(dirname(__file__), "*.py"))
 __all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 from . import *
 
-CodegenService: TypeAlias = Union[tuple(CodegenServiceBase.__subclasses__())]  # type: ignore
+CodegenAgent: TypeAlias = Union[tuple(CodegenAgentBase.__subclasses__())]  # type: ignore
 
 
-def get_codegen_service(
+def get_codegen_agent(
     codegen_id: str,
     rail_service: RailService,
     diff_service: DiffService,
     repo: Repo,
     extra_params: Optional[dict[str, Any]] = None,
-) -> CodegenService:
+) -> CodegenAgent:
     if extra_params is None:
         extra_params = {}
-    for service in CodegenServiceBase.__subclasses__():
+    for service in CodegenAgentBase.__subclasses__():
         if service.id == codegen_id:
             return service(
                 rail_service=rail_service,

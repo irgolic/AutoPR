@@ -11,7 +11,7 @@ from autopr.services.rail_service import RailService
 import structlog
 
 
-class CodegenServiceBase:
+class CodegenAgentBase:
     id: ClassVar[str]
 
     def __init__(

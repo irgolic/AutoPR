@@ -3,23 +3,23 @@ import glob
 from typing import Union, Any
 from typing_extensions import TypeAlias
 
-from .base import PlannerServiceBase
-from ..rail_service import RailService
+from .base import PullRequestAgentBase
+from autopr.services.rail_service import RailService
 
 modules = glob.glob(join(dirname(__file__), "*.py"))
 __all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 from . import *
 
 
-PlannerService: TypeAlias = Union[tuple(PlannerServiceBase.__subclasses__())]  # type: ignore
+PullRequestAgent: TypeAlias = Union[tuple(PullRequestAgentBase.__subclasses__())]  # type: ignore
 
 
-def get_planner_service(
+def get_pull_request_agent(
     planner_id: str,
     rail_service: RailService,
     extra_params: dict[str, Any]
-) -> PlannerService:
-    for service in PlannerServiceBase.__subclasses__():
+) -> PullRequestAgent:
+    for service in PullRequestAgentBase.__subclasses__():
         if service.id == planner_id:
             return service(
                 rail_service=rail_service,

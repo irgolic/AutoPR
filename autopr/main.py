@@ -4,13 +4,13 @@ import openai
 from git.repo import Repo
 
 from .models.artifacts import Issue
-from .services.codegen_service import get_codegen_service
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
 from .services.generation_service import GenerationService
-from .services.planner_service import get_planner_service
 from .services.publish_service import GithubPublishService
 from .services.rail_service import RailService
+from .agents.codegen_agent import get_codegen_agent
+from .agents.pull_request_agent import get_pull_request_agent
 
 from .validators import create_unidiff_validator, create_filepath_validator
 
@@ -65,7 +65,7 @@ def main(
         body=issue_body,
     )
 
-    # Create services
+    # Create services and agents
     rail_service = RailService(
         completion_model=model,
         completion_func=completion_func,
@@ -75,14 +75,14 @@ def main(
         num_reasks=num_reasks,
     )
     diff_service = PatchService(repo=repo)
-    codegen_service = get_codegen_service(
+    codegen_agent = get_codegen_agent(
         codegen_id=codegen_id,
         diff_service=diff_service,
         rail_service=rail_service,
         repo=repo,
         extra_params=kwargs,
     )
-    planner_service = get_planner_service(
+    pull_request_agent = get_pull_request_agent(
         planner_id=planner_id,
         rail_service=rail_service,
         extra_params=kwargs,
@@ -102,8 +102,8 @@ def main(
         base_branch=base_branch,
     )
     generator_service = GenerationService(
-        codegen_service=codegen_service,
-        planner_service=planner_service,
+        codegen_agent=codegen_agent,
+        pull_request_agent=pull_request_agent,
         rail_service=rail_service,
         commit_service=commit_service,
         publish_service=publish_service,
