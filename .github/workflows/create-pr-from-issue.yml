@@ -38,7 +38,7 @@ jobs:
         issue_title: ${{ github.event.issue.title }}
         issue_body: ${{ github.event.issue.body }}
         codegen_id: rail-v1
-        planner_id: rail-v1
+        pull_request_agent_id: rail-v1
         base_branch: main
         model: gpt-4
         context_limit: 8192

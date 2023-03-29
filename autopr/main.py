@@ -27,7 +27,7 @@ def main(
     issue_title: str,
     issue_body: str,
     codegen_id: str = "rail-v1",
-    planner_id: str = "rail-v1",
+    pull_request_agent_id: str = "rail-v1",
     model: str = "gpt-4",
     context_limit: int = 8192,
     min_tokens: int = 1000,
@@ -83,7 +83,7 @@ def main(
         extra_params=kwargs,
     )
     pull_request_agent = get_pull_request_agent(
-        planner_id=planner_id,
+        pull_request_agent_id=pull_request_agent_id,
         rail_service=rail_service,
         extra_params=kwargs,
     )

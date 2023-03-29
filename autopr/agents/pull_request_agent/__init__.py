@@ -15,14 +15,14 @@ PullRequestAgent: TypeAlias = Union[tuple(PullRequestAgentBase.__subclasses__())
 
 
 def get_pull_request_agent(
-    planner_id: str,
+    pull_request_agent_id: str,
     rail_service: RailService,
     extra_params: dict[str, Any]
 ) -> PullRequestAgent:
     for service in PullRequestAgentBase.__subclasses__():
-        if service.id == planner_id:
+        if service.id == pull_request_agent_id:
             return service(
                 rail_service=rail_service,
                 **extra_params
             )
-    raise ValueError(f"Unknown planner service: {planner_id}")
+    raise ValueError(f"Unknown planner service: {pull_request_agent_id}")

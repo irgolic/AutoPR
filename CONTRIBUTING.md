@@ -29,7 +29,7 @@ Example:
       uses: irgolic/AutoPR@main
       with:
         codegen_id: my-codegen
-        planner_id: my-pr-agent
+        pull_request_agent_id: my-pr-agent
 ...
 ```
 
