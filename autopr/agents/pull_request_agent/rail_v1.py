@@ -132,7 +132,7 @@ class RailPullRequestAgent(PullRequestAgentBase):
         self,
         repo: Repo,
         issue: Issue,
-        event: IssueOpenedEvent,
+        event: Union[IssueOpenedEvent, IssueCommentEvent],
     ) -> Union[str, PullRequestDescription]:
         # Get files
         files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)

@@ -1,5 +1,5 @@
 import tempfile
-from typing import Callable
+from typing import Callable, Union
 
 from git.repo import Repo
 import pydantic
@@ -18,6 +18,9 @@ from ..agents.codegen_agent import CodegenAgent
 from ..agents.pull_request_agent import PullRequestAgent
 
 import structlog
+
+from ..models.events import IssueCommentEvent, IssueOpenedEvent
+
 log = structlog.get_logger()
 
 
@@ -40,12 +43,13 @@ class GenerationService:
         self,
         repo: Repo,
         issue: Issue,
+        event: Union[IssueOpenedEvent, IssueCommentEvent]
     ) -> None:
         # Switch to the base branch
         self.commit_service.overwrite_new_branch()
 
         # Get the commit messages and relevant filepaths
-        pr_desc = self.pull_request_agent.plan_pull_request(repo, issue)
+        pr_desc = self.pull_request_agent.plan_pull_request(repo, issue, event)
 
         is_published = False
         for current_commit in pr_desc.commits:

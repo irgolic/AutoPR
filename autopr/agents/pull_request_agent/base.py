@@ -29,7 +29,7 @@ class PullRequestAgentBase:
         self,
         repo: Repo,
         issue: Issue,
-        event: IssueOpenedEvent,
+        event: Union[IssueOpenedEvent, IssueCommentEvent],
     ) -> PullRequestDescription:
         log = self.log.bind(issue_number=issue.number,
                             event_type=event.event_type)
@@ -50,6 +50,6 @@ class PullRequestAgentBase:
         self,
         repo: Repo,
         issue: Issue,
-        event: IssueOpenedEvent,
+        event: Union[IssueOpenedEvent, IssueCommentEvent],
     ) -> Union[str, PullRequestDescription]:
         raise NotImplementedError

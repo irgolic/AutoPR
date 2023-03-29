@@ -6,6 +6,7 @@ from git.repo import Repo
 from .models.artifacts import Issue
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
+from .services.event_service import EventService
 from .services.generation_service import GenerationService
 from .services.publish_service import GithubPublishService
 from .services.rail_service import RailService
@@ -23,9 +24,8 @@ def main(
     github_token: str,
     repo_path: str,
     base_branch: str,
-    issue_number: int,
-    issue_title: str,
-    issue_body: str,
+    event_name: str,
+    event: dict[str, Any],
     codegen_agent_id: str = "rail-v1",
     pull_request_agent_id: str = "rail-v1",
     model: str = "gpt-4",
@@ -35,9 +35,20 @@ def main(
     num_reasks: int = 2,
     **kwargs,
 ):
-    log.info('Starting main', repo_path=repo_path, base_branch_name=base_branch,
-             issue_number=issue_number, issue_title=issue_title, issue_body=issue_body)
-    branch_name = f'autopr/issue-{issue_number}'
+    log.info('Starting main',
+             repo_path=repo_path,
+             base_branch_name=base_branch,
+             gh_event_name=event_name,
+             gh_event=event)
+
+    # Extract event
+    event_service = EventService(
+        github_token=github_token,
+    )
+    event_obj = event_service.from_github_event(event_name, event)
+    issue = event_obj.issue
+
+    branch_name = f'autopr/{issue.number}'
     repo = Repo(repo_path)
 
     # Checkout base branch
@@ -57,13 +68,6 @@ def main(
         completion_func = openai.Completion.create
     else:
         completion_func = openai.ChatCompletion.create
-
-    # Create models
-    issue = Issue(
-        number=issue_number,
-        title=issue_title,
-        body=issue_body,
-    )
 
     # Create services and agents
     rail_service = RailService(
@@ -114,4 +118,4 @@ def main(
     create_filepath_validator(repo)
 
     # Generate and publish the PR
-    generator_service.generate_pr(repo, issue)
+    generator_service.generate_pr(repo, issue, event_obj)

@@ -1,7 +1,12 @@
 import json
 import os
 
+import requests
+
 from autopr.log_config import configure_logging
+from autopr.models.artifacts import Issue, Message
+from autopr.services.event_service import EventService
+
 configure_logging()
 
 import structlog
@@ -12,19 +17,13 @@ if __name__ == '__main__':
     log.info("Starting gh_actions_entrypoint.py")
 
     repo_path = os.environ['GITHUB_WORKSPACE']
-
     os.environ['OPENAI_API_KEY'] = os.environ['INPUT_OPENAI_API_KEY']
 
-    event_json = os.environ['INPUT_EVENT']
-    event = json.loads(event_json)
-    log.info("Github event", gh_event=event)
-
     inputs = {
+        'event_name': os.environ['INPUT_EVENT_NAME'],
+        'event': json.loads(os.environ['INPUT_EVENT']),
         'github_token': os.environ['INPUT_GITHUB_TOKEN'],
         'base_branch': os.environ['INPUT_BASE_BRANCH'],
-        'issue_number': int(event['issue']['number'])
-        'issue_title': event['issue']['title'],
-        'issue_body': event['issue']['body'],
         'model': os.environ['INPUT_MODEL'],
         'context_limit': int(os.environ['INPUT_CONTEXT_LIMIT']),
         'min_tokens': int(os.environ['INPUT_MIN_TOKENS']),
@@ -36,7 +35,12 @@ if __name__ == '__main__':
     inputs.update({
         k: v
         for k, v in os.environ.items()
-        if k.startswith('INPUT_') and k[6:].lower() not in inputs and 'API_KEY' not in k
+        if k.startswith('INPUT_')
+        and k[6:].lower() not in inputs
+        and not any(s in k for s in [
+            'API_KEY',
+            'EVENT',
+        ])
     })
 
     from autopr.main import main
