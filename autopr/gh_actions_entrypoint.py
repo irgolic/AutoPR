@@ -1,3 +1,4 @@
+import json
 import os
 
 from autopr.log_config import configure_logging
@@ -14,12 +15,16 @@ if __name__ == '__main__':
 
     os.environ['OPENAI_API_KEY'] = os.environ['INPUT_OPENAI_API_KEY']
 
+    event_json = os.environ['INPUT_EVENT']
+    event = json.loads(event_json)
+    log.info("Github event", gh_event=event)
+
     inputs = {
         'github_token': os.environ['INPUT_GITHUB_TOKEN'],
         'base_branch': os.environ['INPUT_BASE_BRANCH'],
-        'issue_number': int(os.environ['INPUT_ISSUE_NUMBER']),
-        'issue_title': os.environ['INPUT_ISSUE_TITLE'],
-        'issue_body': os.environ['INPUT_ISSUE_BODY'],
+        'issue_number': int(event['issue']['number'])
+        'issue_title': event['issue']['title'],
+        'issue_body': event['issue']['body'],
         'model': os.environ['INPUT_MODEL'],
         'context_limit': int(os.environ['INPUT_CONTEXT_LIMIT']),
         'min_tokens': int(os.environ['INPUT_MIN_TOKENS']),
