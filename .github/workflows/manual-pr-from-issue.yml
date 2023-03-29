@@ -1,0 +1,21 @@
+name: Manual PR from Issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to create PR from'
+        required: true
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Call Common PR from Issue
+      uses: ./.github/workflows/common-pr-from-issue.yml
+      with:
+        issue_number: ${{ github.event.inputs.issue_number }}
+        pr_title_prefix: '[MANUAL] '
+        pr_body_prefix: ':warning: This PR has been created manually, using the provided issue data. :warning:
+
+'
