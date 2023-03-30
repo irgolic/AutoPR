@@ -111,9 +111,9 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
 
         if blob.type == 'tree':
             continue
+        if is_path_ignored(blob.path, ignore_patterns):
+            continue
         try:
-            if is_path_ignored(blob.path, ignore_patterns):
-                continue
             content = blob.data_stream.read().decode()
         except UnicodeDecodeError:
             log.debug(f"Error decoding file: {blob.path}")
