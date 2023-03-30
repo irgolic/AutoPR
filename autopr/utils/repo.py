@@ -5,7 +5,10 @@ from git.repo import Repo
 import pydantic
 
 import structlog
+import os
 
+from pathspec import PathSpec
+from pathspec.patterns import GitWildMatchPattern
 from autopr.utils.tokenizer import get_tokenizer
 
 log = structlog.get_logger()
@@ -96,7 +99,9 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
     repo_tree = repo.head.commit.tree
 
     key = (repo_tree.binsha, context_window, file_chunk_size)
-    if key in _file_descriptor_cache:
+    ignore_patterns = parse_gptignore(repo)
+
+    if key in _file_descriptor_cache and not ignore_patterns:
         return [fd.copy(deep=True) for fd in _file_descriptor_cache[key]]
 
     file_descriptor_list = []
@@ -107,6 +112,8 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
         if blob.type == 'tree':
             continue
         try:
+            if is_path_ignored(blob.path, ignore_patterns):
+                continue
             content = blob.data_stream.read().decode()
         except UnicodeDecodeError:
             log.debug(f"Error decoding file: {blob.path}")
@@ -139,3 +146,29 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
 
     _file_descriptor_cache[key] = file_descriptor_list
     return file_descriptor_list
+
+
+def is_path_ignored(path: str, ignore_patterns: list[str]) -> bool:
+    # Ensure we're working with a relative path
+    relative_path = os.path.relpath(path)
+    pathspec = PathSpec.from_lines(GitWildMatchPattern, ignore_patterns)
+    return pathspec.match_file(relative_path)
+
+
+def parse_gptignore(repo: Repo) -> list[str]:
+    gptignore_file = ".gptignore"
+    ignore_patterns = []
+
+    try:
+        gptignore_blob = repo.head.commit.tree / gptignore_file
+        gptignore_content = gptignore_blob.data_stream.read().decode()
+    except FileNotFoundError:
+        return ignore_patterns
+
+    for line in gptignore_content.splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            ignore_patterns.append(line)
+
+    return ignore_patterns
+
