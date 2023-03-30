@@ -159,11 +159,8 @@ def parse_gptignore(repo: Repo) -> list[str]:
     gptignore_file = ".gptignore"
     ignore_patterns = []
 
-    try:
-        gptignore_blob = repo.head.commit.tree / gptignore_file
-        gptignore_content = gptignore_blob.data_stream.read().decode()
-    except FileNotFoundError:
-        return ignore_patterns
+    gptignore_blob = repo.head.commit.tree / gptignore_file
+    gptignore_content = gptignore_blob.data_stream.read().decode()
 
     for line in gptignore_content.splitlines():
         line = line.strip()
