@@ -148,6 +148,14 @@ class FileHunk(RailObject):
     start_line: Optional[int] = None
     end_line: Optional[int] = None
 
+    def to_str(self) -> str:
+        s = self.filepath
+        if self.start_line is not None:
+            s += f":L{self.start_line}"
+            if self.end_line is not None:
+                s += f"-L{self.end_line}"
+        return s
+
 
 class CommitPlan(RailObject):
     output_spec = f"""<string
@@ -160,10 +168,9 @@ class CommitPlan(RailObject):
     name="relevant_filepaths"
     description="The files we should be looking at while writing this commit."
 >
-<string
-    format="filepath"
-    on-fail="fix"
-/>
+<object>
+{FileHunk.output_spec}
+</object>
 </list>
 <string
     name="commit_changes_description"
@@ -173,7 +180,7 @@ class CommitPlan(RailObject):
 />"""
 
     commit_message: str
-    relevant_filepaths: List[str] = pydantic.Field(default_factory=list)
+    relevant_file_hunks: List[FileHunk] = pydantic.Field(default_factory=list)
     commit_changes_description: str
 
     def to_str(self):
@@ -211,7 +218,7 @@ class PullRequestDescription(RailObject):
             pr_text_description += (
                 f"{str(i + 1)}. Commit: {commit_plan.commit_message}\n"
                 f"{prefix}Files: "
-                f"{', '.join(commit_plan.relevant_filepaths)}\n"
+                f"{', '.join([fh.to_str() for fh in commit_plan.relevant_file_hunks])}\n"
                 f"{prefix}Changes:"
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )
