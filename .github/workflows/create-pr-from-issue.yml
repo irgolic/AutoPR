@@ -1,6 +1,8 @@
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -9,19 +11,27 @@ permissions:
 
 jobs:
   autopr:
+    if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
     - name: Install jq
       run: sudo apt-get install jq
-    - name: Check if issue is created by collaborator
+    - name: Check if issue or issue comment is created by collaborator
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        username=""
+        if [ "${{ github.event_name }}" == "issues" ]; then
+          username=${{ github.event.issue.user.login }}
+        elif [ "${{ github.event_name }}" == "issue_comment" ]; then
+          username=${{ github.event.comment.user.login }}
+        fi
+
         is_collaborator=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
-          "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.event.issue.user.login }}" | jq -r '.message')
+          "https://api.github.com/repos/${{ github.repository }}/collaborators/$username" | jq -r '.message')
 
         if [ "$is_collaborator" == "Not Found" ]; then
-          echo "Issue not created by a collaborator. Skipping action."
+          echo "Not triggered by a collaborator. Skipping action."
           exit 78
         fi
     - name: Checkout
