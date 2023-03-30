@@ -7,20 +7,17 @@ branding:
   icon: 'git-pull-request'
   color: 'purple'
 inputs:
+  event:
+    description: '`{{ toJson(github.event) }}`'
+    required: true
+  event_name:
+    description: '`{{ github.event_name }}`'
+    required: true
   github_token:
     description: 'GitHub token'
     required: true
   openai_api_key:
     description: 'OpenAI api key'
-    required: true
-  issue_number:
-    description: 'Branch name'
-    required: true
-  issue_title:
-    description: 'Issue title'
-    required: true
-  issue_body:
-    description: 'Issue body'
     required: true
   base_branch:
     description: 'Base branch'
@@ -40,9 +37,9 @@ inputs:
   num_reasks:
     description: 'Number of times to re-ask the model in file exploration and commit generation'
     default: '2'
-  planner_id:
+  pull_request_agent_id:
     description: 'ID of the planner to use'
     default: 'rail-v1'
-  codegen_id:
+  codegen_agent_id:
     description: 'ID of the code generator to use'
     default: 'rail-v1'

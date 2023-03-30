@@ -1,6 +1,8 @@
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -9,21 +11,42 @@ permissions:
 
 jobs:
   autopr:
+    if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
     - name: Install jq
       run: sudo apt-get install jq
-    - name: Check if issue is created by collaborator
+    - name: Check if issue or issue comment is created by collaborator
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        username=""
+        if [ "${{ github.event_name }}" == "issues" ]; then
+          username=${{ github.event.issue.user.login }}
+        elif [ "${{ github.event_name }}" == "issue_comment" ]; then
+          username=${{ github.event.comment.user.login }}
+        fi
+
         is_collaborator=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" \
-          "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.event.issue.user.login }}" | jq -r '.message')
+          "https://api.github.com/repos/${{ github.repository }}/collaborators/$username" | jq -r '.message')
 
         if [ "$is_collaborator" == "Not Found" ]; then
-          echo "Issue not created by a collaborator. Skipping action."
+          echo "Not triggered by a collaborator. Skipping action."
           exit 78
         fi
+    - uses: irgolic/pull-request-comment-trigger@master
+      name: Check if AutoPR is triggered
+      id: check
+      with:
+        trigger: '🚀'
+        reaction: rocket
+      env:
+        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+    - name: Stop if AutoPR is not requested
+      if: steps.check.outputs.triggered == 'false'
+      run: |
+        echo "Issue comment did not include 🚀. Skipping action."
+        exit 78
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -32,13 +55,12 @@ jobs:
     - name: AutoPR
       uses: ./
       with:
+        event: ${{ toJson(github.event) }}
+        event_name: ${{ github.event_name }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
         openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-        issue_number: ${{ github.event.issue.number }}
-        issue_title: ${{ github.event.issue.title }}
-        issue_body: ${{ github.event.issue.body }}
-        codegen_id: rail-v1
-        planner_id: rail-v1
+        codegen_agent_id: rail-v1
+        pull_request_agent_id: rail-v1
         base_branch: main
         model: gpt-4
         context_limit: 8192

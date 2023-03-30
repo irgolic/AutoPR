@@ -4,13 +4,14 @@ import openai
 from git.repo import Repo
 
 from .models.artifacts import Issue
-from .services.codegen_service import get_codegen_service
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
+from .services.event_service import EventService
 from .services.generation_service import GenerationService
-from .services.planner_service import get_planner_service
 from .services.publish_service import GithubPublishService
 from .services.rail_service import RailService
+from .agents.codegen_agent import get_codegen_agent
+from .agents.pull_request_agent import get_pull_request_agent
 
 from .validators import create_unidiff_validator, create_filepath_validator
 
@@ -23,11 +24,10 @@ def main(
     github_token: str,
     repo_path: str,
     base_branch: str,
-    issue_number: int,
-    issue_title: str,
-    issue_body: str,
-    codegen_id: str = "rail-v1",
-    planner_id: str = "rail-v1",
+    event_name: str,
+    event: dict[str, Any],
+    codegen_agent_id: str = "rail-v1",
+    pull_request_agent_id: str = "rail-v1",
     model: str = "gpt-4",
     context_limit: int = 8192,
     min_tokens: int = 1000,
@@ -35,9 +35,20 @@ def main(
     num_reasks: int = 2,
     **kwargs,
 ):
-    log.info('Starting main', repo_path=repo_path, base_branch_name=base_branch,
-             issue_number=issue_number, issue_title=issue_title, issue_body=issue_body)
-    branch_name = f'autopr/issue-{issue_number}'
+    log.info('Starting main',
+             repo_path=repo_path,
+             base_branch_name=base_branch,
+             gh_event_name=event_name,
+             gh_event=event)
+
+    # Extract event
+    event_service = EventService(
+        github_token=github_token,
+    )
+    event_obj = event_service.from_github_event(event_name, event)
+    issue = event_obj.issue
+
+    branch_name = f'autopr/{issue.number}'
     repo = Repo(repo_path)
 
     # Checkout base branch
@@ -58,14 +69,7 @@ def main(
     else:
         completion_func = openai.ChatCompletion.create
 
-    # Create models
-    issue = Issue(
-        number=issue_number,
-        title=issue_title,
-        body=issue_body,
-    )
-
-    # Create services
+    # Create services and agents
     rail_service = RailService(
         completion_model=model,
         completion_func=completion_func,
@@ -75,15 +79,15 @@ def main(
         num_reasks=num_reasks,
     )
     diff_service = PatchService(repo=repo)
-    codegen_service = get_codegen_service(
-        codegen_id=codegen_id,
+    codegen_agent = get_codegen_agent(
+        codegen_agent_id=codegen_agent_id,
         diff_service=diff_service,
         rail_service=rail_service,
         repo=repo,
         extra_params=kwargs,
     )
-    planner_service = get_planner_service(
-        planner_id=planner_id,
+    pull_request_agent = get_pull_request_agent(
+        pull_request_agent_id=pull_request_agent_id,
         rail_service=rail_service,
         extra_params=kwargs,
     )
@@ -102,8 +106,8 @@ def main(
         base_branch=base_branch,
     )
     generator_service = GenerationService(
-        codegen_service=codegen_service,
-        planner_service=planner_service,
+        codegen_agent=codegen_agent,
+        pull_request_agent=pull_request_agent,
         rail_service=rail_service,
         commit_service=commit_service,
         publish_service=publish_service,
@@ -114,4 +118,4 @@ def main(
     create_filepath_validator(repo)
 
     # Generate and publish the PR
-    generator_service.generate_pr(repo, issue)
+    generator_service.generate_pr(repo, issue, event_obj)

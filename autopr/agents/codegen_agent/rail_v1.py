@@ -5,7 +5,7 @@ from git.repo import Repo
 from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan, Diff
 from autopr.models.prompt_rails import NewDiff, FileDescriptor
-from autopr.services.codegen_service import CodegenServiceBase
+from .base import CodegenAgentBase
 
 import structlog
 
@@ -14,7 +14,7 @@ from autopr.utils.repo import repo_to_file_descriptors
 log = structlog.get_logger()
 
 
-class RailCodegenService(CodegenServiceBase):
+class RailCodegenAgent(CodegenAgentBase):
     id = "rail-v1"
 
     def __init__(
@@ -40,7 +40,7 @@ class RailCodegenService(CodegenServiceBase):
 
         # Serialize issue
         issue_text = issue.to_str()
-        
+
         # Serialize pull request description
         pr_text_description = pr_desc.to_str()
 

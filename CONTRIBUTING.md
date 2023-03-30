@@ -16,43 +16,50 @@ As long as the file is in the correct directory, it will be automatically picked
 
 ## Using a custom component
 
-To use a custom defined PR planner or code generator, simply refer to it by its `id` in the action's `with` section.
+To use a custom pull request or code generator agent, simply refer to it by its `id` in the action's `with` section.
 Make sure you're pointing to the correct branch (in this example `main`).
 
 Example:
 
+`>>> .github/workflows/autopr.yml`
 ```yaml
->>> .github/workflows/autopr.yml
 
 ...
     - name: AutoPR
       uses: irgolic/AutoPR@main
       with:
-        codegen_id: my-codegen
-        planner_id: my-planner
+        codegen_agent_id: my-codegen
+        pull_request_agent_id: my-pr-agent
 ...
 ```
 
-### Adding a new PR planner
+### Adding a new pull request agent
 
-To add a new PR planner, create a new file in `autopr/services/planner_service/` and subclass `PlannerServiceBase`. 
-The new class should declare an `id` and implement the `_plan_pr` method.
+To add a new PR planner, create a new file in `autopr/agents/pull_request_agent/` and subclass `PullRequestAgentBase`. 
+The new class should declare an `id` and implement the `_plan_pull_request` method.
 
 Example:
+
+`>>> autopr/agents/planner_agent/my_planner_agent.py`
 ```python
->>> autopr/services/planner_service/my_planner_service.py
 
 from typing import Union
 from git.repo import Repo
-from autopr.services.planner_service import PlannerServiceBase
+from autopr.agents.pull_request_agent import PullRequestAgentBase
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription
+from autopr.models.events import IssueOpenedEvent, IssueCommentEvent
 
 
-class MyPlannerService(PlannerServiceBase):
-    id = "my-planner"
+class MyPullRequestAgent(PullRequestAgentBase):
+    id = "my-pr-agent"
 
-    def _plan_pr(self, issue: Issue, repo: Repo) -> Union[str, PullRequestDescription]:
+    def _plan_pull_request(
+        self, 
+        issue: Issue, 
+        repo: Repo,
+        event: Union[IssueOpenedEvent, IssueCommentEvent],
+    ) -> Union[str, PullRequestDescription]:
         return """
 Title: My PR title
 Body: My PR body
@@ -68,25 +75,26 @@ Commits:
 """
 ```
 
-The plan can be returned as a `PullRequestDescription` object or as a string, as shown in the dummy example above.
+The plan can be returned as a `PullRequestDescription` object, or as a string as shown in the dummy example above.
 If it is returned as a string, it will automatically be parsed into a `PullRequestDescription` object with guardrails.
 
 
 ### Adding a new code generator
 
-To add a new code generator, create a new file in `autopr/services/codegen_service/` and subclass `CodegenServiceBase`. 
-Similarly to the planner service, the new class should declare an `id` and implement the `_generate_code` method.
+To add a new code generator, create a new file in `autopr/agents/codegen_agent/` and subclass `CodegenAgentBase`. 
+Similarly to the pull request agent, the new class should declare an `id` and implement the `_generate_code` method.
 
 Example:
-```python
->>> autopr/services/codegen_service/my_codegen_service.py
 
-from autopr.services.codegen_service import CodegenServiceBase
+`>>> autopr/agents/codegen_agent/my_codegen_agent.py`
+```python
+
+from autopr.agents.codegen_agent import CodegenAgentBase
 from autopr.models.artifacts import Issue, DiffStr
 from git.repo import Repo
-from autopr.models.rail_objects import CommitPlan, PullRequestDescription,
+from autopr.models.rail_objects import CommitPlan, PullRequestDescription
 
-class MyCodegenService(CodegenServiceBase):
+class MyCodegenAgent(CodegenAgentBase):
     id = "my-codegen"
 
     def _generate_patch(
@@ -106,13 +114,13 @@ class MyCodegenService(CodegenServiceBase):
 ```
 
 The output of the code generator is a string, which must be a valid patch as applicable by GNU `patch`.
-We're currently working on a serializable patch format similar to the planner service's `PullRequestDescription` object.
+We're currently working on a serializable patch format similar to the pull request agent agent's `PullRequestDescription` object.
 If you're interested in this, please join our [Discord](https://discord.gg/ykk7Znt3K6).
 
 ## How guardrails is used in AutoPR
 
 RailService is a service that runs rails defined in `autopr/models/rails.py`. 
-It's accessible by default in PR planners and code generators at `self.rail_service`.
+It's accessible by default in PR agents and code generators at `self.rail_service`.
 The rails' output models are defined in `autopr/models/rail_objects.py`.
 
 Each rail run consists of two calls:
