@@ -34,6 +34,19 @@ jobs:
           echo "Not triggered by a collaborator. Skipping action."
           exit 78
         fi
+    - uses: irgolic/pull-request-comment-trigger@master
+      name: Check if AutoPR is triggered
+      id: check
+      with:
+        trigger: '🚀'
+        reaction: rocket
+      env:
+        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+    - name: Stop if AutoPR is not requested
+      if: steps.check.outputs.triggered == 'false'
+      run: |
+        echo "Issue comment did not include 🚀. Skipping action."
+        exit 78
     - name: Checkout
       uses: actions/checkout@v2
       with:
