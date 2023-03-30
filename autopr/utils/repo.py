@@ -8,7 +8,7 @@ import structlog
 import os
 
 from pathspec import PathSpec
-from pathspec.patterns import GitWildMatchPattern
+from pathspec.patterns.gitwildmatch import GitWildMatchPattern
 from autopr.utils.tokenizer import get_tokenizer
 
 log = structlog.get_logger()
