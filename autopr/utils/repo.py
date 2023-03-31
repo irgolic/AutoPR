@@ -101,7 +101,7 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
     key = (repo_tree.binsha, context_window, file_chunk_size)
     ignore_patterns = parse_gptignore(repo)
 
-    if key in _file_descriptor_cache and not ignore_patterns:
+    if key in _file_descriptor_cache:
         return [fd.copy(deep=True) for fd in _file_descriptor_cache[key]]
 
     file_descriptor_list = []
@@ -111,8 +111,10 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
 
         if blob.type == 'tree':
             continue
+
         if is_path_ignored(blob.path, ignore_patterns):
             continue
+
         try:
             content = blob.data_stream.read().decode()
         except UnicodeDecodeError:
@@ -155,13 +157,14 @@ def is_path_ignored(path: str, ignore_patterns: list[str]) -> bool:
     return pathspec.match_file(relative_path)
 
 
-def parse_gptignore(repo: Repo) -> list[str]:
-    gptignore_file = ".gptignore"
-    ignore_patterns = []
+def parse_gptignore(repo: Repo, gptignore_file: str = ".gptignore") -> list[str]:
+    if gptignore_file not in repo.head.commit.tree:
+        return []
 
     gptignore_blob = repo.head.commit.tree / gptignore_file
     gptignore_content = gptignore_blob.data_stream.read().decode()
 
+    ignore_patterns = []
     for line in gptignore_content.splitlines():
         line = line.strip()
         if line and not line.startswith("#"):
