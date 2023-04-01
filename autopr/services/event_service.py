@@ -5,6 +5,8 @@ import structlog
 
 from autopr.models.artifacts import Issue, Message
 from autopr.models.events import IssueOpenedEvent, IssueCommentEvent
+from autopr.models.events import CodeReviewCommentEvent, PullRequestReviewEvent
+
 
 
 class EventService:
@@ -84,3 +86,25 @@ class EventService:
             return self._to_issue_comment_event(event_dict)
         else:
             raise ValueError(f"Unsupported event name: {event_name}")
+    def _to_code_review_comment_event(self, event: dict[str, Any]) -> CodeReviewCommentEvent:
+        # Add code to create CodeReviewCommentEvent from the event dictionary
+        # ...
+        pass
+
+    def _to_pull_request_review_event(self, event: dict[str, Any]) -> PullRequestReviewEvent:
+        # Add code to create PullRequestReviewEvent from the event dictionary
+        # ...
+        pass
+
+    def from_github_event(self, event_name: str, event_dict: dict[str, Any]):
+        if event_name == 'issues':
+            return self._to_issue_opened_event(event_dict)
+        if event_name == 'issue_comment':
+            return self._to_issue_comment_event(event_dict)
+        if event_name == 'pull_request_review_comment':
+            return self._to_code_review_comment_event(event_dict)
+        if event_name == 'pull_request_review':
+            return self._to_pull_request_review_event(event_dict)
+        else:
+            raise ValueError(f"Unsupported event name: {event_name}")
+
