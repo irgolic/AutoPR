@@ -69,6 +69,10 @@ class RailCodegenAgent(CodegenAgentBase):
         log.debug('Files to look at:')
         for f in files_subset:
             log.debug(f' - {f.path}')
+                
+            # Implement amendment functionality
+            if current_commit.is_amendment:
+                pr_desc.amend_previous_comment(current_commit)
 
         # Run NewDiff rail
         rail = NewDiff(
