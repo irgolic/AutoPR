@@ -1,10 +1,10 @@
-# 🤖👨‍💻 AutoPR Github Action 
+# 🤖👨‍💻 AutoPR Github Action 🚀
 
 <div align="center">
 
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label&color=purple)](https://discord.gg/ykk7Znt3K6)
 
-AutoPR automatically writes pull requests in response to issues using GPT-4 and GPT-3.  
+AutoPR automatically writes pull requests in response to issues using ChatGPT.  
 To get started, see [AutoPR-template](https://github.com/irgolic/AutoPR-template).  
 Built with [Guardrails](https://github.com/ShreyaR/guardrails).    
 
@@ -23,8 +23,9 @@ The action triggers when a collaborator uses `🚀` in an issue.
 
 - [X] On new/edited issue, generate code, push a branch, and open a pull request
 - [X] Generate multiple commits
-- [ ] Update pull request on issue/pull request comment
-- [ ] Update pull request based on code review comments
+- [X] Regenerate triggered from issue comment
+- [ ] Update from pull request comment
+- [ ] Update from code review comments
 - [ ] Explore alternative code generation models
 - [ ] Running CI and taking corrective action on failure
 
