@@ -3,15 +3,85 @@ from typing import Optional
 from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
-from autopr.models.rail_objects import PullRequestDescription, CommitPlan, Diff
-from autopr.models.prompt_rails import NewDiff, FileDescriptor
+from autopr.models.rail_objects import PullRequestDescription, CommitPlan, RailObject
+from autopr.models.prompt_rails import PromptRail
 from .base import CodegenAgentBase
 
 import structlog
 
-from autopr.utils.repo import repo_to_file_descriptors
+from autopr.utils.repo import repo_to_file_descriptors, trim_chunk, FileDescriptor
 
 log = structlog.get_logger()
+
+
+class Diff(RailObject):
+    output_spec = """<string
+    name="diff"
+    description="The diff of the commit, in unified format (unidiff), as output by `diff -u`. Changes shown in hunk format, with headers akin to `--- filename\n+++ filename\n@@ .,. @@`."
+    required="false"
+    format="unidiff"
+/>"""
+
+    diff: Optional[DiffStr] = None
+
+
+class Commit(RailObject):
+    # TODO use this instead of Diff, to get a commit message rewrite
+    output_spec = f"""{Diff.output_spec}
+<string
+    name="message"
+    description="The commit message, describing the changes."
+    required="true"
+    format="length: 5 72"
+    on-fail-length="noop"
+/>"""
+
+    diff: Diff
+    commit_message: str
+
+
+class NewDiff(PromptRail):
+    # Generate code for a commit, given an issue, a pull request, and a codebase
+    prompt_spec = f"""Hey, now that we've got a plan, let's write some code.
+
+This is the issue that was opened:
+```{{issue}}```
+
+This is the plan to address it:
+```{{pull_request_description}}```
+
+This is the codebase subset we decided to look at:
+```{{codebase}}```
+
+This is the commit for which we're writing a unidiff:
+```{{commit}}```
+
+Please implement the commit, and send me the unidiff. 
+Only write a unidiff in the codebase subset we're looking at."""
+
+    output_type = Diff
+    extra_params = {
+        'temperature': 0.0,
+    }
+
+    issue: str
+    pull_request_description: str
+    selected_file_contents: list[FileDescriptor]
+    commit: str
+
+    def get_string_params(self) -> dict[str, str]:
+        return {
+            'issue': self.issue,
+            'pull_request_description': self.pull_request_description,
+            'codebase': '\n'.join([
+                file_descriptor.filenames_and_contents_to_str()
+                for file_descriptor in self.selected_file_contents
+            ]),
+            'commit': self.commit,
+        }
+
+    def trim_params(self) -> bool:
+        return trim_chunk(self.selected_file_contents)
 
 
 class RailCodegenAgent(CodegenAgentBase):

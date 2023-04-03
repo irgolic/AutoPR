@@ -1,14 +1,242 @@
-from typing import Union
+from typing import Union, Optional
 
+import pydantic
 from git.repo import Repo
 
 from autopr.models.artifacts import Issue
-from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse
-from autopr.models.prompt_rails import ProposePullRequest, FileDescriptor, InitialFileSelect, LookAtFiles, \
-    ContinueLookingAtFiles
+from autopr.models.rail_objects import PullRequestDescription, RailObject
+from autopr.models.prompt_rails import PromptRail
 from .base import PullRequestAgentBase
-from autopr.utils.repo import repo_to_file_descriptors
+from autopr.utils.repo import repo_to_file_descriptors, trim_chunk, filter_seen_chunks, FileDescriptor
 from ...models.events import IssueOpenedEvent, IssueCommentEvent
+
+
+class InitialFileSelectResponse(RailObject):
+    output_spec = """<list name="filepaths">
+    <string
+        description="Files in this repository that we should look at."
+        format="filepath"
+        on-fail="noop"
+    />
+</list>"""
+
+    filepaths: list[str]
+
+    @classmethod
+    def get_rail_spec(cls):
+        return f"""
+<rail version="0.1">
+<output>
+{cls.output_spec}
+</output>
+<prompt>
+```
+{{{{raw_document}}}}
+```
+
+If looking at files would be a waste of time, please submit an empty list.
+
+@complete_json_suffix_v2
+</prompt>
+</rail>
+"""
+
+
+class InitialFileSelect(PromptRail):
+    # Select files given issue and files in repo
+    prompt_spec = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
+
+The issue is:
+```{{issue}}```
+
+The list of files in the repo is:
+```{{filepaths_with_token_lengths}}```
+
+Should we take a look at any files? If so, pick only a few files (max {{token_limit}} tokens). 
+If looking at files would be a waste of time with regard to the issue, let me know."""
+
+    output_type = InitialFileSelectResponse
+    extra_params = {
+        'temperature': 0,
+    }
+
+    issue: str
+    file_descriptors: list[FileDescriptor]
+    token_limit: int
+
+    def get_string_params(self) -> dict[str, str]:
+        return {
+            'issue': self.issue,
+            'filepaths_with_token_lengths': '\n'.join([
+                file_descriptor.filepaths_with_token_lengths_to_str()
+                for file_descriptor in self.file_descriptors
+            ]),
+            'token_limit': str(self.token_limit),
+        }
+
+
+class LookAtFilesResponse(RailObject):
+    output_spec = """<string 
+    name="notes" 
+    description="Notes relevant to solving the issue, that we will use to plan our code commits." 
+    length="1 1000"
+    on-fail="noop" 
+/>
+<list name="filepaths_we_should_look_at">
+    <string
+        description="The paths to files we should look at next in the repo. Drop any files that are a waste of time with regard to the issue."
+        format="filepath"
+        on-fail="noop"
+    />
+</list>"""
+
+    filepaths_we_should_look_at: Optional[list[str]] = None
+    notes: str
+
+    @classmethod
+    def get_rail_spec(cls):
+        return f"""
+<rail version="0.1">
+<output>
+{cls.output_spec}
+</output>
+<prompt>
+```
+{{{{raw_document}}}}
+```
+
+If looking at files would be a waste of time, please submit an empty list.
+
+@complete_json_suffix_v2
+</prompt>
+</rail>
+"""
+
+
+class LookAtFiles(PromptRail):
+    # Select files given issue, unseen files in repo, and notes
+    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+
+The issue that was opened:
+```{{issue}}```
+
+We've decided to look at these files:
+```{{codebase}}```
+
+The list of files in the repo that we haven't taken a look at yet:
+```{{filepaths_with_token_lengths}}```
+
+Take some notes that will help us plan our code commits, in an effort to close the issue. 
+Also, should we take a look at any other files? If so, pick only a few files (max {{token_limit}} tokens). 
+If looking at files would be a waste of time with regard to the issue, let me know."""
+
+    output_type = LookAtFilesResponse
+    extra_params = {
+        'temperature': 0.2,
+    }
+
+    issue: str
+    selected_file_contents: list[FileDescriptor]
+    prospective_file_descriptors: list[FileDescriptor]
+    token_limit: int
+    _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
+
+    def get_string_params(self) -> dict[str, str]:
+        self._filtered_prospective_file_descriptors = filter_seen_chunks(
+            self.selected_file_contents, self.prospective_file_descriptors
+        )
+
+        return {
+            'issue': self.issue,
+            'codebase': '\n'.join([
+                file_descriptor.filenames_and_contents_to_str()
+                for file_descriptor in self.selected_file_contents
+            ]),
+            'filepaths_with_token_lengths': '\n'.join([
+                file_descriptor.filepaths_with_token_lengths_to_str()
+                for file_descriptor in self._filtered_prospective_file_descriptors
+            ]),
+            'token_limit': str(self.token_limit),
+        }
+
+    def trim_params(self) -> bool:
+        return trim_chunk(self.selected_file_contents)
+
+
+class ContinueLookingAtFiles(PromptRail):
+    # Continue selecting files and generating fp_notes given issue, unseen files in repo, and notes
+    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+
+The issue that was opened:
+```{{issue}}```
+
+Some notes we've taken while looking at files so far:
+```{{notes}}```
+
+We've decided to look at these files:
+```{{codebase}}```
+
+The list of files in the repo that we haven't taken a look at yet:
+```{{filepaths_with_token_lengths}}```
+
+Take some notes that will help us plan commits and write code to fix the issue. 
+Also, let me know if we should take a look at any other files – our budget is {{token_limit}} tokens."""
+
+    output_type = LookAtFilesResponse
+    extra_params = {
+        'temperature': 0.2,
+    }
+
+    issue: str
+    notes: str
+    selected_file_contents: list[FileDescriptor]
+    prospective_file_descriptors: list[FileDescriptor]
+    token_limit: int
+    _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
+
+    def get_string_params(self) -> dict[str, str]:
+        self._filtered_prospective_file_descriptors = filter_seen_chunks(
+            self.selected_file_contents, self.prospective_file_descriptors
+        )
+
+        return {
+            'issue': self.issue,
+            'notes': self.notes,
+            'codebase': '\n'.join([
+                file_descriptor.filenames_and_contents_to_str()
+                for file_descriptor in self.selected_file_contents
+            ]),
+            'filepaths_with_token_lengths': '\n'.join([
+                file_descriptor.filepaths_with_token_lengths_to_str()
+                for file_descriptor in self._filtered_prospective_file_descriptors
+            ]),
+            'token_limit': str(self.token_limit),
+        }
+
+    def trim_params(self) -> bool:
+        return trim_chunk(self.selected_file_contents)
+
+
+class ProposePullRequest(PromptRail):
+    # Generate proposed list of commit messages, given notes and issue
+    prompt_spec = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
+
+These are notes we took while looking at the repo:
+```{{notes_taken_while_looking_at_files}}```
+
+This is the issue that was opened:
+```{{issue}}```
+
+When you're done, send me the pull request title, body, and a list of commits, eachcoupled with which files we should be looking at to write the commit's code.
+Ensure you specify the files relevant to the commit, especially if the commit is a refactor."""
+
+    output_type = PullRequestDescription
+    extra_params = {
+        'temperature': 0.1,
+    }
+
+    notes_taken_while_looking_at_files: str
+    issue: str
 
 
 class RailPullRequestAgent(PullRequestAgentBase):
