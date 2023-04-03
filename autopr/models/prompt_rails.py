@@ -15,9 +15,14 @@ class PromptRail(pydantic.BaseModel):
     output_type: ClassVar[typing.Type[RailObject]]
 
     def get_string_params(self) -> dict[str, str]:
-        prompt_params = dict(self)
-        if any(not isinstance(value, str) for value in prompt_params.values()):
-            raise NotImplementedError
+        prompt_params = {}
+        for key, value in self:
+            if isinstance(value, list):
+                prompt_params[key] = '\n\n'.join(
+                    [str(item) for item in value]
+                )
+            else:
+                prompt_params[key] = str(value)
         return prompt_params
 
     def trim_params(self) -> bool:
