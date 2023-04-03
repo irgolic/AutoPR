@@ -53,7 +53,7 @@ class FileHunk(RailObject):
     start_line: Optional[int] = None
     end_line: Optional[int] = None
 
-    def to_str(self) -> str:
+    def __str__(self):
         s = self.filepath
         if self.start_line is not None:
             s += f":L{self.start_line}"
@@ -88,7 +88,7 @@ class CommitPlan(RailObject):
     relevant_file_hunks: List[FileHunk] = pydantic.Field(default_factory=list)
     commit_changes_description: str
 
-    def to_str(self):
+    def __str__(self):
         return self.commit_message + '\n\n' + self.commit_changes_description
 
 
@@ -115,7 +115,7 @@ class PullRequestDescription(RailObject):
     body: str
     commits: list[CommitPlan]
 
-    def to_str(self):
+    def __str__(self):
         pr_text_description = f"Title: {self.title}\n\n{self.body}\n\n"
         for i, commit_plan in enumerate(self.commits):
             prefix = f" {' ' * len(str(i + 1))}  "
@@ -123,7 +123,7 @@ class PullRequestDescription(RailObject):
             pr_text_description += (
                 f"{str(i + 1)}. Commit: {commit_plan.commit_message}\n"
                 f"{prefix}Files: "
-                f"{', '.join([fh.to_str() for fh in commit_plan.relevant_file_hunks])}\n"
+                f"{', '.join([str(fh) for fh in commit_plan.relevant_file_hunks])}\n"
                 f"{prefix}Changes:"
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )

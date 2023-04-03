@@ -64,20 +64,20 @@ Only write a unidiff in the codebase subset we're looking at."""
         'temperature': 0.0,
     }
 
-    issue: str
-    pull_request_description: str
+    issue: Issue
+    pull_request_description: PullRequestDescription
     selected_file_contents: list[FileDescriptor]
-    commit: str
+    commit: CommitPlan
 
     def get_string_params(self) -> dict[str, str]:
         return {
-            'issue': self.issue,
-            'pull_request_description': self.pull_request_description,
+            'issue': str(self.issue),
+            'pull_request_description': str(self.pull_request_description),
             'codebase': '\n'.join([
                 file_descriptor.filenames_and_contents_to_str()
                 for file_descriptor in self.selected_file_contents
             ]),
-            'commit': self.commit,
+            'commit': str(self.commit),
         }
 
     def trim_params(self) -> bool:
@@ -108,15 +108,6 @@ class RailCodegenAgent(CodegenAgentBase):
         # Get files
         files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)
 
-        # Serialize issue
-        issue_text = issue.to_str()
-
-        # Serialize pull request description
-        pr_text_description = pr_desc.to_str()
-
-        # Serialize current commit
-        commit_description = current_commit.to_str()
-
         # Grab relevant files
         relevant_filepaths = [f.filepath for f in current_commit.relevant_file_hunks]
         files_subset = []
@@ -142,10 +133,10 @@ class RailCodegenAgent(CodegenAgentBase):
 
         # Run NewDiff rail
         rail = NewDiff(
-            issue=issue_text,
-            pull_request_description=pr_text_description,
+            issue=issue,
+            pull_request_description=pr_desc,
             selected_file_contents=files_subset,
-            commit=commit_description,
+            commit=current_commit,
         )
         patch = self.rail_service.run_prompt_rail(rail)
         if patch is None or not isinstance(patch, Diff):
@@ -180,10 +171,10 @@ class RailCodegenAgent(CodegenAgentBase):
                 if f.end_chunk != len(f.chunks)
             ]
             rail = NewDiff(
-                issue=issue_text,
-                pull_request_description=pr_text_description,
+                issue=issue,
+                pull_request_description=pr_desc,
                 selected_file_contents=not_looked_at_files,
-                commit=commit_description,
+                commit=current_commit,
             )
             patch = self.rail_service.run_prompt_rail(rail)
             if patch is None or not isinstance(patch, Diff):

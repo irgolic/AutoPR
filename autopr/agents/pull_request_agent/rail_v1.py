@@ -60,13 +60,13 @@ If looking at files would be a waste of time with regard to the issue, let me kn
         'temperature': 0,
     }
 
-    issue: str
+    issue: Issue
     file_descriptors: list[FileDescriptor]
     token_limit: int
 
     def get_string_params(self) -> dict[str, str]:
         return {
-            'issue': self.issue,
+            'issue': str(self.issue),
             'filepaths_with_token_lengths': '\n'.join([
                 file_descriptor.filepaths_with_token_lengths_to_str()
                 for file_descriptor in self.file_descriptors
@@ -135,7 +135,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
         'temperature': 0.2,
     }
 
-    issue: str
+    issue: Issue
     selected_file_contents: list[FileDescriptor]
     prospective_file_descriptors: list[FileDescriptor]
     token_limit: int
@@ -147,7 +147,7 @@ If looking at files would be a waste of time with regard to the issue, let me kn
         )
 
         return {
-            'issue': self.issue,
+            'issue': str(self.issue),
             'codebase': '\n'.join([
                 file_descriptor.filenames_and_contents_to_str()
                 for file_descriptor in self.selected_file_contents
@@ -187,7 +187,7 @@ Also, let me know if we should take a look at any other files – our budget is 
         'temperature': 0.2,
     }
 
-    issue: str
+    issue: Issue
     notes: str
     selected_file_contents: list[FileDescriptor]
     prospective_file_descriptors: list[FileDescriptor]
@@ -200,7 +200,7 @@ Also, let me know if we should take a look at any other files – our budget is 
         )
 
         return {
-            'issue': self.issue,
+            'issue': str(self.issue),
             'notes': self.notes,
             'codebase': '\n'.join([
                 file_descriptor.filenames_and_contents_to_str()
@@ -236,7 +236,7 @@ Ensure you specify the files relevant to the commit, especially if the commit is
     }
 
     notes_taken_while_looking_at_files: str
-    issue: str
+    issue: Issue
 
 
 class RailPullRequestAgent(PullRequestAgentBase):
@@ -256,13 +256,13 @@ class RailPullRequestAgent(PullRequestAgentBase):
     def get_initial_filepaths(
         self,
         files: list[FileDescriptor],
-        issue_text: str,
+        issue: Issue,
     ) -> list[str]:
         self.log.debug('Getting filepaths to look at...')
 
         response = self.rail_service.run_prompt_rail(
             InitialFileSelect(
-                issue=issue_text,
+                issue=issue,
                 file_descriptors=files,
                 token_limit=self.file_context_token_limit
             )
@@ -280,7 +280,12 @@ class RailPullRequestAgent(PullRequestAgentBase):
 
         return real_filepaths
 
-    def write_notes_about_files(self, files: list[FileDescriptor], issue_text: str, filepaths: list[str]) -> str:
+    def write_notes_about_files(
+        self,
+        files: list[FileDescriptor],
+        issue: Issue,
+        filepaths: list[str]
+    ) -> str:
         self.log.debug('Looking at files...')
 
         file_contents = [
@@ -288,7 +293,7 @@ class RailPullRequestAgent(PullRequestAgentBase):
             if f.path in filepaths
         ]
         rail = LookAtFiles(
-            issue=issue_text,
+            issue=issue,
             selected_file_contents=file_contents,
             prospective_file_descriptors=[f.copy(deep=True) for f in files],
             token_limit=self.file_context_token_limit,
@@ -329,7 +334,7 @@ class RailPullRequestAgent(PullRequestAgentBase):
                 self.log.debug(f' - {fp}')
 
             rail = ContinueLookingAtFiles(
-                issue=issue_text,
+                issue=issue,
                 notes=notes,
                 selected_file_contents=file_contents,
                 prospective_file_descriptors=rail._filtered_prospective_file_descriptors,
@@ -344,11 +349,11 @@ class RailPullRequestAgent(PullRequestAgentBase):
 
         return notes
 
-    def propose_pull_request(self, issue_text: str, notes: str) -> PullRequestDescription:
+    def propose_pull_request(self, issue: Issue, notes: str) -> PullRequestDescription:
         self.log.debug('Getting commit messages...')
         pr_desc = self.rail_service.run_prompt_rail(
             ProposePullRequest(
-                issue=issue_text,
+                issue=issue,
                 notes_taken_while_looking_at_files=notes,
             )
         )
@@ -365,16 +370,13 @@ class RailPullRequestAgent(PullRequestAgentBase):
         # Get files
         files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)
 
-        # Serialize issue
-        issue_text = issue.to_str()
-
         # Get the filepaths to look at
-        filepaths = self.get_initial_filepaths(files, issue_text)
+        filepaths = self.get_initial_filepaths(files, issue)
 
         if filepaths:
             # Look at the files
-            notes = self.write_notes_about_files(files, issue_text, filepaths)
+            notes = self.write_notes_about_files(files, issue, filepaths)
         else:
             notes = "The repository's contents were irrelevant, only create new files to address the issue."
 
-        return self.propose_pull_request(issue_text, notes)
+        return self.propose_pull_request(issue, notes)
