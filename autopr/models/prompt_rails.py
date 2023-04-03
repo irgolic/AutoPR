@@ -10,6 +10,7 @@ log = structlog.get_logger()
 
 
 class PromptRail(pydantic.BaseModel):
+    two_step: ClassVar[bool] = True
     prompt_spec: ClassVar[str] = ''
     extra_params: ClassVar[dict[str, Any]] = {}
     output_type: ClassVar[typing.Type[RailObject]]

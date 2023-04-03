@@ -91,11 +91,12 @@ class RailService:
             token_length = self.calculate_prompt_length(rail)
 
         prompt = self.get_prompt_message(rail)
-        raw_response = self.completions_repo.complete(
-            prompt=prompt,
-            system_prompt=self.raw_system_prompt,
-        )
-        return self.run_rail_object(rail.output_type, raw_response)
+        if rail.two_step:
+            prompt = self.completions_repo.complete(
+                prompt=prompt,
+                system_prompt=self.raw_system_prompt,
+            )
+        return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod
     def get_prompt_message(rail: PromptRail):
