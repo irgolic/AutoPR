@@ -1,14 +1,6 @@
 from typing import Callable, Any, Optional, TypeVar, Type
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential, retry_if_exception_type,
-)  # for exponential backoff
 
-import openai
-import openai.error
 import pydantic
-import transformers
 
 import guardrails as gr
 from autopr.models.rail_objects import RailObject
@@ -16,7 +8,7 @@ from autopr.models.prompt_rails import PromptRail
 
 import structlog
 
-from autopr.utils import tokenizer
+from autopr.repos.completions_repo import CompletionsRepo
 
 log = structlog.get_logger()
 
@@ -26,84 +18,47 @@ T = TypeVar('T', bound=RailObject)
 class RailService:
     def __init__(
         self,
-        max_tokens: int = 2000,
+        completions_repo: CompletionsRepo,
         min_tokens: int = 1000,
         context_limit: int = 8192,
-        completion_func: Callable = openai.ChatCompletion.create,
-        completion_model: str = 'gpt-4',
         num_reasks: int = 2,
         temperature: float = 0.8,
-        system_prompt: str = 'You are a software developer and git nerd, a helpful planning and coding assistant.',
+        raw_system_prompt: str = 'You are a software developer and git nerd, a helpful planning and coding assistant.',
+        rail_system_prompt: str = "You are a helpful assistant, "
+                                  "able to express yourself purely through JSON, "
+                                  "strictly and precisely adhering to the provided XML schemas.",
     ):
-        self.max_tokens = max_tokens
+        self.completions_repo = completions_repo
         self.min_tokens = min_tokens
         self.context_limit = context_limit
-        self.completion_func = completion_func
-        self.completion_model = completion_model
         self.num_reasks = num_reasks
         self.temperature = temperature
-        self.raw_system_prompt = system_prompt
-        self.tokenizer = tokenizer.get_tokenizer(max_tokens)
+        self.raw_system_prompt = raw_system_prompt
+        self.rail_system_prompt = rail_system_prompt
 
-    @retry(
-        retry=retry_if_exception_type(openai.error.OpenAIError),
-        wait=wait_random_exponential(min=1, max=60),
-        stop=stop_after_attempt(6)
-    )
-    def run_raw(self, prompt: str) -> str:
-        length = len(self.tokenizer.encode(prompt))
-        max_tokens = min(self.max_tokens, self.context_limit - length)
-
-        log.debug('Running raw completion', prompt=prompt)
-        if self.completion_func == openai.Completion.create:
-            response = self.completion_func(
-                model=self.completion_model,
-                max_tokens=max_tokens,
-                temperature=self.temperature,
-                prompt=prompt,
-            )
-            content = response['choices'][0]['text']
-        else:
-            response = self.completion_func(
-                model=self.completion_model,
-                max_tokens=max_tokens,
-                temperature=self.temperature,
-                messages=[
-                    {"role": "system", "content": self.raw_system_prompt},
-                    {"role": "user", "content": prompt},
-                ]
-            )
-            content = response['choices'][0]['message']['content']
-        log.info('Ran raw completion', response=response)
-        return content
-
-    @retry(
-        retry=retry_if_exception_type(gr.llm_providers.PromptCallableException),
-        wait=wait_random_exponential(min=1, max=60),
-        stop=stop_after_attempt(6)
-    )
     def run_rail_object(self, rail_object: Type[T], raw_document: str) -> Optional[T]:
+        def completion_func(prompt: str):
+            return self.completions_repo.complete(
+                prompt=prompt,
+                system_prompt=self.rail_system_prompt,
+                temperature=self.temperature,
+            )
+
         rail_spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
-        length = self.calculate_rail_length(rail_object, raw_document)
-        max_tokens = min(self.max_tokens, self.context_limit - length)
-        options = {
-            'model': self.completion_model,
-            'max_tokens': max_tokens,
-            'temperature': self.temperature,
-            'prompt_params': {
-                'raw_document': raw_document,
-            },
-        }
 
-        rail_prompt = self.get_rail_message(rail_object, raw_document)
         log.debug('Running rail',
                   rail_object=rail_object.__name__,
-                  rail_message=rail_prompt)
-        raw_o, dict_o = pr_guard(self.completion_func, **options)
+                  rail_message=self.get_rail_message(rail_object, raw_document))
+        raw_o, dict_o = pr_guard(
+            completion_func,
+            prompt_params={
+                'raw_document': raw_document,
+            },
+        )
         log.debug('Ran rail',
                   rail_object=rail_object.__name__,
                   raw_output=raw_o,
@@ -136,7 +91,10 @@ class RailService:
             token_length = self.calculate_prompt_length(rail)
 
         prompt = self.get_prompt_message(rail)
-        raw_response = self.run_raw(prompt)
+        raw_response = self.completions_repo.complete(
+            prompt=prompt,
+            system_prompt=self.raw_system_prompt,
+        )
         return self.run_rail_object(rail.output_type, raw_response)
 
     @staticmethod
@@ -153,8 +111,8 @@ class RailService:
 
     def calculate_prompt_length(self, rail: PromptRail) -> int:
         prompt = self.get_prompt_message(rail)
-        return len(self.tokenizer.encode(prompt))
+        return len(self.completions_repo.tokenizer.encode(prompt))
 
     def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:
         rail_message = self.get_rail_message(rail_object, raw_document)
-        return len(self.tokenizer.encode(rail_message))
+        return len(self.completions_repo.tokenizer.encode(rail_message))
