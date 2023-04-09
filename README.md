@@ -12,7 +12,7 @@ Built with [Guardrails](https://github.com/ShreyaR/guardrails).
 
 ## 💪 How does it work?
 
-The action triggers when a collaborator uses `🚀` in an issue.
+The action triggers when a collaborator adds an "AutoPR" label to an issue.
 
 1. We ask the model what files in the repo are relevant to the issue
 2. We iteratively show it files, and ask it to write down notes about them
