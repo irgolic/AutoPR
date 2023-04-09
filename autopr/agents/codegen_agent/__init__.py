@@ -9,8 +9,12 @@ from .base import CodegenAgentBase
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
 
-modules = glob.glob(join(dirname(__file__), "*.py"))
-__all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
+file_modules = glob.glob(join(dirname(__file__), "*.py"))
+file_basenames = [basename(f)[:-3] for f in file_modules if isfile(f) and not f.endswith('__init__.py')]
+directory_module_inits = glob.glob(join(dirname(__file__), "*", "__init__.py"))
+directory_modules = [dirname(f) for f in directory_module_inits]
+directory_module_basenames = [basename(f) for f in directory_modules]
+__all__ = file_basenames + directory_module_basenames
 from . import *
 
 CodegenAgent: TypeAlias = Union[tuple(CodegenAgentBase.__subclasses__())]  # type: ignore
