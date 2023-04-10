@@ -4,7 +4,6 @@ from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan
-from autopr.models.prompt_rails import FileDescriptor
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
 

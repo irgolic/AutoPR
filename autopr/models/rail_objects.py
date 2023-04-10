@@ -27,101 +27,6 @@ class RailObject(pydantic.BaseModel):
 """
 
 
-class InitialFileSelectResponse(RailObject):
-    output_spec = """<list name="filepaths">
-    <string
-        description="Files in this repository that we should look at."
-        format="filepath"
-        on-fail="noop"
-    />
-</list>"""
-
-    filepaths: List[str]
-
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_spec}
-</output>
-<prompt>
-```
-{{{{raw_document}}}}
-```
-
-If looking at files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
-
-class LookAtFilesResponse(RailObject):
-    output_spec = """<string 
-    name="notes" 
-    description="Notes relevant to solving the issue, that we will use to plan our code commits." 
-    length="1 1000"
-    on-fail="noop" 
-/>
-<list name="filepaths_we_should_look_at">
-    <string
-        description="The paths to files we should look at next in the repo. Drop any files that are a waste of time with regard to the issue."
-        format="filepath"
-        on-fail="noop"
-    />
-</list>"""
-
-    filepaths_we_should_look_at: Optional[List[str]] = None
-    notes: str
-
-    @classmethod
-    def get_rail_spec(cls):
-        return f"""
-<rail version="0.1">
-<output>
-{cls.output_spec}
-</output>
-<prompt>
-```
-{{{{raw_document}}}}
-```
-
-If looking at files would be a waste of time, please submit an empty list.
-
-@complete_json_suffix_v2
-</prompt>
-</rail>
-"""
-
-
-class Diff(RailObject):
-    output_spec = """<string
-    name="diff"
-    description="The diff of the commit, in unified format (unidiff), as output by `diff -u`. Changes shown in hunk format, with headers akin to `--- filename\n+++ filename\n@@ .,. @@`."
-    required="false"
-    format="unidiff"
-/>"""
-
-    diff: Optional[DiffStr] = None
-
-
-class Commit(RailObject):
-    # TODO use this instead of Diff, to get a message describing the changes
-    output_spec = f"""{Diff.output_spec}
-<string
-    name="message"
-    description="The commit message, describing the changes."
-    required="true"
-    format="length: 5 72"
-    on-fail-length="noop"
-/>"""
-
-    diff: Diff
-    commit_message: str
-
-
 class FileHunk(RailObject):
     output_spec = """<string
     name="filepath"
@@ -148,7 +53,7 @@ class FileHunk(RailObject):
     start_line: Optional[int] = None
     end_line: Optional[int] = None
 
-    def to_str(self) -> str:
+    def __str__(self):
         s = self.filepath
         if self.start_line is not None:
             s += f":L{self.start_line}"
@@ -183,7 +88,7 @@ class CommitPlan(RailObject):
     relevant_file_hunks: List[FileHunk] = pydantic.Field(default_factory=list)
     commit_changes_description: str
 
-    def to_str(self):
+    def __str__(self):
         return self.commit_message + '\n\n' + self.commit_changes_description
 
 
@@ -210,7 +115,7 @@ class PullRequestDescription(RailObject):
     body: str
     commits: list[CommitPlan]
 
-    def to_str(self):
+    def __str__(self):
         pr_text_description = f"Title: {self.title}\n\n{self.body}\n\n"
         for i, commit_plan in enumerate(self.commits):
             prefix = f" {' ' * len(str(i + 1))}  "
@@ -218,11 +123,8 @@ class PullRequestDescription(RailObject):
             pr_text_description += (
                 f"{str(i + 1)}. Commit: {commit_plan.commit_message}\n"
                 f"{prefix}Files: "
-                f"{', '.join([fh.to_str() for fh in commit_plan.relevant_file_hunks])}\n"
+                f"{', '.join([str(fh) for fh in commit_plan.relevant_file_hunks])}\n"
                 f"{prefix}Changes:"
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )
         return pr_text_description
-
-
-RailObjectUnion: TypeAlias = Union[tuple(RailObject.__subclasses__())]  # type: ignore

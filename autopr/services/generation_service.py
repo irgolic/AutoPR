@@ -1,16 +1,8 @@
-import tempfile
-from typing import Callable, Union
+from typing import Union
 
 from git.repo import Repo
-import pydantic
-import transformers
-from git import Tree
 
 from autopr.models.artifacts import Issue
-from autopr.models.rail_objects import PullRequestDescription, InitialFileSelectResponse, LookAtFilesResponse, \
-    Diff, CommitPlan
-from autopr.models.prompt_rails import InitialFileSelect, ContinueLookingAtFiles, LookAtFiles, ProposePullRequest, \
-    NewDiff, FileDescriptor
 from .commit_service import CommitService
 from .publish_service import PublishService
 from .rail_service import RailService

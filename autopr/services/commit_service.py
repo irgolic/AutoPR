@@ -41,7 +41,7 @@ class CommitService:
         # Checkout new branch
         self.repo.heads[self.branch_name].checkout()
 
-    def commit(self, commit: CommitPlan, diff: DiffStr) -> None:
+    def commit(self, commit: CommitPlan, diff: DiffStr, push: bool = True) -> None:
         # Apply diff
         self.diff_service.apply_diff(diff)
 
@@ -57,5 +57,6 @@ class CommitService:
         self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.commit_message])
 
         # Push branch to remote
-        log.debug(f'Pushing branch {self.branch_name} to remote...')
-        self.repo.git.execute(["git", "push", "-f", "origin", self.branch_name])
+        if push:
+            log.debug(f'Pushing branch {self.branch_name} to remote...')
+            self.repo.git.execute(["git", "push", "-f", "origin", self.branch_name])

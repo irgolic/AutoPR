@@ -1,14 +1,16 @@
-import typing
-
 import pytest
 import guardrails as gr
 
-from autopr.models.rail_objects import RailObjectUnion
+from autopr.models.rail_objects import RailObject
+
+# Make sure to import these, so all rail objects initialize
+import autopr.agents.codegen_agent
+import autopr.agents.pull_request_agent
 
 
 @pytest.mark.parametrize(
     "rail_type",
-    typing.get_args(RailObjectUnion)
+    RailObject.__subclasses__()
 )
 def test_guardrails_spec_validity(rail_type):
     """Test that all guardrails specs are valid."""

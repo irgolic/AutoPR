@@ -11,7 +11,7 @@ import pydantic
 import transformers
 
 import guardrails as gr
-from autopr.models.rail_objects import RailObjectUnion, RailObject
+from autopr.models.rail_objects import RailObject
 from autopr.models.prompt_rails import PromptRail
 
 import structlog

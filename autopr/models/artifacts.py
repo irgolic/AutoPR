@@ -8,15 +8,15 @@ class Message(pydantic.BaseModel):
     body: str
     author: str
 
-    def to_str(self):
+    def __str__(self):
         return f"{self.author}: {self.body}\n\n"
 
 
 class Thread(pydantic.BaseModel):
     messages: list[Message]
 
-    def to_str(self):
-        return "\n".join(message.to_str() for message in self.messages)
+    def __str__(self):
+        return "\n".join(str(message) for message in self.messages)
 
 
 class Issue(Thread):
@@ -24,10 +24,8 @@ class Issue(Thread):
     title: str
     author: str
 
-    def to_str(self):
-        return f"#{self.number} {self.title}\n\n" + "\n".join(
-            message.to_str() for message in self.messages
-        )
+    def __str__(self):
+        return f"#{self.number} {self.title}\n\n" + super().__str__()
 
 
 DiffStr: TypeAlias = str
