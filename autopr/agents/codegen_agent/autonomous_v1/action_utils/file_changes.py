@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 import pydantic
 
@@ -17,27 +18,32 @@ class GeneratedFileHunk(pydantic.BaseModel):
 
 
 class GeneratedHunkOutputParser(BaseOutputParser):
-    def parse(self, output: str) -> GeneratedFileHunk:
+    def parse(self, output: str) -> Optional[GeneratedFileHunk]:
         output_lines = output.split("\n")
 
-        # Filter through the output until the first ``` is found
-        while not output_lines[0].startswith("```"):
-            output_lines.pop(0)
-        output_lines.pop(0)
-
-        # Until the next ``` is found, keep adding lines
-        lines = []
-        while not output_lines[0].startswith("```"):
-            line = output_lines.pop(0)
-            lines.append(line)
-        output_lines.pop(0)
-        code = "\n".join(lines)
-
-        # The next lines should be the JSON
         try:
-            outcome = json.loads("\n".join(output_lines))["outcome"]
-        except json.JSONDecodeError:
-            outcome = ""
+            # Filter through the output until the first ``` is found
+            while not output_lines[0].startswith("```"):
+                output_lines.pop(0)
+            output_lines.pop(0)
+
+            # Until the next ``` is found, keep adding lines
+            lines = []
+            while not output_lines[0].startswith("```"):
+                line = output_lines.pop(0)
+                lines.append(line)
+
+            output_lines.pop(0)
+            code = "\n".join(lines)
+
+            # The next lines should be the JSON
+            try:
+                outcome = json.loads("\n".join(output_lines))["outcome"]
+            except json.JSONDecodeError:
+                outcome = ""
+        except:
+            # TODO reask to fix the output
+            return None
         return GeneratedFileHunk(
             contents=code,
             outcome=outcome,

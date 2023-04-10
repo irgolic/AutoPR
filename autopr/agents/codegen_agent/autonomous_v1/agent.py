@@ -118,7 +118,10 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             context_hunks=context,
             plan=new_file_action.description,
         )
-        new_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(new_file_chain)
+        new_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(new_file_chain)
+        if new_file_hunk is None:
+            self.log.error("Failed to generate new file")
+            return "Failed to generate new file"
 
         # Write file
         path = os.path.join(repo_path, filepath)
@@ -185,7 +188,10 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             hunk_contents=code_hunk,
             plan=edit_file_action.description,
         )
-        edit_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(edit_file_chain)
+        edit_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(edit_file_chain)
+        if edit_file_hunk is None:
+            self.log.error("Failed to edit file")
+            return "Failed to edit file"
 
         # Get the new lines
         new_lines = edit_file_hunk.contents.splitlines()
