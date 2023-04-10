@@ -133,7 +133,7 @@ class OpenAICompletionsRepo(CompletionsRepo):
     def __init__(
         self,
         api_key: str = os.environ.get("OPENAI_API_KEY"),
-        model: str = 'davinci',
+        model: str = 'text-davinci-003',
         *args,
         **kwargs,
     ):
