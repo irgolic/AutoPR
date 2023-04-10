@@ -49,8 +49,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         with open(path, 'r') as f:
             lines = f.read().splitlines()
         code_hunk: list[tuple[int, str]] = []
+
+        # Get and limit line numbers
         start_line = start_line or 1
+        start_line = min(max(start_line, 1), len(lines))
         end_line = end_line or len(lines)
+        end_line = min(max(end_line, 1), len(lines))
+        end_line = max(start_line, end_line)
+
         for line_num in range(start_line, end_line + 1):
             code_hunk.append((line_num, lines[line_num - 1]))
         return code_hunk
@@ -173,6 +179,10 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             )
             indent = 0
         else:
+            # Limit line numbers
+            start_line, end_line = min(max(start_line, 1), len(lines)), min(max(end_line, 1), len(lines))
+            end_line = max(start_line, end_line)
+
             code_hunk_lines: list[tuple[int, str]] = []
             context_start_line = max(1, start_line - self.context_size)
             context_end_line = min(len(lines), end_line + self.context_size)
@@ -218,7 +228,10 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         ]
 
         # Replace lines in file
-        lines = lines[:start_line - 1] + new_lines + lines[end_line:]
+        if start_line is not None and end_line is not None:
+            lines = lines[:start_line - 1] + new_lines + lines[end_line:]
+        else:
+            lines = new_lines
 
         # Write file
         path = os.path.join(repo_path, filepath)
