@@ -123,6 +123,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             self.log.error("Failed to generate new file")
             return "Failed to generate new file"
 
+        # Create dirs
+        dirpath = os.path.dirname(filepath)
+        os.makedirs(dirpath, exist_ok=True)
         # Write file
         path = os.path.join(repo_path, filepath)
         with open(path, "w") as f:
