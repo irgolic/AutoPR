@@ -4,6 +4,7 @@ from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan
+from autopr.services.chain_service import ChainService
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
 
@@ -16,11 +17,13 @@ class CodegenAgentBase:
     def __init__(
         self,
         rail_service: RailService,
+        chain_service: ChainService,
         diff_service: DiffService,
         repo: Repo,
         **kwargs,
     ):
         self.rail_service = rail_service
+        self.chain_service = chain_service
         self.diff_service = diff_service
         self.repo = repo
 
