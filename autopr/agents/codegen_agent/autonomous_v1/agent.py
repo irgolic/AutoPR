@@ -152,6 +152,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             code_hunk = ContextCodeHunk(
                 code_hunk=[],
             )
+            indent = 0
         else:
             code_hunk_lines: list[tuple[int, str]] = []
             context_start_line = max(1, start_line - self.context_size)
@@ -162,6 +163,16 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             code_hunk = ContextCodeHunk(
                 code_hunk=code_hunk_lines,
                 highlight_line_numbers=highlight_line_nums,
+            )
+
+            # Find the indentation common to all highlighted lines in the hunk
+            highlighed_lines = [
+                lines[line_num - 1]
+                for line_num in highlight_line_nums
+            ]
+            indent = min(
+                len(line) - len(line.lstrip())
+                for line in highlighed_lines
             )
 
         # Run edit file langchain
@@ -175,8 +186,16 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         )
         edit_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(edit_file_chain)
 
-        # Replace lines in file
+        # Get the new lines
         new_lines = edit_file_hunk.contents.splitlines()
+
+        # Add indentation to new lines
+        new_lines = [
+            " " * indent + line
+            for line in new_lines
+        ]
+
+        # Replace lines in file
         lines = lines[:start_line - 1] + new_lines + lines[end_line:]
 
         # Write file

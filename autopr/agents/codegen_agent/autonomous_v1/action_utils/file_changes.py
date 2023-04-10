@@ -132,12 +132,12 @@ This is the plan for how we want to rewrite the hunk:
 {{plan}}
 ```
     
-Please rewrite the hunk to match the plan, but do not include any lines prefixed with | in the result. Preserve the correct leading indentation of the lines.
+Please rewrite the hunk to match the plan, but do not include any lines prefixed with | in the result.
 
 RULES:
 - ONLY rewrite the lines prefixed with *, 
 - submit only the lines without the * prefix,
-- preserve the correct leading indentation of the lines.
+- do not preserve the relative leading indentation of the lines (start the hunk's indentation at 0).
     
 {{format_instructions}}"""
 
