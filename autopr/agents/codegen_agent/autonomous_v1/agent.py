@@ -148,7 +148,8 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 filepath=edit_file_action.filepath,
                 description=edit_file_action.description,
             )
-            return self._create_new_file(repo, issue, pr_desc, current_commit, context, create_file_action)
+            effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, create_file_action)
+            return "File does not exist, creating instead: " + effect
 
         # Grab file contents
         with open(filepath, "r") as f:
