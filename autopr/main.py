@@ -95,7 +95,13 @@ def main(
     chain_service = ChainService(
         completions_repo=completions_repo,
     )
-    diff_service = PatchService(repo=repo)
+
+    # auto-v1 generates diffs with `git diff`, so use that
+    if settings.codegen_agent_id == 'auto-v1':
+        diff_service = GitApplyService(repo=repo)
+    else:
+        diff_service = PatchService(repo=repo)
+
     codegen_agent = get_codegen_agent(
         codegen_agent_id=settings.codegen_agent_id,
         rail_service=rail_service,

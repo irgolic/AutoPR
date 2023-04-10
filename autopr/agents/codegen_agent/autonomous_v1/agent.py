@@ -210,6 +210,15 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         self,
         repo: Repo,
     ) -> DiffStr:
+        repo_path = repo.working_tree_dir
+        assert repo_path is not None
+        # Remove guardrails log if exists (so it's not committed later)
+        if 'guardrails.log' in self.repo.untracked_files:
+            self.log.debug('Removing guardrails.log...')
+            os.remove(
+                os.path.join(repo_path, 'guardrails.log')
+            )
+
         repo.git.add("-A")
         # Get diff between HEAD and working tree, including untracked files
         diff = repo.git.diff("HEAD", "--staged")
