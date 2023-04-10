@@ -27,18 +27,19 @@ class GeneratedHunkOutputParser(BaseOutputParser):
                 output_lines.pop(0)
             output_lines.pop(0)
 
-            # Until the next ``` is found, keep adding lines
-            lines = []
-            while not output_lines[0].startswith("```"):
-                line = output_lines.pop(0)
-                lines.append(line)
+            # Find the last ``` line
+            reversed_lines = output_lines[::-1]
+            while not reversed_lines[0].startswith("```"):
+                reversed_lines.pop(0)
+            reversed_lines.pop(0)
+            lines = reversed_lines[::-1]
 
-            output_lines.pop(0)
             code = "\n".join(lines)
 
-            # The next lines should be the JSON
+            # Retrieve the JSON
+            json_lines = output_lines[len(lines) + 1:]
             try:
-                outcome = json.loads("\n".join(output_lines))["outcome"]
+                outcome = json.loads("\n".join(json_lines))["outcome"]
             except json.JSONDecodeError:
                 outcome = ""
         except:
