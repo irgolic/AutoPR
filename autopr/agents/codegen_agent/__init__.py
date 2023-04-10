@@ -8,6 +8,7 @@ from git.repo import Repo
 from .base import CodegenAgentBase
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
+from ...services.chain_service import ChainService
 
 file_modules = glob.glob(join(dirname(__file__), "*.py"))
 file_basenames = [basename(f)[:-3] for f in file_modules if isfile(f) and not f.endswith('__init__.py')]
@@ -23,6 +24,7 @@ CodegenAgent: TypeAlias = Union[tuple(CodegenAgentBase.__subclasses__())]  # typ
 def get_codegen_agent(
     codegen_agent_id: str,
     rail_service: RailService,
+    chain_service: ChainService,
     diff_service: DiffService,
     repo: Repo,
     extra_params: Optional[dict[str, Any]] = None,
@@ -33,6 +35,7 @@ def get_codegen_agent(
         if service.id == codegen_agent_id:
             return service(
                 rail_service=rail_service,
+                chain_service=chain_service,
                 diff_service=diff_service,
                 repo=repo,
                 **extra_params

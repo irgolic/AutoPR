@@ -1,10 +1,11 @@
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 import structlog
-from langchain.chat_models.base import BaseChatModel
-from langchain.llms import BaseLLM
+from langchain.llms.base import BaseLLM
 
-from langchain.schema import BaseOutputParser, BaseMessage, PromptValue
+from langchain.chat_models.base import BaseChatModel
+
+from langchain.schema import BaseOutputParser, PromptValue
 
 from autopr.models.prompt_chains import PromptChain
 from autopr.repos.completions_repo import CompletionsRepo
@@ -21,21 +22,22 @@ class ChainService:
         # TODO find a better way to integrate completions repo with langchain
         #   can we make a BaseLanguageModel that takes a completions repo?
         #   or should we replace completions repo with BaseLanguageModel?
+        self.model: Union[BaseChatModel, BaseLLM]
         if completions_repo.model in [
             "gpt-4",
             "gpt-3.5-turbo"
         ]:
-            self.model: BaseChatModel = ChatOpenAI(
+            self.model = ChatOpenAI(
                 model_name=completions_repo.model,
                 temperature=completions_repo.temperature,
                 max_tokens=completions_repo.max_tokens,
-            )
+            )  # type: ignore
         elif completions_repo.model == "text-davinci-003":
-            self.model: BaseLLM = OpenAI(
+            self.model = OpenAI(
                 model_name=completions_repo.model,
                 temperature=completions_repo.temperature,
                 max_tokens=completions_repo.max_tokens,
-            )
+            )  # type: ignore
         else:
             raise ValueError(f"Unsupported model {completions_repo.model}")
 
@@ -49,12 +51,12 @@ class ChainService:
     def _get_model_template(
         self,
         chain: PromptChain,
-        parser: BaseOutputParser,
+        parser: Optional[BaseOutputParser],
     ) -> PromptValue:
         variables = dict(chain.get_string_params())
         variable_names = list(variables.keys())
         partial_variables = {}
-        if chain.output_parser is not None:
+        if parser is not None:
             partial_variables["format_instructions"] = parser.get_format_instructions()
 
         if isinstance(self.model, BaseChatModel):
@@ -80,11 +82,15 @@ class ChainService:
             return self.model(template.to_string())
 
     def run_chain(self, chain: PromptChain) -> Any:
-        parser = chain.output_parser()
+        if chain.output_parser:
+            parser = chain.output_parser()
+        else:
+            parser = None
         prompt_value = self._get_model_template(chain, parser)
         self.log.info("Running chain", prompt=prompt_value.to_string())
         output = self._run_model(prompt_value)
         self.log.info("Got result", result=output)
-        parsed_output = parser.parse(output)
-        self.log.info("Parsed result", result=parsed_output)
-        return parsed_output
+        if parser is not None:
+            output = parser.parse(output)
+            self.log.info("Parsed result", result=output)
+        return output

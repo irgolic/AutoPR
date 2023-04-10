@@ -107,6 +107,7 @@ def main(
     pull_request_agent = get_pull_request_agent(
         pull_request_agent_id=settings.pull_request_agent_id,
         rail_service=rail_service,
+        chain_service=chain_service,
         extra_params=settings.pull_request_agent_config,
     )
     commit_service = CommitService(

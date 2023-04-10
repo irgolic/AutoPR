@@ -2,9 +2,7 @@ import os
 import tempfile
 from collections import defaultdict
 from typing import Optional
-
-import git
-from git import Repo, Tree
+from git.repo import Repo
 
 from autopr.agents.codegen_agent import CodegenAgentBase
 from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
@@ -42,6 +40,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         end_line: Optional[int] = None,
     ) -> Optional[list[tuple[int, str]]]:
         working_dir = repo.working_tree_dir
+        assert working_dir is not None
         path = os.path.join(working_dir, filepath)
         if not os.path.exists(path):
             self.log.error(f"File {filepath} not in repo")
@@ -105,6 +104,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
     ) -> str:
         # Check if file exists
         repo_path = repo.working_tree_dir
+        assert repo_path is not None
         filepath = os.path.join(repo_path, new_file_action.filepath)
         if os.path.exists(filepath):
             self.log.warning("File already exists, skipping", filepath=filepath)
@@ -121,7 +121,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         new_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(new_file_chain)
 
         # Write file
-        path = os.path.join(repo.working_tree_dir, filepath)
+        path = os.path.join(repo_path, filepath)
         with open(path, "w") as f:
             f.write(new_file_hunk.contents)
         return new_file_hunk.outcome
@@ -137,6 +137,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
     ) -> str:
         # Check if file exists
         repo_path = repo.working_tree_dir
+        assert repo_path
         filepath = os.path.join(repo_path, edit_file_action.filepath)
         if not os.path.exists(filepath):
             self.log.warning("File does not exist", filepath=filepath)
@@ -199,7 +200,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         lines = lines[:start_line - 1] + new_lines + lines[end_line:]
 
         # Write file
-        path = os.path.join(repo.working_tree_dir, filepath)
+        path = os.path.join(repo_path, filepath)
         with open(path, "w") as f:
             f.write("\n".join(lines))
 
@@ -238,16 +239,22 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 context_hunks=context,
                 past_actions=actions_history,
             )
-            action: Optional[Action] = self.rail_service.run_prompt_rail(action_rail)
-            if action is None:
+            action = self.rail_service.run_prompt_rail(action_rail)
+            if action is None or not isinstance(action, Action):
                 self.log.error("Action choice failed")
                 break
 
             # Run action
             if action.action == "new_file":
+                if action.new_file is None:
+                    self.log.error("No new file action")
+                    break
                 action_obj = action.new_file
                 effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, action_obj)
             elif action.action == "edit_file":
+                if action.edit_file is None:
+                    self.log.error("No edit file action")
+                    break
                 action_obj = action.edit_file
                 effect = self._edit_existing_file(repo, issue, pr_desc, current_commit, context, action_obj)
             elif action.action == "finished":
@@ -334,13 +341,15 @@ if __name__ == '__main__':
     # make tmpdir
     with tempfile.TemporaryDirectory() as tmpdir:
         # init repo
-        repo = git.Repo.init(tmpdir)
+        repo = Repo.init(tmpdir)
         # create branch
         repo.git.checkout("-b", "main")
         # create commit
         repo.git.commit("--allow-empty", "-m", "Initial commit")
 
-        completions_repo = OpenAIChatCompletionsRepo()
+        completions_repo = OpenAIChatCompletionsRepo(
+            model="gpt-4",
+        )
         rail_service = RailService(
             completions_repo=completions_repo,
         )

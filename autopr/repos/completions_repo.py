@@ -1,7 +1,7 @@
-import os
 from typing import Optional
 
 import openai
+import openai.error
 import structlog
 from tenacity import retry, retry_if_exception_type, wait_random_exponential, stop_after_attempt
 
@@ -9,7 +9,7 @@ from autopr.utils import tokenizer
 
 
 class CompletionsRepo:
-    models: str
+    models: list[str]
 
     def __init__(
         self,
@@ -33,7 +33,7 @@ class CompletionsRepo:
         prompt: str,
         system_prompt: Optional[str] = None,
         examples: Optional[list[tuple[str, str]]] = None,
-        temperature: float = 0.8,
+        temperature: Optional[float] = None,
     ) -> str:
         log = self.log.bind(
             model=self.model,
@@ -43,6 +43,8 @@ class CompletionsRepo:
             examples = []
         if system_prompt is None:
             system_prompt = "You are a helpful assistant."
+        if temperature is None:
+            temperature = self.temperature
 
         length = len(self.tokenizer.encode(prompt))
         max_tokens = min(self.max_tokens, self.context_limit - length)
@@ -80,16 +82,6 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
         'gpt-3.5-turbo',
     ]
 
-    def __init__(
-        self,
-        api_key: str = os.environ.get("OPENAI_API_KEY"),
-        model: str = 'gpt-4',
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, model=model, **kwargs)
-        self.api_key = api_key
-
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
         wait=wait_random_exponential(min=1, max=60),
@@ -112,12 +104,17 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
         messages.append({"role": "user", "content": prompt})
 
         openai_response = openai.ChatCompletion.create(
-            api_key=self.api_key,
             model=self.model,
             messages=messages,
-            temperature=self.temperature,
+            temperature=temperature,
             max_tokens=max_tokens,
         )
+        if openai_response is None or not isinstance(openai_response, dict):
+            self.log.error(
+                "OpenAI chat completion returned invalid response",
+                openai_response=openai_response,
+            )
+            return ""
         self.log.info(
             "Ran OpenAI chat completion",
             openai_response=openai_response,
@@ -129,16 +126,6 @@ class OpenAICompletionsRepo(CompletionsRepo):
     models = [
         'text-davinci-003',
     ]
-
-    def __init__(
-        self,
-        api_key: str = os.environ.get("OPENAI_API_KEY"),
-        model: str = 'text-davinci-003',
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, model=model, **kwargs)
-        self.api_key = api_key
 
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
@@ -159,14 +146,39 @@ class OpenAICompletionsRepo(CompletionsRepo):
         prompt += f"\n\n{prompt}"
 
         openai_response = openai.Completion.create(
-            api_key=self.api_key,
             model=self.model,
             prompt=prompt,
-            temperature=self.temperature,
+            temperature=temperature,
             max_tokens=max_tokens,
         )
         self.log.info(
             "Ran OpenAI completion",
             openai_response=openai_response,
         )
+        if openai_response is None or not isinstance(openai_response, dict):
+            self.log.error(
+                "OpenAI chat completion returned invalid response",
+                openai_response=openai_response,
+            )
+            return ""
         return openai_response["choices"][0]["text"]
+
+
+def get_completions_repo(
+    model: str = "gpt-4",
+    max_tokens: int = 2000,
+    min_tokens: int = 1000,
+    context_limit: int = 8192,
+    temperature: float = 0.8,
+):
+    repo_implementations = CompletionsRepo.__subclasses__()
+    for repo_implementation in repo_implementations:
+        if model in repo_implementation.models:
+            return repo_implementation(
+                model=model,
+                max_tokens=max_tokens,
+                min_tokens=min_tokens,
+                context_limit=context_limit,
+                temperature=temperature,
+            )
+    raise ValueError(f"Model {model} not implemented")
