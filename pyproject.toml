@@ -17,6 +17,7 @@ structlog = "^22.3.0"
 tenacity = "^8.2.2"
 pathspec = "^0.11.1"
 langchain = "^0.0.136"
+pyyaml = "^6.0"
 
 [tool.poetry.group.test.dependencies]
 pyright = "^1.1.300"
