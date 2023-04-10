@@ -115,6 +115,10 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         if os.path.exists(filepath):
             self.log.warning("File already exists, skipping", filepath=filepath)
             return "File already exists, skipping"
+        # Check if filename is a directory (doesnt exist yet)
+        if os.path.basename(filepath) == "":
+            self.log.warning("File is a directory, skipping", filepath=filepath)
+            return "Filepath is a directory, skipping. Directories will be created automatically."
 
         # Run new file langchain
         new_file_chain = NewFileChain(
