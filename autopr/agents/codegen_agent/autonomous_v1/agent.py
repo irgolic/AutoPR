@@ -10,7 +10,7 @@ from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import 
 from autopr.agents.codegen_agent.autonomous_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
     EditFileAction
 from autopr.models.artifacts import DiffStr, Issue, Message
-from autopr.models.rail_objects import CommitPlan, PullRequestDescription
+from autopr.models.rail_objects import CommitPlan, PullRequestDescription, FileHunk
 from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
 from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
@@ -285,6 +285,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             else:
                 self.log.error(f"Unknown action {action.action}")
                 break
+
+            # Add the file into the context of the rest of the commits, if it's not yet there
+            if not any(action_obj.filepath == fh.filepath for fh in current_commit.relevant_file_hunks):
+                current_commit.relevant_file_hunks.append(
+                    FileHunk(
+                        filepath=action_obj.filepath,
+                    )
+                )
 
             actions_history.append((action_obj, effect))
 
