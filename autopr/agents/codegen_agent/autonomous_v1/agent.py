@@ -165,6 +165,13 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 code_hunk=[],
             )
             indent = 0
+        elif start_line is None or end_line is None:
+            line_nums = list(range(1, len(lines) + 1))
+            code_hunk = ContextCodeHunk(
+                code_hunk=list(zip(line_nums, lines)),
+                highlight_line_numbers=line_nums,
+            )
+            indent = 0
         else:
             code_hunk_lines: list[tuple[int, str]] = []
             context_start_line = max(1, start_line - self.context_size)

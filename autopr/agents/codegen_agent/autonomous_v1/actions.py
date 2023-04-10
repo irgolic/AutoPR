@@ -46,24 +46,29 @@ class EditFileAction(RailObject):
     name="start_line"
     description="The line number of the first line of the hunk to be edited."
     format="positive"
-    required="true"
+    required="false"
     on-fail="noop"
 />
 <integer
     name="end_line"
     description="The line number of the last line of the hunk to be edited. Keep the hunk as short as possible while fulfilling the description."
     format="positive"
-    required="true"
+    required="false"
     on-fail="noop"
 />"""
 
     filepath: str
     description: str
-    start_line: int
-    end_line: int
+    start_line: Optional[int] = None
+    end_line: Optional[int] = None
 
     def __str__(self):
-        return f"Edited file {self.filepath}:L{self.start_line}-L{self.end_line}"
+        s = self.filepath
+        if self.start_line is not None:
+            s += f":L{self.start_line}"
+            if self.end_line is not None:
+                s += f"-L{self.end_line}"
+        return s
 
 
 ActionUnion = Union[NewFileAction, EditFileAction]
