@@ -110,19 +110,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             self.log.warning("File already exists, skipping", filepath=filepath)
             return "File already exists, skipping"
 
-        # Run new file rail
-        # new_file_rail = CreateFileHunk(
-        #     issue=issue,
-        #     pull_request_description=pr_desc,
-        #     commit=current_commit,
-        #     context_hunks=context,
-        #     plan=new_file_action.description
-        # )
-        # new_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(new_file_rail)
-        # if new_file_hunk is None:
-        #     self.log.error("Failed to create new file hunk", filepath=filepath)
-        #     return "Failed to create file"
-
         # Run new file langchain
         new_file_chain = NewFileChain(
             issue=issue,
@@ -160,8 +147,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             lines = f.read().splitlines()
 
         # Get relevant hunk
-        # TODO figure out a way to edit hunks instead of whole files,
-        #  the problem is that it tends to write the rest of the file as well
         start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
         if not lines:
             code_hunk = ContextCodeHunk(
@@ -178,20 +163,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 code_hunk=code_hunk_lines,
                 highlight_line_numbers=highlight_line_nums,
             )
-
-        # Run edit file rail
-        # edit_file_rail = RewriteCodeHunk(
-        #     issue=issue,
-        #     pull_request_description=pr_desc,
-        #     commit=current_commit,
-        #     context_hunks=context,
-        #     hunk_contents=code_hunk,
-        #     plan=edit_file_action.description
-        # )
-        # edit_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(edit_file_rail)
-        # if edit_file_hunk is None:
-        #     self.log.error("Failed to edit file hunk", filepath=filepath)
-        #     return "Failed to edit file"
 
         # Run edit file langchain
         edit_file_chain = RewriteCodeHunkChain(
