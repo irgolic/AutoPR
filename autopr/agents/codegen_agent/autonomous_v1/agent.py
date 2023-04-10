@@ -8,13 +8,15 @@ from git import Repo, Tree
 
 from autopr.agents.codegen_agent import CodegenAgentBase
 from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import NewFileHunk, RewrittenFileHunk
+from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import GeneratedFileHunk, write_new_file, \
+    rewrite_code_hunk
 from autopr.agents.codegen_agent.autonomous_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
-    EditFileAction, CreateFileHunk, RewriteCodeHunk
+    EditFileAction
 from autopr.models.artifacts import DiffStr, Issue, Message
 from autopr.models.rail_objects import CommitPlan, PullRequestDescription
+from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
 from autopr.services.commit_service import CommitService
-from autopr.services.diff_service import DiffService, PatchService
+from autopr.services.diff_service import DiffService, PatchService, GitApplyService
 from autopr.services.rail_service import RailService
 
 # FIXME abstract this out to be configurable
@@ -101,17 +103,27 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             return "File already exists, skipping"
 
         # Run new file rail
-        new_file_rail = CreateFileHunk(
+        # new_file_rail = CreateFileHunk(
+        #     issue=issue,
+        #     pull_request_description=pr_desc,
+        #     commit=current_commit,
+        #     context_hunks=context,
+        #     plan=new_file_action.description
+        # )
+        # new_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(new_file_rail)
+        # if new_file_hunk is None:
+        #     self.log.error("Failed to create new file hunk", filepath=filepath)
+        #     return "Failed to create file"
+
+        # Run new file langchain
+        new_file_hunk = write_new_file(
             issue=issue,
             pull_request_description=pr_desc,
             commit=current_commit,
             context_hunks=context,
-            plan=new_file_action.description
+            plan=new_file_action.description,
+            completions_repo=self.rail_service.completions_repo,
         )
-        new_file_hunk: Optional[NewFileHunk] = self.rail_service.run_prompt_rail(new_file_rail)
-        if new_file_hunk is None:
-            self.log.error("Failed to create new file hunk", filepath=filepath)
-            return "Failed to create file"
 
         # Write file
         path = os.path.join(repo.working_tree_dir, filepath)
@@ -153,27 +165,38 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         code_hunk = "\n".join(lines)
 
         # Run edit file rail
-        edit_file_rail = RewriteCodeHunk(
+        # edit_file_rail = RewriteCodeHunk(
+        #     issue=issue,
+        #     pull_request_description=pr_desc,
+        #     commit=current_commit,
+        #     context_hunks=context,
+        #     hunk_contents=code_hunk,
+        #     plan=edit_file_action.description
+        # )
+        # edit_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(edit_file_rail)
+        # if edit_file_hunk is None:
+        #     self.log.error("Failed to edit file hunk", filepath=filepath)
+        #     return "Failed to edit file"
+
+        # Run edit file langchain
+        edit_file_hunk = rewrite_code_hunk(
             issue=issue,
             pull_request_description=pr_desc,
             commit=current_commit,
             context_hunks=context,
             hunk_contents=code_hunk,
-            plan=edit_file_action.description
+            plan=edit_file_action.description,
+            completions_repo=self.rail_service.completions_repo,
         )
-        edit_file_hunk: Optional[RewrittenFileHunk] = self.rail_service.run_prompt_rail(edit_file_rail)
-        if edit_file_hunk is None:
-            self.log.error("Failed to edit file hunk", filepath=filepath)
-            return "Failed to edit file"
 
         # Replace lines in file
-        new_lines = edit_file_hunk.contents.splitlines()
+        # new_lines = edit_file_hunk.contents.splitlines()
         # lines = lines[:start_line - 1] + new_lines + lines[end_line:]
 
         # Write file
         path = os.path.join(repo.working_tree_dir, filepath)
         with open(path, "w") as f:
-            f.write("\n".join(new_lines))
+            f.write(edit_file_hunk.contents)
 
         return edit_file_hunk.outcome
 
@@ -312,8 +335,11 @@ if __name__ == '__main__':
         # create commit
         repo.git.commit("--allow-empty", "-m", "Initial commit")
 
-        rail_service = RailService()
-        diff_service = PatchService(repo)
+        completions_repo = OpenAIChatCompletionsRepo()
+        rail_service = RailService(
+            completions_repo=completions_repo,
+        )
+        diff_service = GitApplyService(repo)
         commit_service = CommitService(
             diff_service,
             repo,

@@ -83,13 +83,12 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
     def __init__(
         self,
         api_key: str = os.environ.get("OPENAI_API_KEY"),
-        completion_model: str = 'gpt-4',
+        model: str = 'gpt-4',
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, model=model, **kwargs)
         self.api_key = api_key
-        self.completion_model = completion_model
 
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
@@ -114,7 +113,7 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
 
         openai_response = openai.ChatCompletion.create(
             api_key=self.api_key,
-            model=self.completion_model,
+            model=self.model,
             messages=messages,
             temperature=self.temperature,
             max_tokens=max_tokens,
@@ -134,13 +133,12 @@ class OpenAICompletionsRepo(CompletionsRepo):
     def __init__(
         self,
         api_key: str = os.environ.get("OPENAI_API_KEY"),
-        completion_model: str = 'davinci',
+        model: str = 'davinci',
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, model=model, **kwargs)
         self.api_key = api_key
-        self.completion_model = completion_model
 
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
@@ -162,7 +160,7 @@ class OpenAICompletionsRepo(CompletionsRepo):
 
         openai_response = openai.Completion.create(
             api_key=self.api_key,
-            model=self.completion_model,
+            model=self.model,
             prompt=prompt,
             temperature=self.temperature,
             max_tokens=max_tokens,

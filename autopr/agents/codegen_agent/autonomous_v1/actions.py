@@ -1,82 +1,9 @@
 from typing import Literal, Optional, Union
 
 from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import RewrittenFileHunk, NewFileHunk
 from autopr.models.artifacts import Issue
 from autopr.models.prompt_rails import PromptRail
 from autopr.models.rail_objects import RailObject, PullRequestDescription, CommitPlan
-
-
-###
-# New file rail
-###
-
-
-class CreateFileHunk(PromptRail):
-    # two_step = False
-    output_type = NewFileHunk
-    prompt_spec = f"""Hey, we've got a new file to create.
-
-This is the issue that was opened:
-```{{issue}}```
-
-This is the pull request we're creating:
-```{{pull_request_description}}```
-
-This is the commit we're writing:
-```{{commit}}```
-
-This is the codebase subset we decided to look at:
-```{{context_hunks}}```
-
-This is the plan for the file we're creating:
-```{{plan}}```
-
-Please send me the contents of the file."""
-
-    issue: Issue
-    pull_request_description: PullRequestDescription
-    commit: CommitPlan
-    context_hunks: list[ContextFile]
-    plan: str
-
-
-###
-# Edit file rail
-###
-
-
-class RewriteCodeHunk(PromptRail):
-    # two_step = False
-    output_type = RewrittenFileHunk
-    prompt_spec = f"""Hey, we've got a new code hunk to diff.
-
-This is the issue that was opened:
-```{{issue}}```
-
-This is the pull request we're creating:
-```{{pull_request_description}}```
-
-This is the commit we're writing:
-```{{commit}}```
-
-This is the codebase subset we decided to look at:
-```{{context_hunks}}```
-
-This is the hunk we're rewriting:
-```{{hunk_contents}}```
-
-This is the plan for how we want to rewrite the hunk:
-```{{plan}}```
-
-Please rewrite the hunk to match the plan, and evaluate how well you did."""
-
-    issue: Issue
-    pull_request_description: PullRequestDescription
-    commit: CommitPlan
-    context_hunks: list[ContextFile]
-    hunk_contents: str
-    plan: str
 
 
 ###
