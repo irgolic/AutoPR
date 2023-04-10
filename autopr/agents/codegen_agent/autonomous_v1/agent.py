@@ -8,23 +8,31 @@ from git import Repo, Tree
 
 from autopr.agents.codegen_agent import CodegenAgentBase
 from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import GeneratedFileHunk, write_new_file, \
-    rewrite_code_hunk
+from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import GeneratedFileHunk, NewFileChain, RewriteCodeHunkChain
 from autopr.agents.codegen_agent.autonomous_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
     EditFileAction
 from autopr.models.artifacts import DiffStr, Issue, Message
 from autopr.models.rail_objects import CommitPlan, PullRequestDescription
 from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
+from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
 from autopr.services.diff_service import DiffService, PatchService, GitApplyService
 from autopr.services.rail_service import RailService
 
-# FIXME abstract this out to be configurable
-MAX_ITERATIONS = 5
-
 
 class AutonomousCodegenAgent(CodegenAgentBase):
     id = "auto-v1"
+
+    def __init__(
+        self,
+        *args,
+        context_size: int = 3,
+        iterations_per_commit: int = 5,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.context_size = context_size
+        self.iterations_per_commit = iterations_per_commit
 
     def _get_lines(
         self,
@@ -116,14 +124,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         #     return "Failed to create file"
 
         # Run new file langchain
-        new_file_hunk = write_new_file(
+        new_file_chain = NewFileChain(
             issue=issue,
             pull_request_description=pr_desc,
             commit=current_commit,
             context_hunks=context,
             plan=new_file_action.description,
-            completions_repo=self.rail_service.completions_repo,
         )
+        new_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(new_file_chain)
 
         # Write file
         path = os.path.join(repo.working_tree_dir, filepath)
@@ -154,15 +162,22 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         # Get relevant hunk
         # TODO figure out a way to edit hunks instead of whole files,
         #  the problem is that it tends to write the rest of the file as well
-        # start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
-        # code_hunk_lines: list[str] = []
-        # if not lines:
-        #     code_hunk = ""
-        # else:
-        #     for line_num in range(start_line, end_line + 1):
-        #         code_hunk_lines.append(lines[line_num - 1])
-        #     code_hunk = "\n".join(code_hunk_lines)
-        code_hunk = "\n".join(lines)
+        start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
+        if not lines:
+            code_hunk = ContextCodeHunk(
+                code_hunk=[],
+            )
+        else:
+            code_hunk_lines: list[tuple[int, str]] = []
+            context_start_line = max(1, start_line - self.context_size)
+            context_end_line = min(len(lines), end_line + self.context_size)
+            for line_num in range(context_start_line, context_end_line + 1):
+                code_hunk_lines.append((line_num, lines[line_num - 1]))
+            highlight_line_nums = list(range(start_line, end_line + 1))
+            code_hunk = ContextCodeHunk(
+                code_hunk=code_hunk_lines,
+                highlight_line_numbers=highlight_line_nums,
+            )
 
         # Run edit file rail
         # edit_file_rail = RewriteCodeHunk(
@@ -179,24 +194,24 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         #     return "Failed to edit file"
 
         # Run edit file langchain
-        edit_file_hunk = rewrite_code_hunk(
+        edit_file_chain = RewriteCodeHunkChain(
             issue=issue,
             pull_request_description=pr_desc,
             commit=current_commit,
             context_hunks=context,
             hunk_contents=code_hunk,
             plan=edit_file_action.description,
-            completions_repo=self.rail_service.completions_repo,
         )
+        edit_file_hunk: GeneratedFileHunk = self.chain_service.run_chain(edit_file_chain)
 
         # Replace lines in file
-        # new_lines = edit_file_hunk.contents.splitlines()
-        # lines = lines[:start_line - 1] + new_lines + lines[end_line:]
+        new_lines = edit_file_hunk.contents.splitlines()
+        lines = lines[:start_line - 1] + new_lines + lines[end_line:]
 
         # Write file
         path = os.path.join(repo.working_tree_dir, filepath)
         with open(path, "w") as f:
-            f.write(edit_file_hunk.contents)
+            f.write("\n".join(lines))
 
         return edit_file_hunk.outcome
 
@@ -221,7 +236,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         current_commit: CommitPlan,
     ) -> DiffStr:
         actions_history: list[tuple[ActionUnion, str]] = []
-        for _ in range(MAX_ITERATIONS):
+        for _ in range(self.iterations_per_commit):
             # Show relevant code, determine what hunks to change
             context = self._make_context(repo, current_commit)
 
@@ -347,7 +362,15 @@ if __name__ == '__main__':
             branch_name="hah",
             base_branch_name="main",
         )
-        codegen_agent = AutonomousCodegenAgent(rail_service, diff_service, repo)
+        chain_service = ChainService(
+            completions_repo=completions_repo,
+        )
+        codegen_agent = AutonomousCodegenAgent(
+            rail_service=rail_service,
+            chain_service=chain_service,
+            diff_service=diff_service,
+            repo=repo,
+        )
         for c in pr_desc.commits:
             diff = codegen_agent.generate_patch(repo, issue, pr_desc, c)
             commit_service.commit(c, diff, push=False)

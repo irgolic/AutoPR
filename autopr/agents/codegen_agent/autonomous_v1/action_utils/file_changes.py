@@ -2,8 +2,9 @@ import json
 
 import pydantic
 
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile
+from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
 from autopr.models.artifacts import Issue
+from autopr.models.prompt_chains import PromptChain
 from autopr.models.prompt_rails import PromptRail
 
 from autopr.models.rail_objects import RailObject, PullRequestDescription, CommitPlan
@@ -198,134 +199,92 @@ When responding to me, please use the following format. Make sure you return bot
 """
 
 
-def run_langchain(
-    completions_repo: CompletionsRepo,
-    template: str,
-) -> GeneratedFileHunk:
-    parser = GeneratedHunkOutputParser()
-    # TODO implement better interoperability between completions model and langchain
-    if completions_repo.model in [
-        "gpt-4",
-        "gpt-3.5-turbo"
-    ]:
-        model = ChatOpenAI(
-            model_name=completions_repo.model,
-            temperature=completions_repo.temperature,
-            max_tokens=completions_repo.max_tokens,
-        )
-        prompt = ChatPromptTemplate(
-            messages=[
-                HumanMessagePromptTemplate.from_template(template)
-            ],
-            input_variables=[],
-            partial_variables={"format_instructions": parser.get_format_instructions()}
-        )
-        _input = prompt.format_prompt()
-        output = model(_input.to_messages())
-        return parser.parse(output.content)
-    elif completions_repo.model == "text-davinci-003":
-        model = OpenAI(
-            model_name=completions_repo.model,
-            temperature=completions_repo.temperature,
-            max_tokens=completions_repo.max_tokens,
-        )
-        prompt = PromptTemplate(
-            template=template,
-            input_variables=[],
-            partial_variables={"format_instructions": parser.get_format_instructions()}
-        )
-        _input = prompt.format_prompt()
-        output = model(_input.to_string())
-        return parser.parse(output)
-    else:
-        raise ValueError(f"Unsupported model {completions_repo.model}")
-
-
-def write_new_file(
-    issue: Issue,
-    pull_request_description: PullRequestDescription,
-    commit: CommitPlan,
-    context_hunks: list[ContextFile],
-    plan: str,
-    completions_repo: CompletionsRepo,
-) -> GeneratedFileHunk:
-    template = f"""Hey, we've got a new file to create.
+class NewFileChain(PromptChain):
+    output_parser = GeneratedHunkOutputParser
+    prompt_template = f"""Hey, we've got a new file to create.
 
 This is the issue that was opened:
 ```
-{issue}
+{{issue}}
 ```
 
 This is the pull request we're creating:
 ```
-{pull_request_description}
+{{pull_request_description}}
 ```
 
 This is the commit we're writing:
 ```
-{commit}
+{{commit}}
 ```
 
 This is the codebase subset we decided to look at:
 ```
-{context_hunks}
+{{context_hunks}}
 ```
 
 This is the plan for the file we're creating:
 ```
-{plan}
+{{plan}}
 ```
 
 Please send me the contents of the file.
 
 {{format_instructions}}"""
 
-    return run_langchain(completions_repo, template)
+    issue: Issue
+    pull_request_description: PullRequestDescription
+    commit: CommitPlan
+    context_hunks: list[ContextFile]
+    plan: str
 
 
-def rewrite_code_hunk(
-    issue: Issue,
-    pull_request_description: PullRequestDescription,
-    commit: CommitPlan,
-    context_hunks: list[ContextFile],
-    hunk_contents: str,
-    plan: str,
-    completions_repo: CompletionsRepo,
-) -> GeneratedFileHunk:
-    template = f"""Hey, we've got a new code hunk to diff.
+class RewriteCodeHunkChain(PromptChain):
+    output_parser = GeneratedHunkOutputParser
+    prompt_template = f"""Hey, we've got a new code hunk to diff.
     
 This is the issue that was opened:
 ```
-{issue}
+{{issue}}
 ```
     
 This is the pull request we're creating:
 ```
-{pull_request_description}
+{{pull_request_description}}
 ```
     
 This is the commit we're writing:
 ```
-{commit}
+{{commit}}
 ```
     
 This is the codebase subset we decided to look at:
 ```
-{context_hunks}
+{{context_hunks}}
 ```
     
 This is the hunk we're rewriting:
 ```
-{hunk_contents}
+{{hunk_contents}}
 ```
     
 This is the plan for how we want to rewrite the hunk:
 ```
-{plan}
+{{plan}}
 ```
     
-Please rewrite the hunk to match the plan, and evaluate how well you did.
+Please rewrite the hunk to match the plan, but do not include any lines prefixed with | in the result. Preserve the correct leading indentation of the lines.
+
+RULES:
+- ONLY rewrite the lines prefixed with *, 
+- submit only the lines without the * prefix,
+- preserve the correct leading indentation of the lines.
     
 {{format_instructions}}"""
 
-    return run_langchain(completions_repo, template)
+    issue: Issue
+    pull_request_description: PullRequestDescription
+    commit: CommitPlan
+    context_hunks: list[ContextFile]
+    hunk_contents: ContextCodeHunk
+    plan: str
