@@ -51,6 +51,7 @@ class CompletionsRepo:
 
         self.log.info(
             "Running completion",
+            prompt=prompt,
         )
         result = self._complete(
             system_prompt=system_prompt,
