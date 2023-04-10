@@ -143,8 +143,12 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         assert repo_path
         filepath = os.path.join(repo_path, edit_file_action.filepath)
         if not os.path.exists(filepath):
-            self.log.warning("File does not exist", filepath=filepath)
-            return "File does not exist, skipping"
+            self.log.warning("File does not exist, creating file instead", filepath=filepath)
+            create_file_action = NewFileAction(
+                filepath=edit_file_action.filepath,
+                description=edit_file_action.description,
+            )
+            return self._create_new_file(repo, issue, pr_desc, current_commit, context, create_file_action)
 
         # Grab file contents
         with open(filepath, "r") as f:
