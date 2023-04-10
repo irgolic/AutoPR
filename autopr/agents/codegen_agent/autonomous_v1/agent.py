@@ -140,11 +140,17 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             lines = f.read().splitlines()
 
         # Get relevant hunk
-        start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
-        code_hunk_lines: list[str] = []
-        for line_num in range(start_line, end_line + 1):
-            code_hunk_lines.append(lines[line_num - 1])
-        code_hunk = "\n".join(code_hunk_lines)
+        # TODO figure out a way to edit hunks instead of whole files,
+        #  the problem is that it tends to write the rest of the file as well
+        # start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
+        # code_hunk_lines: list[str] = []
+        # if not lines:
+        #     code_hunk = ""
+        # else:
+        #     for line_num in range(start_line, end_line + 1):
+        #         code_hunk_lines.append(lines[line_num - 1])
+        #     code_hunk = "\n".join(code_hunk_lines)
+        code_hunk = "\n".join(lines)
 
         # Run edit file rail
         edit_file_rail = RewriteCodeHunk(
@@ -162,12 +168,12 @@ class AutonomousCodegenAgent(CodegenAgentBase):
 
         # Replace lines in file
         new_lines = edit_file_hunk.contents.splitlines()
-        lines[start_line - 1:end_line] = new_lines
+        # lines = lines[:start_line - 1] + new_lines + lines[end_line:]
 
         # Write file
         path = os.path.join(repo.working_tree_dir, filepath)
         with open(path, "w") as f:
-            f.write("\n".join(lines))
+            f.write("\n".join(new_lines))
 
         return edit_file_hunk.outcome
 
