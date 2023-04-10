@@ -70,7 +70,7 @@ class CommitPlan(RailObject):
     on-fail="noop"
 />
 <list
-    name="relevant_filepaths"
+    name="relevant_file_hunks"
     description="The files we should be looking at while writing this commit."
 >
 <object>
