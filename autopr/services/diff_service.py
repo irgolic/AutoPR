@@ -27,8 +27,6 @@ class GitApplyService(DiffService):
             log.debug('Applying diff...')
             self.repo.git.execute(["git",
                                    "apply",
-                                   "--unidiff-zero",
-                                   "--inaccurate-eof",
                                    "--allow-empty",
                                    f.name])
 
