@@ -18,7 +18,8 @@ class GithubActionSettings(Settings):
 
         @classmethod
         def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name in ['pull_request_agent', 'codegen_agent']:
+            if any(config_str in field_name for config_str in
+                   ['pull_request_agent_config', 'codegen_agent_config']):
                 return yaml.safe_load(raw_val)
             return cls.json_loads(raw_val)  # type: ignore
 
