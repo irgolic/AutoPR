@@ -199,13 +199,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             )
 
             # Find the indentation common to all highlighted lines in the hunk
-            highlighed_lines = [
+            highlighted_lines = [
                 lines[line_num - 1]
                 for line_num in highlight_line_nums
             ]
             indent = min(
                 len(line) - len(line.lstrip())
-                for line in highlighed_lines
+                for line in highlighted_lines
+                if line.strip()
             )
 
         # Run edit file langchain
@@ -222,14 +223,13 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             self.log.error("Failed to edit file")
             return "Failed to edit file"
 
-        # Get the new lines
-        new_lines = edit_file_hunk.contents.splitlines()
-
         # Add indentation to new lines
-        new_lines = [
-            " " * indent + line
-            for line in new_lines
-        ]
+        new_lines = []
+        for line in edit_file_hunk.contents.splitlines():
+            if not line.strip():
+                new_lines.append("")
+                continue
+            new_lines.append(" " * indent + line)
 
         # Replace lines in file
         if start_line is not None and end_line is not None:
