@@ -45,16 +45,16 @@ class GenerationService:
 
         is_published = False
         for current_commit in pr_desc.commits:
-            # Generate the patch
-            diff = self.codegen_agent.generate_patch(
+            # Generate the changes
+            self.codegen_agent.generate_changes(
                 repo,
                 issue,
                 pr_desc,
                 current_commit
             )
 
-            # Apply the patch and commit the changes
-            self.commit_service.commit(current_commit, diff)
+            # Commit the changes
+            self.commit_service.commit(current_commit)
 
             # Publish the PR after the first commit is written
             if not is_published:

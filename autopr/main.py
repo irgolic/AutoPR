@@ -117,7 +117,6 @@ def main(
         extra_params=settings.pull_request_agent_config,
     )
     commit_service = CommitService(
-        diff_service=diff_service,
         repo=repo,
         repo_path=repo_path,
         branch_name=branch_name,

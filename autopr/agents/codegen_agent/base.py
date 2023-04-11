@@ -32,23 +32,22 @@ class CodegenAgentBase:
         if kwargs:
             self.log.warning("Codegen did not use additional options", kwargs=kwargs)
 
-    def generate_patch(
+    def generate_changes(
         self,
         repo: Repo,
         issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
-    ) -> DiffStr:
-        self.log.info("Generating patch", issue=issue)
-        patch = self._generate_patch(repo, issue, pr_desc, current_commit)
-        self.log.info("Generated patch", issue=issue, patch=patch)
-        return patch
+    ) -> None:
+        self.log.info("Generating changes", issue=issue)
+        self._generate_changes(repo, issue, pr_desc, current_commit)
+        self.log.info("Generated changes", issue=issue)
 
-    def _generate_patch(
+    def _generate_changes(
         self,
         repo: Repo,
         issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
-    ) -> DiffStr:
+    ) -> None:
         raise NotImplementedError
