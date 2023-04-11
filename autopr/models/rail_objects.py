@@ -72,7 +72,7 @@ class CommitPlan(RailObject):
 />
 <list
     name="relevant_file_hunks"
-    description="The files we should be looking at while writing this commit."
+    description="The files we should be looking at while writing this commit. Include files that whose contents will be called by the code in this commit, and files that will be changed by this commit."
 >
 <object>
 {FileHunk.output_spec}
