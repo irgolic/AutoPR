@@ -98,13 +98,13 @@ class RailCodegenAgent(CodegenAgentBase):
         self.file_context_token_limit = file_context_token_limit
         self.file_chunk_size = file_chunk_size
 
-    def _generate_patch(
+    def _generate_changes(
         self,
         repo: Repo,
         issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
-    ) -> DiffStr:
+    ) -> None:
         # Get files
         files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)
 
@@ -182,4 +182,5 @@ class RailCodegenAgent(CodegenAgentBase):
             patch_text += patch.diff or ''
             update_not_looked_at_files()
 
-        return patch_text
+        # Apply patch
+        self.diff_service.apply_diff(patch_text)

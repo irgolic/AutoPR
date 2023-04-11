@@ -251,35 +251,13 @@ class AutonomousCodegenAgent(CodegenAgentBase):
 
         return edit_file_hunk.outcome
 
-    def _get_patch(
-        self,
-        repo: Repo,
-    ) -> DiffStr:
-        repo_path = repo.working_tree_dir
-        assert repo_path is not None
-        # Remove guardrails log if exists (so it's not committed later)
-        if 'guardrails.log' in self.repo.untracked_files:
-            self.log.debug('Removing guardrails.log...')
-            os.remove(
-                os.path.join(repo_path, 'guardrails.log')
-            )
-
-        repo.git.add("-A")
-        # Get diff between HEAD and working tree, including untracked files
-        diff = repo.git.diff("HEAD", "--staged")
-        # Reset working tree to HEAD
-        repo.git.reset("--hard", "HEAD")
-        # Clean untracked files
-        repo.git.clean("-fd")
-        return diff
-
-    def _generate_patch(
+    def _generate_changes(
         self,
         repo: Repo,
         issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
-    ) -> DiffStr:
+    ) -> None:
         actions_history: list[tuple[ActionUnion, str]] = []
         for _ in range(self.iterations_per_commit):
             # Show relevant code, determine what hunks to change
@@ -330,8 +308,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 )
 
             actions_history.append((action_obj, effect))
-
-        return self._get_patch(repo)
 
 
 if __name__ == '__main__':
@@ -417,7 +393,6 @@ if __name__ == '__main__':
         )
         diff_service = GitApplyService(repo)
         commit_service = CommitService(
-            diff_service,
             repo,
             repo_path=tmpdir,
             branch_name="hah",
@@ -433,6 +408,5 @@ if __name__ == '__main__':
             repo=repo,
         )
         for c in pr_desc.commits:
-            diff = codegen_agent.generate_patch(repo, issue, pr_desc, c)
-            commit_service.commit(c, diff, push=False)
-            print(diff)
+            codegen_agent.generate_changes(repo, issue, pr_desc, c)
+            commit_service.commit(c, push=False)
