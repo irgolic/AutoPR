@@ -1,3 +1,4 @@
+import json
 from typing import List, ClassVar, Optional, Union
 from typing_extensions import TypeAlias
 
@@ -70,7 +71,7 @@ class CommitPlan(RailObject):
     on-fail="noop"
 />
 <list
-    name="relevant_filepaths"
+    name="relevant_file_hunks"
     description="The files we should be looking at while writing this commit."
 >
 <object>
@@ -80,13 +81,13 @@ class CommitPlan(RailObject):
 <string
     name="commit_changes_description"
     description="A description of the changes made in this commit, in the form of a list of bullet points."
+    required="true"
     length="1 1000"
-    on-fail="noop"
 />"""
 
     commit_message: str
     relevant_file_hunks: List[FileHunk] = pydantic.Field(default_factory=list)
-    commit_changes_description: str
+    commit_changes_description: str = ""
 
     def __str__(self):
         return self.commit_message + '\n\n' + self.commit_changes_description

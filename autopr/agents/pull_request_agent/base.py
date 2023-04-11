@@ -5,6 +5,7 @@ from git.repo import Repo
 from autopr.models.artifacts import Issue
 from autopr.models.events import IssueCommentEvent, IssueOpenedEvent
 from autopr.models.rail_objects import PullRequestDescription
+from autopr.services.chain_service import ChainService
 from autopr.services.rail_service import RailService
 
 import structlog
@@ -16,9 +17,11 @@ class PullRequestAgentBase:
     def __init__(
         self,
         rail_service: RailService,
+        chain_service: ChainService,
         **kwargs,
     ):
         self.rail_service = rail_service
+        self.chain_service = chain_service
 
         self.log = structlog.get_logger(agent="pull_request",
                                         id=self.id)

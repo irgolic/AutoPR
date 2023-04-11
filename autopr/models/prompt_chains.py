@@ -1,6 +1,6 @@
-import typing
-from typing import ClassVar, Any
+from typing import ClassVar, Any, Type, Optional
 import pydantic
+from langchain.schema import BaseOutputParser
 
 from autopr.models.rail_objects import RailObject
 
@@ -9,11 +9,10 @@ import structlog
 log = structlog.get_logger()
 
 
-class PromptRail(pydantic.BaseModel):
-    two_step: ClassVar[bool] = True
-    prompt_spec: ClassVar[str] = ''
+class PromptChain(pydantic.BaseModel):
+    prompt_template: ClassVar[str] = ''
     extra_params: ClassVar[dict[str, Any]] = {}
-    output_type: ClassVar[typing.Type[RailObject]]
+    output_parser: ClassVar[Optional[Type[BaseOutputParser]]] = None
 
     def get_string_params(self) -> dict[str, str]:
         prompt_params = {}

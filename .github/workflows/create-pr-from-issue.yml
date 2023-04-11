@@ -32,11 +32,12 @@ jobs:
         fetch-depth: 1
     - name: AutoPR
       uses: ./
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       with:
         event: ${{ toJson(github.event) }}
         event_name: ${{ github.event_name }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         codegen_agent_id: rail-v1
         pull_request_agent_id: rail-v1
         base_branch: main
