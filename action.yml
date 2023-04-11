@@ -16,9 +16,6 @@ inputs:
   github_token:
     description: 'GitHub token'
     required: true
-  openai_api_key:
-    description: 'OpenAI api key'
-    required: true
   base_branch:
     description: 'Base branch'
     default: 'main'
@@ -43,3 +40,18 @@ inputs:
   codegen_agent_id:
     description: 'ID of the code generator to use'
     default: 'rail-v1'
+  target_branch_name_template:
+    description: 'Template for the name of the target branch'
+    default: 'autopr/{issue_number}'
+  pull_request_agent_config:
+    description: 'Configuration for the planner'
+    default: ''
+  codegen_agent_config:
+    description: 'Configuration for the code generator'
+    default: ''
+  temperature:
+    description: 'Temperature for the model'
+    default: '0.9'
+  rail_temperture:
+    description: 'Temperature for the guardrails calls'
+    default: '0.9'
