@@ -32,6 +32,13 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         self.context_size = context_size
         self.iterations_per_commit = iterations_per_commit
 
+    def _split_into_lines(self, text: str) -> list[str]:
+        lines = text.splitlines()
+        # If text ends with a newline, we want to keep that as a line
+        if text.rstrip() != text:
+            lines.append("")
+        return lines
+
     def _get_lines(
         self,
         repo: Repo,
@@ -47,7 +54,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             return None
 
         with open(path, 'r') as f:
-            lines = f.read().splitlines()
+            lines = self._split_into_lines(f.read())
         code_hunk: list[tuple[int, str]] = []
 
         # Get and limit line numbers
@@ -166,7 +173,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
 
         # Grab file contents
         with open(filepath, "r") as f:
-            lines = f.read().splitlines()
+            lines = self._split_into_lines(f.read())
 
         # Get relevant hunk
         start_line, end_line = edit_file_action.start_line, edit_file_action.end_line
@@ -225,7 +232,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
 
         # Add indentation to new lines
         new_lines = []
-        for line in edit_file_hunk.contents.splitlines():
+        for line in self._split_into_lines(edit_file_hunk.contents):
             if not line.strip():
                 new_lines.append("")
                 continue
