@@ -26,6 +26,14 @@ class GithubActionSettings(Settings):
 if __name__ == '__main__':
     log.info("Starting gh_actions_entrypoint.py")
 
+    # OPENAI_API_KEY input variable deprecation warning
+    if 'INPUT_OPENAI_API_KEY' in os.environ:
+        if __name__ == '__main__':
+            log.warning("Specifying the OpenAI API key with github actions `with` input variables is deprecated"
+                        " and will be removed in a future version. "
+                        "Please use `env`, and add an `OPENAI_API_KEY` environment variable instead.")
+        os.environ['OPENAI_API_KEY'] = os.environ['INPUT_OPENAI_API_KEY']
+
     repo_path = os.environ['GITHUB_WORKSPACE']
     settings = GithubActionSettings.parse_obj({})  # pyright workaround
     main(
