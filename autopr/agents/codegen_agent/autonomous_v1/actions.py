@@ -141,7 +141,7 @@ These are the actions we've taken so far:
 
 In our pursuit of implementing this commit, please make a decision on what to do next.
 If a new file should be created, respond with `new_file` and the file path and description. 
-If one of the files in the codebase subset should be edited, respond with `edit_file` and the file path, description, and line numbers of the hunk to edit.
+If one of the files in the codebase subset should be edited, respond with `edit_file` and the file path, description, and line numbers of the hunk to edit. When picking the line numbers, keep the hunk as short as possible while fulfilling the description. If you don't know which line numbers to pick, leave them blank.
 If you're done, respond with `finished` and the commit message describing the past actions."""
 
     issue: Issue
