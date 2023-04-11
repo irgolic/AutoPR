@@ -32,7 +32,8 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         self.context_size = context_size
         self.iterations_per_commit = iterations_per_commit
 
-    def _split_into_lines(self, text: str) -> list[str]:
+    @staticmethod
+    def _split_into_lines(text: str) -> list[str]:
         lines = text.splitlines()
         # If text ends with a newline, we want to keep that as a line
         if text.rstrip() != text:
