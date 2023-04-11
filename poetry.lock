@@ -265,6 +265,21 @@ files = [
 ]
 
 [[package]]
+name = "click"
+version = "8.1.3"
+description = "Composable command line interface toolkit"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
+    {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -574,8 +589,26 @@ docs = ["Sphinx", "docutils (<0.18)"]
 test = ["objgraph", "psutil"]
 
 [[package]]
+name = "griffe"
+version = "0.27.0"
+description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "griffe-0.27.0-py3-none-any.whl", hash = "sha256:f3a5726e2d5876ac882d48ff9ca1a95c5bc267196a8f114263e66e234141bb84"},
+    {file = "griffe-0.27.0.tar.gz", hash = "sha256:dcf3cc4205f33cbb16095324803a6904e0b293cd1630ceab4b66a9115af6b818"},
+]
+
+[package.dependencies]
+colorama = ">=0.4"
+
+[package.extras]
+async = ["aiofiles (>=0.7,<1.0)"]
+
+[[package]]
 name = "guardrails-ai"
-version = "0.1.0"
+version = "0.1.5"
 description = "Adding guardrails to large language models."
 category = "main"
 optional = false
@@ -586,20 +619,26 @@ develop = false
 [package.dependencies]
 eliot = "*"
 eliot-tree = "*"
+griffe = "*"
 lxml = "*"
 openai = "*"
+pydantic = "*"
 rich = "*"
+typer = "*"
 
 [package.extras]
-dev = ["black (==22.12.0)", "docformatter (>=1.4)", "flake8 (>=3.8.4)", "isort (>=5.12.0)", "mkdocs", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "mknotebooks", "pre-commit (>=2.9.3)", "pytest-cov (>=2.10.1)", "twine"]
+critique = ["inspiredco"]
+dev = ["black (==22.12.0)", "docformatter (>=1.4)", "faiss-cpu", "flake8 (>=3.8.4)", "griffe", "isort (>=5.12.0)", "mkdocs", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "mknotebooks", "numpy", "pre-commit (>=2.9.3)", "pypdfium2", "pytest-cov (>=2.10.1)", "pytest-mock", "sqlalchemy", "sqlvalidator", "twine"]
+manifest = ["manifest-ml"]
 profanity = ["alt-profanity-check"]
-sql = ["sqlvalidator"]
+sql = ["sqlalchemy", "sqlvalidator"]
+vectordb = ["faiss-cpu", "numpy"]
 
 [package.source]
 type = "git"
 url = "https://github.com/irgolic/guardrails.git"
-reference = "post-process-backticks-output"
-resolved_reference = "2bb7180d0f59c134865bd4304af0fc4b7dbb446a"
+reference = "fix-choice-response"
+resolved_reference = "760c02d4175a2a6c5ecca0333580530f5344e5b8"
 
 [[package]]
 name = "huggingface-hub"
@@ -1746,6 +1785,27 @@ video = ["av (==9.2.0)", "decord (==0.6.0)"]
 vision = ["Pillow"]
 
 [[package]]
+name = "typer"
+version = "0.7.0"
+description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "typer-0.7.0-py3-none-any.whl", hash = "sha256:b5e704f4e48ec263de1c0b3a2387cd405a13767d2f907f44c1a08cbad96f606d"},
+    {file = "typer-0.7.0.tar.gz", hash = "sha256:ff797846578a9f2a201b53442aedeb543319466870fbe1c701eab66dd7681165"},
+]
+
+[package.dependencies]
+click = ">=7.1.1,<9.0.0"
+
+[package.extras]
+all = ["colorama (>=0.4.3,<0.5.0)", "rich (>=10.11.0,<13.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
+doc = ["cairosvg (>=2.5.2,<3.0.0)", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "pillow (>=9.3.0,<10.0.0)"]
+test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.0.0)", "mypy (==0.910)", "pytest (>=4.4.0,<8.0.0)", "pytest-cov (>=2.10.0,<5.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<4.0.0)", "rich (>=10.11.0,<13.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -1940,4 +2000,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "f71d2dbfe62a0c34941fdab0278202cd6f42de89d3feb58379203948d5aeb67e"
+content-hash = "fed9f37c3c212e848964238f6337d79a6d5efd1ca9f29a8d056002ca01e6b058"
