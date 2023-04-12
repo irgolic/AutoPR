@@ -3,7 +3,7 @@
 Got an idea on how to improve AutoPR?
 Contributions welcome, and greatly appreciated! 🙏
 
-Join [Discord](https://discord.gg/ykk7Znt3K6) to discuss ideas and get help.
+Join [Discord](https://discord.gg/ykk7Znt3K6) to discuss ideas and get guidance.
 
 ## Overview
 
@@ -13,6 +13,7 @@ AutoPR works in two main steps:
 
 It's easy to add a new implementation for either of the two steps. 
 As long as the file is in the correct directory, it will be automatically picked up by the action – simply refer to it by its id.
+Alternatively, write the agent in its own directory module, just make sure to export it to `__all__` in the `__init__.py` file. 
 
 ## Using a custom component
 
@@ -103,19 +104,20 @@ class MyCodegenAgent(CodegenAgentBase):
         issue: Issue,
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
-    ) -> DiffStr:    
-        return """
+    ) -> None:    
+        diff = """
 --- /dev/null
 +++ dummy.py
 @@ -0,0 +1,2 @@
 +def dummy():
 +    pass
 """
+        self.diff_service.apply_diff(diff)
 ```
 
-The output of the code generator is a string, which must be a valid patch as applicable by GNU `patch`.
-We're currently working on a serializable patch format similar to the pull request agent agent's `PullRequestDescription` object.
-If you're interested in this, please join our [Discord](https://discord.gg/ykk7Znt3K6).
+A codegen agent is expected to make file changes, either by generating a diff or otherwise.
+If you'd like to work on codegen, check out the [autonomous codegen agent](https://github.com/irgolic/AutoPR/tree/main/autopr/agents/codegen_agent/autonomous_v1).
+
 
 ## How guardrails is used in AutoPR
 
