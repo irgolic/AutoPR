@@ -22,7 +22,7 @@ class EventService:
                 title=event['issue']['title'],
                 author=event['issue']['user']['login'],
                 messages=[Message(
-                    body=event['issue']['body'],
+                    body=event['issue']['body'] or "",
                     author=event['issue']['user']['login'],
                 )]
             )
@@ -55,7 +55,7 @@ class EventService:
         for comment_json in comments_json:
             comment_id = comment_json['id']
             comment = Message(
-                body=comment_json['body'],
+                body=comment_json['body'] or "",
                 author=comment_json['user']['login'],
             )
             comments[comment_id] = comment

@@ -5,7 +5,7 @@ from typing_extensions import TypeAlias
 
 
 class Message(pydantic.BaseModel):
-    body: str
+    body: str = ""
     author: str
 
     def __str__(self):
