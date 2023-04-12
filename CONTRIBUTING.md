@@ -3,6 +3,16 @@
 Got an idea on how to improve AutoPR?
 Contributions welcome, and greatly appreciated! 🙏
 
+## Opening Issues to Contribute
+
+You can also contribute by opening issues for new features, bug reports, or improvements. This repository reacts to new issues by running itself and creating a PR that attempts to implement the request or idea described in the issue. Please note that for non-contributors, a manual trigger is required to prevent expensive runs. Feel free to open issues to share your ideas and contribute to the project.
+
+Make sure to provide a clear and detailed description of the issue, and if possible, add examples or references to help others understand the context. Your contribution through opening issues is valuable and appreciated.
+
+By contributing through issues, you're not only improving AutoPR but also helping create a better experience for other users and developers.
+
+Now, let's dive into the more technical aspects of contributing to AutoPR.
+
 Join [Discord](https://discord.gg/ykk7Znt3K6) to discuss ideas and get help.
 
 ## Overview
