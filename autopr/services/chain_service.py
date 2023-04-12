@@ -3,7 +3,7 @@ from typing import Any, Union, Optional, Callable
 
 import openai.error
 import structlog
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from langchain.llms.base import BaseLLM
 
@@ -19,15 +19,6 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 
 class ChatOpenAI(LangChainChatOpenAI):
-    def __init__(
-        self,
-        *args,
-        autopr_logger,
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.autopr_logger = autopr_logger
-
     def _create_retry_decorator(self) -> Callable[[Any], Any]:
         # override langchain's retry decorator to wait up to 60 seconds instead of 10
         min_seconds = 1
@@ -43,19 +34,14 @@ class ChatOpenAI(LangChainChatOpenAI):
                 | retry_if_exception_type(openai.error.RateLimitError)
                 | retry_if_exception_type(openai.error.ServiceUnavailableError)
             ),
-            before_sleep=before_sleep_log(self.autopr_logger, logging.WARNING),
         )
+
 
 class ChainService:
     def __init__(
         self,
         completions_repo: CompletionsRepo,
     ):
-        self.log = structlog.get_logger().bind(
-            model=completions_repo.model,
-            service="ChainService",
-        )
-
         # TODO find a better way to integrate completions repo with langchain
         #   can we make a BaseLanguageModel that takes a completions repo?
         #   or should we replace completions repo with BaseLanguageModel?
@@ -65,7 +51,6 @@ class ChainService:
             "gpt-3.5-turbo"
         ]:
             self.model = ChatOpenAI(
-                autopr_logger=self.log,
                 model_name=completions_repo.model,
                 temperature=completions_repo.temperature,
                 max_tokens=completions_repo.max_tokens,
