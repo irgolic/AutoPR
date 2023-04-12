@@ -1,6 +1,10 @@
-from typing import Any, Union, Optional
+import logging
+from typing import Any, Union, Optional, Callable
 
+import openai.error
 import structlog
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
+
 from langchain.llms.base import BaseLLM
 
 from langchain.chat_models.base import BaseChatModel
@@ -10,9 +14,37 @@ from langchain.schema import BaseOutputParser, PromptValue
 from autopr.models.prompt_chains import PromptChain
 from autopr.repos.completions_repo import CompletionsRepo
 from langchain import PromptTemplate, OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models import ChatOpenAI as LangChainChatOpenAI
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
+
+class ChatOpenAI(LangChainChatOpenAI):
+    def __init__(
+        self,
+        *args,
+        autopr_logger,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.autopr_logger = autopr_logger
+
+    def _create_retry_decorator(self) -> Callable[[Any], Any]:
+        # override langchain's retry decorator to wait up to 60 seconds instead of 10
+        min_seconds = 1
+        max_seconds = 60
+        return retry(
+            reraise=True,
+            stop=stop_after_attempt(self.max_retries),
+            wait=wait_exponential(multiplier=1, min=min_seconds, max=max_seconds),
+            retry=(
+                retry_if_exception_type(openai.error.Timeout)
+                | retry_if_exception_type(openai.error.APIError)
+                | retry_if_exception_type(openai.error.APIConnectionError)
+                | retry_if_exception_type(openai.error.RateLimitError)
+                | retry_if_exception_type(openai.error.ServiceUnavailableError)
+            ),
+            before_sleep=before_sleep_log(self.autopr_logger, logging.WARNING),
+        )
 
 class ChainService:
     def __init__(
