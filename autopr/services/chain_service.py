@@ -51,6 +51,11 @@ class ChainService:
         self,
         completions_repo: CompletionsRepo,
     ):
+        self.log = structlog.get_logger().bind(
+            model=completions_repo.model,
+            service="ChainService",
+        )
+
         # TODO find a better way to integrate completions repo with langchain
         #   can we make a BaseLanguageModel that takes a completions repo?
         #   or should we replace completions repo with BaseLanguageModel?
@@ -60,6 +65,7 @@ class ChainService:
             "gpt-3.5-turbo"
         ]:
             self.model = ChatOpenAI(
+                autopr_logger=self.log,
                 model_name=completions_repo.model,
                 temperature=completions_repo.temperature,
                 max_tokens=completions_repo.max_tokens,
