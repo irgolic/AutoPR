@@ -15,8 +15,6 @@ class InitialFileSelectResponse(RailObject):
     output_spec = """<list name="filepaths">
     <string
         description="Files in this repository that we should look at."
-        format="filepath"
-        on-fail="noop"
     />
 </list>"""
 
@@ -85,8 +83,6 @@ class LookAtFilesResponse(RailObject):
 <list name="filepaths_we_should_look_at">
     <string
         description="The paths to files we should look at next in the repo. Drop any files that are a waste of time with regard to the issue."
-        format="filepath"
-        on-fail="noop"
     />
 </list>"""
 
