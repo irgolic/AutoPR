@@ -73,7 +73,7 @@ def main(
 
     # Get repo owner and name from remote URL
     remote_url = repo.remotes.origin.url
-    owner, repo_name = remote_url.split('/')[-2:]
+    owner, repo_name = remote_url.rstrip(".git").split('/')[-2:]
 
     # Create completions repo
     completions_repo = get_completions_repo(
