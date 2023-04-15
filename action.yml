@@ -39,7 +39,7 @@ inputs:
     default: 'rail-v1'
   codegen_agent_id:
     description: 'ID of the code generator to use'
-    default: 'rail-v1'
+    default: 'auto-v1'
   target_branch_name_template:
     description: 'Template for the name of the target branch'
     default: 'autopr/{issue_number}'
