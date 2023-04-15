@@ -60,7 +60,19 @@ It still:
 
 ## 🔨 Usage
 
-Please see [USAGE.md](USAGE.md) for more information.
+61 | ## 🔨 Usage
+62 | 
+63 | To use the `pr_helper.py` script when creating a pull request, run the script with the issue number as an argument, like so:
+64 |
+65 | ```
+66 | python pr_helper.py <issue_number>
+67 | ```
+68 |
+69 | This will append the "Closes #{issue_number}" footer to the pull request body, properly linking and enabling the automatic closing of the referenced issue upon merging.
+70 |
+71 | Please see [USAGE.md](USAGE.md) for more information.
+72 | 
+73 | ## 📝 Contributing
 
 ## 📝 Contributing
 
