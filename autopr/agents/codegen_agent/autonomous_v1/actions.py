@@ -108,7 +108,7 @@ class Action(RailObject):
 <string
     name="commit_message"
     description="A more appropriate commit message based on the actions taken."
-    required="true"
+    required="false"
 />
 </case>
 </choice>"""
