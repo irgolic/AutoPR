@@ -3,7 +3,7 @@ from typing import ClassVar, Union
 from git.repo import Repo
 
 from autopr.models.artifacts import Issue
-from autopr.models.events import IssueCommentEvent, IssueOpenedEvent
+from autopr.models.events import EventUnion
 from autopr.models.rail_objects import PullRequestDescription
 from autopr.services.chain_service import ChainService
 from autopr.services.rail_service import RailService
@@ -32,7 +32,7 @@ class PullRequestAgentBase:
         self,
         repo: Repo,
         issue: Issue,
-        event: Union[IssueOpenedEvent, IssueCommentEvent],
+        event: EventUnion,
     ) -> PullRequestDescription:
         log = self.log.bind(issue_number=issue.number,
                             event_type=event.event_type)
@@ -53,6 +53,6 @@ class PullRequestAgentBase:
         self,
         repo: Repo,
         issue: Issue,
-        event: Union[IssueOpenedEvent, IssueCommentEvent],
+        event: EventUnion
     ) -> Union[str, PullRequestDescription]:
         raise NotImplementedError

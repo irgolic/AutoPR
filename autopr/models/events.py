@@ -9,17 +9,13 @@ class Event(pydantic.BaseModel):
     event_type: str
 
 
-class IssueOpenedEvent(Event):
+class IssueLabeledEvent(Event):
     event_type: Literal['issue_opened'] = 'issue_opened'
 
     issue: Issue
+    label: str
 
 
-class IssueCommentEvent(Event):
-    event_type: Literal['issue_closed'] = 'issue_closed'
+# TODO implement more event types (i.e., code review)
 
-    issue: Issue
-    new_comment: Message
-
-
-EventUnion = Union[tuple(Event.__subclasses__())]  # type: ignore
+EventUnion = IssueLabeledEvent

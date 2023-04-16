@@ -49,7 +49,8 @@ from git.repo import Repo
 from autopr.agents.pull_request_agent import PullRequestAgentBase
 from autopr.models.artifacts import Issue
 from autopr.models.rail_objects import PullRequestDescription
-from autopr.models.events import IssueOpenedEvent, IssueCommentEvent
+from autopr.models.events import EventUnion
+
 
 
 class MyPullRequestAgent(PullRequestAgentBase):
@@ -59,7 +60,7 @@ class MyPullRequestAgent(PullRequestAgentBase):
         self, 
         issue: Issue, 
         repo: Repo,
-        event: Union[IssueOpenedEvent, IssueCommentEvent],
+        event: EventUnion,
     ) -> Union[str, PullRequestDescription]:
         return """
 Title: My PR title
