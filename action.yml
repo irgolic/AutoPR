@@ -40,6 +40,9 @@ inputs:
   codegen_agent_id:
     description: 'ID of the code generator to use'
     default: 'auto-v1'
+  brain_agent_id:
+    description: 'ID of the brain to use'
+    default: 'simple-v1'
   target_branch_name_template:
     description: 'Template for the name of the target branch'
     default: 'autopr/{issue_number}'

@@ -11,13 +11,13 @@ AutoPR works in two main steps:
 - Gather context and plan a pull request
 - Generate code for each commit
 
-It's easy to add a new implementation for either of the two steps. 
+It's easy to add a new implementation for either of the two steps, or for the orchestration of them. 
 As long as the file is in the correct directory, it will be automatically picked up by the action – simply refer to it by its id.
 Alternatively, write the agent in its own directory module, just make sure to export it to `__all__` in the `__init__.py` file. 
 
 ## Using a custom component
 
-To use a custom pull request or code generator agent, simply refer to it by its `id` in the action's `with` section.
+To use a custom brain or pull request or code generator agent, simply refer to it by its `id` in the action's `with` section.
 Make sure you're pointing to the correct branch (in this example `main`).
 
 Example:
@@ -29,14 +29,51 @@ Example:
     - name: AutoPR
       uses: irgolic/AutoPR@main
       with:
-        codegen_agent_id: my-codegen
+        codegen_agent_id: my-codegen-agent
         pull_request_agent_id: my-pr-agent
+        brain_agent_id: my-brain-agent
 ...
 ```
 
-### Adding a new pull request agent
+### Brain agents
 
-To add a new PR planner, create a new file in `autopr/agents/pull_request_agent/` and subclass `PullRequestAgentBase`. 
+Brain agents are responsible for handling the "issue labeled" event to generate the pull request, normally by invoking pull request planning and code generating subagents.
+
+To add a new brain agent, create a new file or directory in `autopr/agents/brain_agent/` and subclass `BrainAgentBase`.
+
+Example:
+
+`>>> autopr/agents/brain_agent/my_brain_agent.py`
+```python
+
+from autopr.agents.brain_agent import BrainAgentBase
+from autopr.models.events import EventUnion
+
+class MyBrainAgent(BrainAgentBase):
+    id = "my-brain-agent"
+
+    def _plan_pull_request(
+        self, 
+        event: EventUnion,
+    ) -> None:
+        # Get the issue
+        issue = event.issue
+        # Plan the pull request
+        pr_desc = self.pull_request_agent.plan_pull_request(self.repo, issue, event)
+        # Generate a change
+        self.codegen_agent.generate_changes(
+            self.repo,
+            issue,
+            pr_desc,
+            pr_desc.commits[0],
+        )
+        # Publish the pull request
+        self.publish_service.publish(pr_desc)
+```
+
+### Pull request agents
+
+To add a new PR planner, create a new file or directory in `autopr/agents/pull_request_agent/` and subclass `PullRequestAgentBase`. 
 The new class should declare an `id` and implement the `_plan_pull_request` method.
 
 Example:
@@ -81,7 +118,7 @@ The plan can be returned as a `PullRequestDescription` object, or as a string as
 If it is returned as a string, it will automatically be parsed into a `PullRequestDescription` object with guardrails.
 
 
-### Adding a new code generator
+### Codegen agents
 
 To add a new code generator, create a new file in `autopr/agents/codegen_agent/` and subclass `CodegenAgentBase`. 
 Similarly to the pull request agent, the new class should declare an `id` and implement the `_generate_code` method.
@@ -97,7 +134,7 @@ from git.repo import Repo
 from autopr.models.rail_objects import CommitPlan, PullRequestDescription
 
 class MyCodegenAgent(CodegenAgentBase):
-    id = "my-codegen"
+    id = "my-codegen-agent"
 
     def _generate_patch(
         self,
