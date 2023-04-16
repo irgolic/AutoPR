@@ -5,11 +5,12 @@ from git.repo import Repo
 from pydantic import BaseSettings
 
 from .models.artifacts import Issue
+from .models.events import EventUnion
 from .repos.completions_repo import OpenAICompletionsRepo, OpenAIChatCompletionsRepo, get_completions_repo
 from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
-from .services.event_service import EventService
+from .services.event_service import EventService, GithubEventService
 from .services.generation_service import GenerationService
 from .services.publish_service import GithubPublishService
 from .services.rail_service import RailService
@@ -51,11 +52,11 @@ def main(
              settings=settings)
 
     # Extract event
-    event_service = EventService(
+    event_service = GithubEventService(
         github_token=settings.github_token,
     )
-    event_obj = event_service.from_github_event(settings.event_name, settings.event)
-    issue = event_obj.issue
+    event = event_service.parse_event(settings.event_name, settings.event)
+    issue = event.issue
 
     # Format branch name
     branch_name = settings.target_branch_name_template.format(issue_number=issue.number)
@@ -142,4 +143,4 @@ def main(
     create_filepath_validator(repo)
 
     # Generate and publish the PR
-    generator_service.generate_pr(repo, issue, event_obj)
+    generator_service.generate_pr(repo, issue, event)

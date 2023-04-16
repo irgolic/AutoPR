@@ -4,10 +4,15 @@ import requests
 import structlog
 
 from autopr.models.artifacts import Issue, Message
-from autopr.models.events import IssueOpenedEvent, IssueCommentEvent
+from autopr.models.events import IssueLabeledEvent, EventUnion
 
 
 class EventService:
+    def parse_event(self, event_name: str, event: dict[str, Any]) -> EventUnion:
+        raise NotImplementedError
+
+
+class GithubEventService(EventService):
     def __init__(
         self,
         github_token: str,
@@ -15,20 +20,7 @@ class EventService:
         self.github_token = github_token
         self.log = structlog.get_logger()
 
-    def _to_issue_opened_event(self, event: dict[str, Any]) -> IssueOpenedEvent:
-        return IssueOpenedEvent(
-            issue=Issue(
-                number=event['issue']['number'],
-                title=event['issue']['title'],
-                author=event['issue']['user']['login'],
-                messages=[Message(
-                    body=event['issue']['body'] or "",
-                    author=event['issue']['user']['login'],
-                )]
-            )
-        )
-
-    def _to_issue_comment_event(self, event: dict[str, Any]) -> IssueCommentEvent:
+    def _to_issue_labeled_event(self, event: dict[str, Any]) -> IssueLabeledEvent:
         # Get issue comments
         url = event['issue']['comments_url']
         assert url.startswith('https://api.github.com/repos/'), "Unexpected comments_url"
@@ -61,9 +53,6 @@ class EventService:
             comments[comment_id] = comment
             comments_list.append(comment)
 
-        # Get comment in question
-        new_comment = comments[event['comment']['id']]
-
         # Create issue
         issue = Issue(
             number=event['issue']['number'],
@@ -72,15 +61,12 @@ class EventService:
             messages=comments_list,
         )
 
-        return IssueCommentEvent(
+        return IssueLabeledEvent(
             issue=issue,
-            new_comment=new_comment,
+            label=event['label']['name'],
         )
 
-    def from_github_event(self, event_name: str, event_dict: dict[str, Any]):
+    def parse_event(self, event_name: str, event_dict: dict[str, Any]):
         if event_name == 'issues':
-            return self._to_issue_opened_event(event_dict)
-        if event_name == 'issue_comment':
-            return self._to_issue_comment_event(event_dict)
-        else:
-            raise ValueError(f"Unsupported event name: {event_name}")
+            return self._to_issue_labeled_event(event_dict)
+        raise ValueError(f"Unsupported event name: {event_name}")

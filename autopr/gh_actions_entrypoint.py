@@ -5,6 +5,7 @@ from autopr.main import main, Settings
 import yaml
 
 from autopr.log_config import configure_logging
+from autopr.services.event_service import GithubEventService
 
 configure_logging()
 

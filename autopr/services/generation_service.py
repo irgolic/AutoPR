@@ -11,7 +11,7 @@ from ..agents.pull_request_agent import PullRequestAgent
 
 import structlog
 
-from ..models.events import IssueCommentEvent, IssueOpenedEvent
+from ..models.events import EventUnion
 
 log = structlog.get_logger()
 
@@ -35,7 +35,7 @@ class GenerationService:
         self,
         repo: Repo,
         issue: Issue,
-        event: Union[IssueOpenedEvent, IssueCommentEvent]
+        event: EventUnion,
     ) -> None:
         # Switch to the base branch
         self.commit_service.overwrite_new_branch()
