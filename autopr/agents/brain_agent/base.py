@@ -58,7 +58,7 @@ class BrainAgentBase:
             self._generate_pr(event)
         except Exception as e:
             self.log.exception("Failed to generate pull request", event_=event, exc_info=e)
-            status = "Failed to generate pull request:\n\n" + traceback.format_exc()
+            status = f"Failed to generate pull request:\n\n```{traceback.format_exc()}```"
         else:
             self.log.info("Generated changes", event_=event)
             status = "Successfully generated pull request"
