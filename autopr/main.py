@@ -89,16 +89,37 @@ def main(
         temperature=settings.temperature,
     )
 
-    # Create services and agents
+    # Create commit service
+    commit_service = CommitService(
+        repo=repo,
+        repo_path=repo_path,
+        branch_name=branch_name,
+        base_branch_name=settings.base_branch,
+    )
+    # Create the new branch
+    commit_service.overwrite_new_branch()
+
+    # Create the rest of the services
+    publish_service = GithubPublishService(
+        issue=issue,
+        commit_service=commit_service,
+        token=settings.github_token,
+        owner=owner,
+        repo_name=repo_name,
+        head_branch=branch_name,
+        base_branch=settings.base_branch,
+    )
     rail_service = RailService(
         completions_repo=completions_repo,
         min_tokens=settings.min_tokens,
         context_limit=settings.context_limit,
         num_reasks=settings.num_reasks,
         temperature=settings.rail_temperature,
+        publish_service=publish_service,
     )
     chain_service = ChainService(
         completions_repo=completions_repo,
+        publish_service=publish_service,
     )
 
     # auto-v1 generates diffs with `git diff`, so use that
@@ -107,6 +128,7 @@ def main(
     else:
         diff_service = PatchService(repo=repo)
 
+    # Instantiate the agents
     codegen_agent = get_codegen_agent(
         codegen_agent_id=settings.codegen_agent_id,
         rail_service=rail_service,
@@ -120,19 +142,6 @@ def main(
         rail_service=rail_service,
         chain_service=chain_service,
         extra_params=settings.pull_request_agent_config,
-    )
-    commit_service = CommitService(
-        repo=repo,
-        repo_path=repo_path,
-        branch_name=branch_name,
-        base_branch_name=settings.base_branch,
-    )
-    publish_service = GithubPublishService(
-        token=settings.github_token,
-        owner=owner,
-        repo_name=repo_name,
-        head_branch=branch_name,
-        base_branch=settings.base_branch,
     )
     brain_agent = get_brain_agent(
         brain_agent_id=settings.brain_agent_id,
@@ -150,5 +159,5 @@ def main(
     create_unidiff_validator(repo, diff_service)
     create_filepath_validator(repo)
 
-    # Generate and publish the PR
+    # Generate and set_pr_description the PR
     brain_agent.generate_pr(event)

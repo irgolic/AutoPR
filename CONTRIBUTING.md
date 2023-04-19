@@ -44,16 +44,18 @@ To add a new brain agent, create a new file or directory in `autopr/agents/brain
 Example:
 
 `>>> autopr/agents/brain_agent/my_brain_agent.py`
+
 ```python
 
 from autopr.agents.brain_agent import BrainAgentBase
 from autopr.models.events import EventUnion
 
+
 class MyBrainAgent(BrainAgentBase):
     id = "my-brain-agent"
 
     def _plan_pull_request(
-        self, 
+        self,
         event: EventUnion,
     ) -> None:
         # Get the issue
@@ -68,7 +70,7 @@ class MyBrainAgent(BrainAgentBase):
             pr_desc.commits[0],
         )
         # Publish the pull request
-        self.publish_service.publish(pr_desc)
+        self.publish_service.set_pr_description(pr_desc)
 ```
 
 ### Pull request agents

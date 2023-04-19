@@ -1,3 +1,4 @@
+import json
 from typing import Callable, Any, Optional, TypeVar, Type
 
 import pydantic
@@ -9,6 +10,7 @@ from autopr.models.prompt_rails import PromptRail
 import structlog
 
 from autopr.repos.completions_repo import CompletionsRepo
+from autopr.services.publish_service import PublishService
 
 log = structlog.get_logger()
 
@@ -19,6 +21,7 @@ class RailService:
     def __init__(
         self,
         completions_repo: CompletionsRepo,
+        publish_service: PublishService,
         min_tokens: int = 1000,
         context_limit: int = 8192,
         num_reasks: int = 2,
@@ -29,6 +32,7 @@ class RailService:
                                   "strictly and precisely adhering to the provided XML schemas.",
     ):
         self.completions_repo = completions_repo
+        self.publish_service = publish_service
         self.min_tokens = min_tokens
         self.context_limit = context_limit
         self.num_reasks = num_reasks
@@ -50,9 +54,10 @@ class RailService:
             num_reasks=self.num_reasks,
         )
 
+        msg = self.get_rail_message(rail_object, raw_document)
         log.debug('Running rail',
                   rail_object=rail_object.__name__,
-                  rail_message=self.get_rail_message(rail_object, raw_document))
+                  rail_message=msg)
         raw_o, dict_o = pr_guard(
             completion_func,
             prompt_params={
@@ -65,18 +70,37 @@ class RailService:
                   dict_output=dict_o)
 
         if dict_o is None:
+            self.publish_service.publish_call(
+                summary=f"{rail_object.__name__}: Guardrails rejected the output",
+                prompt=msg,
+                raw_response=raw_o,
+                default_open=('raw_response',)
+            )
             log.warning(f'Got None from rail',
                         rail_object=rail_object.__name__,
                         raw_output=raw_o)
             return None
 
         try:
-            return rail_object.parse_obj(dict_o)
+            parsed_obj = rail_object.parse_obj(dict_o)
+            self.publish_service.publish_call(
+                summary=f"{rail_object.__name__}: Parsed output",
+                prompt=msg,
+                raw_response=raw_o,
+                parsed_response=parsed_obj.json(indent=2),
+                default_open=('parsed_response',)
+            )
         except pydantic.ValidationError:
             log.warning(f'Got invalid output from rail',
                         rail_object=rail_object.__name__,
                         raw_output=raw_o,
                         dict_output=dict_o)
+        self.publish_service.publish_call(
+            summary=f"{rail_object.__name__}: Failed to parse output dict",
+            prompt=msg,
+            raw_response=json.dumps(dict_o, indent=2),
+            default_open=('raw_response',)
+        )
         return None
 
     def run_prompt_rail(self, rail: PromptRail) -> Optional[RailObject]:
@@ -90,11 +114,20 @@ class RailService:
                 return None
             token_length = self.calculate_prompt_length(rail)
 
+        suffix = "two steps" if rail.two_step else "one step"
+        self.publish_service.publish_update(f"Running rail {rail.__class__.__name__} in {suffix}...")
+
         prompt = self.get_prompt_message(rail)
         if rail.two_step:
+            initial_prompt = prompt
             prompt = self.completions_repo.complete(
-                prompt=prompt,
+                prompt=initial_prompt,
                 system_prompt=self.raw_system_prompt,
+            )
+            self.publish_service.publish_call(
+                summary=f"Ran raw query",
+                prompt=initial_prompt,
+                response=prompt,
             )
         return self.run_rail_object(rail.output_type, prompt)
 

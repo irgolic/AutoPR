@@ -49,9 +49,15 @@ class BrainAgentBase:
         self,
         event: EventUnion,
     ) -> None:
+        # Publish an empty pull request
+        self.publish_service.update()
+
         self.log.info("Generating changes", event_=event)
         self._generate_pr(event)
         self.log.info("Generated changes", event_=event)
+
+        # Finalize the pull request (put progress updates in a collapsible)
+        self.publish_service.finalize()
 
     def _generate_pr(
         self,

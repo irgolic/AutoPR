@@ -15,6 +15,7 @@ from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
 from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
 from autopr.services.diff_service import DiffService, PatchService, GitApplyService
+from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
 
@@ -389,17 +390,24 @@ if __name__ == '__main__':
         completions_repo = OpenAIChatCompletionsRepo(
             model="gpt-4",
         )
-        rail_service = RailService(
-            completions_repo=completions_repo,
-        )
-        diff_service = GitApplyService(repo)
         commit_service = CommitService(
             repo,
             repo_path=tmpdir,
             branch_name="hah",
             base_branch_name="main",
         )
+        publish_service = PublishService(
+            issue=issue,
+            commit_service=commit_service,
+        )
+        rail_service = RailService(
+            publish_service=publish_service,
+            completions_repo=completions_repo,
+        )
+        diff_service = GitApplyService(repo)
+
         chain_service = ChainService(
+            publish_service=publish_service,
             completions_repo=completions_repo,
         )
         codegen_agent = AutonomousCodegenAgent(
