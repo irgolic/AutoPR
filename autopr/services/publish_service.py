@@ -86,12 +86,18 @@ class PublishService:
         self.progress_updates.append(text)
         self.update()
 
-    def _build_progress_updates(self):
+    def _build_progress_updates(self, finalize: bool = False):
         if not self.progress_updates:
             return ""
-        body = "# Progress updates\n"
-        for update in self.progress_updates:
-            body += f"\n{update}"
+        progress = "\n".join(self.progress_updates)
+        if finalize:
+            progress = f"""<details>
+<summary>Click to see progress updates</summary>
+
+{progress}
+</details>
+"""
+        body = f"# Progress Updates\n\n{progress}"
         return body
 
     def _build_body(self, finalize: bool = False, status: Optional[str] = None):
@@ -101,15 +107,9 @@ class PublishService:
             body += f"\n\n# Status\n\n{status}"
         if self.pr_desc.body:
             body += f"\n\n# Description\n\n{self.pr_desc.body}"
-        progress = self._build_progress_updates()
-        if finalize:
-            progress = f"""<details>
-<summary>Click to see progress updates</summary>
-
-{progress}
-</details>
-"""
-        body += f"\n\n{progress}"
+        progress = self._build_progress_updates(finalize)
+        if progress:
+            body += f"\n\n{progress}"
         return body
 
     def update(self):
