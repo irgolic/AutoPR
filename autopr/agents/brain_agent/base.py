@@ -1,3 +1,4 @@
+import traceback
 from typing import ClassVar
 
 from git.repo import Repo
@@ -53,11 +54,17 @@ class BrainAgentBase:
         self.publish_service.update()
 
         self.log.info("Generating changes", event_=event)
-        self._generate_pr(event)
-        self.log.info("Generated changes", event_=event)
+        try:
+            self._generate_pr(event)
+        except Exception as e:
+            self.log.exception("Failed to generate pull request", event_=event, exc_info=e)
+            status = "Failed to generate pull request:\n\n" + traceback.format_exc()
+        else:
+            self.log.info("Generated changes", event_=event)
+            status = "Successfully generated pull request"
 
         # Finalize the pull request (put progress updates in a collapsible)
-        self.publish_service.finalize()
+        self.publish_service.finalize(status=status)
 
     def _generate_pr(
         self,
