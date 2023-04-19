@@ -54,10 +54,14 @@ class RailService:
             num_reasks=self.num_reasks,
         )
 
-        msg = self.get_rail_message(rail_object, raw_document)
+        prompt = self.get_rail_message(rail_object, raw_document)
         log.debug('Running rail',
                   rail_object=rail_object.__name__,
-                  rail_message=msg)
+                  rail_message=prompt)
+
+        # Format the prompt for publish service, such that the `<output> ... </output>` tags are put in a ```xml block
+        formatted_prompt = prompt.replace('<output>', '```xml\n<output>').replace('</output>', '</output>\n```')
+
         raw_o, dict_o = pr_guard(
             completion_func,
             prompt_params={
@@ -72,7 +76,7 @@ class RailService:
         if dict_o is None:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Guardrails rejected the output",
-                prompt=msg,
+                prompt=formatted_prompt,
                 raw_response=raw_o,
                 default_open=('raw_response',)
             )
@@ -85,7 +89,7 @@ class RailService:
             parsed_obj = rail_object.parse_obj(dict_o)
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Parsed output",
-                prompt=msg,
+                prompt=formatted_prompt,
                 raw_response=raw_o,
                 parsed_response=parsed_obj.json(indent=2),
                 default_open=('parsed_response',)
@@ -97,7 +101,7 @@ class RailService:
                         dict_output=dict_o)
         self.publish_service.publish_call(
             summary=f"{rail_object.__name__}: Failed to parse output dict",
-            prompt=msg,
+            prompt=formatted_prompt,
             raw_response=json.dumps(dict_o, indent=2),
             default_open=('raw_response',)
         )
