@@ -130,6 +130,7 @@ def main(
 
     # Instantiate the agents
     codegen_agent = get_codegen_agent(
+        publish_service=publish_service,
         codegen_agent_id=settings.codegen_agent_id,
         rail_service=rail_service,
         chain_service=chain_service,
@@ -138,6 +139,7 @@ def main(
         extra_params=settings.codegen_agent_config,
     )
     pull_request_agent = get_pull_request_agent(
+        publish_service=publish_service,
         pull_request_agent_id=settings.pull_request_agent_id,
         rail_service=rail_service,
         chain_service=chain_service,

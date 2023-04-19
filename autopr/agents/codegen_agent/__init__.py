@@ -9,6 +9,7 @@ from .base import CodegenAgentBase
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
 from ...services.chain_service import ChainService
+from ...services.publish_service import PublishService
 
 file_modules = glob.glob(join(dirname(__file__), "*.py"))
 file_basenames = [basename(f)[:-3] for f in file_modules if isfile(f) and not f.endswith('__init__.py')]
@@ -23,6 +24,7 @@ CodegenAgent: TypeAlias = Union[tuple(CodegenAgentBase.__subclasses__())]  # typ
 
 def get_codegen_agent(
     codegen_agent_id: str,
+    publish_service: PublishService,
     rail_service: RailService,
     chain_service: ChainService,
     diff_service: DiffService,
@@ -34,6 +36,7 @@ def get_codegen_agent(
     for service in CodegenAgentBase.__subclasses__():
         if service.id == codegen_agent_id:
             return service(
+                publish_service=publish_service,
                 rail_service=rail_service,
                 chain_service=chain_service,
                 diff_service=diff_service,

@@ -6,6 +6,7 @@ from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan
 from autopr.services.chain_service import ChainService
 from autopr.services.diff_service import DiffService
+from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
 import structlog
@@ -16,12 +17,14 @@ class CodegenAgentBase:
 
     def __init__(
         self,
+        publish_service: PublishService,
         rail_service: RailService,
         chain_service: ChainService,
         diff_service: DiffService,
         repo: Repo,
         **kwargs,
     ):
+        self.publish_service = publish_service
         self.rail_service = rail_service
         self.chain_service = chain_service
         self.diff_service = diff_service
@@ -40,6 +43,7 @@ class CodegenAgentBase:
         current_commit: CommitPlan,
     ) -> None:
         self.log.info("Generating changes", issue=issue)
+        self.publish_service.publish_update("### Generating code changes...")
         self._generate_changes(repo, issue, pr_desc, current_commit)
         self.log.info("Generated changes", issue=issue)
 
