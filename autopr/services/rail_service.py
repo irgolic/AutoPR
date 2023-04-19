@@ -1,4 +1,5 @@
 import json
+import traceback
 from typing import Callable, Any, Optional, TypeVar, Type
 
 import pydantic
@@ -77,7 +78,7 @@ class RailService:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Guardrails rejected the output",
                 prompt=formatted_prompt,
-                raw_response=raw_o,
+                raw_response=f"```json\n{raw_o}\n```",
                 default_open=('raw_response',)
             )
             log.warning(f'Got None from rail',
@@ -90,21 +91,24 @@ class RailService:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Parsed output",
                 prompt=formatted_prompt,
-                raw_response=raw_o,
-                parsed_response=parsed_obj.json(indent=2),
+                raw_response=f"```json\nraw_o\n```",
+                parsed_response=f"```json\n{parsed_obj.json(indent=2)}\n```",
                 default_open=('parsed_response',)
             )
+            return parsed_obj
         except pydantic.ValidationError:
             log.warning(f'Got invalid output from rail',
                         rail_object=rail_object.__name__,
                         raw_output=raw_o,
                         dict_output=dict_o)
-        self.publish_service.publish_call(
-            summary=f"{rail_object.__name__}: Failed to parse output dict",
-            prompt=formatted_prompt,
-            raw_response=json.dumps(dict_o, indent=2),
-            default_open=('raw_response',)
-        )
+            self.publish_service.publish_call(
+                summary=f"{rail_object.__name__}: Failed to parse output dict",
+                prompt=formatted_prompt,
+                raw_response=f"```json\n{raw_o}\n```",
+                dict_response=f"```json\n{json.dumps(dict_o, indent=2)}\n```",
+                error=traceback.format_exc(),
+                default_open=('dict_response', 'error',)
+            )
         return None
 
     def run_prompt_rail(self, rail: PromptRail) -> Optional[RailObject]:
