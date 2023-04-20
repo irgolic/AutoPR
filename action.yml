@@ -41,10 +41,13 @@ inputs:
     description: 'Template for the name of the target branch'
     default: 'autopr/{issue_number}'
   pull_request_agent_config:
-    description: 'Configuration for the planner'
+    description: 'Configuration for the planner in yaml format'
     default: ''
   codegen_agent_config:
-    description: 'Configuration for the code generator'
+    description: 'Configuration for the code generator in yaml format'
+    default: ''
+  brain_agent_config:
+    description: 'Configuration for the coordinating agent in yaml format'
     default: ''
   temperature:
     description: 'Temperature for the model'
