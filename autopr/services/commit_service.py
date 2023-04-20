@@ -47,7 +47,8 @@ class CommitService:
 
     def commit(self, commit: CommitPlan, push: bool = True) -> None:
         # Remove empty commit if exists
-        if commit is not self._empty_commit and self.repo.head.commit.message == self._empty_commit.commit_message:
+        if commit is not self._empty_commit and \
+                self.repo.head.commit.message.rstrip() == self._empty_commit.commit_message:
             self.log.debug('Removing empty commit...')
             self.repo.git.execute(["git", "reset", "--hard", "HEAD^"])
 
