@@ -28,14 +28,10 @@ class PublishService:
                            "[AutoPR](https://github.com/irgolic/AutoPR)."
 
     def _create_placeholder(self, issue: Issue) -> PullRequestDescription:
-        empty_commit = CommitPlan(
-            commit_message="[empty]",
-        )
-        self.commit_service.commit(empty_commit)
         placeholder_pr_desc = PullRequestDescription(
             title=f"Fix #{issue.number}: {issue.title}",
             body="",
-            commits=[empty_commit],
+            commits=[],
         )
         return placeholder_pr_desc
 
