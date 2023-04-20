@@ -191,7 +191,7 @@ class GithubPublishService(PublishService):
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            log.debug('Pull request updated successfully', response=response.json())
+            log.debug('Pull request updated successfully')
         else:
             log.debug('Failed to update pull request', response_text=response.text)
 
