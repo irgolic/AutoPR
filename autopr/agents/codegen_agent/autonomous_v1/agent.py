@@ -214,11 +214,15 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 lines[line_num - 1]
                 for line_num in highlight_line_nums
             ]
-            indent = min(
+            lines_for_indent = [
                 len(line) - len(line.lstrip())
                 for line in highlighted_lines
                 if line.strip()
-            )
+            ]
+            if not lines_for_indent:
+                indent = 0
+            else:
+                indent = min(lines_for_indent)
 
         # Run edit file langchain
         edit_file_chain = RewriteCodeHunkChain(
