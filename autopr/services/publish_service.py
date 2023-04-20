@@ -32,9 +32,9 @@ class PublishService:
 {error}
 """
         self.issue_link_template = "https://github.com/irgolic/AutoPR/issues/new?" \
-                                   "body={body}&" \
                                    "title={title}&" \
-                                   "labels=bug"
+                                   "labels=bug&" \
+                                   "body={body}"
 
     def _create_placeholder(self, issue: Issue) -> PullRequestDescription:
         placeholder_pr_desc = PullRequestDescription(
@@ -115,11 +115,14 @@ class PublishService:
         if sys.exc_info()[0] is not None:
             error = traceback.format_exc()
         else:
-            error = "No error"
+            error = "No traceback"
         kwargs['error'] = error
 
         body = self.issue_template.format(**kwargs)
-        title = traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])[0].strip()
+        if sys.exc_info()[0] is not None:
+            title = traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])[0].strip()
+        else:
+            title = f'Error fixing "{self.issue.title}"'
 
         def fmt(s):
             # Given https://github.com/Automattic/wp-calypso/issues/new?labels[]=People%20Management&labels[]=[Type]%20Bug&title=People:&milestone=People%20Management:%20m6&assignee=ebinnion&body=This%20is%20a%20prefilled%20issue
@@ -204,6 +207,10 @@ class GithubPublishService(PublishService):
 {shield}
 
 AutoPR encountered an error while trying to fix {issue_link}.
+
+# Details
+
+<!-- Please include any important details about the error here. -->
 """ + self.issue_template
 
     def _get_headers(self):
