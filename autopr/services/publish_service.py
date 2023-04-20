@@ -52,8 +52,16 @@ class PublishService:
             title = title.replace("_", " ")
 
             # Prefix content with quotation marks and A ZERO-WIDTH SPACE (!!!) to prevent escaping backticks
-            content = '\n'.join([f"> ​{line}" if line else "> "
-                                 for line in v.splitlines()])
+            content_lines = []
+            for line in v.splitlines():
+                if line.strip() == "```":
+                    line = "> ```"
+                elif not line:
+                    line = "> "
+                else:
+                    line = f"> ​{line}"
+                content_lines.append(line)
+            content = '\n'.join(content_lines)
 
             # Construct subsection
             subsection = f"""<details{" open" if k in default_open else ""}>
