@@ -13,6 +13,9 @@ inputs:
   base_branch:
     description: 'Base branch'
     default: 'main'
+  loading_gif_url:
+    description: 'URL of the gif to display while the PR is being generated'
+    default: 'https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif'
   model:
     description: 'Name of the OpenAI chat model'
     default: 'gpt-4'

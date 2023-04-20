@@ -18,8 +18,10 @@ class PublishService:
     def __init__(
         self,
         issue: Issue,
+        loading_gif_url: str = "https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif",
     ):
         self.issue = issue
+        self.loading_gif_url = loading_gif_url
 
         self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
         self.progress_updates = []
@@ -102,6 +104,10 @@ class PublishService:
 {progress}
 </details>
 """
+        else:
+            progress = progress + f"\n\n" \
+                                  f'<img src="{self.loading_gif_url}"' \
+                                  f' width="200" height="200"/>'
         body = f"# Progress Updates\n\n{progress}"
         return body
 
@@ -173,6 +179,7 @@ class GithubPublishService(PublishService):
     def __init__(
         self,
         issue: Issue,
+        loading_gif_url: str,
         token: str,
         owner: str,
         repo_name: str,
@@ -180,7 +187,7 @@ class GithubPublishService(PublishService):
         base_branch: str,
         run_id: str,
     ):
-        super().__init__(issue)
+        super().__init__(issue, loading_gif_url)
         self.token = token
         self.owner = owner
         self.repo = repo_name

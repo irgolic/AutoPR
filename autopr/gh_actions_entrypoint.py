@@ -89,6 +89,7 @@ if __name__ == '__main__':
         head_branch=branch_name,
         base_branch=settings.base_branch,
         run_id=run_id,
+        loading_gif_url=settings.loading_gif_url,
     )
 
     main(

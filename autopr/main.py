@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     base_branch: str = 'main'
     target_branch_name_template: str = 'autopr/{issue_number}'
+    loading_gif_url: str = "https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif"
     model: str = "gpt-4"
     temperature: float = 0.8
     rail_temperature: float = 0.4
