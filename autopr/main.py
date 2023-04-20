@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     base_branch: str
     event_name: str
     event: dict[str, Any]
+    run_id: str
     target_branch_name_template: str = 'autopr/{issue_number}'
 
     pull_request_agent_id: str = 'rail-v1'

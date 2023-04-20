@@ -137,7 +137,7 @@ class GithubPublishService(PublishService):
         owner: str,
         repo_name: str,
         head_branch: str,
-        base_branch: str
+        base_branch: str,
     ):
         super().__init__(issue, commit_service)
         self.token = token
