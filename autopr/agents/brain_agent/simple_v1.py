@@ -19,6 +19,9 @@ class BasicBrainAgent(BrainAgentBase):
         # Get the commit messages and relevant filepaths
         pr_desc = self.pull_request_agent.plan_pull_request(self.repo, issue, event)
 
+        # Publish the description
+        self.publish_service.set_pr_description(pr_desc)
+
         for current_commit in pr_desc.commits:
             # Generate the changes
             self.codegen_agent.generate_changes(
