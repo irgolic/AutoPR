@@ -117,7 +117,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         new_file_action: NewFileAction,
     ) -> str:
-        self.publish_service.publish_update("#### Creating new file")
+        self.publish_service.publish_update("### Creating new file")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path is not None
@@ -161,7 +161,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         edit_file_action: EditFileAction,
     ) -> str:
-        self.publish_service.publish_update("#### Editing existing file")
+        self.publish_service.publish_update("### Editing existing file")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path

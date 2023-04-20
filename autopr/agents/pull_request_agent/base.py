@@ -40,7 +40,7 @@ class PullRequestAgentBase:
         log = self.log.bind(issue_number=issue.number,
                             event_type=event.event_type)
         log.info("Planning PR")
-        self.publish_service.publish_update("### Planning pull request...")
+        self.publish_service.publish_update("## Planning pull request...")
         pull_request = self._plan_pull_request(repo, issue, event)
         if isinstance(pull_request, str):
             log.info("Running raw PR description through PullRequestDescription rail")
