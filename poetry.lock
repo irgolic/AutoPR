@@ -637,8 +637,8 @@ vectordb = ["faiss-cpu", "numpy"]
 [package.source]
 type = "git"
 url = "https://github.com/irgolic/guardrails.git"
-reference = "fix-choice-response"
-resolved_reference = "760c02d4175a2a6c5ecca0333580530f5344e5b8"
+reference = "main"
+resolved_reference = "cb9d1d7683eb539e65cd78d4185bddd1b1a356a6"
 
 [[package]]
 name = "huggingface-hub"
@@ -1257,14 +1257,14 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pyright"
-version = "1.1.303"
+version = "1.1.304"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.303-py3-none-any.whl", hash = "sha256:8fe3d122d7e965e2df2cef64e1ceb98cff8200f458e7892d92a4c21ee85689c7"},
-    {file = "pyright-1.1.303.tar.gz", hash = "sha256:7daa516424555681e8974b21a95c108c5def791bf5381522b1410026d4da62c1"},
+    {file = "pyright-1.1.304-py3-none-any.whl", hash = "sha256:70021bbae07fc28ed16e435f5efa65cd71e06a1888d9ca998798c283d4b3d010"},
+    {file = "pyright-1.1.304.tar.gz", hash = "sha256:87adec38081904c939e3657ab23d5fc40b7ccc22709be0af1859fc785ae4ea61"},
 ]
 
 [package.dependencies]
@@ -2044,4 +2044,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "36d43179447cc64e1b0dd32fbb0072e5098220533e65b66ee596bd7dd23a83e9"
+content-hash = "bc5e0d158499019e1c34f776c71ffbeadbfdeba7a3261cdc61ea5a5760ba36d9"
