@@ -117,7 +117,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         new_file_action: NewFileAction,
     ) -> str:
-        self.publish_service.publish_update("### Creating new file")
+        self.publish_service.publish_update(f"### Creating new file: {new_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path is not None
@@ -161,7 +161,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         edit_file_action: EditFileAction,
     ) -> str:
-        self.publish_service.publish_update("### Editing existing file")
+        self.publish_service.publish_update(f"### Editing existing file: {edit_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path
@@ -271,6 +271,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             # Show relevant code, determine what hunks to change
             context = self._make_context(repo, current_commit)
 
+            # Declare decision making
+            self.publish_service.publish_update("### Deciding what action to take")
+
             # Choose action
             action_rail = MakeDecision(
                 issue=issue,
@@ -304,9 +307,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 msg = action.commit_message
                 if msg is not None:
                     current_commit.commit_message = msg
-                    self.publish_service.publish_update(f"Finished writing commit: {msg}")
+                    self.publish_service.publish_update(f"### Finished writing commit: {msg}")
                 else:
-                    self.publish_service.publish_update("Finished writing commit")
+                    self.publish_service.publish_update("### Finished writing commit")
                 break
             else:
                 self.log.error(f"Unknown action {action.action}")
