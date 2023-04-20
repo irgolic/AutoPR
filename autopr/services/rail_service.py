@@ -78,7 +78,7 @@ class RailService:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Guardrails rejected the output",
                 prompt=formatted_prompt,
-                raw_response=f"```json\n{raw_o}\n```",
+                raw_response=raw_o,
                 default_open=('raw_response',)
             )
             log.warning(f'Got None from rail',
@@ -91,8 +91,8 @@ class RailService:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Parsed output",
                 prompt=formatted_prompt,
-                raw_response=f"```json\nraw_o\n```",
-                parsed_response=f"```json\n{parsed_obj.json(indent=2)}\n```",
+                raw_response=raw_o,
+                parsed_response=parsed_obj.json(indent=2),
                 default_open=('parsed_response',)
             )
             return parsed_obj
@@ -104,8 +104,8 @@ class RailService:
             self.publish_service.publish_call(
                 summary=f"{rail_object.__name__}: Failed to parse output dict",
                 prompt=formatted_prompt,
-                raw_response=f"```json\n{raw_o}\n```",
-                dict_response=f"```json\n{json.dumps(dict_o, indent=2)}\n```",
+                raw_response=raw_o,
+                dict_response=json.dumps(dict_o, indent=2),
                 error=traceback.format_exc(),
                 default_open=('dict_response', 'error',)
             )
