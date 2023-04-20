@@ -109,6 +109,7 @@ def main(
         repo_name=repo_name,
         head_branch=branch_name,
         base_branch=settings.base_branch,
+        run_id=settings.run_id,
     )
     rail_service = RailService(
         completions_repo=completions_repo,

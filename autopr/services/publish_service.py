@@ -98,14 +98,14 @@ class PublishService:
         body = f"# Progress Updates\n\n{progress}"
         return body
 
-    def _build_body(self, finalize: bool = False, status: Optional[str] = None):
+    def _build_body(self, success: Optional[bool] = False, status: Optional[str] = None):
         body = f"Fixes #{self.issue.number}\n\n" \
                f"{self.header}"
         if status is not None:
             body += f"\n\n# Status\n\n{status}"
         if self.pr_desc.body:
             body += f"\n\n# Description\n\n{self.pr_desc.body}"
-        progress = self._build_progress_updates(finalize)
+        progress = self._build_progress_updates(finalize=success is not None)
         if progress:
             body += f"\n\n{progress}"
         return body
@@ -115,8 +115,8 @@ class PublishService:
         title = self.pr_desc.title
         self._publish(title, body)
 
-    def finalize(self, status: Optional[str] = None):
-        body = self._build_body(finalize=True, status=status)
+    def finalize(self, success: bool):
+        body = self._build_body(success=success)
         title = self.pr_desc.title
         self._publish(title, body)
 
@@ -138,6 +138,7 @@ class GithubPublishService(PublishService):
         repo_name: str,
         head_branch: str,
         base_branch: str,
+        run_id: int,
     ):
         super().__init__(issue, commit_service)
         self.token = token
@@ -145,6 +146,7 @@ class GithubPublishService(PublishService):
         self.repo = repo_name
         self.head_branch = head_branch
         self.base_branch = base_branch
+        self.run_id = run_id
 
     def _get_headers(self):
         return {
@@ -153,10 +155,23 @@ class GithubPublishService(PublishService):
             'X-GitHub-Api-Version': '2022-11-28',
         }
 
+    def _build_body(self, success: Optional[bool] = False, status: Optional[str] = None):
+        # Make shield
+        action_url = f'https://api.github.com/repos/{self.owner}/{self.repo}/actions/runs/{self.run_id}'
+        if success is None:
+            shield = f"[![AutoPR Running](https://img.shields.io/badge/AutoPR-running-yellow)]({action_url})"
+        elif success:
+            shield = f"[![AutoPR Success](https://img.shields.io/badge/AutoPR-success-brightgreen)]({action_url})"
+        else:
+            shield = f"[![AutoPR Failure](https://img.shields.io/badge/AutoPR-failure-red)]({action_url})"
+
+        body = super()._build_body(success=success, status=status)
+        return shield + '\n\n' + body
+
     def _publish(self, title: str, body: str):
         existing_pr = self._find_existing_pr()
         if existing_pr:
-            self._update(title, body)
+            self._update_pr(title, body)
         else:
             self._create_pr(title, body)
 
@@ -176,7 +191,7 @@ class GithubPublishService(PublishService):
         else:
             log.debug('Failed to create pull request', response_text=response.text)
 
-    def _update(self, title: str, body: str):
+    def _update_pr(self, title: str, body: str):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
             log.debug("No existing pull request found to update")
