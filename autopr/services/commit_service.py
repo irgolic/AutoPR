@@ -50,7 +50,7 @@ class CommitService:
         if commit is not self._empty_commit and \
                 self.repo.head.commit.message.rstrip() == self._empty_commit.commit_message:
             self.log.debug('Removing empty commit...')
-            self.repo.git.execute(["git", "reset", "--hard", "HEAD^"])
+            self.repo.git.execute(["git", "reset", "HEAD^"])
 
         # Remove guardrails log if exists (so it's not committed later)
         if 'guardrails.log' in self.repo.untracked_files:
