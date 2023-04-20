@@ -320,7 +320,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                     )
                 )
 
-            self.publish_service.publish_update(f"Finished action {action.action}: {effect}")
+            self.publish_service.publish_update(f"Finished `{action.action}` action: {effect}")
 
             actions_history.append((action_obj, effect))
 
