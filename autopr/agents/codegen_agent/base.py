@@ -43,7 +43,7 @@ class CodegenAgentBase:
         current_commit: CommitPlan,
     ) -> None:
         self.log.info("Generating changes", issue=issue)
-        self.publish_service.publish_update("## Generating code changes...")
+        self.publish_service.publish_update(f"## Implementing commit: {current_commit.commit_message}")
         self._generate_changes(repo, issue, pr_desc, current_commit)
         self.log.info("Generated changes", issue=issue)
 

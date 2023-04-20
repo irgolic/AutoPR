@@ -304,6 +304,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 msg = action.commit_message
                 if msg is not None:
                     current_commit.commit_message = msg
+                    self.publish_service.publish_update(f"Finished writing commit: {msg}")
+                else:
+                    self.publish_service.publish_update("Finished writing commit")
                 break
             else:
                 self.log.error(f"Unknown action {action.action}")
