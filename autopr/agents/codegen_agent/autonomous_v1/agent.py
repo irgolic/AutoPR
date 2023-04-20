@@ -117,6 +117,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         new_file_action: NewFileAction,
     ) -> str:
+        self.publish_service.publish_update("#### Creating new file")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path is not None
@@ -160,6 +161,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         edit_file_action: EditFileAction,
     ) -> str:
+        self.publish_service.publish_update("#### Editing existing file")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path
@@ -282,12 +284,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             if action.action == "new_file":
                 if action.new_file is None:
                     self.log.error("No new file action")
+                    self.publish_service.publish_update("Invalid new file action")
                     break
                 action_obj = action.new_file
                 effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, action_obj)
             elif action.action == "edit_file":
                 if action.edit_file is None:
                     self.log.error("No edit file action")
+                    self.publish_service.publish_update("Invalid edit file action")
                     break
                 action_obj = action.edit_file
                 effect = self._edit_existing_file(repo, issue, pr_desc, current_commit, context, action_obj)
@@ -308,6 +312,8 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                         filepath=action_obj.filepath,
                     )
                 )
+
+            self.publish_service.publish_update(f"Finished action {action.action}: {effect}")
 
             actions_history.append((action_obj, effect))
 
