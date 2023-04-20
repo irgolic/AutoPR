@@ -94,7 +94,7 @@ class PublishService:
     def _build_progress_updates(self, finalize: bool = False):
         if not self.progress_updates:
             return ""
-        progress = "\n".join(self.progress_updates)
+        progress = "\n\n".join(self.progress_updates)
         if finalize:
             progress = f"""<details>
 <summary>Click to see progress updates</summary>
