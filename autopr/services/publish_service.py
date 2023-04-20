@@ -154,7 +154,7 @@ class GithubPublishService(PublishService):
 
     def _build_body(self, success: Optional[bool] = None, status: Optional[str] = None):
         # Make shield
-        action_url = f'https://api.github.com/repos/{self.owner}/{self.repo}/actions/runs/{self.run_id}'
+        action_url = f'https://github.com/{self.owner}/{self.repo}/actions/runs/{self.run_id}'
         if success is None:
             shield = f"[![AutoPR Running](https://img.shields.io/badge/AutoPR-running-yellow)]({action_url})"
         elif success:
