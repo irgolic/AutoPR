@@ -12,7 +12,7 @@ from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
 from .services.event_service import EventService, GithubEventService
-from .services.publish_service import GithubPublishService
+from .services.publish_service import GithubPublishService, PublishService
 from .services.rail_service import RailService
 from .agents.codegen_agent import get_codegen_agent
 from .agents.pull_request_agent import get_pull_request_agent
@@ -25,13 +25,6 @@ log = structlog.get_logger()
 
 
 class Settings(BaseSettings):
-    github_token: str
-    base_branch: str
-    event_name: str
-    event: dict[str, Any]
-    run_id: str
-    target_branch_name_template: str = 'autopr/{issue_number}'
-
     pull_request_agent_id: str = 'rail-v1'
     pull_request_agent_config: Optional[dict[str, Any]] = None
     codegen_agent_id: str = 'auto-v1'
@@ -39,6 +32,8 @@ class Settings(BaseSettings):
     brain_agent_id: str = 'simple-v1'
     brain_agent_config: Optional[dict[str, Any]] = None
 
+    base_branch: str = 'main'
+    target_branch_name_template: str = 'autopr/{issue_number}'
     model: str = "gpt-4"
     temperature: float = 0.8
     rail_temperature: float = 0.4
@@ -50,21 +45,14 @@ class Settings(BaseSettings):
 
 def main(
     repo_path: str,
+    event: EventUnion,
+    commit_service: CommitService,
+    publish_service: PublishService,
     settings: Settings,
 ):
     log.info('Starting main',
              repo_path=repo_path,
              settings=settings)
-
-    # Extract event
-    event_service = GithubEventService(
-        github_token=settings.github_token,
-    )
-    event = event_service.parse_event(settings.event_name, settings.event)
-    issue = event.issue
-
-    # Format branch name
-    branch_name = settings.target_branch_name_template.format(issue_number=issue.number)
 
     # Instantiate repo
     repo = Repo(repo_path)
@@ -77,10 +65,6 @@ def main(
     log.debug('Pulling latest changes...')
     repo.remotes.origin.pull()
 
-    # Get repo owner and name from remote URL
-    remote_url = repo.remotes.origin.url
-    owner, repo_name = remote_url.removesuffix(".git").split('/')[-2:]
-
     # Create completions repo
     completions_repo = get_completions_repo(
         model=settings.model,
@@ -90,27 +74,10 @@ def main(
         temperature=settings.temperature,
     )
 
-    # Create commit service
-    commit_service = CommitService(
-        repo=repo,
-        repo_path=repo_path,
-        branch_name=branch_name,
-        base_branch_name=settings.base_branch,
-    )
     # Create the new branch
     commit_service.overwrite_new_branch()
 
-    # Create the rest of the services
-    publish_service = GithubPublishService(
-        issue=issue,
-        commit_service=commit_service,
-        token=settings.github_token,
-        owner=owner,
-        repo_name=repo_name,
-        head_branch=branch_name,
-        base_branch=settings.base_branch,
-        run_id=settings.run_id,
-    )
+    # Create rail and chain service
     rail_service = RailService(
         completions_repo=completions_repo,
         min_tokens=settings.min_tokens,

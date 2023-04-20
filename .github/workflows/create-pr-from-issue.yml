@@ -35,9 +35,6 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       with:
-        event: ${{ toJson(github.event) }}
-        event_name: ${{ github.event_name }}
-        run_id: ${{ github.run_id }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
         codegen_agent_id: auto-v1
         pull_request_agent_id: rail-v1

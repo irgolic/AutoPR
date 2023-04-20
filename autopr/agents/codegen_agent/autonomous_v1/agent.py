@@ -408,7 +408,6 @@ if __name__ == '__main__':
         )
         publish_service = PublishService(
             issue=issue,
-            commit_service=commit_service,
         )
         rail_service = RailService(
             publish_service=publish_service,
@@ -421,11 +420,12 @@ if __name__ == '__main__':
             completions_repo=completions_repo,
         )
         codegen_agent = AutonomousCodegenAgent(
+            publish_service=publish_service,
             rail_service=rail_service,
             chain_service=chain_service,
             diff_service=diff_service,
             repo=repo,
         )
         for c in pr_desc.commits:
-            codegen_agent.generate_changes(repo, issue, pr_desc, c)
+            # codegen_agent.generate_changes(repo, issue, pr_desc, c)
             commit_service.commit(c, push=False)

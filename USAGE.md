@@ -43,8 +43,6 @@ For example, if you don't have access to `gpt-4`, you can set the parameters fol
 
 #### Inputs
 
-- `event`: The GitHub event data as a JSON string (`{{ toJson(github.event) }}`). Required.
-- `event_name`: The name of the GitHub event (`{{ github.event_name }}`). Required.
 - `github_token`: The action's GitHub token (`{{ secrets.GITHUB_TOKEN }}`). Required.
 - `base_branch`: The base branch for the pull request. Defaults to `main`.
 - `model`: The name of the OpenAI chat model to use. Defaults to `gpt-4`.

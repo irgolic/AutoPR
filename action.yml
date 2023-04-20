@@ -7,15 +7,6 @@ branding:
   icon: 'git-pull-request'
   color: 'purple'
 inputs:
-  event:
-    description: '`{{ toJson(github.event) }}`'
-    required: true
-  event_name:
-    description: '`{{ github.event_name }}`'
-    required: true
-  run_id:
-    description: '`{{ github.run_id }}`'
-    required: true
   github_token:
     description: 'GitHub token'
     required: true

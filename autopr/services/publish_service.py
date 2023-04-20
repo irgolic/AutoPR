@@ -16,10 +16,8 @@ class PublishService:
     def __init__(
         self,
         issue: Issue,
-        commit_service: CommitService,
     ):
         self.issue = issue
-        self.commit_service = commit_service
 
         self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
         self.progress_updates = []
@@ -98,7 +96,7 @@ class PublishService:
         body = f"# Progress Updates\n\n{progress}"
         return body
 
-    def _build_body(self, success: Optional[bool] = False, status: Optional[str] = None):
+    def _build_body(self, success: Optional[bool] = None, status: Optional[str] = None):
         body = f"Fixes #{self.issue.number}\n\n" \
                f"{self.header}"
         if status is not None:
@@ -132,15 +130,14 @@ class GithubPublishService(PublishService):
     def __init__(
         self,
         issue: Issue,
-        commit_service: CommitService,
         token: str,
         owner: str,
         repo_name: str,
         head_branch: str,
         base_branch: str,
-        run_id: int,
+        run_id: str,
     ):
-        super().__init__(issue, commit_service)
+        super().__init__(issue)
         self.token = token
         self.owner = owner
         self.repo = repo_name
@@ -155,7 +152,7 @@ class GithubPublishService(PublishService):
             'X-GitHub-Api-Version': '2022-11-28',
         }
 
-    def _build_body(self, success: Optional[bool] = False, status: Optional[str] = None):
+    def _build_body(self, success: Optional[bool] = None, status: Optional[str] = None):
         # Make shield
         action_url = f'https://api.github.com/repos/{self.owner}/{self.repo}/actions/runs/{self.run_id}'
         if success is None:

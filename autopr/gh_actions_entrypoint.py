@@ -1,11 +1,17 @@
+import json
 import os
 from typing import Any
+
+from git.repo import Repo
+
 from autopr.main import main, Settings
 
 import yaml
 
 from autopr.log_config import configure_logging
+from autopr.services.commit_service import CommitService
 from autopr.services.event_service import GithubEventService
+from autopr.services.publish_service import GithubPublishService
 
 configure_logging()
 
@@ -36,9 +42,59 @@ if __name__ == '__main__':
                         "Please use `env`, and add an `OPENAI_API_KEY` environment variable instead.")
         os.environ['OPENAI_API_KEY'] = os.environ['INPUT_OPENAI_API_KEY']
 
-    repo_path = os.environ['GITHUB_WORKSPACE']
+    # Get input variables
     settings = GithubActionSettings.parse_obj({})  # pyright workaround
+
+    # Get github vars
+    github_token = os.environ['INPUT_GITHUB_TOKEN']
+    repo_path = os.environ['GITHUB_WORKSPACE']
+    run_id = os.environ['GITHUB_RUN_ID']
+    event_name = os.environ['GITHUB_EVENT_NAME']
+    event_path = os.environ['GITHUB_EVENT_PATH']
+
+    # Load event
+    with open(event_path, 'r') as f:
+        event_json = json.load(f)
+
+    # Extract event
+    event_service = GithubEventService(
+        github_token=github_token,
+    )
+    event = event_service.parse_event(event_name, event_json)
+
+    # Instantiate repo
+    repo = Repo(repo_path)
+
+    # Get repo owner and name from remote URL
+    remote_url = repo.remotes.origin.url
+    owner, repo_name = remote_url.removesuffix(".git").split('/')[-2:]
+
+    # Format branch name
+    branch_name = settings.target_branch_name_template.format(issue_number=event.issue.number)
+
+    # Create commit service
+    commit_service = CommitService(
+        repo=repo,
+        repo_path=repo_path,
+        branch_name=branch_name,
+        base_branch_name=settings.base_branch,
+    )
+
+    # Create publish service
+    publish_service = GithubPublishService(
+        issue=event.issue,
+        token=github_token,
+        owner=owner,
+        repo_name=repo_name,
+        head_branch=branch_name,
+        base_branch=settings.base_branch,
+        run_id=run_id,
+    )
+
     main(
         repo_path=repo_path,
+        event=event,
+        commit_service=commit_service,
+        publish_service=publish_service,
         settings=settings,
     )
