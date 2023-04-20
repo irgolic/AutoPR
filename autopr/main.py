@@ -4,6 +4,7 @@ import openai
 from git.repo import Repo
 from pydantic import BaseSettings
 
+from .agents.brain_agent import get_brain_agent
 from .models.artifacts import Issue
 from .models.events import EventUnion
 from .repos.completions_repo import OpenAICompletionsRepo, OpenAIChatCompletionsRepo, get_completions_repo
@@ -11,7 +12,6 @@ from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
 from .services.event_service import EventService, GithubEventService
-from .services.generation_service import GenerationService
 from .services.publish_service import GithubPublishService
 from .services.rail_service import RailService
 from .agents.codegen_agent import get_codegen_agent
@@ -30,10 +30,14 @@ class Settings(BaseSettings):
     event_name: str
     event: dict[str, Any]
     target_branch_name_template: str = 'autopr/{issue_number}'
+
     pull_request_agent_id: str = 'rail-v1'
     pull_request_agent_config: Optional[dict[str, Any]] = None
     codegen_agent_id: str = 'auto-v1'
     codegen_agent_config: Optional[dict[str, Any]] = None
+    brain_agent_id: str = 'simple-v1'
+    brain_agent_config: Optional[dict[str, Any]] = None
+
     model: str = "gpt-4"
     temperature: float = 0.8
     rail_temperature: float = 0.4
@@ -130,12 +134,16 @@ def main(
         head_branch=branch_name,
         base_branch=settings.base_branch,
     )
-    generator_service = GenerationService(
+    brain_agent = get_brain_agent(
+        brain_agent_id=settings.brain_agent_id,
         codegen_agent=codegen_agent,
         pull_request_agent=pull_request_agent,
         rail_service=rail_service,
         commit_service=commit_service,
         publish_service=publish_service,
+        diff_service=diff_service,
+        chain_service=chain_service,
+        repo=repo,
     )
 
     # Create validators for guardrails
@@ -143,4 +151,4 @@ def main(
     create_filepath_validator(repo)
 
     # Generate and publish the PR
-    generator_service.generate_pr(repo, issue, event)
+    brain_agent.generate_pr(event)
