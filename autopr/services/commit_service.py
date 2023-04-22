@@ -23,6 +23,9 @@ class CommitService:
         self.base_branch_name = base_branch_name
 
         self.is_published = False
+        self._empty_commit = CommitPlan(
+            commit_message="[empty]",
+        )
 
         self.log = structlog.get_logger(service="commit")
 
@@ -39,7 +42,16 @@ class CommitService:
         # Checkout new branch
         self.repo.heads[self.branch_name].checkout()
 
+        # Create empty commit
+        self.commit(self._empty_commit)
+
     def commit(self, commit: CommitPlan, push: bool = True) -> None:
+        # Remove empty commit if exists
+        if commit is not self._empty_commit and \
+                self.repo.head.commit.message.rstrip() == self._empty_commit.commit_message:
+            self.log.debug('Removing empty commit...')
+            self.repo.git.execute(["git", "reset", "HEAD^"])
+
         # Remove guardrails log if exists (so it's not committed later)
         if 'guardrails.log' in self.repo.untracked_files:
             self.log.debug('Removing guardrails.log...')

@@ -6,6 +6,7 @@ from autopr.models.artifacts import Issue
 from autopr.models.events import EventUnion
 from autopr.models.rail_objects import PullRequestDescription
 from autopr.services.chain_service import ChainService
+from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
 import structlog
@@ -16,10 +17,12 @@ class PullRequestAgentBase:
 
     def __init__(
         self,
+        publish_service: PublishService,
         rail_service: RailService,
         chain_service: ChainService,
         **kwargs,
     ):
+        self.publish_service = publish_service
         self.rail_service = rail_service
         self.chain_service = chain_service
 
@@ -37,6 +40,7 @@ class PullRequestAgentBase:
         log = self.log.bind(issue_number=issue.number,
                             event_type=event.event_type)
         log.info("Planning PR")
+        self.publish_service.publish_update("## Planning pull request...")
         pull_request = self._plan_pull_request(repo, issue, event)
         if isinstance(pull_request, str):
             log.info("Running raw PR description through PullRequestDescription rail")

@@ -9,14 +9,14 @@ packages = [{include = "autopr"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-guardrails-ai = {git = "https://github.com/irgolic/guardrails.git", branch="fix-choice-response"}
+guardrails-ai = {git = "https://github.com/irgolic/guardrails.git", branch="main"}
 pydantic = "^1.10.6"
 gitpython = "^3.1.31"
 transformers = "^4.27.1"
 structlog = "^22.3.0"
 tenacity = "^8.2.2"
 pathspec = "^0.11.1"
-langchain = "^0.0.136"
+langchain = "^0.0.144"
 pyyaml = "^6.0"
 
 [tool.poetry.group.test.dependencies]

@@ -7,18 +7,15 @@ branding:
   icon: 'git-pull-request'
   color: 'purple'
 inputs:
-  event:
-    description: '`{{ toJson(github.event) }}`'
-    required: true
-  event_name:
-    description: '`{{ github.event_name }}`'
-    required: true
   github_token:
     description: 'GitHub token'
     required: true
   base_branch:
     description: 'Base branch'
     default: 'main'
+  loading_gif_url:
+    description: 'URL of the gif to display while the PR is being generated'
+    default: 'https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif'
   model:
     description: 'Name of the OpenAI chat model'
     default: 'gpt-4'
@@ -47,10 +44,13 @@ inputs:
     description: 'Template for the name of the target branch'
     default: 'autopr/{issue_number}'
   pull_request_agent_config:
-    description: 'Configuration for the planner'
+    description: 'Configuration for the planner in yaml format'
     default: ''
   codegen_agent_config:
-    description: 'Configuration for the code generator'
+    description: 'Configuration for the code generator in yaml format'
+    default: ''
+  brain_agent_config:
+    description: 'Configuration for the coordinating agent in yaml format'
     default: ''
   temperature:
     description: 'Temperature for the model'

@@ -6,6 +6,7 @@ from typing_extensions import TypeAlias
 from .base import PullRequestAgentBase
 from autopr.services.rail_service import RailService
 from ...services.chain_service import ChainService
+from ...services.publish_service import PublishService
 
 file_modules = glob.glob(join(dirname(__file__), "*.py"))
 file_basenames = [basename(f)[:-3] for f in file_modules if isfile(f) and not f.endswith('__init__.py')]
@@ -21,6 +22,7 @@ PullRequestAgent: TypeAlias = Union[tuple(PullRequestAgentBase.__subclasses__())
 
 def get_pull_request_agent(
     pull_request_agent_id: str,
+    publish_service: PublishService,
     rail_service: RailService,
     chain_service: ChainService,
     extra_params: Optional[dict[str, Any]] = None,
@@ -30,6 +32,7 @@ def get_pull_request_agent(
     for service in PullRequestAgentBase.__subclasses__():
         if service.id == pull_request_agent_id:
             return service(
+                publish_service=publish_service,
                 rail_service=rail_service,
                 chain_service=chain_service,
                 **extra_params

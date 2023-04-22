@@ -43,8 +43,6 @@ For example, if you don't have access to `gpt-4`, you can set the parameters fol
 
 #### Inputs
 
-- `event`: The GitHub event data as a JSON string (`{{ toJson(github.event) }}`). Required.
-- `event_name`: The name of the GitHub event (`{{ github.event_name }}`). Required.
 - `github_token`: The action's GitHub token (`{{ secrets.GITHUB_TOKEN }}`). Required.
 - `base_branch`: The base branch for the pull request. Defaults to `main`.
 - `model`: The name of the OpenAI chat model to use. Defaults to `gpt-4`.
@@ -57,8 +55,10 @@ For example, if you don't have access to `gpt-4`, you can set the parameters fol
 - `rail_temperature`: The temperature for the guardrails calls. Defaults to `0.9`.
 - `pull_request_agent_id`: The ID of the planner to use. Defaults to `rail-v1`.
 - `codegen_agent_id`: The ID of the code generator to use. Defaults to `rail-v1`.
+- `brain_agent_id`: The ID of the brain to use. Defaults to `simple-v1`.
 - `pull_request_agent_config`: The configuration for the planner. Empty by default.
 - `codegen_agent_config`: The configuration for the code generator. Empty by default.
+- `brain_agent_config`: The configuration for the coordinating agent. Empty by default.
 
 #### Agent Configuration Options
 

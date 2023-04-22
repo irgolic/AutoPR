@@ -15,6 +15,7 @@ from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
 from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
 from autopr.services.diff_service import DiffService, PatchService, GitApplyService
+from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
 
@@ -116,6 +117,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         new_file_action: NewFileAction,
     ) -> str:
+        self.publish_service.publish_update(f"### Creating new file: {new_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path is not None
@@ -159,6 +161,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         edit_file_action: EditFileAction,
     ) -> str:
+        self.publish_service.publish_update(f"### Editing existing file: {edit_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path
@@ -211,11 +214,15 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 lines[line_num - 1]
                 for line_num in highlight_line_nums
             ]
-            indent = min(
+            lines_for_indent = [
                 len(line) - len(line.lstrip())
                 for line in highlighted_lines
                 if line.strip()
-            )
+            ]
+            if not lines_for_indent:
+                indent = 0
+            else:
+                indent = min(lines_for_indent)
 
         # Run edit file langchain
         edit_file_chain = RewriteCodeHunkChain(
@@ -264,6 +271,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             # Show relevant code, determine what hunks to change
             context = self._make_context(repo, current_commit)
 
+            # Declare decision making
+            self.publish_service.publish_update("### Deciding what action to take")
+
             # Choose action
             action_rail = MakeDecision(
                 issue=issue,
@@ -281,12 +291,14 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             if action.action == "new_file":
                 if action.new_file is None:
                     self.log.error("No new file action")
+                    self.publish_service.publish_update("Invalid new file action")
                     break
                 action_obj = action.new_file
                 effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, action_obj)
             elif action.action == "edit_file":
                 if action.edit_file is None:
                     self.log.error("No edit file action")
+                    self.publish_service.publish_update("Invalid edit file action")
                     break
                 action_obj = action.edit_file
                 effect = self._edit_existing_file(repo, issue, pr_desc, current_commit, context, action_obj)
@@ -295,6 +307,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 msg = action.commit_message
                 if msg is not None:
                     current_commit.commit_message = msg
+                    self.publish_service.publish_update(f"### Finished writing commit: {msg}")
+                else:
+                    self.publish_service.publish_update("### Finished writing commit")
                 break
             else:
                 self.log.error(f"Unknown action {action.action}")
@@ -307,6 +322,8 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                         filepath=action_obj.filepath,
                     )
                 )
+
+            self.publish_service.publish_update(f"Finished `{action.action}` action: {effect}")
 
             actions_history.append((action_obj, effect))
 
@@ -389,25 +406,32 @@ if __name__ == '__main__':
         completions_repo = OpenAIChatCompletionsRepo(
             model="gpt-4",
         )
-        rail_service = RailService(
-            completions_repo=completions_repo,
-        )
-        diff_service = GitApplyService(repo)
         commit_service = CommitService(
             repo,
             repo_path=tmpdir,
             branch_name="hah",
             base_branch_name="main",
         )
+        publish_service = PublishService(
+            issue=issue,
+        )
+        rail_service = RailService(
+            publish_service=publish_service,
+            completions_repo=completions_repo,
+        )
+        diff_service = GitApplyService(repo)
+
         chain_service = ChainService(
+            publish_service=publish_service,
             completions_repo=completions_repo,
         )
         codegen_agent = AutonomousCodegenAgent(
+            publish_service=publish_service,
             rail_service=rail_service,
             chain_service=chain_service,
             diff_service=diff_service,
             repo=repo,
         )
         for c in pr_desc.commits:
-            codegen_agent.generate_changes(repo, issue, pr_desc, c)
+            # codegen_agent.generate_changes(repo, issue, pr_desc, c)
             commit_service.commit(c, push=False)
