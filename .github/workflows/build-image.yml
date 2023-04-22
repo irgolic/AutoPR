@@ -26,7 +26,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: "docker.io/irgolic/autopr:latest"
+        tags: "docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/autopr:latest"
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -50,6 +50,6 @@ jobs:
       with:
         context: .
         push: true
-        tags: "docker.io/irgolic/autopr:${{ github.ref_name }}"
+        tags: "docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/autopr:${{ github.ref_name }}"
         cache-from: type=gha
         cache-to: type=gha,mode=max
