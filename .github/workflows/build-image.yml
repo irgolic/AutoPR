@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  packages: write
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: "${{ github.repository_owner }}/autopr"
