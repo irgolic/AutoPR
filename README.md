@@ -22,10 +22,9 @@ Triggered by adding a label containing `AutoPR` to an issue, AutoPR will:
 
 - [X] Automatically write pull requests based on labeled issues
 - [X] Autonomously generate code through iterative and adaptive planning
-- [ ] Vector search through repository contents
-- [ ] Implement advanced codegen techniques like [Reflexion](https://arxiv.org/abs/2303.11366) and [RepoCoder](https://arxiv.org/abs/2303.12570)
-- [ ] Respond to PR comments
-- [ ] Fix specific code hunks by highlighted line range in code review
+- [ ] Vector search through repository contents (https://github.com/irgolic/AutoPR/issues/55)
+- [ ] Improving codegen performance (https://github.com/irgolic/AutoPR/issues/56)
+- [ ] Iterate with PR comments and code review (https://github.com/irgolic/AutoPR/issues/31)
 - [ ] ChatGPT plugin that writes an issue during the course of a conversation
 - [ ] User-configurable tasks like "add tests", "add docs", "add type hints"
 - [ ] User-configurable semantic CI checks like "if file x changes, ensure file y reflects the change"
