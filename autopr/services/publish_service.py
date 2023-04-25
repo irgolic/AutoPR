@@ -173,12 +173,13 @@ class PublishService:
     def finalize(self, success: bool):
         body = self._build_body(success=success)
         title = self.pr_desc.title
-        self._publish(title, body)
+        self._publish(title, body, success=success)
 
     def _publish(
         self,
         title: str,
-        body: str
+        body: str,
+        success: bool = False,
     ):
         raise NotImplementedError
 
@@ -244,14 +245,14 @@ AutoPR encountered an error while trying to fix {issue_link}.
         body = super()._build_body(success=success)
         return shield + '\n\n' + body
 
-    def _publish(self, title: str, body: str):
+    def _publish(self, title: str, body: str, success: bool = False):
         existing_pr = self._find_existing_pr()
         if existing_pr:
-            self._update_pr(title, body)
+            self._update_pr(title, body, success)
         else:
-            self._create_pr(title, body)
+            self._create_pr(title, body, success)
 
-    def _create_pr(self, title: str, body: str):
+    def _create_pr(self, title: str, body: str, success: bool):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         data = {
@@ -259,6 +260,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'base': self.base_branch,
             'title': title,
             'body': body,
+            'draft': not success,
         }
         response = requests.post(url, json=data, headers=headers)
 
@@ -267,7 +269,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         else:
             log.debug('Failed to create pull request', response_text=response.text)
 
-    def _update_pr(self, title: str, body: str):
+    def _update_pr(self, title: str, body: str, success: bool):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
             log.debug("No existing pull request found to update")
@@ -278,6 +280,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         data = {
             'title': title,
             'body': body,
+            'draft': not success,
         }
         response = requests.patch(url, json=data, headers=headers)
 
