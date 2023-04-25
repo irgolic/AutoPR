@@ -198,15 +198,16 @@ class PublishService:
 {progress}
 </details>
 """
-        else:
-            progress = progress + f"\n\n" \
-                                  f'<img src="{self.loading_gif_url}"' \
-                                  f' width="200" height="200"/>'
+
         return progress
 
     def _build_progress_updates(self, finalize: bool = False):
         progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
         body = f"## Progress Updates\n\n{progress}"
+        if not finalize:
+            body += f"\n\n" \
+                    f'<img src="{self.loading_gif_url}"' \
+                    f' width="200" height="200"/>'
         return body
 
     def _build_issue_template_link(self, **kwargs):
