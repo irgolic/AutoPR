@@ -153,7 +153,7 @@ class PublishService:
         progress = ""
         for section in self.sections_list:
             if section.level == 0:
-                continue
+                pass
             elif section.level == 1:
                 progress += f"### {section.title}\n\n"
             elif section.level == 2:
