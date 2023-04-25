@@ -3,6 +3,7 @@ import sys
 import traceback
 from typing import Optional
 
+import pydantic
 import requests
 
 from autopr.models.artifacts import Issue
@@ -15,6 +16,13 @@ from autopr.services.commit_service import CommitService
 log = structlog.get_logger()
 
 
+class UpdateSection(pydantic.BaseModel):
+    level: int
+    title: str
+    updates: list[str] = pydantic.Field(default_factory=list)
+    result: Optional[str] = None
+
+
 class PublishService:
     def __init__(
         self,
@@ -25,7 +33,13 @@ class PublishService:
         self.loading_gif_url = loading_gif_url
 
         self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
-        self.progress_updates = []
+        self.sections_stack: list[UpdateSection] = [
+            UpdateSection(
+                level=0,
+                title="root",
+            )
+        ]
+        self.sections_list: list[UpdateSection] = []
 
         self.issue_template = """
 # Traceback
@@ -48,6 +62,7 @@ class PublishService:
     def publish_call(
         self,
         summary: str,
+        section_title: Optional[str] = None,
         default_open=('response',),
         **kwargs
     ):
@@ -84,20 +99,80 @@ class PublishService:
 
 </details>
 """
-        self.publish_update(progress_str)
+        self.publish_update(progress_str, section_title=section_title)
 
     def set_pr_description(self, pr: PullRequestDescription):
         self.pr_desc = pr
         self.update()
 
-    def publish_update(self, text: str):
-        self.progress_updates.append(text)
+    def publish_update(
+        self,
+        text: str,
+        section_title: Optional[str] = None,
+    ):
+        self.sections_stack[-1].updates.append(text)
+        if section_title:
+            if len(self.sections_stack) == 1:
+                raise ValueError("Cannot set section title on root section")
+            self.sections_stack[-1].title = section_title
+        self.update()
+
+    def start_section(
+        self,
+        title: str,
+    ):
+        new_section = UpdateSection(
+            level=len(self.sections_stack),
+            title=title,
+        )
+        self.sections_stack.append(new_section)
+        self.sections_list.append(new_section)
+        self.update()
+
+    def update_section(self, title: str):
+        if len(self.sections_stack) == 1:
+            raise ValueError("Cannot set section title on root section")
+        self.sections_stack[-1].title = title
+        self.update()
+
+    def end_section(
+        self,
+        title: Optional[str] = None,
+        result: Optional[str] = None,
+    ):
+        if len(self.sections_stack) == 1:
+            raise ValueError("Cannot end root section")
+        if title:
+            self.sections_stack[-1].title = title
+        self.sections_stack[-1].result = result
+        self.sections_stack.pop()
+
         self.update()
 
     def _build_progress_updates(self, finalize: bool = False):
-        if not self.progress_updates:
-            return ""
-        progress = "\n\n".join(self.progress_updates)
+        progress = ""
+        for section in self.sections_list:
+            if section.level == 0:
+                continue
+            elif section.level == 1:
+                progress += f"### {section.title}\n\n"
+            elif section.level == 2:
+                progress += f"#### {section.title}\n\n"
+            else:
+                progress += f"##### {section.title}\n\n"
+            if section.updates:
+                updates = "\n\n".join(section.updates)
+                progress += f"""<details>
+<summary>Steps</summary>
+
+{updates}
+</details>""" + "\n\n"
+            if section.result:
+                progress += f"""<details>
+<summary>Result</summary>
+
+{section.result}
+</details>""" + "\n\n"
         if finalize:
             progress = f"""<details>
 <summary>Click to see progress updates</summary>
@@ -109,7 +184,7 @@ class PublishService:
             progress = progress + f"\n\n" \
                                   f'<img src="{self.loading_gif_url}"' \
                                   f' width="200" height="200"/>'
-        body = f"# Progress Updates\n\n{progress}"
+        body = f"## Progress Updates\n\n{progress}"
         return body
 
     def _build_issue_template_link(self, **kwargs):
@@ -265,7 +340,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'body': body,
         }
         if self._drafts_supported:
-            data['draft'] = not success
+            data['draft'] = "true" if not success else "false"
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
@@ -303,7 +378,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'body': body,
         }
         if self._drafts_supported:
-            data['draft'] = not success
+            data['draft'] = "true" if not success else "false"
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:

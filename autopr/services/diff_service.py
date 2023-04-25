@@ -18,6 +18,10 @@ class DiffService:
     def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
         raise NotImplementedError()
 
+    def get_diff(self) -> DiffStr:
+        diff = self.repo.git.execute(["git", "diff", "--cached"])
+        return DiffStr(diff)
+
 
 class GitApplyService(DiffService):
     def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
