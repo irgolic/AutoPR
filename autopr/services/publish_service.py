@@ -192,12 +192,14 @@ class PublishService:
     def _build_progress_updates(self, finalize: bool = False):
         progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
         if finalize:
-            progress = f"""<details>
-        <summary>Click to see progress updates</summary>
-
-        {progress}
-        </details>
-        """
+#             progress = f"""<details>
+# <summary>Click to see progress updates</summary>
+#
+# {progress}
+# </details>
+# """
+            # TODO should we put this in a collapsible on finalize or not? Now it's pretty short
+            pass
         else:
             progress += f"\n\n" \
                     f'<img src="{self.loading_gif_url}"' \
