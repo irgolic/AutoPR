@@ -151,7 +151,14 @@ class PublishService:
 
     def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
         progress = ""
-        if section.level == 1:
+        if section.level == 0:
+            return '\n\n'.join(
+                self._build_progress_update(s, finalize=finalize)
+                if isinstance(s, UpdateSection)
+                else s
+                for s in section.updates
+            )
+        elif section.level == 1:
             progress += f"### {section.title}\n\n"
         elif section.level == 2:
             progress += f"#### {section.title}\n\n"
@@ -163,7 +170,7 @@ class PublishService:
         for update in section.updates:
             if isinstance(update, UpdateSection):
                 # Recursively build updates
-                updates += self._build_progress_update(update, finalize=finalize)
+                updates += [self._build_progress_update(update, finalize=finalize)]
                 continue
             updates += [update]
 
