@@ -171,10 +171,12 @@ class PublishService:
 {updates}
 </details>""" + "\n\n"
             if section.result:
+                # prefix with quotation marks
+                result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
                 progress += f"""<details>
 <summary>Result</summary>
 
-{section.result}
+{result}
 </details>""" + "\n\n"
         if finalize:
             progress = f"""<details>
