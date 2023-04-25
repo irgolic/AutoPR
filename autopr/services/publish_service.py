@@ -158,12 +158,12 @@ class PublishService:
                 else s
                 for s in section.updates
             )
-        elif section.level == 1:
-            progress += f"### {section.title}\n\n"
-        elif section.level == 2:
-            progress += f"#### {section.title}\n\n"
-        else:
-            progress += f"##### {section.title}\n\n"
+        # elif section.level == 1:
+        #     progress += f"### {section.title}\n\n"
+        # elif section.level == 2:
+        #     progress += f"#### {section.title}\n\n"
+        # else:
+        #     progress += f"##### {section.title}\n\n"
 
         # Get list of steps
         updates = []
@@ -179,7 +179,7 @@ class PublishService:
         updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
 
         progress += f"""<details>
-<summary>Steps</summary>
+<summary>{section.title}</summary>
 
 {updates}
 </details>"""
