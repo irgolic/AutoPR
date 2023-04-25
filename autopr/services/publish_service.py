@@ -158,12 +158,6 @@ class PublishService:
                 else s
                 for s in section.updates
             )
-        # elif section.level == 1:
-        #     progress += f"### {section.title}\n\n"
-        # elif section.level == 2:
-        #     progress += f"#### {section.title}\n\n"
-        # else:
-        #     progress += f"##### {section.title}\n\n"
 
         # Get list of steps
         updates = []
@@ -174,6 +168,15 @@ class PublishService:
                 continue
             updates += [update]
 
+        # Add result as an open section at the end of updates
+        if section.result:
+            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
+            updates += [f"""<details open>
+<summary>Result</summary>
+
+{result}
+</details>"""]
+
         # Prefix updates with quotation
         updates = '\n\n'.join(updates)
         updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
@@ -182,13 +185,6 @@ class PublishService:
 <summary>{section.title}</summary>
 
 {updates}
-</details>"""
-        if section.result:
-            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
-            progress += '\n\n' + f"""<details>
-<summary>Result</summary>
-
-{result}
 </details>"""
 
         return progress
