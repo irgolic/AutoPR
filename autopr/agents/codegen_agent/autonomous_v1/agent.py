@@ -259,6 +259,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         with open(path, "w") as f:
             f.write("\n".join(lines))
 
+        self.publish_service.update_section(title=f"Edited existing file: {edit_file_action.filepath}")
         return edit_file_hunk.outcome
 
     def _generate_changes(
@@ -329,7 +330,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 )
 
             # TODO add diff to result
-            self.publish_service.end_section(f"Finished `{action.action}` action: {effect}")
 
             actions_history.append((action_obj, effect))
 
