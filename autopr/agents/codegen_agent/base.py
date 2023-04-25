@@ -49,7 +49,7 @@ class CodegenAgentBase:
         # get diff result
         diff = self.diff_service.get_diff()
         # put in backticks
-        diff = f"```diff\n{diff}\n```"
+        diff = f"```diff\n{diff}\n```" if diff else None
         # publish diff
         self.publish_service.end_section(result=diff)
 
