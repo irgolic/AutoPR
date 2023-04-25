@@ -1,3 +1,4 @@
+import json
 import sys
 import traceback
 from typing import Optional
@@ -204,6 +205,8 @@ class GithubPublishService(PublishService):
         self.base_branch = base_branch
         self.run_id = run_id
 
+        self._drafts_supported = True
+
         self.issue_template = """
 {shield}
 
@@ -260,14 +263,32 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'base': self.base_branch,
             'title': title,
             'body': body,
-            'draft': not success,
         }
+        if self._drafts_supported:
+            data['draft'] = not success
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
             log.debug('Pull request created successfully', response=response.json())
-        else:
-            log.debug('Failed to create pull request', response_text=response.text)
+            return
+
+        # if draft pull request is not supported
+        if self._is_draft_error(response.text):
+            del data['draft']
+            response = requests.post(url, json=data, headers=headers)
+            if response.status_code == 201:
+                log.debug('Pull request created successfully', response=response.json())
+                return
+        log.debug('Failed to create pull request', response_text=response.text)
+
+    def _is_draft_error(self, response_text: str):
+        response_obj = json.loads(response_text)
+        is_draft_error = 'message' in response_obj and \
+            'draft pull requests are not supported' in response_obj['message'].lower()
+        if is_draft_error:
+            log.warning("Pull request drafts error on this repo")
+            self._drafts_supported = False
+        return is_draft_error
 
     def _update_pr(self, title: str, body: str, success: bool):
         existing_pr = self._find_existing_pr()
@@ -280,14 +301,22 @@ AutoPR encountered an error while trying to fix {issue_link}.
         data = {
             'title': title,
             'body': body,
-            'draft': not success,
         }
+        if self._drafts_supported:
+            data['draft'] = not success
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
             log.debug('Pull request updated successfully')
-        else:
-            log.debug('Failed to update pull request', response_text=response.text)
+
+        # if draft pull request is not supported
+        if self._is_draft_error(response.text):
+            del data['draft']
+            response = requests.patch(url, json=data, headers=headers)
+            if response.status_code == 200:
+                log.debug('Pull request updated successfully')
+                return
+        log.debug('Failed to update pull request', response_text=response.text)
 
     def _find_existing_pr(self):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
