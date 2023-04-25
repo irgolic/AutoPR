@@ -190,24 +190,23 @@ class PublishService:
 
 {result}
 </details>"""
-        if finalize:
-            progress = f"""<details>
-<summary>Click to see progress updates</summary>
-        return progress
-
-{progress}
-</details>
-"""
 
         return progress
 
     def _build_progress_updates(self, finalize: bool = False):
         progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
-        body = f"## Progress Updates\n\n{progress}"
-        if not finalize:
-            body += f"\n\n" \
+        if finalize:
+            progress = f"""<details>
+        <summary>Click to see progress updates</summary>
+
+        {progress}
+        </details>
+        """
+        else:
+            progress += f"\n\n" \
                     f'<img src="{self.loading_gif_url}"' \
                     f' width="200" height="200"/>'
+        body = f"## Progress Updates\n\n{progress}"
         return body
 
     def _build_issue_template_link(self, **kwargs):
