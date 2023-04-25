@@ -287,6 +287,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             action = self.rail_service.run_prompt_rail(action_rail)
             if action is None or not isinstance(action, Action):
                 self.log.error("Action choice failed")
+                self.publish_service.end_section("Error (invalid action choice)")
                 break
 
             # Run action
