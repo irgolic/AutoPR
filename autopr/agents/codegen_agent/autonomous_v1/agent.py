@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 from collections import defaultdict
 from typing import Optional
@@ -240,19 +241,29 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             self.publish_service.update_section(title=f"Failed to edit file: {edit_file_action.filepath}")
             return "Failed to edit file"
 
+        new_lines = edit_file_hunk.contents
+        # if all lines start with "<int> | " or "<int> * "
+        if all(re.match(r"^\s*\d+\s*[|*]\s*", line)
+               for line in new_lines.splitlines()):
+            # Remove the prefix from all lines
+            new_lines = "\n".join(
+                re.sub(r"^\s*\d+\s*[|*]\s*", "", line)
+                for line in new_lines.splitlines()
+            )
+
         # Add indentation to new lines
-        new_lines = []
-        for line in self._split_into_lines(edit_file_hunk.contents):
+        indented_lines = []
+        for line in self._split_into_lines(new_lines):
             if not line.strip():
-                new_lines.append("")
+                indented_lines.append("")
                 continue
-            new_lines.append(" " * indent + line)
+            indented_lines.append(" " * indent + line)
 
         # Replace lines in file
         if start_line is not None and end_line is not None:
-            lines = lines[:start_line - 1] + new_lines + lines[end_line:]
+            lines = lines[:start_line - 1] + indented_lines + lines[end_line:]
         else:
-            lines = new_lines
+            lines = indented_lines
 
         # Write file
         path = os.path.join(repo_path, filepath)
