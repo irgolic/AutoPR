@@ -386,6 +386,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         if response.status_code == 200:
             log.debug('Pull request updated successfully')
+            return
 
         # if draft pull request is not supported
         if self._is_draft_error(response.text):
