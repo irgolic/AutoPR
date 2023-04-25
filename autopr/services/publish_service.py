@@ -182,14 +182,26 @@ class PublishService:
 <summary>Steps</summary>
 
 {updates}
-</details>""" + "\n\n"
+</details>"""
         if section.result:
             result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
-            progress += f"""<details>
+            progress += '\n\n' + f"""<details>
 <summary>Result</summary>
 
 {result}
-</details>""" + "\n\n"
+</details>"""
+        if finalize:
+            progress = f"""<details>
+<summary>Click to see progress updates</summary>
+        return progress
+
+{progress}
+</details>
+"""
+        else:
+            progress = progress + f"\n\n" \
+                                  f'<img src="{self.loading_gif_url}"' \
+                                  f' width="200" height="200"/>'
         return progress
 
     def _build_progress_updates(self, finalize: bool = False):
