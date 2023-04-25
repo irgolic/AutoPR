@@ -19,7 +19,12 @@ class DiffService:
         raise NotImplementedError()
 
     def get_diff(self) -> DiffStr:
-        diff = self.repo.git.execute(["git", "diff", "--cached"])
+        # Add all files in repo
+        self.repo.git.execute(["git", "add", "."])
+        # Get diff
+        diff = self.repo.git.execute(["git", "diff", "--staged"])
+        # Reset repo
+        self.repo.git.execute(["git", "reset"])
         return DiffStr(diff)
 
 
