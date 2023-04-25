@@ -330,6 +330,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 )
 
             # TODO add diff to result
+            self.publish_service.end_section()
 
             actions_history.append((action_obj, effect))
 
