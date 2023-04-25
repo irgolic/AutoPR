@@ -1,7 +1,7 @@
 import json
 import sys
 import traceback
-from typing import Optional
+from typing import Optional, Union
 
 import pydantic
 import requests
@@ -19,7 +19,7 @@ log = structlog.get_logger()
 class UpdateSection(pydantic.BaseModel):
     level: int
     title: str
-    updates: list[str] = pydantic.Field(default_factory=list)
+    updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
     result: Optional[str] = None
 
 
@@ -125,8 +125,8 @@ class PublishService:
             level=len(self.sections_stack),
             title=title,
         )
+        self.sections_stack[-1].updates.append(new_section)  # Add the new section as a child
         self.sections_stack.append(new_section)
-        self.sections_list.append(new_section)
         self.update()
 
     def update_section(self, title: str):
@@ -149,46 +149,44 @@ class PublishService:
 
         self.update()
 
-    def _build_progress_updates(self, finalize: bool = False):
+    def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
         progress = ""
-        for section in self.sections_list:
-            if section.level == 0:
-                pass
-            elif section.level == 1:
-                progress += f"### {section.title}\n\n"
-            elif section.level == 2:
-                progress += f"#### {section.title}\n\n"
-            else:
-                progress += f"##### {section.title}\n\n"
-            if section.updates:
-                # join updates with double newlines
-                updates = "\n\n".join(section.updates)
-                # prefix with quotation marks
-                updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
-                progress += f"""<details>
+        if section.level == 1:
+            progress += f"### {section.title}\n\n"
+        elif section.level == 2:
+            progress += f"#### {section.title}\n\n"
+        else:
+            progress += f"##### {section.title}\n\n"
+
+        # Get list of steps
+        updates = []
+        for update in section.updates:
+            if isinstance(update, UpdateSection):
+                # Recursively build updates
+                updates += self._build_progress_update(update, finalize=finalize)
+                continue
+            updates += [update]
+
+        # Prefix updates with quotation
+        updates = '\n\n'.join(updates)
+        updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
+
+        progress += f"""<details>
 <summary>Steps</summary>
 
 {updates}
 </details>""" + "\n\n"
-            if section.result:
-                # prefix with quotation marks
-                result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
-                progress += f"""<details>
+        if section.result:
+            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
+            progress += f"""<details>
 <summary>Result</summary>
 
 {result}
 </details>""" + "\n\n"
-        if finalize:
-            progress = f"""<details>
-<summary>Click to see progress updates</summary>
+        return progress
 
-{progress}
-</details>
-"""
-        else:
-            progress = progress + f"\n\n" \
-                                  f'<img src="{self.loading_gif_url}"' \
-                                  f' width="200" height="200"/>'
+    def _build_progress_updates(self, finalize: bool = False):
+        progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
         body = f"## Progress Updates\n\n{progress}"
         return body
 
