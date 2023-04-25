@@ -161,7 +161,10 @@ class PublishService:
             else:
                 progress += f"##### {section.title}\n\n"
             if section.updates:
+                # join updates with double newlines
                 updates = "\n\n".join(section.updates)
+                # prefix with quotation marks
+                updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
                 progress += f"""<details>
 <summary>Steps</summary>
 
