@@ -157,7 +157,6 @@ class PublishService:
         self.update()
 
     def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
-        progress = ""
         if section.level == 0:
             return '\n\n'.join(
                 self._build_progress_update(s, finalize=finalize)
@@ -166,6 +165,7 @@ class PublishService:
                 for s in section.updates
             )
 
+        progress = ""
         # Get list of steps
         updates = []
         for update in section.updates:
@@ -412,7 +412,9 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            self.log.debug('Pull request updated successfully')
+            self.log.debug('Pull request updated successfully',
+                           response=response.json(),
+                           headers=response.headers)
             return
 
         # if draft pull request is not supported
