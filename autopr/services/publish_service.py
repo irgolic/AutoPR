@@ -2,7 +2,7 @@ import json
 import sys
 import traceback
 import urllib.parse
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 import pydantic
 import requests
@@ -303,6 +303,7 @@ class GithubPublishService(PublishService):
         self.run_id = run_id
 
         self._drafts_supported = True
+        self._pr_number = None
 
         self.issue_template = """
 {shield}
@@ -356,7 +357,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
     def _publish(self, title: str, body: str, success: bool = False):
         existing_pr = self._find_existing_pr()
         if existing_pr:
-            self._update_pr(title, body, success)
+            self._update_pr(existing_pr, title, body, success)
         else:
             self._create_pr(title, body, success)
 
@@ -402,43 +403,76 @@ AutoPR encountered an error while trying to fix {issue_link}.
             self._drafts_supported = False
         return is_draft_error
 
-    def _update_pr(self, title: str, body: str, success: bool):
-        existing_pr = self._find_existing_pr()
-        if not existing_pr:
-            self.log.debug("No existing pull request found to update")
+    def _set_pr_draft_status(self, pull_request_node_id: str, is_draft: bool):
+        # sadly this is only supported by graphQL
+        if is_draft:
+            graphql_query = '''
+                mutation ConvertPullRequestToDraft($pullRequestId: ID!) {
+                  convertPullRequestToDraft(input: { pullRequestId: $pullRequestId }) {
+                    clientMutationId
+                  }
+                }
+            '''
+        else:
+            graphql_query = '''
+                mutation MarkPullRequestReadyForReview($pullRequestId: ID!) {
+                  markPullRequestReadyForReview(input: { pullRequestId: $pullRequestId }) {
+                    clientMutationId
+                  }
+                }
+            '''
+        headers = self._get_headers() | {
+            'Content-Type': 'application/json'
+        }
+
+        # Undraft the pull request
+        data = {'pullRequestId': pull_request_node_id}
+        response = requests.post(
+            'https://api.github.com/graphql',
+            headers=headers,
+            json={'query': graphql_query, 'variables': data}
+        )
+
+        if response.status_code == 200:
+            self.log('Pull request draft status updated successfully',
+                     response=response.json(),
+                     headers=response.headers)
             return
 
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{existing_pr["number"]}'
+        self.log('Failed to update pull request draft status',
+                 code=response.status_code,
+                 response=response.json(),
+                 headers=response.headers)
+        self._drafts_supported = False
+
+    def _update_pr(self, existing_pr: dict[str, Any], title: str, body: str, success: bool):
+        pr_number = existing_pr['number']
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{pr_number}'
         headers = self._get_headers()
         data = {
             'title': title,
             'body': body,
         }
-        if self._drafts_supported:
-            data['draft'] = "true" if not success else "false"
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
             self.log.debug('Pull request updated successfully',
                            response=response.json(),
                            headers=response.headers)
+            # Update draft status
+            if self._drafts_supported:
+                self._set_pr_draft_status(existing_pr['node_id'], not success)
             return
 
-        # if draft pull request is not supported
-        if self._is_draft_error(response.text):
-            del data['draft']
-            response = requests.patch(url, json=data, headers=headers)
-            if response.status_code == 200:
-                self.log.debug('Pull request updated successfully',
-                               response=response.json(),
-                               headers=response.headers)
-                return
         self.log.debug('Failed to update pull request',
                        code=response.status_code,
                        response=response.json(),
                        headers=response.headers)
 
     def _find_existing_pr(self):
+        """
+        Returns the PR dict of the first open pull request with the same head and base branches
+        """
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         params = {'state': 'open', 'head': f'{self.owner}:{self.head_branch}', 'base': self.base_branch}
