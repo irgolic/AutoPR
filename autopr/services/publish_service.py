@@ -174,7 +174,7 @@ class PublishService:
         if section.result:
             result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
             updates += [f"""<details open>
-<summary>Result</summary>
+<summary>📝 Result</summary>
 
 {result}
 </details>"""]
