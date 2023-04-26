@@ -85,8 +85,8 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
 
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
-        wait=wait_random_exponential(min=1, max=60),
-        stop=stop_after_attempt(6)
+        wait=wait_random_exponential(min=1, max=240),
+        stop=stop_after_attempt(8)
     )
     def _complete(
         self,
@@ -130,8 +130,8 @@ class OpenAICompletionsRepo(CompletionsRepo):
 
     @retry(
         retry=retry_if_exception_type(openai.error.OpenAIError),
-        wait=wait_random_exponential(min=1, max=60),
-        stop=stop_after_attempt(6)
+        wait=wait_random_exponential(min=1, max=240),
+        stop=stop_after_attempt(8)
     )
     def _complete(
         self,
