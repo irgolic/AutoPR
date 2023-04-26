@@ -42,9 +42,11 @@ class PublishService:
         self.sections_list: list[UpdateSection] = []
 
         self.issue_template = """
-# Traceback
+## Traceback
 
+```
 {error}
+```
 """
         self.issue_link_template = "https://github.com/irgolic/AutoPR/issues/new?" \
                                    "title={title}&" \
@@ -226,6 +228,10 @@ class PublishService:
             return s\
                 .replace(" ", "%20")\
                 .replace("\n", "%0A")\
+                .replace("<", "%3C")\
+                .replace(">", "%3E")\
+                .replace("!", "%21")\
+                .replace("#", "%23")\
 
         return self.issue_link_template.format(
             body=fmt(body),
@@ -307,9 +313,17 @@ class GithubPublishService(PublishService):
 
 AutoPR encountered an error while trying to fix {issue_link}.
 
-# Details
+## Details
+
+
+
+
 
 <!-- Please include any important details about the error here. -->
+
+
+
+
 """ + self.issue_template
 
     def _get_headers(self):
