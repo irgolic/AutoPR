@@ -374,7 +374,9 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
-            self.log.debug('Pull request created successfully', response=response.json())
+            self.log.debug('Pull request created successfully',
+                           response=response.json(),
+                           headers=response.headers)
             return
 
         # if draft pull request is not supported
@@ -382,9 +384,14 @@ AutoPR encountered an error while trying to fix {issue_link}.
             del data['draft']
             response = requests.post(url, json=data, headers=headers)
             if response.status_code == 201:
-                self.log.debug('Pull request created successfully', response=response.json())
+                self.log.debug('Pull request created successfully',
+                               response=response.json(),
+                               headers=response.headers)
                 return
-        self.log.debug('Failed to create pull request', response_text=response.text)
+        self.log.debug('Failed to create pull request',
+                       code=response.status_code,
+                       response=response.json(),
+                       headers=response.headers)
 
     def _is_draft_error(self, response_text: str):
         response_obj = json.loads(response_text)
@@ -422,9 +429,14 @@ AutoPR encountered an error while trying to fix {issue_link}.
             del data['draft']
             response = requests.patch(url, json=data, headers=headers)
             if response.status_code == 200:
-                self.log.debug('Pull request updated successfully')
+                self.log.debug('Pull request updated successfully',
+                               response=response.json(),
+                               headers=response.headers)
                 return
-        self.log.debug('Failed to update pull request', response_text=response.text)
+        self.log.debug('Failed to update pull request',
+                       code=response.status_code,
+                       response=response.json(),
+                       headers=response.headers)
 
     def _find_existing_pr(self):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
