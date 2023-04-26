@@ -302,6 +302,8 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 self.publish_service.end_section("Error (invalid action choice)")
                 break
 
+            filepaths = None
+
             # Run action
             if action.action == "new_file":
                 if action.new_file is None:
@@ -310,6 +312,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                     break
                 action_obj = action.new_file
                 effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, action_obj)
+                filepaths = [action_obj.filepath]
             elif action.action == "edit_file":
                 if action.edit_file is None:
                     self.log.error("No edit file action")
@@ -317,6 +320,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                     break
                 action_obj = action.edit_file
                 effect = self._edit_existing_file(repo, issue, pr_desc, current_commit, context, action_obj)
+                filepaths = [action_obj.filepath]
             elif action.action == "finished":
                 self.log.info("Finished writing commit")
                 msg = action.commit_message
@@ -340,8 +344,12 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                     )
                 )
 
-            # TODO add diff to result
-            self.publish_service.end_section()
+            # Get diff on the specific filepaths
+            if filepaths is not None:
+                result = self.diff_service.get_diff(filepaths)
+            else:
+                result = None
+            self.publish_service.end_section(result=result)
 
             actions_history.append((action_obj, effect))
 

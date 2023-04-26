@@ -1,4 +1,5 @@
 import tempfile
+from typing import Optional
 
 import structlog
 from git.repo import Repo
@@ -18,13 +19,17 @@ class DiffService:
     def apply_diff(self, diff: DiffStr, check: bool = False) -> None:
         raise NotImplementedError()
 
-    def get_diff(self) -> DiffStr:
-        # Add all files in repo
-        self.repo.git.execute(["git", "add", "."])
+    def get_diff(self, filepaths: Optional[list[str]] = None) -> DiffStr:
+        if not filepaths:
+            # Add all files in repo
+            self.repo.git.execute(["git", "add", "-A"])
+        else:
+            # Add specific files
+            self.repo.git.execute(["git", "add", *filepaths])
         # Get diff
         diff = self.repo.git.execute(["git", "diff", "--staged"])
-        # Reset repo
-        self.repo.git.execute(["git", "reset"])
+        # Reset staged files
+        self.repo.git.execute(["git", "reset", "HEAD"])
         return DiffStr(diff)
 
 
