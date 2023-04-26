@@ -13,8 +13,6 @@ import structlog
 
 from autopr.services.commit_service import CommitService
 
-log = structlog.get_logger()
-
 
 class UpdateSection(pydantic.BaseModel):
     level: int
@@ -40,6 +38,8 @@ class PublishService:
             )
         ]
         self.sections_list: list[UpdateSection] = []
+
+        self.log = structlog.get_logger(service="publish")
 
         self.issue_template = """
 ## Traceback
@@ -117,12 +117,14 @@ class PublishService:
             if len(self.sections_stack) == 1:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
+        self.log.debug("Publishing update", text=text)
         self.update()
 
     def start_section(
         self,
         title: str,
     ):
+        self.log.debug("Starting section", title=title)
         new_section = UpdateSection(
             level=len(self.sections_stack),
             title=title,
@@ -134,6 +136,7 @@ class PublishService:
     def update_section(self, title: str):
         if len(self.sections_stack) == 1:
             raise ValueError("Cannot set section title on root section")
+        self.log.debug("Updating section", title=title)
         self.sections_stack[-1].title = title
         self.update()
 
@@ -144,6 +147,7 @@ class PublishService:
     ):
         if len(self.sections_stack) == 1:
             raise ValueError("Cannot end root section")
+        self.log.debug("Ending section", title=title)
         if title:
             self.sections_stack[-1].title = title
         self.sections_stack[-1].result = result
@@ -378,7 +382,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
-            log.debug('Pull request created successfully', response=response.json())
+            self.log.debug('Pull request created successfully', response=response.json())
             return
 
         # if draft pull request is not supported
@@ -386,23 +390,23 @@ AutoPR encountered an error while trying to fix {issue_link}.
             del data['draft']
             response = requests.post(url, json=data, headers=headers)
             if response.status_code == 201:
-                log.debug('Pull request created successfully', response=response.json())
+                self.log.debug('Pull request created successfully', response=response.json())
                 return
-        log.debug('Failed to create pull request', response_text=response.text)
+        self.log.debug('Failed to create pull request', response_text=response.text)
 
     def _is_draft_error(self, response_text: str):
         response_obj = json.loads(response_text)
         is_draft_error = 'message' in response_obj and \
             'draft pull requests are not supported' in response_obj['message'].lower()
         if is_draft_error:
-            log.warning("Pull request drafts error on this repo")
+            self.log.warning("Pull request drafts error on this repo")
             self._drafts_supported = False
         return is_draft_error
 
     def _update_pr(self, title: str, body: str, success: bool):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
-            log.debug("No existing pull request found to update")
+            self.log.debug("No existing pull request found to update")
             return
 
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{existing_pr["number"]}'
@@ -416,7 +420,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            log.debug('Pull request updated successfully')
+            self.log.debug('Pull request updated successfully')
             return
 
         # if draft pull request is not supported
@@ -424,9 +428,9 @@ AutoPR encountered an error while trying to fix {issue_link}.
             del data['draft']
             response = requests.patch(url, json=data, headers=headers)
             if response.status_code == 200:
-                log.debug('Pull request updated successfully')
+                self.log.debug('Pull request updated successfully')
                 return
-        log.debug('Failed to update pull request', response_text=response.text)
+        self.log.debug('Failed to update pull request', response_text=response.text)
 
     def _find_existing_pr(self):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
@@ -439,6 +443,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
             if prs:
                 return prs[0]  # Return the first pull request found
         else:
-            log.debug('Failed to get pull requests', response_text=response.text)
+            self.log.debug('Failed to get pull requests', response_text=response.text)
 
         return None
