@@ -58,13 +58,12 @@ class BrainAgentBase:
             self._generate_pr(event)
         except Exception as e:
             self.log.exception("Failed to generate pull request", event_=event, exc_info=e)
-            success = False
-        else:
-            self.log.info("Generated changes", event_=event)
-            success = True
+            self.publish_service.finalize(success=False)
+            raise e
 
+        self.log.info("Generated changes", event_=event)
         # Finalize the pull request (put progress updates in a collapsible)
-        self.publish_service.finalize(success=success)
+        self.publish_service.finalize(success=True)
 
     def _generate_pr(
         self,

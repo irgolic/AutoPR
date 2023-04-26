@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 from collections import defaultdict
 from typing import Optional
@@ -117,7 +118,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         new_file_action: NewFileAction,
     ) -> str:
-        self.publish_service.publish_update(f"### Creating new file: {new_file_action.filepath}")
+        self.publish_service.update_section(title=f"Creating new file: {new_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path is not None
@@ -150,6 +151,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         path = os.path.join(repo_path, filepath)
         with open(path, "w") as f:
             f.write(new_file_hunk.contents)
+        self.publish_service.update_section(title=f"Created new file: {new_file_action.filepath}")
         return new_file_hunk.outcome
 
     def _edit_existing_file(
@@ -161,7 +163,6 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         context: list[ContextFile],
         edit_file_action: EditFileAction,
     ) -> str:
-        self.publish_service.publish_update(f"### Editing existing file: {edit_file_action.filepath}")
         # Check if file exists
         repo_path = repo.working_tree_dir
         assert repo_path
@@ -174,6 +175,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             )
             effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, create_file_action)
             return "File does not exist, creating instead: " + effect
+        self.publish_service.update_section(title=f"Editing existing file: {edit_file_action.filepath}")
 
         # Grab file contents
         with open(filepath, "r") as f:
@@ -236,27 +238,39 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         edit_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(edit_file_chain)
         if edit_file_hunk is None:
             self.log.error("Failed to edit file")
+            self.publish_service.update_section(title=f"Failed to edit file: {edit_file_action.filepath}")
             return "Failed to edit file"
 
+        new_lines = edit_file_hunk.contents
+        # if all lines start with "<int> | " or "<int> * "
+        if all(re.match(r"^\s*\d+\s*[|*]\s*", line)
+               for line in new_lines.splitlines()):
+            # Remove the prefix from all lines
+            new_lines = "\n".join(
+                re.sub(r"^\s*\d+\s*[|*]\s*", "", line)
+                for line in new_lines.splitlines()
+            )
+
         # Add indentation to new lines
-        new_lines = []
-        for line in self._split_into_lines(edit_file_hunk.contents):
+        indented_lines = []
+        for line in self._split_into_lines(new_lines):
             if not line.strip():
-                new_lines.append("")
+                indented_lines.append("")
                 continue
-            new_lines.append(" " * indent + line)
+            indented_lines.append(" " * indent + line)
 
         # Replace lines in file
         if start_line is not None and end_line is not None:
-            lines = lines[:start_line - 1] + new_lines + lines[end_line:]
+            lines = lines[:start_line - 1] + indented_lines + lines[end_line:]
         else:
-            lines = new_lines
+            lines = indented_lines
 
         # Write file
         path = os.path.join(repo_path, filepath)
         with open(path, "w") as f:
             f.write("\n".join(lines))
 
+        self.publish_service.update_section(title=f"Edited existing file: {edit_file_action.filepath}")
         return edit_file_hunk.outcome
 
     def _generate_changes(
@@ -272,7 +286,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             context = self._make_context(repo, current_commit)
 
             # Declare decision making
-            self.publish_service.publish_update("### Deciding what action to take")
+            self.publish_service.start_section("Deciding what action to take")
 
             # Choose action
             action_rail = MakeDecision(
@@ -285,34 +299,41 @@ class AutonomousCodegenAgent(CodegenAgentBase):
             action = self.rail_service.run_prompt_rail(action_rail)
             if action is None or not isinstance(action, Action):
                 self.log.error("Action choice failed")
+                self.publish_service.end_section("Error (invalid action choice)")
                 break
+
+            filepaths = None
 
             # Run action
             if action.action == "new_file":
                 if action.new_file is None:
                     self.log.error("No new file action")
-                    self.publish_service.publish_update("Invalid new file action")
+                    self.publish_service.end_section("Error (invalid new file action)")
                     break
                 action_obj = action.new_file
                 effect = self._create_new_file(repo, issue, pr_desc, current_commit, context, action_obj)
+                filepaths = [action_obj.filepath]
             elif action.action == "edit_file":
                 if action.edit_file is None:
                     self.log.error("No edit file action")
-                    self.publish_service.publish_update("Invalid edit file action")
+                    self.publish_service.end_section("Error (invalid edit file action)")
                     break
                 action_obj = action.edit_file
                 effect = self._edit_existing_file(repo, issue, pr_desc, current_commit, context, action_obj)
+                filepaths = [action_obj.filepath]
             elif action.action == "finished":
                 self.log.info("Finished writing commit")
                 msg = action.commit_message
                 if msg is not None:
                     current_commit.commit_message = msg
-                    self.publish_service.publish_update(f"### Finished writing commit: {msg}")
+                    self.publish_service.end_section(f"Finished writing commit: {msg}")
+                    self.publish_service.update_section(title=msg)
                 else:
-                    self.publish_service.publish_update("### Finished writing commit")
+                    self.publish_service.end_section("Finished writing commit")
                 break
             else:
                 self.log.error(f"Unknown action {action.action}")
+                self.publish_service.end_section(f"Error (unknown action {action.action})")
                 break
 
             # Add the file into the context of the rest of the commits, if it's not yet there
@@ -323,7 +344,12 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                     )
                 )
 
-            self.publish_service.publish_update(f"Finished `{action.action}` action: {effect}")
+            # Get diff on the specific filepaths
+            if filepaths is not None:
+                result = f"```diff\n{self.diff_service.get_diff(filepaths)}\n```"
+            else:
+                result = None
+            self.publish_service.end_section(result=result)
 
             actions_history.append((action_obj, effect))
 

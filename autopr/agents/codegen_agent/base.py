@@ -43,8 +43,23 @@ class CodegenAgentBase:
         current_commit: CommitPlan,
     ) -> None:
         self.log.info("Generating changes", issue=issue)
-        self.publish_service.publish_update(f"## Implementing commit: {current_commit.commit_message}")
+        self.publish_service.start_section(f"▶️ Implementing: {current_commit.commit_message}")
         self._generate_changes(repo, issue, pr_desc, current_commit)
+
+        # get diff result
+        diff = self.diff_service.get_diff()
+        if diff:
+            # put in backticks
+            diff = f"```diff\n{diff}\n```"
+            self.publish_service.end_section(
+                title=f"✅ Wrote commit: {current_commit.commit_message}",
+                result=diff
+            )
+        else:
+            self.publish_service.end_section(
+                title=f"⚠️ Empty commit: {current_commit.commit_message}",
+            )
+
         self.log.info("Generated changes", issue=issue)
 
     def _generate_changes(

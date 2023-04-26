@@ -40,7 +40,7 @@ class PullRequestAgentBase:
         log = self.log.bind(issue_number=issue.number,
                             event_type=event.event_type)
         log.info("Planning PR")
-        self.publish_service.publish_update("## Planning pull request...")
+        self.publish_service.start_section("▶️ Planning pull request...")
         pull_request = self._plan_pull_request(repo, issue, event)
         if isinstance(pull_request, str):
             log.info("Running raw PR description through PullRequestDescription rail")
@@ -49,7 +49,9 @@ class PullRequestAgentBase:
                 pull_request
             )
             if pull_request is None:
+                self.publish_service.end_section(title="❌ Failed to plan pull request")
                 raise ValueError("Failed to parse PR description")
+        self.publish_service.end_section(title="✅ Planned pull request", result=str(pull_request))
         log.info("Planned PR")
         return pull_request
 

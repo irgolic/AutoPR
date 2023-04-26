@@ -1,7 +1,9 @@
+import json
 import sys
 import traceback
-from typing import Optional
+from typing import Optional, Union
 
+import pydantic
 import requests
 
 from autopr.models.artifacts import Issue
@@ -14,6 +16,13 @@ from autopr.services.commit_service import CommitService
 log = structlog.get_logger()
 
 
+class UpdateSection(pydantic.BaseModel):
+    level: int
+    title: str
+    updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
+    result: Optional[str] = None
+
+
 class PublishService:
     def __init__(
         self,
@@ -24,12 +33,20 @@ class PublishService:
         self.loading_gif_url = loading_gif_url
 
         self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
-        self.progress_updates = []
+        self.sections_stack: list[UpdateSection] = [
+            UpdateSection(
+                level=0,
+                title="root",
+            )
+        ]
+        self.sections_list: list[UpdateSection] = []
 
         self.issue_template = """
-# Traceback
+## Traceback
 
+```
 {error}
+```
 """
         self.issue_link_template = "https://github.com/irgolic/AutoPR/issues/new?" \
                                    "title={title}&" \
@@ -47,6 +64,7 @@ class PublishService:
     def publish_call(
         self,
         summary: str,
+        section_title: Optional[str] = None,
         default_open=('response',),
         **kwargs
     ):
@@ -83,32 +101,112 @@ class PublishService:
 
 </details>
 """
-        self.publish_update(progress_str)
+        self.publish_update(progress_str, section_title=section_title)
 
     def set_pr_description(self, pr: PullRequestDescription):
         self.pr_desc = pr
         self.update()
 
-    def publish_update(self, text: str):
-        self.progress_updates.append(text)
+    def publish_update(
+        self,
+        text: str,
+        section_title: Optional[str] = None,
+    ):
+        self.sections_stack[-1].updates.append(text)
+        if section_title:
+            if len(self.sections_stack) == 1:
+                raise ValueError("Cannot set section title on root section")
+            self.sections_stack[-1].title = section_title
         self.update()
 
-    def _build_progress_updates(self, finalize: bool = False):
-        if not self.progress_updates:
-            return ""
-        progress = "\n\n".join(self.progress_updates)
-        if finalize:
-            progress = f"""<details>
-<summary>Click to see progress updates</summary>
+    def start_section(
+        self,
+        title: str,
+    ):
+        new_section = UpdateSection(
+            level=len(self.sections_stack),
+            title=title,
+        )
+        self.sections_stack[-1].updates.append(new_section)  # Add the new section as a child
+        self.sections_stack.append(new_section)
+        self.update()
 
-{progress}
-</details>
-"""
+    def update_section(self, title: str):
+        if len(self.sections_stack) == 1:
+            raise ValueError("Cannot set section title on root section")
+        self.sections_stack[-1].title = title
+        self.update()
+
+    def end_section(
+        self,
+        title: Optional[str] = None,
+        result: Optional[str] = None,
+    ):
+        if len(self.sections_stack) == 1:
+            raise ValueError("Cannot end root section")
+        if title:
+            self.sections_stack[-1].title = title
+        self.sections_stack[-1].result = result
+        self.sections_stack.pop()
+
+        self.update()
+
+    def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
+        progress = ""
+        if section.level == 0:
+            return '\n\n'.join(
+                self._build_progress_update(s, finalize=finalize)
+                if isinstance(s, UpdateSection)
+                else s
+                for s in section.updates
+            )
+
+        # Get list of steps
+        updates = []
+        for update in section.updates:
+            if isinstance(update, UpdateSection):
+                # Recursively build updates
+                updates += [self._build_progress_update(update, finalize=finalize)]
+                continue
+            updates += [update]
+
+        # Add result as an open section at the end of updates
+        if section.result:
+            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
+            updates += [f"""<details open>
+<summary>📝 Result</summary>
+
+{result}
+</details>"""]
+
+        # Prefix updates with quotation
+        updates = '\n\n'.join(updates)
+        updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
+
+        progress += f"""<details>
+<summary>{section.title}</summary>
+
+{updates}
+</details>"""
+
+        return progress
+
+    def _build_progress_updates(self, finalize: bool = False):
+        progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
+        if finalize:
+#             progress = f"""<details>
+# <summary>Click to see progress updates</summary>
+#
+# {progress}
+# </details>
+# """
+            # TODO should we put this in a collapsible on finalize or not? Now it's pretty short
+            pass
         else:
-            progress = progress + f"\n\n" \
-                                  f'<img src="{self.loading_gif_url}"' \
-                                  f' width="200" height="200"/>'
-        body = f"# Progress Updates\n\n{progress}"
+            progress += f"\n\n" \
+                    f'<img src="{self.loading_gif_url}"' \
+                    f' width="200" height="200"/>'
+        body = f"## Progress Updates\n\n{progress}"
         return body
 
     def _build_issue_template_link(self, **kwargs):
@@ -130,6 +228,10 @@ class PublishService:
             return s\
                 .replace(" ", "%20")\
                 .replace("\n", "%0A")\
+                .replace("<", "%3C")\
+                .replace(">", "%3E")\
+                .replace("!", "%21")\
+                .replace("#", "%23")\
 
         return self.issue_link_template.format(
             body=fmt(body),
@@ -140,8 +242,13 @@ class PublishService:
         # Add Fixes magic word
         body = f"Fixes #{self.issue.number}"
 
+        # Build PR description
+        if self.pr_desc.body:
+            body += f"\n\n## Description\n\n" \
+                    f"{self.pr_desc.body}"
+
         # Build status
-        body += f"\n\n# Status\n\n"
+        body += f"\n\n## Status\n\n"
         if success is None:
             body += "This pull request is being autonomously generated by [AutoPR](https://github.com/irgolic/AutoPR)."
         elif not success:
@@ -154,11 +261,6 @@ class PublishService:
             body += f"This pull request was autonomously generated by [AutoPR](https://github.com/irgolic/AutoPR).\n\n" \
                     f"If there's a problem with this pull request, please " \
                     f"[open an issue]({self._build_issue_template_link()})."
-
-        # Build PR body
-        if self.pr_desc.body:
-            body += f"\n\n# Description\n\n" \
-                    f"{self.pr_desc.body}"
 
         progress = self._build_progress_updates(finalize=success is not None)
         if progress:
@@ -173,12 +275,13 @@ class PublishService:
     def finalize(self, success: bool):
         body = self._build_body(success=success)
         title = self.pr_desc.title
-        self._publish(title, body)
+        self._publish(title, body, success=success)
 
     def _publish(
         self,
         title: str,
-        body: str
+        body: str,
+        success: bool = False,
     ):
         raise NotImplementedError
 
@@ -203,14 +306,24 @@ class GithubPublishService(PublishService):
         self.base_branch = base_branch
         self.run_id = run_id
 
+        self._drafts_supported = True
+
         self.issue_template = """
 {shield}
 
 AutoPR encountered an error while trying to fix {issue_link}.
 
-# Details
+## Details
+
+
+
+
 
 <!-- Please include any important details about the error here. -->
+
+
+
+
 """ + self.issue_template
 
     def _get_headers(self):
@@ -244,14 +357,14 @@ AutoPR encountered an error while trying to fix {issue_link}.
         body = super()._build_body(success=success)
         return shield + '\n\n' + body
 
-    def _publish(self, title: str, body: str):
+    def _publish(self, title: str, body: str, success: bool = False):
         existing_pr = self._find_existing_pr()
         if existing_pr:
-            self._update_pr(title, body)
+            self._update_pr(title, body, success)
         else:
-            self._create_pr(title, body)
+            self._create_pr(title, body, success)
 
-    def _create_pr(self, title: str, body: str):
+    def _create_pr(self, title: str, body: str, success: bool):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         data = {
@@ -260,14 +373,33 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'title': title,
             'body': body,
         }
+        if self._drafts_supported:
+            data['draft'] = "true" if not success else "false"
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 201:
             log.debug('Pull request created successfully', response=response.json())
-        else:
-            log.debug('Failed to create pull request', response_text=response.text)
+            return
 
-    def _update_pr(self, title: str, body: str):
+        # if draft pull request is not supported
+        if self._is_draft_error(response.text):
+            del data['draft']
+            response = requests.post(url, json=data, headers=headers)
+            if response.status_code == 201:
+                log.debug('Pull request created successfully', response=response.json())
+                return
+        log.debug('Failed to create pull request', response_text=response.text)
+
+    def _is_draft_error(self, response_text: str):
+        response_obj = json.loads(response_text)
+        is_draft_error = 'message' in response_obj and \
+            'draft pull requests are not supported' in response_obj['message'].lower()
+        if is_draft_error:
+            log.warning("Pull request drafts error on this repo")
+            self._drafts_supported = False
+        return is_draft_error
+
+    def _update_pr(self, title: str, body: str, success: bool):
         existing_pr = self._find_existing_pr()
         if not existing_pr:
             log.debug("No existing pull request found to update")
@@ -279,12 +411,22 @@ AutoPR encountered an error while trying to fix {issue_link}.
             'title': title,
             'body': body,
         }
+        if self._drafts_supported:
+            data['draft'] = "true" if not success else "false"
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
             log.debug('Pull request updated successfully')
-        else:
-            log.debug('Failed to update pull request', response_text=response.text)
+            return
+
+        # if draft pull request is not supported
+        if self._is_draft_error(response.text):
+            del data['draft']
+            response = requests.patch(url, json=data, headers=headers)
+            if response.status_code == 200:
+                log.debug('Pull request updated successfully')
+                return
+        log.debug('Failed to update pull request', response_text=response.text)
 
     def _find_existing_pr(self):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
