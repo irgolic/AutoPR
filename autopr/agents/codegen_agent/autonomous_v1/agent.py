@@ -346,7 +346,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
 
             # Get diff on the specific filepaths
             if filepaths is not None:
-                result = self.diff_service.get_diff(filepaths)
+                result = f"```diff\n{self.diff_service.get_diff(filepaths)}\n```"
             else:
                 result = None
             self.publish_service.end_section(result=result)
