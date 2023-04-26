@@ -1,6 +1,7 @@
 import json
 import sys
 import traceback
+import urllib.parse
 from typing import Optional, Union
 
 import pydantic
@@ -226,21 +227,12 @@ class PublishService:
         else:
             title = f'Error fixing "{self.issue.title}"'
 
-        def fmt(s):
-            # Given https://github.com/Automattic/wp-calypso/issues/new?labels[]=People%20Management&labels[]=[Type]%20Bug&title=People:&milestone=People%20Management:%20m6&assignee=ebinnion&body=This%20is%20a%20prefilled%20issue
-            # cast body and title to the appropriate format
-            return s\
-                .replace(" ", "%20")\
-                .replace("\n", "%0A")\
-                .replace("<", "%3C")\
-                .replace(">", "%3E")\
-                .replace("!", "%21")\
-                .replace("#", "%23")\
-
-        return self.issue_link_template.format(
-            body=fmt(body),
-            title=fmt(title),
+        issue_link = self.issue_link_template.format(
+            body=body,
+            title=title,
         )
+        # Map characters to their URL-encoded equivalents
+        return urllib.parse.quote(issue_link)
 
     def _build_body(self, success: Optional[bool] = None):
         # Add Fixes magic word
