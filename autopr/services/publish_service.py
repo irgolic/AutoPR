@@ -389,7 +389,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
                                response=response.json(),
                                headers=response.headers)
                 return
-        self.log.debug('Failed to create pull request',
+        self.log.error('Failed to create pull request',
                        code=response.status_code,
                        response=response.json(),
                        headers=response.headers)
@@ -434,15 +434,15 @@ AutoPR encountered an error while trying to fix {issue_link}.
         )
 
         if response.status_code == 200:
-            self.log('Pull request draft status updated successfully',
-                     response=response.json(),
-                     headers=response.headers)
+            self.log.debug('Pull request draft status updated successfully',
+                           response=response.json(),
+                           headers=response.headers)
             return
 
-        self.log('Failed to update pull request draft status',
-                 code=response.status_code,
-                 response=response.json(),
-                 headers=response.headers)
+        self.log.error('Failed to update pull request draft status',
+                       code=response.status_code,
+                       response=response.json(),
+                       headers=response.headers)
         self._drafts_supported = False
 
     def _update_pr(self, existing_pr: dict[str, Any], title: str, body: str, success: bool):
@@ -464,7 +464,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
                 self._set_pr_draft_status(existing_pr['node_id'], not success)
             return
 
-        self.log.debug('Failed to update pull request',
+        self.log.error('Failed to update pull request',
                        code=response.status_code,
                        response=response.json(),
                        headers=response.headers)
@@ -483,6 +483,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
             if prs:
                 return prs[0]  # Return the first pull request found
         else:
-            self.log.debug('Failed to get pull requests', response_text=response.text)
+            self.log.error('Failed to get pull requests', response_text=response.text)
 
         return None
