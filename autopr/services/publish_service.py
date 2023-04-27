@@ -308,17 +308,6 @@ class GithubPublishService(PublishService):
 
 AutoPR encountered an error while trying to fix {issue_link}.
 
-## Details
-
-
-
-
-
-<!-- Please include any important details about the error here. -->
-
-
-
-
 """ + self.issue_template
 
     def _get_headers(self):
