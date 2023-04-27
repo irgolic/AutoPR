@@ -55,6 +55,9 @@ class AutonomousCodegenAgent(CodegenAgentBase):
         if not os.path.exists(path):
             self.log.error(f"File {filepath} not in repo")
             return None
+        if not os.path.isfile(path):
+            self.log.error(f"{filepath} is not a file")
+            return None
 
         with open(path, 'r') as f:
             lines = self._split_into_lines(f.read())
