@@ -21,6 +21,8 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 
 class ChatOpenAI(LangChainChatOpenAI):
+    request_timeout = 240
+
     def _create_retry_decorator(self) -> Callable[[Any], Any]:
         # override langchain's retry decorator to wait up to 240 seconds instead of 10
         min_seconds = 1
