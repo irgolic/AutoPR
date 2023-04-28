@@ -17,7 +17,7 @@ from .services.rail_service import RailService
 from .agents.codegen_agent import get_codegen_agent
 from .agents.pull_request_agent import get_pull_request_agent
 
-from .validators import create_unidiff_validator, create_filepath_validator
+from .validators import create_unidiff_validator
 
 import structlog
 
@@ -129,7 +129,6 @@ def main(
 
     # Create validators for guardrails
     create_unidiff_validator(repo, diff_service)
-    create_filepath_validator(repo)
 
     # Generate and set_pr_description the PR
     brain_agent.generate_pr(event)
