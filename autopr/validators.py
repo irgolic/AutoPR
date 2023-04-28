@@ -6,7 +6,7 @@ from git import GitCommandError, Tree, Blob
 
 from autopr.services.diff_service import DiffService
 from guardrails import register_validator, Validator
-from guardrails.validators import EventDetail
+from guardrails.validators import EventDetail, Filter
 from git.repo import Repo
 
 import structlog
@@ -392,46 +392,65 @@ def create_unidiff_validator(repo: Repo, diff_service: DiffService):
     return register_validator(name="unidiff", data_type="string")(Unidiff)
 
 
-def create_filepath_validator(repo: Repo):
-    # TODO I don't think we need this validator anymore
-    class FilePath(Validator):
-        """Validate value is a valid file path.
-        - Name for `format` attribute: `filepath`
-        - Supported data types: `string`
-        """
-        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
-            log.debug("Validating filepath...", key=key, value=value)
+@register_validator(name="filepath", data_type="string")
+class FilePath(Validator):
+    """Validate value is a valid file path.
+    - Name for `format` attribute: `filepath`
+    - Supported data types: `string`
+    """
+    def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
+        log.debug("Validating filepath...", key=key, value=value)
 
-            # Check if the filepath exists in the repo
-            tree = repo.head.commit.tree
-            try:
-                blob = tree / value
-            except KeyError:
-                raise EventDetail(
-                    key,
-                    value,
-                    schema,
-                    f"File path '{value}' does not exist in the repo.",
-                    None,
-                )
+        # Check if filepath is a string
+        if not isinstance(value, str):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"File path '{value}' is not a string.",
+                None,
+            )
 
-            if blob.type != "blob":
-                raise EventDetail(
-                    key,
-                    value,
-                    schema,
-                    f"File path '{value}' is not a file.",
-                    None,
-                )
+        # Is it normalized?
+        if value != os.path.normpath(value):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"File path '{value}' is not normalized.",
+                None,
+            )
 
-            return schema
+        # Check that it's not a directory
+        # The directory does not need to exist, so we can't use os.path.isdir
+        if value.endswith(os.sep):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"File path '{value}' is a directory.",
+                None,
+            )
 
-        def fix(self, error: EventDetail) -> Dict:
-            # Fix paths like \\dir\file.txt to /dir/file.txt
-            value = error.value
-            if isinstance(value, str):
-                value = os.path.normpath(value)
-                error.schema[error.key] = value
+        return schema
+
+    def fix(self, error: EventDetail) -> Dict:
+        value = error.value
+
+        # Check if filepath is a string
+        if not isinstance(value, str):
+            error.schema[error.key] = Filter()
             return error.schema
 
-    return register_validator(name="filepath", data_type="string")(FilePath)
+        # Fix paths like \\dir\file.txt to /dir/file.txt
+        value = os.path.normpath(value)
+        error.schema[error.key] = value
+
+        # Check that it's not a directory
+        try:
+            self.validate(error.key, value, error.schema)
+        except EventDetail:
+            error.schema[error.key] = Filter()
+            return error.schema
+
+        return error.schema

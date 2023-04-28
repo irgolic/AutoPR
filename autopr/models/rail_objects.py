@@ -33,7 +33,7 @@ class FileHunk(RailObject):
     name="filepath"
     description="The path to the file we are looking at."
     format="filepath"
-    on-fail="noop"
+    on-fail="fix"
 />
 <integer
     name="start_line"
