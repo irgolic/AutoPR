@@ -4,6 +4,16 @@
 
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label&color=purple)](https://discord.gg/ykk7Znt3K6)
 
+
+<table align="center">
+  <tr>
+    <td>
+      <video src="https://user-images.githubusercontent.com/24586651/235325137-b4283565-f759-48f8-9e8b-39df144e0eb7.mov">
+    </td>
+  </tr>
+</table>
+
+
 AutoPR autonomously writes pull requests in response to issues with ChatGPT.  
 Built with [Guardrails](https://github.com/ShreyaR/guardrails) and [Langchain](https://github.com/hwchase17/langchain).    
 
