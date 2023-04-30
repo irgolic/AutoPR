@@ -18,6 +18,12 @@ import structlog
 
 
 class BrainAgentBase:
+    """
+    Base class for Brain agents.
+    The Brain is responsible for orchestrating the entire process of generating a pull request by invoking sub-agents.
+    """
+
+    #: The ID of the agent, used to identify it in the settings. Set it in the subclass.
     id: ClassVar[str]
 
     def __init__(
@@ -69,4 +75,8 @@ class BrainAgentBase:
         self,
         event: EventUnion,
     ) -> None:
+        """
+        Override this method to implement your own logic of the Brain agent.
+        This method should orchestrate the entire process of generating a pull request.
+        """
         raise NotImplementedError

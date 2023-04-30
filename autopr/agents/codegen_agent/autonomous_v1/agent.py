@@ -21,6 +21,24 @@ from autopr.services.rail_service import RailService
 
 
 class AutonomousCodegenAgent(CodegenAgentBase):
+    """
+    Iteratively change the codebase given a CommitPlan.
+    This agent iterates up to `iterations_per_commit` times, each time picking one of the following actions:
+    - Add a new file
+    - Edit a code hunk (specified as line range)
+    - Finish the commit
+
+    The agent will stop when it has iterated `iterations_per_commit` times, or when it has finished the commit.
+
+    Parameters
+    ----------
+
+    context_size: int
+        The number of lines of context to include around each code hunk.
+    iterations_per_commit: int
+        The maximum number of iterations to run for each commit.
+    """
+
     id = "auto-v1"
 
     def __init__(

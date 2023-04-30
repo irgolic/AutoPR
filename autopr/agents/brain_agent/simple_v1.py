@@ -8,6 +8,13 @@ log = structlog.get_logger()
 
 
 class BasicBrainAgent(BrainAgentBase):
+    """
+    A simple Brain agent that:
+    - Plans a pull request
+    - Implements each commit in the pull request
+    """
+
+    #: The ID of the agent, used to identify it in the settings
     id = "simple-v1"
 
     def _generate_pr(
