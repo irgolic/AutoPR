@@ -473,3 +473,23 @@ AutoPR encountered an error while trying to fix {issue_link}.
             self.log.error('Failed to get pull requests', response_text=response.text)
 
         return None
+
+
+class DummyPublishService(PublishService):
+    def __init__(self):
+        super().__init__(
+            issue=Issue(
+                number=1,
+                title="Test issue",
+                author="test",
+                messages=[],
+            )
+        )
+
+    def _publish(
+        self,
+        title: str,
+        body: str,
+        success: bool = False,
+    ):
+        pass
