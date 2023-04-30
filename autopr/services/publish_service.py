@@ -13,6 +13,9 @@ import structlog
 
 
 class UpdateSection(pydantic.BaseModel):
+    """
+    A section of the pull request description, used to keep state while publishing updates.
+    """
     level: int
     title: str
     updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
@@ -20,6 +23,19 @@ class UpdateSection(pydantic.BaseModel):
 
 
 class PublishService:
+    """
+    Service for publishing updates to the pull request description.
+
+    To control update sections, call:
+    - `start_section` to start a new section
+    - `end_section` to end the current section (optionally with results and a new title)
+    - `update_section` to update the current section title
+
+    To publish updates to the current section, call:
+    - `publish_update` to publish a simple textual update
+    - `publish_call` to publish a multi-hunk update with a summary and subsections
+    """
+
     def __init__(
         self,
         issue: Issue,
@@ -66,6 +82,21 @@ class PublishService:
         default_open=('response',),
         **kwargs
     ):
+        """
+        Create a new self-contained collapsible section with subsections.
+
+        Try to create sections manually with `start_section` and `end_section` instead, to
+        show incremental progress as soon as possible instead of waiting for the call to finish.
+
+        Parameters
+        ----------
+        summary: str
+            The title of the new section
+        section_title: str, optional
+            The title of the parent section to update
+        default_open: Iterable[str], optional
+            Which subsections to open (not collapsed) by default
+        """
         subsections = []
         for k, v in kwargs.items():
             # Cast keys to title case
@@ -102,6 +133,15 @@ class PublishService:
         self.publish_update(progress_str, section_title=section_title)
 
     def set_pr_description(self, pr: PullRequestDescription):
+        """
+        Set the pull request description to the given value.
+        A description heading will be added to the body.
+
+        Parameters
+        ----------
+        pr: PullRequestDescription
+            The new pull request description
+        """
         self.pr_desc = pr
         self.update()
 
@@ -110,6 +150,16 @@ class PublishService:
         text: str,
         section_title: Optional[str] = None,
     ):
+        """
+        Publish a simple text update to the current section.
+
+        Parameters
+        ----------
+        text: str
+            The text to publish
+        section_title: str, optional
+            The title that the parent section should be updated to
+        """
         self.sections_stack[-1].updates.append(text)
         if section_title:
             if len(self.sections_stack) == 1:
@@ -122,6 +172,14 @@ class PublishService:
         self,
         title: str,
     ):
+        """
+        Start a new section.
+
+        Parameters
+        ----------
+        title: str
+            The title of the new section
+        """
         self.log.debug("Starting section", title=title)
         new_section = UpdateSection(
             level=len(self.sections_stack),
@@ -132,6 +190,14 @@ class PublishService:
         self.update()
 
     def update_section(self, title: str):
+        """
+        Update the title of the current section.
+
+        Parameters
+        ----------
+        title: str
+            The new title of the current section
+        """
         if len(self.sections_stack) == 1:
             raise ValueError("Cannot set section title on root section")
         self.log.debug("Updating section", title=title)
@@ -143,6 +209,16 @@ class PublishService:
         title: Optional[str] = None,
         result: Optional[str] = None,
     ):
+        """
+        End the current section.
+
+        Parameters
+        ----------
+        title: str, optional
+            The title that section should be updated to
+        result: str, optional
+            The result of the section
+        """
         if len(self.sections_stack) == 1:
             raise ValueError("Cannot end root section")
         self.log.debug("Ending section", title=title)
@@ -262,11 +338,23 @@ class PublishService:
         return body
 
     def update(self):
+        """
+        Update the PR body with the current progress.
+        """
         body = self._build_body()
         title = self.pr_desc.title
         self._publish(title, body)
 
     def finalize(self, success: bool):
+        """
+        Finalize the PR, either successfully or unsuccessfully.
+        Will render the final PR description without the loading gif.
+
+        Parameters
+        ----------
+        success: bool
+            Whether the PR was successful or not
+        """
         body = self._build_body(success=success)
         title = self.pr_desc.title
         self._publish(title, body, success=success)
@@ -281,6 +369,14 @@ class PublishService:
 
 
 class GithubPublishService(PublishService):
+    """
+    Publishes the PR to Github.
+
+    Sets it as draft while it's being updated, and removes the draft status when it's finalized.
+    Adds a shield linking to the action logs, an"Fixes #{issue_number}" link.
+
+    """
+
     def __init__(
         self,
         issue: Issue,
@@ -460,6 +556,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         """
         Returns the PR dict of the first open pull request with the same head and base branches
         """
+
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         params = {'state': 'open', 'head': f'{self.owner}:{self.head_branch}', 'base': self.base_branch}
@@ -473,3 +570,23 @@ AutoPR encountered an error while trying to fix {issue_link}.
             self.log.error('Failed to get pull requests', response_text=response.text)
 
         return None
+
+
+class DummyPublishService(PublishService):
+    def __init__(self):
+        super().__init__(
+            issue=Issue(
+                number=1,
+                title="Test issue",
+                author="test",
+                messages=[],
+            )
+        )
+
+    def _publish(
+        self,
+        title: str,
+        body: str,
+        success: bool = False,
+    ):
+        pass

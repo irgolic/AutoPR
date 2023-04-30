@@ -239,6 +239,21 @@ Folders are created automatically; do not make them in their own commit."""
 
 
 class RailPullRequestAgent(PullRequestAgentBase):
+    """
+    Plan a pull request by iteratively selecting files to look at, taking notes while looking at them,
+    and then generating a list of commits.
+
+    File selection is performed by giving the agent a list of filenames, and asking it to select a subset of them.
+
+    Parameters
+    ----------
+    file_context_token_limit: int
+        The maximum size taken up by the file context (concatenated file chunks) in the prompt.
+
+    file_chunk_size: int
+        The maximum token size of each chunk that a file is split into.
+    """
+
     id = 'rail-v1'
 
     def __init__(

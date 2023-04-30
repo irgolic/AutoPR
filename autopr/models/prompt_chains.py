@@ -26,6 +26,11 @@ class PromptChain(pydantic.BaseModel):
         return prompt_params
 
     def trim_params(self) -> bool:
+        """
+        Override this method to trim the parameters of the prompt.
+        This is called when the prompt is too long.
+        """
+
         log.warning("Naively trimming params", rail=self)
         prompt_params = dict(self)
         # If there are any lists, remove the last element of the first one you find

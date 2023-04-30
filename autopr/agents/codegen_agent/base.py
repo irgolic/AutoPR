@@ -13,6 +13,13 @@ import structlog
 
 
 class CodegenAgentBase:
+    """
+    Base class for Codegen agents.
+    Codegen agents are responsible for changing the codebase to implement
+    the changes described in the CommitPlan.
+    """
+
+    #: The ID of the agent, used to identify it in the settings. Set it in the subclass.
     id: ClassVar[str]
 
     def __init__(
@@ -69,4 +76,8 @@ class CodegenAgentBase:
         pr_desc: PullRequestDescription,
         current_commit: CommitPlan,
     ) -> None:
+        """
+        Override this method to implement your own codegen logic.
+        This method should modify the files in the repo to implement the changes described in the CommitPlan.
+        """
         raise NotImplementedError

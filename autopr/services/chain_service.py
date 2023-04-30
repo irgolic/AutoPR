@@ -42,6 +42,16 @@ class ChatOpenAI(LangChainChatOpenAI):
 
 
 class ChainService:
+    """
+    Service that handles running langchain completions according to a PromptChain subclass.
+
+    This service is responsible for:
+    - compiling the prompt according to `PromptChain.prompt_template` and `PromptChain.get_string_params()`
+    - running the prompt through langchain
+    - parsing the output according to `PromptChain.output_parser`
+    - Keeping `publish_service` informed of what's going on
+    """
+
     def __init__(
         self,
         completions_repo: CompletionsRepo,

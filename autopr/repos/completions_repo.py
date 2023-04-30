@@ -9,6 +9,11 @@ from autopr.utils import tokenizer
 
 
 class CompletionsRepo:
+    """
+    Repository that handles running completions through a language model.
+    """
+
+    #: A list of models that this repo implements. Set this in the subclass.
     models: list[str]
 
     def __init__(
@@ -74,6 +79,9 @@ class CompletionsRepo:
         max_tokens: int,
         temperature: float,
     ) -> str:
+        """
+        Subclass this method to implement the language model call.
+        """
         raise NotImplementedError
 
 

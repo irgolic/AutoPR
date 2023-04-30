@@ -13,6 +13,12 @@ import structlog
 
 
 class PullRequestAgentBase:
+    """
+    Base class for Pull Request agents.
+    Pull Request agents are responsible for generating the description of a pull request.
+    """
+
+    #: The ID of the agent, used to identify it in the settings. Set it in the subclass.
     id: ClassVar[str]
 
     def __init__(
@@ -61,4 +67,9 @@ class PullRequestAgentBase:
         issue: Issue,
         event: EventUnion
     ) -> Union[str, PullRequestDescription]:
+        """
+        Override this method to implement your own pull request planning logic.
+        This method should return a PullRequestDescription object, or a string.
+        If a string is returned, it will automatically be parsed into a PullRequestDescription object by guardrails.
+        """
         raise NotImplementedError

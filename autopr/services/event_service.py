@@ -8,11 +8,26 @@ from autopr.models.events import IssueLabeledEvent, EventUnion
 
 
 class EventService:
+    """
+    Service for parsing events that trigger AutoPR into one of the `EventUnion` types.
+
+    To support other platforms (Gitlab/Bitbucket/Gitea), subclass this and override `parse_event`.
+    See irgolic/AutoPR#46 for more details.
+    """
+
     def parse_event(self, event_name: str, event: dict[str, Any]) -> EventUnion:
         raise NotImplementedError
 
 
 class GithubEventService(EventService):
+    """
+    Service for parsing GitHub events into one of the `EventUnion` types.
+
+    Currently only supports `IssueLabeledEvent`, which is triggered when a label is added to an issue.
+
+    See https://docs.github.com/en/webhooks-and-events/events/issue-event-types
+    """
+
     def __init__(
         self,
         github_token: str,
@@ -21,6 +36,9 @@ class GithubEventService(EventService):
         self.log = structlog.get_logger()
 
     def _to_issue_labeled_event(self, event: dict[str, Any]) -> IssueLabeledEvent:
+        """
+        See https://docs.github.com/en/webhooks-and-events/events/issue-event-types#labeled
+        """
         # Get issue comments
         url = event['issue']['comments_url']
         assert url.startswith('https://api.github.com/repos/'), "Unexpected comments_url"

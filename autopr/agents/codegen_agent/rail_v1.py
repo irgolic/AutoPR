@@ -27,6 +27,7 @@ class Diff(RailObject):
 
 class Commit(RailObject):
     # TODO use this instead of Diff, to get a commit message rewrite
+    #  EDIT: development focus has shifted to the autonomous codegen agent as a better solution
     output_spec = f"""{Diff.output_spec}
 <string
     name="message"
@@ -85,6 +86,26 @@ Only write a unidiff in the codebase subset we're looking at."""
 
 
 class RailCodegenAgent(CodegenAgentBase):
+    """
+    Generate and apply diff given a CommitPlan.
+    It chunkifies the files specified in CommitPlan.relevant_file_hunks,
+    and writes diffs as it goes along looking at the file chunks.
+
+    WARNING: This agent implementation heavily relies on the `unidiff` custom guardrails validator,
+    and it still sometimes produces ambiguous results.
+    If you're interested in continuing experimentation with the diff generation approach,
+    try few-shotting. At time of writing, few-shotting is not implemented in guardrails.
+
+    Parameters
+    ----------
+
+    file_context_token_limit: int
+        The maximum size taken up by the file context (concatenated file chunks) in the prompt.
+
+    file_chunk_size: int
+        The maximum token size of each chunk that a file is split into.
+    """
+
     id = "rail-v1"
 
     def __init__(
@@ -143,10 +164,13 @@ class RailCodegenAgent(CodegenAgentBase):
             raise ValueError('Error generating patch')
         patch_text = patch.diff or ''
 
-        # if not all chunks were looked at, keep running the rail until all chunks are looked at
+        # If not all chunks were looked at, keep running the rail until all chunks are looked at
         not_looked_at_files = []
 
         def update_not_looked_at_files():
+            """
+            Update the list of files to look at in the next iteration.
+            """
             nonlocal not_looked_at_files
 
             not_looked_at_files = []
@@ -158,6 +182,8 @@ class RailCodegenAgent(CodegenAgentBase):
                 not_looked_at_files.append(f)
 
         update_not_looked_at_files()
+
+        # If there are still files to look at, keep running the rail and generating patches
         reasks = self.rail_service.num_reasks
         while not_looked_at_files and reasks > 0:
             reasks -= 1
@@ -166,10 +192,12 @@ class RailCodegenAgent(CodegenAgentBase):
             for f in not_looked_at_files:
                 log.debug(f' - {f.path} ({f.end_chunk - f.start_chunk} chunks left)')
 
+            # Only look at the files that haven't been looked at yet
             files_subset = [
                 f.copy(deep=True) for f in files_subset
                 if f.end_chunk != len(f.chunks)
             ]
+            # Run NewDiff rail
             rail = NewDiff(
                 issue=issue,
                 pull_request_description=pr_desc,
@@ -179,6 +207,8 @@ class RailCodegenAgent(CodegenAgentBase):
             patch = self.rail_service.run_prompt_rail(rail)
             if patch is None or not isinstance(patch, Diff):
                 raise ValueError('Error generating patch')
+
+            # Concatenate the patch text
             patch_text += patch.diff or ''
             update_not_looked_at_files()
 
