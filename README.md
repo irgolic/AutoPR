@@ -59,8 +59,8 @@ This Github Action is **in development**, and in **alpha release**.
 It still:
 
 - [Incorrectly references](https://github.com/irgolic/AutoPR-template/pull/19/files#diff-830c8547feabc5e216043b6af2f7784ee819537d88219e607543a899db1853c0R17) code in other files
-- Sometimes [duplicates lines](https://github.com/irgolic/AutoPR/pull/44/files#diff-8427d3dc331c8d06d0eca82385f08cb9878240db18a867f463ae90afab6ded43R135)
-- Sometimes calls [functions that don't exist](https://github.com/irgolic/AutoPR-template/pull/9/files#diff-01de17011a56527deac53327fec7f83279509157a1e806a2cec5c2215a953e97R63)
+- [Duplicates lines](https://github.com/irgolic/AutoPR/pull/44/files#diff-8427d3dc331c8d06d0eca82385f08cb9878240db18a867f463ae90afab6ded43R135)
+- Calls [functions that don't exist](https://github.com/irgolic/AutoPR-template/pull/9/files#diff-01de17011a56527deac53327fec7f83279509157a1e806a2cec5c2215a953e97R63)
 - Only works on Github (see [#46](https://github.com/irgolic/AutoPR/issues/46))
 
 ## 🔨 Usage
