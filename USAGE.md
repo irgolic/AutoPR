@@ -41,6 +41,10 @@ For example, if you don't have access to `gpt-4`, you can set the parameters fol
   - context_limit: 4096
 ```
 
+Warning: AutoPR is currently not optimized for `gpt-3.5-turbo`.
+See [#65](https://github.com/irgolic/AutoPR/issues/65) for more details.
+In the mean time, if you have access to the `gpt-4` API, please use that instead.
+
 #### Inputs
 
 - `github_token`: The action's GitHub token (`{{ secrets.GITHUB_TOKEN }}`). Required.
