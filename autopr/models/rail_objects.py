@@ -16,6 +16,7 @@ class RailObject(pydantic.BaseModel):
     - write an XML string compatible with the guardrails XML spec in the `output_spec` class variable
     - define your parameters as pydantic instance attributes
     """
+
     output_spec: ClassVar[str]
 
     @classmethod

@@ -15,6 +15,7 @@ class DiffService:
 
     Diffs are represented as `DiffStr` (a type alias for `str`).
     """
+
     def __init__(
         self,
         repo: Repo,

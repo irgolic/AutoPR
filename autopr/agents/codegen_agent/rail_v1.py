@@ -105,6 +105,7 @@ class RailCodegenAgent(CodegenAgentBase):
     file_chunk_size: int
         The maximum token size of each chunk that a file is split into.
     """
+
     id = "rail-v1"
 
     def __init__(

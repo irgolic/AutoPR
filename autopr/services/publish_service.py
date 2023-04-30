@@ -35,6 +35,7 @@ class PublishService:
     - `publish_update` to publish a simple textual update
     - `publish_call` to publish a multi-hunk update with a summary and subsections
     """
+
     def __init__(
         self,
         issue: Issue,
@@ -368,6 +369,14 @@ class PublishService:
 
 
 class GithubPublishService(PublishService):
+    """
+    Publishes the PR to Github.
+
+    Sets it as draft while it's being updated, and removes the draft status when it's finalized.
+    Adds a shield linking to the action logs, an"Fixes #{issue_number}" link.
+
+    """
+
     def __init__(
         self,
         issue: Issue,
@@ -547,6 +556,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         """
         Returns the PR dict of the first open pull request with the same head and base branches
         """
+
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         headers = self._get_headers()
         params = {'state': 'open', 'head': f'{self.owner}:{self.head_branch}', 'base': self.base_branch}

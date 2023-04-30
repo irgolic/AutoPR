@@ -14,6 +14,7 @@ class EventService:
     To support other platforms (Gitlab/Bitbucket/Gitea), subclass this and override `parse_event`.
     See irgolic/AutoPR#46 for more details.
     """
+
     def parse_event(self, event_name: str, event: dict[str, Any]) -> EventUnion:
         raise NotImplementedError
 
@@ -26,6 +27,7 @@ class GithubEventService(EventService):
 
     See https://docs.github.com/en/webhooks-and-events/events/issue-event-types
     """
+
     def __init__(
         self,
         github_token: str,

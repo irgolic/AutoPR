@@ -51,6 +51,7 @@ class ChainService:
     - parsing the output according to `PromptChain.output_parser`
     - Keeping `publish_service` informed of what's going on
     """
+
     def __init__(
         self,
         completions_repo: CompletionsRepo,

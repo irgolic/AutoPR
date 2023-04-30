@@ -15,6 +15,7 @@ class CommitService:
 
     Ensures there is always a commit on the branch.
     """
+
     def __init__(
         self,
         repo: Repo,
