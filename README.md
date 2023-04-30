@@ -45,7 +45,6 @@ Triggered by adding a label containing `AutoPR` to an issue, AutoPR will:
 Well-written issues often lead to better results.
 
 - [Create a dice rolling bot](https://github.com/irgolic/AutoPR-template/pull/21)
-- [Design a poll and survey bot](https://github.com/irgolic/AutoPR-template/pull/19)
 - [Create a 'Tech Jargon Generator'](https://github.com/irgolic/AutoPR-template/pull/13)
 - [Create a user-friendly weather app](https://github.com/irgolic/AutoPR-template/pull/15)
 - [Write three programming interview challenges](https://github.com/irgolic/AutoPR-template/pull/11)
