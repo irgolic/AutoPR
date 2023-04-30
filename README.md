@@ -42,19 +42,14 @@ Triggered by adding a label containing `AutoPR` to an issue, AutoPR will:
 
 ## 💎 Examples
 
-Well-written issue often lead to better results.
+A well-written issue often lead to better results.
 
-It can write code that fixes a bug in an existing repository.
-
-- Example 1: Replace `GPT2FastTokenizer` with `tiktoken`
-  - [Issue](https://github.com/irgolic/AutoPR/issues/43)
-  - [Pull request](https://github.com/irgolic/AutoPR/pull/44)
-
-Or it can write code from scratch in an empty repository.
-
-- Example 2: Write three programming interview challenges
-  - [Issue](https://github.com/irgolic/AutoPR-template/issues/10)
-  - [Pull request](https://github.com/irgolic/AutoPR-template/pull/11)
+- [Create a dice rolling bot](https://github.com/irgolic/AutoPR-template/pull/21)
+- [Design a poll and survey bot](https://github.com/irgolic/AutoPR-template/pull/19)
+- [Create a 'Tech Jargon Generator'](https://github.com/irgolic/AutoPR-template/pull/13)
+- [Create a user-friendly weather app](https://github.com/irgolic/AutoPR-template/pull/15)
+- [Write three programming interview challenges](https://github.com/irgolic/AutoPR-template/pull/11)
+- [Replace `GPT2FastTokenizer` with `tiktoken`](https://github.com/irgolic/AutoPR/pull/44)
 
 
 ## 🤞 Limitations
@@ -63,6 +58,7 @@ This Github Action is **in development**, and in **alpha release**.
 
 It still:
 
+- [Incorrectly references](https://github.com/irgolic/AutoPR-template/pull/19/files#diff-830c8547feabc5e216043b6af2f7784ee819537d88219e607543a899db1853c0R17) code in other files
 - Sometimes [duplicates lines](https://github.com/irgolic/AutoPR/pull/44/files#diff-8427d3dc331c8d06d0eca82385f08cb9878240db18a867f463ae90afab6ded43R135)
 - Sometimes calls [functions that don't exist](https://github.com/irgolic/AutoPR-template/pull/9/files#diff-01de17011a56527deac53327fec7f83279509157a1e806a2cec5c2215a953e97R63)
 - Only works on Github (see [#46](https://github.com/irgolic/AutoPR/issues/46))
