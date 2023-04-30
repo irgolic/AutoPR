@@ -27,18 +27,28 @@ class InitialFileSelectResponse(RailObject):
 <output>
 {cls.output_spec}
 </output>
-<prompt>
-```
-{{{{raw_document}}}}
-```
+<instructions>
+You are a helpful assistant only capable of communicating with valid JSON, and no other text.
 
+@json_suffix_prompt_examples
+</instructions>
+<prompt>
+Given the following document surrounded by `+++++`, answer the following questions. 
+If the answer doesn't exist in the document, enter `null`.
+
++++++
+{{{{raw_document}}}}
++++++
+
+Extract information from this document and return a JSON that follows the correct schema.
 If looking at files would be a waste of time, please submit an empty list.
 
-@complete_json_suffix_v2
+@xml_prefix_prompt
+
+{{output_schema}}
 </prompt>
 </rail>
 """
-
 
 class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
@@ -97,17 +107,29 @@ class LookAtFilesResponse(RailObject):
 <output>
 {cls.output_spec}
 </output>
-<prompt>
-```
-{{{{raw_document}}}}
-```
+<instructions>
+You are a helpful assistant only capable of communicating with valid JSON, and no other text.
 
+@json_suffix_prompt_examples
+</instructions>
+<prompt>
+Given the following document surrounded by `+++++`, answer the following questions. 
+If the answer doesn't exist in the document, enter `null`.
+
++++++
+{{{{raw_document}}}}
++++++
+
+Extract information from this document and return a JSON that follows the correct schema.
 If looking at files would be a waste of time, please submit an empty list.
 
-@complete_json_suffix_v2
+@xml_prefix_prompt
+
+{{output_schema}}
 </prompt>
 </rail>
 """
+
 
 
 class LookAtFiles(PromptRail):

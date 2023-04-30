@@ -69,8 +69,6 @@ class RailService:
         Temperature to use for guardrails calls
     raw_system_prompt: str
         System prompt to use for ordinary LLM calls (if `PromptRail.two_step` is True)
-    rail_system_prompt: str
-        System prompt to use for rail guardrails calls
     """
 
     def __init__(
@@ -82,9 +80,6 @@ class RailService:
         num_reasks: int = 2,
         temperature: float = 0.8,
         raw_system_prompt: str = 'You are a software developer and git nerd, a helpful planning and coding assistant.',
-        rail_system_prompt: str = "You are a helpful assistant, "
-                                  "able to express yourself purely through JSON, "
-                                  "strictly and precisely adhering to the provided XML schemas.",
     ):
         self.completions_repo = completions_repo
         self.publish_service = publish_service
@@ -93,16 +88,15 @@ class RailService:
         self.num_reasks = num_reasks
         self.temperature = temperature
         self.raw_system_prompt = raw_system_prompt
-        self.rail_system_prompt = rail_system_prompt
 
     def run_rail_object(self, rail_object: Type[T], raw_document: str) -> Optional[T]:
         """
         Transforms the `raw_document` into a pydantic instance described by `rail_object`.
         """
-        def completion_func(prompt: str):
+        def completion_func(prompt: str, instructions: str):
             return self.completions_repo.complete(
                 prompt=prompt,
-                system_prompt=self.rail_system_prompt,
+                system_prompt=instructions,
                 temperature=self.temperature,
             )
 
