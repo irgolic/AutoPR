@@ -42,7 +42,7 @@ Triggered by adding a label containing `AutoPR` to an issue, AutoPR will:
 
 ## 💎 Examples
 
-A well-written issue often lead to better results.
+Well-written issues often lead to better results.
 
 - [Create a dice rolling bot](https://github.com/irgolic/AutoPR-template/pull/21)
 - [Design a poll and survey bot](https://github.com/irgolic/AutoPR-template/pull/19)
