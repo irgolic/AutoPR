@@ -17,8 +17,88 @@ log = structlog.get_logger()
 
 T = TypeVar('T', bound=RailObject)
 
+# class PromptRail(pydantic.BaseModel):
+#     two_step: ClassVar[bool] = True
+#     prompt_spec: ClassVar[str] = ''
+#     extra_params: ClassVar[dict[str, Any]] = {}
+#     output_type: ClassVar[typing.Type[RailObject]]
+#
+#     def get_string_params(self) -> dict[str, str]:
+#         prompt_params = {}
+#         for key, value in self:
+#             if isinstance(value, list):
+#                 prompt_params[key] = '\n\n'.join(
+#                     [str(item) for item in value]
+#                 )
+#             else:
+#                 prompt_params[key] = str(value)
+#         return prompt_params
+#
+#     def trim_params(self) -> bool:
+#         log.warning("Naively trimming params", rail=self)
+#         prompt_params = dict(self)
+#         # If there are any lists, remove the last element of the first one you find
+#         for key, value in prompt_params.items():
+#             if isinstance(value, list) and len(value) > 0:
+#                 setattr(self, key, value[:-1])
+#                 return True
+#         return False
+
 
 class RailService:
+    """
+    Service for invoking guardrails according to PromptRail and RailObject subclasses.
+    See PromptRail, RailObject, and [Guardrails docs](https://docs.guardrails.io/) for more information.
+
+    To make a guardrails call:
+    - define a RailObject subclass
+    - define a PromptRail subclass
+    - instantiate the PromptRail
+    - call `rail_service.run_prompt_rail(rail)` with the instantiated PromptRail
+
+    For example:
+
+        class Colors(RailObject):
+            output_spec = '<list name="colors"><string/></list>'
+
+            colors: list[str]
+
+        class MyPromptRail(PromptRail):
+            output_type = Colors
+            prompt_spec = "What colors is {something}?"
+
+            something: str
+
+        rail = MyPromptRail(something="a zebra")
+        colors = rail_service.run_prompt_rail(rail)
+
+        print(colors)  # colors=['black', 'white']
+
+    This service is responsible for:
+    - Compiling prompts according to `PromptRail.prompt_spec`, `RailObject.output_spec`,
+      and `RailObject.get_rail_spec()`
+    - Invoking a guardrail LLM calls,
+      optionally after an ordinary LLM call if `PromptRail.two_step` is True
+    - Parsing the guardrail LLM response into a RailObject (pydantic) instance
+    - Publishing the RailObject instance to the publish service
+    - Keeping `publish_service` informed of what's going on
+
+
+    Parameters
+    ----------
+    min_tokens: int
+        Minimum number of tokens to leave in the context window to allow for response
+    context_limit: int
+        Context window token size limit
+    num_reasks: int
+        Number of times to re-ask the guardrail if it fails
+    temperature: float
+        Temperature to use for guardrails calls
+    raw_system_prompt: str
+        System prompt to use for ordinary LLM calls (if `PromptRail.two_step` is True)
+    rail_system_prompt: str
+        System prompt to use for rail guardrails calls
+    """
     def __init__(
         self,
         completions_repo: CompletionsRepo,
@@ -42,6 +122,9 @@ class RailService:
         self.rail_system_prompt = rail_system_prompt
 
     def run_rail_object(self, rail_object: Type[T], raw_document: str) -> Optional[T]:
+        """
+        Transforms the `raw_document` into a pydantic instance described by `rail_object`.
+        """
         def completion_func(prompt: str):
             return self.completions_repo.complete(
                 prompt=prompt,
@@ -63,6 +146,7 @@ class RailService:
         # Format the prompt for publish service, such that the `<output> ... </output>` tags are put in a ```xml block
         formatted_prompt = prompt.replace('<output>', '```xml\n<output>').replace('</output>', '</output>\n```')
 
+        # Invoke guardrails
         raw_o, dict_o = pr_guard(
             completion_func,
             prompt_params={
@@ -86,6 +170,7 @@ class RailService:
                         raw_output=raw_o)
             return None
 
+        # Parse the output into a pydantic object
         try:
             parsed_obj = rail_object.parse_obj(dict_o)
             self.publish_service.publish_call(
@@ -112,6 +197,12 @@ class RailService:
         return None
 
     def run_prompt_rail(self, rail: PromptRail) -> Optional[RailObject]:
+        """
+        Runs a PromptRail, asking the LLM a question and parsing the response into `PromptRail.output_type`.
+
+        :param rail:
+        :return:
+        """
         # Make sure there are at least `min_tokens` tokens left
         token_length = self.calculate_prompt_length(rail)
         while self.context_limit - token_length < self.min_tokens:

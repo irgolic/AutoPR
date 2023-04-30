@@ -10,6 +10,11 @@ from autopr.services.diff_service import DiffService
 
 
 class CommitService:
+    """
+    Service for creating branches, committing changes, and calling `git push` on the repository.
+
+    Ensures there is always a commit on the branch.
+    """
     def __init__(
         self,
         repo: Repo,
@@ -22,7 +27,6 @@ class CommitService:
         self.branch_name = branch_name
         self.base_branch_name = base_branch_name
 
-        self.is_published = False
         self._empty_commit = CommitPlan(
             commit_message="[empty]",
         )

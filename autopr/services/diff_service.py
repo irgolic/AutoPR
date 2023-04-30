@@ -10,6 +10,11 @@ log = structlog.get_logger()
 
 
 class DiffService:
+    """
+    Service for getting and applying diffs.
+
+    Diffs are represented as `DiffStr` (a type alias for `str`).
+    """
     def __init__(
         self,
         repo: Repo,
