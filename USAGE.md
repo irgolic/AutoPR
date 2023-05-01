@@ -44,6 +44,8 @@ For example, if you don't have access to `gpt-4`, you can set the parameters fol
 Warning: AutoPR is currently not optimized for `gpt-3.5-turbo`.
 See [#65](https://github.com/irgolic/AutoPR/issues/65) for more details.
 In the mean time, if you have access to the `gpt-4` API, please use that instead.
+Please note that ChatGPT Plus does not give you access to the `gpt-4` API; 
+you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-4-api). 
 
 #### Inputs
 

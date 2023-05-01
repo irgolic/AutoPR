@@ -65,7 +65,9 @@ class BrainAgentBase:
                 "⚠️⚠️⚠️ Warning: Using `gpt-3.5-turbo` completion model. "
                 "AutoPR is currently not optimized for this model. "
                 "See https://github.com/irgolic/AutoPR/issues/65 for more details. "
-                "In the mean time, if you have access to the `gpt-4` API, please use that instead."
+                "In the mean time, if you have access to the `gpt-4` API, please use that instead. "
+                "Please note that ChatGPT Plus does not give you access to the `gpt-4` API; "
+                "you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-4-api). "
             )
 
         self.log.info("Generating changes", event_=event)
