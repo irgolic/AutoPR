@@ -77,7 +77,7 @@ class CompletionsRepo:
             while len(self.publish_service.sections_stack) > 1:
                 self.publish_service.end_section()
             self.publish_service.publish_update(
-                "Your OpenAI API key does not have access to the `gpt-4` model. "
+                "⚠️⚠️⚠️ Your OpenAI API key does not have access to the `gpt-4` model. "
                 "Please note that ChatGPT Plus does not give you access to the `gpt-4` API; " 
                 "you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-4-api). "
             )
