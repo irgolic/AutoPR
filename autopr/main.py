@@ -11,8 +11,8 @@ from .repos.completions_repo import OpenAICompletionsRepo, OpenAIChatCompletions
 from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
-from .services.event_service import EventService, GithubEventService
-from .services.publish_service import GithubPublishService, PublishService
+from .services.event_service import EventService, GitHubEventService
+from .services.publish_service import GitHubPublishService, PublishService
 from .services.rail_service import RailService
 from .agents.codegen_agent import get_codegen_agent
 from .agents.pull_request_agent import get_pull_request_agent

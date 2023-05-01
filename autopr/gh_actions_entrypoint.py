@@ -10,8 +10,8 @@ import yaml
 
 from autopr.log_config import configure_logging
 from autopr.services.commit_service import CommitService
-from autopr.services.event_service import GithubEventService
-from autopr.services.publish_service import GithubPublishService
+from autopr.services.event_service import GitHubEventService
+from autopr.services.publish_service import GitHubPublishService
 
 configure_logging()
 
@@ -19,7 +19,7 @@ import structlog
 log = structlog.get_logger()
 
 
-class GithubActionSettings(Settings):
+class GitHubActionSettings(Settings):
     class Config:
         env_prefix = 'INPUT_'
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         os.environ['OPENAI_API_KEY'] = os.environ['INPUT_OPENAI_API_KEY']
 
     # Get input variables
-    settings = GithubActionSettings.parse_obj({})  # pyright workaround
+    settings = GitHubActionSettings.parse_obj({})  # pyright workaround
 
     # Get github vars
     github_token = os.environ['INPUT_GITHUB_TOKEN']
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         event_json = json.load(f)
 
     # Extract event
-    event_service = GithubEventService(
+    event_service = GitHubEventService(
         github_token=github_token,
     )
     event = event_service.parse_event(event_name, event_json)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     )
 
     # Create publish service
-    publish_service = GithubPublishService(
+    publish_service = GitHubPublishService(
         issue=event.issue,
         token=github_token,
         owner=owner,
