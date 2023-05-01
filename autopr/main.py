@@ -68,6 +68,7 @@ def main(
 
     # Create completions repo
     completions_repo = get_completions_repo(
+        publish_service=publish_service,
         model=settings.model,
         context_limit=settings.context_limit,
         min_tokens=settings.min_tokens,

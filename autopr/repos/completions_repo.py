@@ -5,6 +5,7 @@ import openai.error
 import structlog
 from tenacity import retry, retry_if_exception_type, wait_random_exponential, stop_after_attempt
 
+from autopr.services.publish_service import PublishService
 from autopr.utils import tokenizer
 
 
@@ -18,12 +19,14 @@ class CompletionsRepo:
 
     def __init__(
         self,
+        publish_service: PublishService,
         model: str,
         max_tokens: int = 2000,
         min_tokens: int = 1000,
         context_limit: int = 8192,
         temperature: float = 0.8,
     ):
+        self.publish_service = publish_service
         self.model = model
         self.max_tokens = max_tokens
         self.min_tokens = min_tokens
@@ -58,13 +61,28 @@ class CompletionsRepo:
             "Running completion",
             prompt=prompt,
         )
-        result = self._complete(
-            system_prompt=system_prompt,
-            examples=examples,
-            prompt=prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
+        try:
+            result = self._complete(
+                system_prompt=system_prompt,
+                examples=examples,
+                prompt=prompt,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+        except openai.error.InvalidRequestError as e:
+            if "`gpt-4` does not exist" not in str(e):
+                raise e
+
+            # Warn that the user doesn't have access to gpt-4
+            while len(self.publish_service.sections_stack) > 1:
+                self.publish_service.end_section()
+            self.publish_service.publish_update(
+                "Your OpenAI API key does not have access to the `gpt-4` model. "
+                "Please note that ChatGPT Plus does not give you access to the `gpt-4` API; " 
+                "you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-4-api). "
+            )
+            raise e
+
         log.info(
             "Completed",
             result=result,
@@ -85,6 +103,15 @@ class CompletionsRepo:
         raise NotImplementedError
 
 
+openai_retry_if_union = (
+    retry_if_exception_type(openai.error.Timeout)
+    | retry_if_exception_type(openai.error.APIError)
+    | retry_if_exception_type(openai.error.APIConnectionError)
+    | retry_if_exception_type(openai.error.RateLimitError)
+    | retry_if_exception_type(openai.error.ServiceUnavailableError)
+)
+
+
 class OpenAIChatCompletionsRepo(CompletionsRepo):
     models = [
         'gpt-4',
@@ -92,7 +119,7 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
     ]
 
     @retry(
-        retry=retry_if_exception_type(openai.error.OpenAIError),
+        retry=openai_retry_if_union,
         wait=wait_random_exponential(min=1, max=240),
         stop=stop_after_attempt(8)
     )
@@ -137,7 +164,7 @@ class OpenAICompletionsRepo(CompletionsRepo):
     ]
 
     @retry(
-        retry=retry_if_exception_type(openai.error.OpenAIError),
+        retry=openai_retry_if_union,
         wait=wait_random_exponential(min=1, max=240),
         stop=stop_after_attempt(8)
     )
@@ -174,6 +201,7 @@ class OpenAICompletionsRepo(CompletionsRepo):
 
 
 def get_completions_repo(
+    publish_service: PublishService,
     model: str = "gpt-4",
     max_tokens: int = 2000,
     min_tokens: int = 1000,
@@ -184,6 +212,7 @@ def get_completions_repo(
     for repo_implementation in repo_implementations:
         if model in repo_implementation.models:
             return repo_implementation(
+                publish_service=publish_service,
                 model=model,
                 max_tokens=max_tokens,
                 min_tokens=min_tokens,
