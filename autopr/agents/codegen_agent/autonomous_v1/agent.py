@@ -16,7 +16,7 @@ from autopr.repos.completions_repo import OpenAIChatCompletionsRepo
 from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
 from autopr.services.diff_service import DiffService, PatchService, GitApplyService
-from autopr.services.publish_service import PublishService
+from autopr.services.publish_service import PublishService, DummyPublishService
 from autopr.services.rail_service import RailService
 
 
@@ -450,7 +450,9 @@ if __name__ == '__main__':
         # create commit
         repo.git.commit("--allow-empty", "-m", "Initial commit")
 
+        publish_service = DummyPublishService()
         completions_repo = OpenAIChatCompletionsRepo(
+            publish_service=publish_service,
             model="gpt-4",
         )
         commit_service = CommitService(
@@ -459,9 +461,7 @@ if __name__ == '__main__':
             branch_name="hah",
             base_branch_name="main",
         )
-        publish_service = PublishService(
-            issue=issue,
-        )
+
         rail_service = RailService(
             publish_service=publish_service,
             completions_repo=completions_repo,
