@@ -103,6 +103,15 @@ class CompletionsRepo:
         raise NotImplementedError
 
 
+openai_retry_if_union = (
+    retry_if_exception_type(openai.error.Timeout)
+    | retry_if_exception_type(openai.error.APIError)
+    | retry_if_exception_type(openai.error.APIConnectionError)
+    | retry_if_exception_type(openai.error.RateLimitError)
+    | retry_if_exception_type(openai.error.ServiceUnavailableError)
+)
+
+
 class OpenAIChatCompletionsRepo(CompletionsRepo):
     models = [
         'gpt-4',
@@ -110,7 +119,7 @@ class OpenAIChatCompletionsRepo(CompletionsRepo):
     ]
 
     @retry(
-        retry=retry_if_exception_type(openai.error.OpenAIError),
+        retry=openai_retry_if_union,
         wait=wait_random_exponential(min=1, max=240),
         stop=stop_after_attempt(8)
     )
@@ -155,7 +164,7 @@ class OpenAICompletionsRepo(CompletionsRepo):
     ]
 
     @retry(
-        retry=retry_if_exception_type(openai.error.OpenAIError),
+        retry=openai_retry_if_union,
         wait=wait_random_exponential(min=1, max=240),
         stop=stop_after_attempt(8)
     )
