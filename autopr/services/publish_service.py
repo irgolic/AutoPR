@@ -368,9 +368,9 @@ class PublishService:
         raise NotImplementedError
 
 
-class GithubPublishService(PublishService):
+class GitHubPublishService(PublishService):
     """
-    Publishes the PR to Github.
+    Publishes the PR to GitHub.
 
     Sets it as draft while it's being updated, and removes the draft status when it's finalized.
     Adds a shield linking to the action logs, an"Fixes #{issue_number}" link.

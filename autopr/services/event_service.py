@@ -19,7 +19,7 @@ class EventService:
         raise NotImplementedError
 
 
-class GithubEventService(EventService):
+class GitHubEventService(EventService):
     """
     Service for parsing GitHub events into one of the `EventUnion` types.
 
