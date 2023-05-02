@@ -34,11 +34,13 @@ To use AutoPR, follow these steps:
 
 You can customize the behavior of AutoPR by modifying the `autopr.yml` file in your `.github/workflows` directory. 
 
-For example, if you don't have access to `gpt-4`, you can set the parameters following the `with:` line in the workflow file to:
+For example, if you don't have access to `gpt-4`, you can set the parameters following the `with:` line at the end of the workflow file to:
 
 ```yaml
-  - model: gpt-3.5-turbo
-  - context_limit: 4096
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        model: 'gpt-3.5-turbo'
+        context_limit: 4096
 ```
 
 Warning: AutoPR is currently not optimized for `gpt-3.5-turbo`.
