@@ -121,20 +121,17 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
             log.debug(f"Error decoding file: {blob.path}")
             continue
 
-        tokenizer = get_tokenizer(context_window)
+        tokenizer = get_tiktoken_tokenizer(context_window)
 
-        tokens = tokenizer.encode(content)
-        # Split into chunks up to the last newline
+        tokens = tokenizer(content)
         chunks: list[list[tuple[int, str]]] = []
         line_buffer = []
         for i, line in enumerate(content.splitlines()):
             line_buffer.append((i, line))
-            # FIXME speed this up
-            token_length = len(tokenizer.encode(
-                '\n'.join([l[1] for l in line_buffer])
-            ))
+            token_length = len(tokenizer('\n'.join([l[1] for l in line_buffer])))
             if token_length >= file_chunk_size:
                 chunks.append(line_buffer)
+                line_buffer = []
                 line_buffer = []
         if line_buffer:
             chunks.append(line_buffer)

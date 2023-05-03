@@ -1,11 +1,14 @@
-import transformers
+import tiktoken
+from tiktoken import Tokenizer
 
-_tokenizer_cache: dict[int, transformers.GPT2TokenizerFast] = {}
+_tokenizer_cache: dict[int, Tokenizer] = {}
 
-
-def get_tokenizer(model_max_length: int):
+def get_tiktoken_tokenizer(model_max_length: int):
     global _tokenizer_cache
 
     if model_max_length not in _tokenizer_cache:
-        _tokenizer_cache[model_max_length] = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=model_max_length)
+        _tokenizer_cache[model_max_length] = Tokenizer()
     return _tokenizer_cache[model_max_length]
+
+def get_tokenizer(model_max_length: int):
+    return get_tiktoken_tokenizer(model_max_length)
