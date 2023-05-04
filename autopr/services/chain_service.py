@@ -133,7 +133,7 @@ class ChainService:
 
         self.publish_service.publish_update(f"Running chain {chain.__class__.__name__}")
         if chain.output_parser:
-            parser = chain.output_parser()
+            parser = chain.output_parser
         else:
             parser = None
         prompt_value = self._get_model_template(chain, parser)

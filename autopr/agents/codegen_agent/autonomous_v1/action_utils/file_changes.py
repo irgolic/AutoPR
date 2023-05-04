@@ -66,7 +66,7 @@ When responding to me, please use the following format. Make sure you return bot
 
 
 class NewFileChain(PromptChain):
-    output_parser = GeneratedHunkOutputParser
+    output_parser = GeneratedHunkOutputParser()
     prompt_template = f"""Hey, we've got a new file to create.
 
 This is the issue that was opened:
@@ -106,7 +106,7 @@ Please send me the contents of the file.
 
 
 class RewriteCodeHunkChain(PromptChain):
-    output_parser = GeneratedHunkOutputParser
+    output_parser = GeneratedHunkOutputParser()
     prompt_template = f"""Hey, we've got a new code hunk to diff.
     
 This is the issue that was opened:
