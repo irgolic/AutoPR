@@ -3,6 +3,8 @@ from typing import ClassVar
 import pydantic
 import structlog
 
+from autopr.utils.tokenizer import get_tokenizer
+
 log = structlog.get_logger()
 
 
@@ -44,6 +46,14 @@ class PromptBase(pydantic.BaseModel):
             else:
                 prompt_params[key] = str(value)
         return prompt_params
+
+    def calculate_prompt_token_length(self) -> int:
+        """
+        Calculate the number of tokens in the prompt message.
+        """
+        tokenizer = get_tokenizer()
+        prompt_message = self.get_prompt_message()
+        return len(tokenizer.encode(prompt_message))
 
     def trim_params(self) -> bool:
         """

@@ -178,14 +178,14 @@ class RailService:
         :return:
         """
         # Make sure there are at least `min_tokens` tokens left
-        token_length = self.calculate_prompt_length(rail)
+        token_length = rail.calculate_prompt_token_length()
         while self.context_limit - token_length < self.min_tokens:
             # Trim the params (by default drops an item from a list)
             if not rail.trim_params():
                 rail_name = rail.__class__.__name__
                 log.debug(f'Could not trim params on rail {rail_name}: {rail.get_string_params()}')
                 return None
-            token_length = self.calculate_prompt_length(rail)
+            token_length = rail.calculate_prompt_token_length()
 
         suffix = "two steps" if rail.two_step else "one step"
         self.publish_service.publish_update(f"Running rail {rail.__class__.__name__} in {suffix}...")
@@ -209,10 +209,6 @@ class RailService:
         spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_document=raw_document)
-
-    def calculate_prompt_length(self, rail: PromptRail) -> int:
-        prompt = rail.get_prompt_message()
-        return len(self.completions_repo.tokenizer.encode(prompt))
 
     def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:
         rail_message = self.get_rail_message(rail_object, raw_document)
