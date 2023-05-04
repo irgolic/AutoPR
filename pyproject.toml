@@ -20,7 +20,7 @@ langchain = "^0.0.144"
 pyyaml = "^6.0"
 
 [tool.poetry.group.test.dependencies]
-pyright = "^1.1.300"
+pyright = "^1.1.306"
 pytest = "^7.2.2"
 pytest-subtests = "^0.10.0"
 
