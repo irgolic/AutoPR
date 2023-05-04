@@ -17,16 +17,7 @@ class PromptChain(PromptBase):
     - write a prompt template in the `prompt_template` class variable, referencing parameters as {param}
     - define your parameters as pydantic instance attributes
     - optionally define an output parser as the `output_parser` class variable
-
-    Instance attributes declared in the PromptChain are automatically filled into the
-    `prompt_template` template string, wherever they are referenced as {param}.
     """
-
-    #: The prompt template to use for the langchain call (reference string parameters as {param}).
-    prompt_template: ClassVar[str] = ''
-
-    #: Extra parameters to pass to the langchain call.
-    # extra_params: ClassVar[dict[str, Any]] = {}
 
     #: The output parser to run the response through.
     output_parser: ClassVar[Optional[Type[BaseOutputParser]]] = None

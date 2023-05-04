@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import pydantic
 import structlog
 
@@ -7,8 +9,18 @@ log = structlog.get_logger()
 class PromptBase(pydantic.BaseModel):
     """
     Base class for all prompt specifications.
-    Assumes prompt parameters are specified as pydantic instance attributes.
+
+    Prompt parameters should be specified as pydantic instance attributes.
+    They will be automatically filled into the `prompt_template` string,
+    wherever they are referenced as {param}.
     """
+
+    #: The prompt template to use for the LLM call (reference string parameters as {param}).
+    prompt_template: ClassVar[str] = ''
+
+    # TODO implement extra_params in rail_service and chain_service
+    #: Extra parameters to pass to the guardrails LLM call.
+    # extra_params: ClassVar[dict[str, Any]] = {}
 
     def get_string_params(self) -> dict[str, str]:
         """
