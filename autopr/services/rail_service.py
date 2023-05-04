@@ -38,7 +38,7 @@ class RailService:
 
         class MyPromptRail(PromptRail):
             output_type = Colors
-            prompt_spec = "What colors is {something}?"
+            prompt_template = "What colors is {something}?"
 
             something: str
 
@@ -48,7 +48,7 @@ class RailService:
         print(colors)  # colors=['black', 'white']
 
     This service is responsible for:
-    - Compiling prompts according to `PromptRail.prompt_spec`, `RailObject.output_spec`,
+    - Compiling prompts according to `PromptRail.prompt_template`, `RailObject.output_spec`,
       and `RailObject.get_rail_spec()`
     - Invoking a guardrail LLM calls,
       optionally after an ordinary LLM call if `PromptRail.two_step` is True
@@ -206,7 +206,7 @@ class RailService:
 
     @staticmethod
     def get_prompt_message(rail: PromptRail):
-        spec = rail.prompt_spec
+        spec = rail.prompt_template
         prompt_params = rail.get_string_params()
         return spec.format(**prompt_params)
 

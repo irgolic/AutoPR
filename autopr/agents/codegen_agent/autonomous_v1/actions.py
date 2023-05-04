@@ -122,7 +122,7 @@ class Action(RailObject):
 class MakeDecision(PromptRail):
     two_step = False
     output_type = Action
-    prompt_spec = f"""You are about to make a decision on what to do next.
+    prompt_template = f"""You are about to make a decision on what to do next.
 
 This is the issue that was opened:
 ```{{issue}}```

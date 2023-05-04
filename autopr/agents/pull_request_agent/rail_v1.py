@@ -42,7 +42,7 @@ If looking at files would be a waste of time, please submit an empty list.
 
 class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
-    prompt_spec = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
+    prompt_template = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
 
 The issue is:
 ```{{issue}}```
@@ -112,7 +112,7 @@ If looking at files would be a waste of time, please submit an empty list.
 
 class LookAtFiles(PromptRail):
     # Select files given issue, unseen files in repo, and notes
-    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_template = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
 ```{{issue}}```
@@ -163,7 +163,7 @@ If looking at files would be a waste of time with regard to the issue, respond w
 
 class ContinueLookingAtFiles(PromptRail):
     # Continue selecting files and generating fp_notes given issue, unseen files in repo, and notes
-    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_template = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
 ```{{issue}}```
@@ -217,7 +217,7 @@ Also, let me know if we should take a look at any other files – our budget is 
 
 class ProposePullRequest(PromptRail):
     # Generate proposed list of commit messages, given notes and issue
-    prompt_spec = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
+    prompt_template = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
 
 These are notes we took while looking at the repo:
 ```{{notes_taken_while_looking_at_files}}```
