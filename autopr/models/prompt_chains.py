@@ -24,13 +24,14 @@ class PromptChain(PromptBase):
     #: The output parser to run the response through.
     output_parser: ClassVar[Optional[BaseOutputParser]] = None
 
-    def get_string_params(self) -> dict[str, str]:
+    def get_prompt_message(self) -> str:
         """
-        Get the parameters of the prompt as a dictionary of strings.
-        Add the format instructions if an output parser is specified.
-        Override this method to specify your own parameters.
+        Get the prompt message that is sent the LLM call.
+        Ordinarily the format instructions are passed as a partial variable,
+        so this method is overridden to include them for the trimming calculation.
         """
-        prompt_params = super().get_string_params()
+        spec = self.prompt_template
+        prompt_params = self.get_string_params()
         if self.output_parser is not None:
             prompt_params['format_instructions'] = self.output_parser.get_format_instructions()
-        return prompt_params
+        return spec.format(**prompt_params)
