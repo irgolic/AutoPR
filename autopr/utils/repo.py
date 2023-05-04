@@ -121,7 +121,7 @@ def repo_to_file_descriptors(repo: Repo, context_window: int, file_chunk_size: i
             log.debug(f"Error decoding file: {blob.path}")
             continue
 
-        tokenizer = get_tokenizer(context_window)
+        tokenizer = get_tokenizer()
 
         tokens = tokenizer.encode(content)
         # Split into chunks up to the last newline
