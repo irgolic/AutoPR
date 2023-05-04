@@ -97,4 +97,5 @@ if __name__ == '__main__':
         commit_service=commit_service,
         publish_service=publish_service,
         settings=settings,
+        current_step=current_step,
     )
