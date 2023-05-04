@@ -459,7 +459,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         if response.status_code == 201:
             self.log.debug('Pull request created successfully',
-                           response=response.json(),
                            headers=response.headers)
             return
 
@@ -469,7 +468,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
             response = requests.post(url, json=data, headers=headers)
             if response.status_code == 201:
                 self.log.debug('Pull request created successfully',
-                               response=response.json(),
                                headers=response.headers)
                 return
         self.log.error('Failed to create pull request',
@@ -518,7 +516,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         if response.status_code == 200:
             self.log.debug('Pull request draft status updated successfully',
-                           response=response.json(),
                            headers=response.headers)
             return
 
@@ -540,7 +537,6 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         if response.status_code == 200:
             self.log.debug('Pull request updated successfully',
-                           response=response.json(),
                            headers=response.headers)
             # Update draft status
             if self._drafts_supported:
