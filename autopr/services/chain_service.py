@@ -56,9 +56,13 @@ class ChainService:
         self,
         completions_repo: CompletionsRepo,
         publish_service: PublishService,
+        context_limit: int = 8192,
+        min_tokens: int = 2000,
     ):
         self.completions_repo = completions_repo
         self.publish_service = publish_service
+        self.context_limit = context_limit
+        self.min_tokens = min_tokens
 
         # TODO find a better way to integrate completions repo with langchain
         #   can we make a BaseLanguageModel that takes a completions repo?
@@ -121,9 +125,15 @@ class ChainService:
             return self.model(template.to_string())
 
     def run_chain(self, chain: PromptChain) -> Any:
+        # Make sure the prompt is not too long
+        max_length = self.context_limit - self.min_tokens
+        success = chain.ensure_token_length(max_length)
+        if not success:
+            return None
+
         self.publish_service.publish_update(f"Running chain {chain.__class__.__name__}")
         if chain.output_parser:
-            parser = chain.output_parser()
+            parser = chain.output_parser
         else:
             parser = None
         prompt_value = self._get_model_template(chain, parser)

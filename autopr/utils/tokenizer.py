@@ -1,11 +1,15 @@
+from typing import Optional
+
 import transformers
 
-_tokenizer_cache: dict[int, transformers.GPT2TokenizerFast] = {}
+# FIXME use tiktoken instead
+
+_cached_tokenizer = None
 
 
-def get_tokenizer(model_max_length: int):
-    global _tokenizer_cache
+def get_tokenizer():
+    global _cached_tokenizer
 
-    if model_max_length not in _tokenizer_cache:
-        _tokenizer_cache[model_max_length] = transformers.GPT2TokenizerFast.from_pretrained('gpt2', model_max_length=model_max_length)
-    return _tokenizer_cache[model_max_length]
+    if _cached_tokenizer is None:
+        _cached_tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
+    return _cached_tokenizer

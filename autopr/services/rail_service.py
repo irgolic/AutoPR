@@ -38,7 +38,7 @@ class RailService:
 
         class MyPromptRail(PromptRail):
             output_type = Colors
-            prompt_spec = "What colors is {something}?"
+            prompt_template = "What colors is {something}?"
 
             something: str
 
@@ -48,7 +48,7 @@ class RailService:
         print(colors)  # colors=['black', 'white']
 
     This service is responsible for:
-    - Compiling prompts according to `PromptRail.prompt_spec`, `RailObject.output_spec`,
+    - Compiling prompts according to `PromptRail.prompt_template`, `RailObject.output_spec`,
       and `RailObject.get_rail_spec()`
     - Invoking a guardrail LLM calls,
       optionally after an ordinary LLM call if `PromptRail.two_step` is True
@@ -177,20 +177,17 @@ class RailService:
         :param rail:
         :return:
         """
-        # Make sure there are at least `min_tokens` tokens left
-        token_length = self.calculate_prompt_length(rail)
-        while self.context_limit - token_length < self.min_tokens:
-            # Trim the params (by default drops an item from a list)
-            if not rail.trim_params():
-                rail_name = rail.__class__.__name__
-                log.debug(f'Could not trim params on rail {rail_name}: {rail.get_string_params()}')
-                return None
-            token_length = self.calculate_prompt_length(rail)
+        # Make sure the prompt is not too long
+        max_length = self.context_limit - self.min_tokens
+        success = rail.ensure_token_length(max_length)
+        if not success:
+            return None
 
         suffix = "two steps" if rail.two_step else "one step"
         self.publish_service.publish_update(f"Running rail {rail.__class__.__name__} in {suffix}...")
 
-        prompt = self.get_prompt_message(rail)
+        # Run the rail
+        prompt = rail.get_prompt_message()
         if rail.two_step:
             initial_prompt = prompt
             prompt = self.completions_repo.complete(
@@ -205,20 +202,10 @@ class RailService:
         return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod
-    def get_prompt_message(rail: PromptRail):
-        spec = rail.prompt_spec
-        prompt_params = rail.get_string_params()
-        return spec.format(**prompt_params)
-
-    @staticmethod
     def get_rail_message(rail_object: type[RailObject], raw_document: str):
         spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_document=raw_document)
-
-    def calculate_prompt_length(self, rail: PromptRail) -> int:
-        prompt = self.get_prompt_message(rail)
-        return len(self.completions_repo.tokenizer.encode(prompt))
 
     def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:
         rail_message = self.get_rail_message(rail_object, raw_document)

@@ -91,6 +91,8 @@ def main(
     chain_service = ChainService(
         completions_repo=completions_repo,
         publish_service=publish_service,
+        context_limit=settings.context_limit,
+        min_tokens=settings.min_tokens,
     )
 
     # auto-v1 generates diffs with `git diff`, so use that

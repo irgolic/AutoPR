@@ -42,7 +42,7 @@ If looking at files would be a waste of time, please submit an empty list.
 
 class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
-    prompt_spec = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
+    prompt_template = f"""Hey, somebody just opened an issue in my repo, could you help me write a pull request?
 
 The issue is:
 ```{{issue}}```
@@ -55,9 +55,9 @@ Respond with a very short rationale, and a list of files.
 If looking at files would be a waste of time with regard to the issue, respond with an empty list."""
 
     output_type = InitialFileSelectResponse
-    extra_params = {
-        'temperature': 0,
-    }
+    # extra_params = {
+    #     'temperature': 0,
+    # }
 
     issue: Issue
     file_descriptors: list[FileDescriptor]
@@ -112,7 +112,7 @@ If looking at files would be a waste of time, please submit an empty list.
 
 class LookAtFiles(PromptRail):
     # Select files given issue, unseen files in repo, and notes
-    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_template = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
 ```{{issue}}```
@@ -129,9 +129,9 @@ Respond with some very brief notes, and a list of files to continue looking at.
 If looking at files would be a waste of time with regard to the issue, respond with an empty list."""
 
     output_type = LookAtFilesResponse
-    extra_params = {
-        'temperature': 0.2,
-    }
+    # extra_params = {
+    #     'temperature': 0.2,
+    # }
 
     issue: Issue
     selected_file_contents: list[FileDescriptor]
@@ -163,7 +163,7 @@ If looking at files would be a waste of time with regard to the issue, respond w
 
 class ContinueLookingAtFiles(PromptRail):
     # Continue selecting files and generating fp_notes given issue, unseen files in repo, and notes
-    prompt_spec = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
+    prompt_template = f"""Hey, somebody just submitted an issue, could you own it, and write a pull request?
 
 The issue that was opened:
 ```{{issue}}```
@@ -181,9 +181,9 @@ Take some notes that will help us plan commits and write code to fix the issue.
 Also, let me know if we should take a look at any other files – our budget is {{token_limit}} tokens."""
 
     output_type = LookAtFilesResponse
-    extra_params = {
-        'temperature': 0.2,
-    }
+    # extra_params = {
+    #     'temperature': 0.2,
+    # }
 
     issue: Issue
     notes: str
@@ -217,7 +217,7 @@ Also, let me know if we should take a look at any other files – our budget is 
 
 class ProposePullRequest(PromptRail):
     # Generate proposed list of commit messages, given notes and issue
-    prompt_spec = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
+    prompt_template = f"""Hey somebody just submitted an issue, could you own it, write some commits, and a pull request?
 
 These are notes we took while looking at the repo:
 ```{{notes_taken_while_looking_at_files}}```
@@ -230,9 +230,9 @@ Ensure you specify the files relevant to the commit, especially if the commit is
 Folders are created automatically; do not make them in their own commit."""
 
     output_type = PullRequestDescription
-    extra_params = {
-        'temperature': 0.1,
-    }
+    # extra_params = {
+    #     'temperature': 0.1,
+    # }
 
     notes_taken_while_looking_at_files: str
     issue: Issue

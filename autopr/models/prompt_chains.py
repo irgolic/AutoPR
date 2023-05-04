@@ -1,41 +1,37 @@
 from typing import ClassVar, Any, Type, Optional
-import pydantic
-from langchain.schema import BaseOutputParser
 
-from autopr.models.rail_objects import RailObject
+from autopr.models.prompt_base import PromptBase
+from langchain.schema import BaseOutputParser
 
 import structlog
 
 log = structlog.get_logger()
 
 
-class PromptChain(pydantic.BaseModel):
-    prompt_template: ClassVar[str] = ''
-    extra_params: ClassVar[dict[str, Any]] = {}
-    output_parser: ClassVar[Optional[Type[BaseOutputParser]]] = None
+class PromptChain(PromptBase):
+    """
+    A prompt chain is a pydantic model used to specify a prompt for a langchain call.
+    See ChainService and [Langchain docs](https://docs.langchain.ai/) for more information.
 
-    def get_string_params(self) -> dict[str, str]:
-        prompt_params = {}
-        for key, value in self:
-            if isinstance(value, list):
-                prompt_params[key] = '\n\n'.join(
-                    [str(item) for item in value]
-                )
-            else:
-                prompt_params[key] = str(value)
-        return prompt_params
+    To define your own prompt chain:
+    - write a prompt template in the `prompt_template` class variable, referencing parameters as {param}
+    - define your parameters as pydantic instance attributes
+    - optionally define an output parser as the `output_parser` class variable
 
-    def trim_params(self) -> bool:
+
+    """
+
+    #: The output parser to run the response through.
+    output_parser: ClassVar[Optional[BaseOutputParser]] = None
+
+    def get_prompt_message(self) -> str:
         """
-        Override this method to trim the parameters of the prompt.
-        This is called when the prompt is too long.
+        Get the prompt message that is sent the LLM call.
+        Ordinarily the format instructions are passed as a partial variable,
+        so this method is overridden to include them for the trimming calculation.
         """
-
-        log.warning("Naively trimming params", rail=self)
-        prompt_params = dict(self)
-        # If there are any lists, remove the last element of the first one you find
-        for key, value in prompt_params.items():
-            if isinstance(value, list) and len(value) > 0:
-                setattr(self, key, value[:-1])
-                return True
-        return False
+        spec = self.prompt_template
+        prompt_params = self.get_string_params()
+        if self.output_parser is not None:
+            prompt_params['format_instructions'] = self.output_parser.get_format_instructions()
+        return spec.format(**prompt_params)

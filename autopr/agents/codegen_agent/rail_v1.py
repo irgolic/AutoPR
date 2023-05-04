@@ -43,7 +43,7 @@ class Commit(RailObject):
 
 class NewDiff(PromptRail):
     # Generate code for a commit, given an issue, a pull request, and a codebase
-    prompt_spec = f"""Hey, now that we've got a plan, let's write some code.
+    prompt_template = f"""Hey, now that we've got a plan, let's write some code.
 
 This is the issue that was opened:
 ```{{issue}}```
@@ -61,9 +61,9 @@ Please implement the commit, and send me the unidiff.
 Only write a unidiff in the codebase subset we're looking at."""
 
     output_type = Diff
-    extra_params = {
-        'temperature': 0.0,
-    }
+    # extra_params = {
+    #     'temperature': 0.0,
+    # }
 
     issue: Issue
     pull_request_description: PullRequestDescription

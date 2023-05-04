@@ -33,7 +33,7 @@ class CompletionsRepo:
         self.context_limit = context_limit
         self.temperature = temperature
 
-        self.tokenizer = tokenizer.get_tokenizer(max_tokens)
+        self.tokenizer = tokenizer.get_tokenizer()
         self.log = structlog.get_logger(repo=self.__class__.__name__)
 
     def complete(
