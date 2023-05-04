@@ -55,10 +55,27 @@ class PromptBase(pydantic.BaseModel):
         prompt_message = self.get_prompt_message()
         return len(tokenizer.encode(prompt_message))
 
+    def ensure_token_length(self, max_length: int) -> bool:
+        """
+        Ensure that the prompt message is no longer than `max_length` tokens.
+        """
+        # Make sure there are at least `min_tokens` tokens left
+        while max_length < self.calculate_prompt_token_length():
+            # Iteratively rim the params
+            if not self.trim_params():
+                rail_name = self.__class__.__name__
+                log.debug(f'Could not trim params on rail {rail_name}: {self.get_string_params()}')
+                return False
+        return True
+
     def trim_params(self) -> bool:
         """
         Override this method to trim the parameters of the prompt.
-        This is called when the prompt is too long.
+        This is called when the prompt is too long. By default, this method
+        removes the last element of the first list it finds.
+
+        TODO give this method better heuristics for trimming, so it doesn't just
+         get called over and over again.
         """
 
         log.warning("Naively trimming params", rail=self)
