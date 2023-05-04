@@ -190,7 +190,7 @@ class RailService:
         suffix = "two steps" if rail.two_step else "one step"
         self.publish_service.publish_update(f"Running rail {rail.__class__.__name__} in {suffix}...")
 
-        prompt = self.get_prompt_message(rail)
+        prompt = rail.get_prompt_message()
         if rail.two_step:
             initial_prompt = prompt
             prompt = self.completions_repo.complete(
@@ -205,19 +205,13 @@ class RailService:
         return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod
-    def get_prompt_message(rail: PromptRail):
-        spec = rail.prompt_template
-        prompt_params = rail.get_string_params()
-        return spec.format(**prompt_params)
-
-    @staticmethod
     def get_rail_message(rail_object: type[RailObject], raw_document: str):
         spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(spec)
         return pr_guard.base_prompt.format(raw_document=raw_document)
 
     def calculate_prompt_length(self, rail: PromptRail) -> int:
-        prompt = self.get_prompt_message(rail)
+        prompt = rail.get_prompt_message()
         return len(self.completions_repo.tokenizer.encode(prompt))
 
     def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:

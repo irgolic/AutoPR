@@ -22,6 +22,14 @@ class PromptBase(pydantic.BaseModel):
     #: Extra parameters to pass to the guardrails LLM call.
     # extra_params: ClassVar[dict[str, Any]] = {}
 
+    def get_prompt_message(self) -> str:
+        """
+        Get the prompt message that is sent the LLM call.
+        """
+        spec = self.prompt_template
+        prompt_params = self.get_string_params()
+        return spec.format(**prompt_params)
+
     def get_string_params(self) -> dict[str, str]:
         """
         Get the parameters of the prompt as a dictionary of strings.
