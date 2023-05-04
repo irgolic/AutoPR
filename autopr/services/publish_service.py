@@ -483,9 +483,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         except json.JSONDecodeError:
             logging.error(f"Failed to decode JSON: {response_text}")
             return False
-        is_draft_error = 'message' in response_obj and \
-            'draft pull requests are not supported' in response_obj['message'].lower()
-        if is_draft_error:
+
         is_draft_error = 'message' in response_obj and \
             'draft pull requests are not supported' in response_obj['message'].lower()
         if is_draft_error:
