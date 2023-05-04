@@ -26,7 +26,7 @@ class PromptChain(PromptBase):
     prompt_template: ClassVar[str] = ''
 
     #: Extra parameters to pass to the langchain call.
-    extra_params: ClassVar[dict[str, Any]] = {}
+    # extra_params: ClassVar[dict[str, Any]] = {}
 
     #: The output parser to run the response through.
     output_parser: ClassVar[Optional[Type[BaseOutputParser]]] = None

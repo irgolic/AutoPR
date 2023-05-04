@@ -61,9 +61,9 @@ Please implement the commit, and send me the unidiff.
 Only write a unidiff in the codebase subset we're looking at."""
 
     output_type = Diff
-    extra_params = {
-        'temperature': 0.0,
-    }
+    # extra_params = {
+    #     'temperature': 0.0,
+    # }
 
     issue: Issue
     pull_request_description: PullRequestDescription

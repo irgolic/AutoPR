@@ -31,7 +31,7 @@ class PromptRail(PromptBase):
     prompt_spec: ClassVar[str] = ''
 
     #: Extra parameters to pass to the guardrails LLM call.
-    extra_params: ClassVar[dict[str, Any]] = {}
+    # extra_params: ClassVar[dict[str, Any]] = {}
 
     #: The RailObject type to parse the LLM response into.
     output_type: ClassVar[typing.Type[RailObject]]
