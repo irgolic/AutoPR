@@ -137,7 +137,7 @@ If looking at files would be a waste of time with regard to the issue, respond w
     selected_file_contents: list[FileDescriptor]
     prospective_file_descriptors: list[FileDescriptor]
     token_limit: int
-    _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
+    _filtered_prospective_file_descriptors: list[FileDescriptor] = pydantic.PrivateAttr(default_factory=list)
 
     def get_string_params(self) -> dict[str, str]:
         self._filtered_prospective_file_descriptors = filter_seen_chunks(
@@ -190,7 +190,7 @@ Also, let me know if we should take a look at any other files – our budget is 
     selected_file_contents: list[FileDescriptor]
     prospective_file_descriptors: list[FileDescriptor]
     token_limit: int
-    _filtered_prospective_file_descriptors: Optional[list[FileDescriptor]] = pydantic.PrivateAttr(None)
+    _filtered_prospective_file_descriptors: list[FileDescriptor] = pydantic.PrivateAttr(default_factory=list)
 
     def get_string_params(self) -> dict[str, str]:
         self._filtered_prospective_file_descriptors = filter_seen_chunks(
@@ -346,7 +346,6 @@ class RailPullRequestAgent(PullRequestAgentBase):
             self.log.debug(f'Looking at more files... ({reasks} reasks left)')
             for fp in filepaths:
                 self.log.debug(f' - {fp}')
-
             rail = ContinueLookingAtFiles(
                 issue=issue,
                 notes=notes,

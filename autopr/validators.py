@@ -215,7 +215,7 @@ def create_unidiff_validator(repo: Repo, diff_service: DiffService):
 
             return schema
 
-        def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
+        def validate(self, key: str, value: Any, schema: Dict) -> Union[Dict, List]:
             log.debug(f"Validating unidiff...", value=value)
 
             try:
@@ -398,7 +398,7 @@ class FilePath(Validator):
     - Name for `format` attribute: `filepath`
     - Supported data types: `string`
     """
-    def validate(self, key: str, value: Any, schema: Union[Dict, List]) -> Union[Dict, List]:
+    def validate(self, key: str, value: Any, schema: Dict) -> Union[Dict, List]:
         log.debug("Validating filepath...", key=key, value=value)
 
         # Check if filepath is a string
