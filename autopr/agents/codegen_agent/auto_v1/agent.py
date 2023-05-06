@@ -8,7 +8,7 @@ from git.repo import Repo
 from autopr.agents.codegen_agent import CodegenAgentBase
 from autopr.agents.codegen_agent.auto_v1.action_utils.context import ContextFile, ContextCodeHunk
 from autopr.agents.codegen_agent.auto_v1.action_utils.file_changes import GeneratedFileHunk, NewFileChain, RewriteCodeHunkChain
-from autopr.agents.codegen_agent.auto_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
+from autopr.agents.codegen_agent.auto_v1.actions import AutoAction, MakeDecision, NewFileAction, ActionUnion, \
     EditFileAction
 from autopr.models.artifacts import DiffStr, Issue, Message
 from autopr.models.rail_objects import CommitPlan, PullRequestDescription, FileHunk
@@ -318,7 +318,7 @@ class AutonomousCodegenAgent(CodegenAgentBase):
                 past_actions=actions_history,
             )
             action = self.rail_service.run_prompt_rail(action_rail)
-            if action is None or not isinstance(action, Action):
+            if action is None or not isinstance(action, AutoAction):
                 self.log.error("Action choice failed")
                 self.publish_service.end_section("Error (invalid action choice)")
                 break

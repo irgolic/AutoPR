@@ -79,7 +79,7 @@ ActionUnion = Union[NewFileAction, EditFileAction]
 ###
 
 
-class Action(RailObject):
+class AutoAction(RailObject):
     output_spec = f"""<choice
     name="action"
     on-fail-choice="reask"
@@ -121,7 +121,7 @@ class Action(RailObject):
 
 class MakeDecision(PromptRail):
     two_step = False
-    output_type = Action
+    output_type = AutoAction
     prompt_template = f"""You are about to make a decision on what to do next.
 
 This is the issue that was opened:
