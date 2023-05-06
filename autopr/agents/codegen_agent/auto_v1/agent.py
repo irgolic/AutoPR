@@ -6,9 +6,9 @@ from typing import Optional
 from git.repo import Repo
 
 from autopr.agents.codegen_agent import CodegenAgentBase
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.file_changes import GeneratedFileHunk, NewFileChain, RewriteCodeHunkChain
-from autopr.agents.codegen_agent.autonomous_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
+from autopr.agents.codegen_agent.auto_v1.action_utils.context import ContextFile, ContextCodeHunk
+from autopr.agents.codegen_agent.auto_v1.action_utils.file_changes import GeneratedFileHunk, NewFileChain, RewriteCodeHunkChain
+from autopr.agents.codegen_agent.auto_v1.actions import Action, MakeDecision, NewFileAction, ActionUnion, \
     EditFileAction
 from autopr.models.artifacts import DiffStr, Issue, Message
 from autopr.models.rail_objects import CommitPlan, PullRequestDescription, FileHunk

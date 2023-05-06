@@ -1,6 +1,6 @@
 from typing import Literal, Optional, Union
 
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile
+from autopr.agents.codegen_agent.auto_v1.action_utils.context import ContextFile
 from autopr.models.artifacts import Issue
 from autopr.models.prompt_rails import PromptRail
 from autopr.models.rail_objects import RailObject, PullRequestDescription, CommitPlan

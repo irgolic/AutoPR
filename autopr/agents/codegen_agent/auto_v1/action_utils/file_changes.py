@@ -3,7 +3,7 @@ from typing import Optional
 
 import pydantic
 
-from autopr.agents.codegen_agent.autonomous_v1.action_utils.context import ContextFile, ContextCodeHunk
+from autopr.agents.codegen_agent.auto_v1.action_utils.context import ContextFile, ContextCodeHunk
 from autopr.models.artifacts import Issue
 from autopr.models.prompt_chains import PromptChain
 from autopr.models.prompt_rails import PromptRail
