@@ -8,6 +8,7 @@ from git.repo import Repo
 from .base import CodegenAgentBase
 from autopr.services.diff_service import DiffService
 from autopr.services.rail_service import RailService
+from ...services.action_service import ActionService
 from ...services.chain_service import ChainService
 from ...services.publish_service import PublishService
 
@@ -28,6 +29,7 @@ def get_codegen_agent(
     rail_service: RailService,
     chain_service: ChainService,
     diff_service: DiffService,
+    action_service: ActionService,
     repo: Repo,
     extra_params: Optional[dict[str, Any]] = None,
 ) -> CodegenAgent:
@@ -40,6 +42,7 @@ def get_codegen_agent(
                 rail_service=rail_service,
                 chain_service=chain_service,
                 diff_service=diff_service,
+                action_service=action_service,
                 repo=repo,
                 **extra_params
             )

@@ -4,6 +4,7 @@ from git.repo import Repo
 
 from autopr.models.artifacts import DiffStr, Issue
 from autopr.models.rail_objects import PullRequestDescription, CommitPlan
+from autopr.services.action_service import ActionService
 from autopr.services.chain_service import ChainService
 from autopr.services.diff_service import DiffService
 from autopr.services.publish_service import PublishService
@@ -28,6 +29,7 @@ class CodegenAgentBase:
         rail_service: RailService,
         chain_service: ChainService,
         diff_service: DiffService,
+        action_service: ActionService,
         repo: Repo,
         **kwargs,
     ):
@@ -35,6 +37,7 @@ class CodegenAgentBase:
         self.rail_service = rail_service
         self.chain_service = chain_service
         self.diff_service = diff_service
+        self.action_service = action_service
         self.repo = repo
 
         self.log = structlog.get_logger(service="codegen",

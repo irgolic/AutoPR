@@ -8,6 +8,7 @@ from .agents.brain_agent import get_brain_agent
 from .models.artifacts import Issue
 from .models.events import EventUnion
 from .repos.completions_repo import OpenAICompletionsRepo, OpenAIChatCompletionsRepo, get_completions_repo
+from .services.action_service import ActionService
 from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService, PatchService
@@ -101,6 +102,12 @@ def main(
     else:
         diff_service = PatchService(repo=repo)
 
+    # Create action service
+    action_service = ActionService(
+        completions_repo=completions_repo,
+        publish_service=publish_service,
+    )
+
     # Instantiate the agents
     codegen_agent = get_codegen_agent(
         publish_service=publish_service,
@@ -108,6 +115,7 @@ def main(
         rail_service=rail_service,
         chain_service=chain_service,
         diff_service=diff_service,
+        action_service=action_service,
         repo=repo,
         extra_params=settings.codegen_agent_config,
     )
