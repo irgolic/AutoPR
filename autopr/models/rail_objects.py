@@ -31,12 +31,24 @@ class RailObject(pydantic.BaseModel):
 <output>
 {cls.output_spec}
 </output>
-<prompt>
-```
-{{{{raw_document}}}}
-```
+<instructions>
+You are a helpful assistant only capable of communicating with valid JSON, and no other text.
 
-@complete_json_suffix_v2
+@json_suffix_prompt_examples
+</instructions>
+<prompt>
+Given the following document surrounded by `+++++`, answer the following questions. 
+If the answer doesn't exist in the document, enter `null`.
+
++++++
+{{{{raw_document}}}}
++++++
+
+Extract information from this document and return a JSON that follows the correct schema.
+
+@xml_prefix_prompt
+
+{{output_schema}}
 </prompt>
 </rail>
 """
