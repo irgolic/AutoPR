@@ -224,7 +224,7 @@ class PublishService:
 
         self.update()
 
-    def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
+    def _build_progress_update(self, section: UpdateSection, finalize: bool = False, is_last: bool = False) -> str:
         if section.level == 0:
             return '\n\n'.join(
                 self._build_progress_update(s, finalize=finalize)
@@ -239,7 +239,9 @@ class PublishService:
         for update in section.updates:
             if isinstance(update, UpdateSection):
                 # Recursively build updates
-                updates += [self._build_progress_update(update, finalize=finalize)]
+                updates += [self._build_progress_update(update,
+                                                        finalize=finalize,
+                                                        is_last=update is section.updates[-1])]
                 continue
             updates += [update]
 
@@ -256,7 +258,8 @@ class PublishService:
         updates = '\n\n'.join(updates)
         updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
 
-        progress += f"""<details>
+        # Leave the last section open if we're not finalizing (i.e. if we're still running or errored)
+        progress += f"""<details{' open' if is_last and not finalize else ''}>
 <summary>{section.title}</summary>
 
 {updates}
@@ -264,18 +267,9 @@ class PublishService:
 
         return progress
 
-    def _build_progress_updates(self, finalize: bool = False):
-        progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
-        if finalize:
-#             progress = f"""<details>
-# <summary>Click to see progress updates</summary>
-#
-# {progress}
-# </details>
-# """
-            # TODO should we put this in a collapsible on finalize or not? Now it's pretty short
-            pass
-        else:
+    def _build_progress_updates(self, success: Optional[bool] = False):
+        progress = self._build_progress_update(self.sections_stack[0], finalize=bool(success))
+        if success is None:
             progress += f"\n\n" \
                     f'<img src="{self.loading_gif_url}"' \
                     f' width="200" height="200"/>'
@@ -327,7 +321,7 @@ class PublishService:
                     f"If there's a problem with this pull request, please " \
                     f"[open an issue]({self._build_issue_template_link()})."
 
-        progress = self._build_progress_updates(finalize=success is not None)
+        progress = self._build_progress_updates(success=success)
         if progress:
             body += f"\n\n{progress}"
         return body
