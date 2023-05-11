@@ -7,7 +7,6 @@ import pydantic
 import requests
 
 from autopr.models.artifacts import Issue
-from autopr.models.rail_objects import PullRequestDescription, CommitPlan
 
 import structlog
 
@@ -44,7 +43,8 @@ class PublishService:
         self.issue = issue
         self.loading_gif_url = loading_gif_url
 
-        self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
+        self.pr_title: str = f"Fix #{issue.number}: {issue.title}"
+        self.pr_body: str = ""
         self.sections_stack: list[UpdateSection] = [
             UpdateSection(
                 level=0,
@@ -66,14 +66,6 @@ class PublishService:
                                    "title={title}&" \
                                    "labels=bug&" \
                                    "body={body}"
-
-    def _create_placeholder(self, issue: Issue) -> PullRequestDescription:
-        placeholder_pr_desc = PullRequestDescription(
-            title=f"Fix #{issue.number}: {issue.title}",
-            body="",
-            commits=[],
-        )
-        return placeholder_pr_desc
 
     def publish_call(
         self,
@@ -132,17 +124,20 @@ class PublishService:
 """
         self.publish_update(progress_str, section_title=section_title)
 
-    def set_pr_description(self, pr: PullRequestDescription):
+    def set_pr_description(self, title: str, body: str):
         """
-        Set the pull request description to the given value.
+        Set the pull request title and body.
         A description heading will be added to the body.
 
         Parameters
         ----------
-        pr: PullRequestDescription
-            The new pull request description
+        title: str
+            The title of the pull request
+        body: str
+            The body of the pull request
         """
-        self.pr_desc = pr
+        self.pr_title = title
+        self.pr_body = body
         self.update()
 
     def publish_update(
@@ -313,9 +308,9 @@ class PublishService:
         body = f"Fixes #{self.issue.number}"
 
         # Build PR description
-        if self.pr_desc.body:
+        if self.pr_body:
             body += f"\n\n## Description\n\n" \
-                    f"{self.pr_desc.body}"
+                    f"{self.pr_body}"
 
         # Build status
         body += f"\n\n## Status\n\n"
@@ -342,7 +337,7 @@ class PublishService:
         Update the PR body with the current progress.
         """
         body = self._build_body()
-        title = self.pr_desc.title
+        title = self.pr_title
         self._publish(title, body)
 
     def finalize(self, success: bool):
@@ -356,7 +351,7 @@ class PublishService:
             Whether the PR was successful or not
         """
         body = self._build_body(success=success)
-        title = self.pr_desc.title
+        title = self.pr_title
         self._publish(title, body, success=success)
 
     def _publish(
