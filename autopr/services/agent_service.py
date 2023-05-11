@@ -1,9 +1,14 @@
 from typing import Optional, Any
 
 import structlog
+from git.repo import Repo
 
 from autopr.agents.base import Agent, get_all_agents
 from autopr.models.events import EventUnion
+from autopr.services.action_service import ActionService
+from autopr.services.chain_service import ChainService
+from autopr.services.commit_service import CommitService
+from autopr.services.diff_service import DiffService
 from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
@@ -11,11 +16,21 @@ from autopr.services.rail_service import RailService
 class AgentService:
     def __init__(
         self,
-        publish_service: PublishService,
         rail_service: RailService,
+        chain_service: ChainService,
+        diff_service: DiffService,
+        commit_service: CommitService,
+        publish_service: PublishService,
+        action_service: ActionService,
+        repo: Repo,
     ):
+        self.repo = repo
         self.publish_service = publish_service
         self.rail_service = rail_service
+        self.chain_service = chain_service
+        self.diff_service = diff_service
+        self.commit_service = commit_service
+        self.action_service = action_service
 
         # Load all agents in the `autopr/agents` directory
         self.agents: dict[str, type[Agent]] = {
@@ -34,8 +49,13 @@ class AgentService:
         # Get the agent
         agent_type = self.agents[agent_id]
         agent = agent_type(
+            repo=self.repo,
             rail_service=self.rail_service,
+            chain_service=self.chain_service,
+            diff_service=self.diff_service,
+            commit_service=self.commit_service,
             publish_service=self.publish_service,
+            action_service=self.action_service,
             **(agent_config or {}),
         )
 

@@ -3,8 +3,6 @@ from typing import ClassVar, Collection, Type
 
 from git.repo import Repo
 
-from autopr.agents.codegen_agent import CodegenAgent
-from autopr.agents.pull_request_agent import PullRequestAgent
 from autopr.models.events import EventUnion
 from autopr.services.action_service import ActionService
 from autopr.services.chain_service import ChainService
@@ -30,8 +28,6 @@ class Agent:
         rail_service: RailService,
         chain_service: ChainService,
         diff_service: DiffService,
-        codegen_agent: CodegenAgent,
-        pull_request_agent: PullRequestAgent,
         commit_service: CommitService,
         publish_service: PublishService,
         action_service: ActionService,
@@ -41,8 +37,6 @@ class Agent:
         self.rail_service = rail_service
         self.chain_service = chain_service
         self.diff_service = diff_service
-        self.codegen_agent = codegen_agent
-        self.pull_request_agent = pull_request_agent
         self.commit_service = commit_service
         self.publish_service = publish_service
         self.action_service = action_service
