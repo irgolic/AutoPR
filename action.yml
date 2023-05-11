@@ -31,27 +31,15 @@ inputs:
   num_reasks:
     description: 'Number of times to re-ask the model in file exploration and commit generation'
     default: '2'
-  pull_request_agent_id:
-    description: 'ID of the planner to use'
-    default: 'rail-v1'
-  codegen_agent_id:
-    description: 'ID of the code generator to use'
-    default: 'auto-v1'
-  brain_agent_id:
+  agent_id:
     description: 'ID of the brain to use'
-    default: 'simple-v1'
+    default: 'simple'
+  agent_config:
+    description: 'Configuration for the coordinating agent in yaml format'
+    default: ''
   target_branch_name_template:
     description: 'Template for the name of the target branch'
     default: 'autopr/{issue_number}'
-  pull_request_agent_config:
-    description: 'Configuration for the planner in yaml format'
-    default: ''
-  codegen_agent_config:
-    description: 'Configuration for the code generator in yaml format'
-    default: ''
-  brain_agent_config:
-    description: 'Configuration for the coordinating agent in yaml format'
-    default: ''
   temperature:
     description: 'Temperature for the model'
     default: '0.9'

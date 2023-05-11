@@ -22,7 +22,7 @@ log = structlog.get_logger()
 
 
 class Settings(BaseSettings):
-    agent_id: str = 'rail-v1'
+    agent_id: str = 'simple'
     agent_config: Optional[dict[str, Any]] = None
 
     base_branch: str = 'main'
