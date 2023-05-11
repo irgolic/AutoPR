@@ -65,6 +65,10 @@ class ActionService:
         output_spec += f"""<case
             name="finished"
         >
+        <object
+             name="finished"
+        >
+        </object>
         </case>
         </choice>"""
 
