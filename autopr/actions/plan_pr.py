@@ -3,11 +3,11 @@ from typing import Union, Optional
 import pydantic
 from git.repo import Repo
 
+from autopr.actions.base import Action, ContextDict
+from autopr.actions.utils.commit import PullRequestDescription
 from autopr.models.artifacts import Issue
-from autopr.models.events import EventUnion
-from autopr.models.rail_objects import PullRequestDescription, RailObject
 from autopr.models.prompt_rails import PromptRail
-from .base import PullRequestAgentBase
+from autopr.models.rail_objects import RailObject
 from autopr.utils.repo import repo_to_file_descriptors, trim_chunk, filter_seen_chunks, FileDescriptor
 
 
@@ -49,6 +49,7 @@ If looking at files would be a waste of time, please submit an empty list.
 </prompt>
 </rail>
 """
+
 
 class InitialFileSelect(PromptRail):
     # Select files given issue and files in repo
@@ -129,7 +130,6 @@ If looking at files would be a waste of time, please submit an empty list.
 </prompt>
 </rail>
 """
-
 
 
 class LookAtFiles(PromptRail):
@@ -260,7 +260,7 @@ Folders are created automatically; do not make them in their own commit."""
     issue: Issue
 
 
-class RailPullRequestAgent(PullRequestAgentBase):
+class PlanPullRequest(Action):
     """
     Plan a pull request by iteratively selecting files to look at, taking notes while looking at them,
     and then generating a list of commits.
@@ -276,7 +276,7 @@ class RailPullRequestAgent(PullRequestAgentBase):
         The maximum token size of each chunk that a file is split into.
     """
 
-    id = 'rail-v1'
+    id = 'plan_pull_request'
 
     def __init__(
         self,
@@ -396,14 +396,20 @@ class RailPullRequestAgent(PullRequestAgentBase):
             raise ValueError('Error proposing pull request')
         return pr_desc
 
-    def _plan_pull_request(
+    def run(
         self,
-        repo: Repo,
-        issue: Issue,
-        event: EventUnion,
-    ) -> Union[str, PullRequestDescription]:
+        args: Action.Arguments,
+        context: ContextDict,
+    ) -> ContextDict:
         # Get files
-        files = repo_to_file_descriptors(repo, self.file_context_token_limit, self.file_chunk_size)
+        files = repo_to_file_descriptors(self.repo, self.file_context_token_limit, self.file_chunk_size)
+
+        # Get issue
+        if 'issue' not in context:
+            raise ValueError('No `issue` key in context')
+        issue = context['issue']
+        if not isinstance(issue, Issue):
+            raise ValueError(f'Context `issue` is type {type(issue)}, not Issue')
 
         # Get the filepaths to look at
         filepaths = self.get_initial_filepaths(files, issue)
@@ -414,4 +420,10 @@ class RailPullRequestAgent(PullRequestAgentBase):
         else:
             notes = "The repository's contents were irrelevant, only create new files to address the issue."
 
-        return self.propose_pull_request(issue, notes)
+        # Write pull request description
+        pr_desc = self.propose_pull_request(issue, notes)
+
+        # Save the pull request description to the context
+        context['pull_request_description'] = pr_desc
+
+        return context
