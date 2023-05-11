@@ -15,7 +15,8 @@ from autopr.services.publish_service import PublishService
 
 log = structlog.get_logger()
 
-T = TypeVar('T', bound=RailObject)
+RailObjectSubclass = TypeVar('RailObjectSubclass', bound=RailObject)
+BaseModelSubclass = TypeVar('BaseModelSubclass', bound=pydantic.BaseModel)
 
 
 class RailService:
@@ -89,9 +90,9 @@ class RailService:
         self.temperature = temperature
         self.raw_system_prompt = raw_system_prompt
 
-    def run_rail_object(self, rail_object: Type[T], raw_document: str) -> Optional[T]:
+    def run_rail_string(self, rail_spec: str, prompt_params: dict[str, Any]) -> Optional[dict[str, Any]]:
         """
-        Transforms the `raw_document` into a pydantic instance described by `rail_object`.
+        Run a guardrails call with the given rail spec and prompt parameters.
         """
         def completion_func(prompt: str, instructions: str):
             return self.completions_repo.complete(
@@ -100,15 +101,57 @@ class RailService:
                 temperature=self.temperature,
             )
 
-        rail_spec = rail_object.get_rail_spec()
         pr_guard = gr.Guard.from_rail_string(
             rail_spec,  # make sure to import custom validators before this
             num_reasks=self.num_reasks,
         )
 
-        prompt = self.get_rail_message(rail_object, raw_document)
+        log.debug(
+            'Running rail',
+            rail_spec=rail_spec,
+            prompt_params=prompt_params,
+        )
+        # Invoke guardrails
+        raw_o, dict_o = pr_guard(
+            completion_func,
+            prompt_params=prompt_params
+        )
+        log.debug('Ran rail',
+                  raw_output=raw_o,
+                  dict_output=dict_o)
+
+        if dict_o is None:
+            log.warning(f'Got None from rail',
+                        rail_spec=rail_spec,
+                        prompt_params=prompt_params)
+            return None
+
+        return dict_o
+
+    def run_rail_model(
+        self,
+        model: Type[BaseModelSubclass],
+        rail_spec: str,
+        prompt_params: dict[str, Any]
+    ) -> Optional[BaseModelSubclass]:
+        """
+        Run a guardrails call with a pydantic model to parse the response into.
+        """
+        def completion_func(prompt: str, instructions: str):
+            return self.completions_repo.complete(
+                prompt=prompt,
+                system_prompt=instructions,
+                temperature=self.temperature,
+            )
+
+        pr_guard = gr.Guard.from_rail_string(
+            rail_spec,  # make sure to import custom validators before this
+            num_reasks=self.num_reasks,
+        )
+
+        prompt = self.get_rail_message(rail_spec, prompt_params)
         log.debug('Running rail',
-                  rail_object=rail_object.__name__,
+                  rail_model=model.__name__,
                   rail_message=prompt)
 
         # Format the prompt for publish service, such that the `<output> ... </output>` tags are put in a ```xml block
@@ -117,32 +160,30 @@ class RailService:
         # Invoke guardrails
         raw_o, dict_o = pr_guard(
             completion_func,
-            prompt_params={
-                'raw_document': raw_document,
-            },
+            prompt_params=prompt_params,
         )
         log.debug('Ran rail',
-                  rail_object=rail_object.__name__,
+                  rail_model=model.__name__,
                   raw_output=raw_o,
                   dict_output=dict_o)
 
         if dict_o is None:
             self.publish_service.publish_call(
-                summary=f"{rail_object.__name__}: Guardrails rejected the output",
+                summary=f"{model.__name__}: Guardrails rejected the output",
                 prompt=formatted_prompt,
                 raw_response=raw_o,
                 default_open=('raw_response',)
             )
             log.warning(f'Got None from rail',
-                        rail_object=rail_object.__name__,
+                        rail_model=model.__name__,
                         raw_output=raw_o)
             return None
 
         # Parse the output into a pydantic object
         try:
-            parsed_obj = rail_object.parse_obj(dict_o)
+            parsed_obj = model.parse_obj(dict_o)
             self.publish_service.publish_call(
-                summary=f"{rail_object.__name__}: Parsed output",
+                summary=f"{model.__name__}: Parsed output",
                 prompt=formatted_prompt,
                 raw_response=raw_o,
                 parsed_response=parsed_obj.json(indent=2),
@@ -151,20 +192,39 @@ class RailService:
             return parsed_obj
         except pydantic.ValidationError:
             log.warning(f'Got invalid output from rail',
-                        rail_object=rail_object.__name__,
+                        rail_object=model.__name__,
                         raw_output=raw_o,
                         dict_output=dict_o)
             self.publish_service.publish_call(
-                summary=f"{rail_object.__name__}: Failed to parse output dict",
+                summary=f"{model.__name__}: Failed to parse output dict",
                 prompt=formatted_prompt,
                 raw_response=raw_o,
                 dict_response=json.dumps(dict_o, indent=2),
                 error=traceback.format_exc(),
                 default_open=('dict_response', 'error',)
             )
-        return None
 
-    def run_prompt_rail(self, rail: PromptRail) -> Optional[RailObject]:
+    def run_rail_object(
+        self,
+        rail_object: Type[RailObjectSubclass],
+        raw_document: str
+    ) -> Optional[RailObjectSubclass]:
+        """
+        Transforms the `raw_document` into a pydantic instance described by `rail_object`.
+        """
+        rail_spec = rail_object.get_rail_spec()
+        return self.run_rail_model(
+            model=rail_object,
+            rail_spec=rail_spec,
+            prompt_params={
+                'raw_document': raw_document,
+            },
+        )
+
+    def run_prompt_rail(
+        self,
+        rail: PromptRail
+    ) -> Optional[RailObject]:
         """
         Runs a PromptRail, asking the LLM a question and parsing the response into `PromptRail.output_type`.
 
@@ -196,11 +256,9 @@ class RailService:
         return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod
-    def get_rail_message(rail_object: type[RailObject], raw_document: str):
-        spec = rail_object.get_rail_spec()
-        pr_guard = gr.Guard.from_rail_string(spec)
-        return pr_guard.base_prompt.format(raw_document=raw_document)
-
-    def calculate_rail_length(self, rail_object: Type[RailObject], raw_document: str) -> int:
-        rail_message = self.get_rail_message(rail_object, raw_document)
-        return len(self.completions_repo.tokenizer.encode(rail_message))
+    def get_rail_message(
+        rail_spec: str,
+        prompt_params: dict[str, Any]
+    ):
+        pr_guard = gr.Guard.from_rail_string(rail_spec)
+        return pr_guard.base_prompt.format(**prompt_params)
