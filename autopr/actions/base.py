@@ -54,8 +54,19 @@ class Action:
         If the action takes arguments that should be queried by the LLM (e.g., filename),
         subclass and override this class in your Action subclass,
         defining the arguments as pydantic fields.
+
+        Example:
+            ```
+            class Arguments(Action.Arguments):
+                filepaths: list[str]
+
+                output_spec = "<list name='filepaths'><string/></list>"
+            ```
         """
-        # `output_spec` describes the structure of the arguments for guardrails. Soon to be deprecated.
+
+        # `output_spec` describes the structure of the arguments for guardrails,
+        # to be mapped into the model subclass.
+        # Soon to be deprecated, as guardrails adopts pydantic Field parameters.
         output_spec: ClassVar[str] = ""
 
     def run(
