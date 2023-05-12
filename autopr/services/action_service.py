@@ -140,6 +140,8 @@ You are about to make a decision on what to do next, and return a JSON that foll
         # Get the action
         action_type = self.actions[action_id]
 
+        self.publish_service.start_section(f"🚀 Running {action_id}")
+
         # If the action defines arguments, ask the LLM to fill them in
         if action_type.Arguments is not Action.Arguments:
             # Ask the LLM to fill in the arguments
@@ -157,7 +159,11 @@ You are about to make a decision on what to do next, and return a JSON that foll
         action = self.instantiate_action(action_type)
 
         # Run the action
-        return action.run(arguments, context)
+        results = action.run(arguments, context)
+
+        self.publish_service.end_section()
+
+        return results
 
     def run_actions_iteratively(
         self,
@@ -166,6 +172,8 @@ You are about to make a decision on what to do next, and return a JSON that foll
         max_iterations: int = 5,
     ) -> ContextDict:
         for _ in range(max_iterations):
+            self.publish_service.start_section("❓ Deciding next action")
+
             # Pick an action
             pick = self.pick_action(
                 action_ids=action_ids,
@@ -178,8 +186,13 @@ You are about to make a decision on what to do next, and return a JSON that foll
             # Instantiate the action
             action = self.instantiate_action(action_type)
 
+            self.publish_service.update_section(f"🚀 Running {action.id}")
+
             # Run the action
             context = action.run(args, context)
+
+            self.publish_service.end_section()
+
         return context
 
     def ask_for_action_arguments(
