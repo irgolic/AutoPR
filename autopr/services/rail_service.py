@@ -137,6 +137,8 @@ class RailService:
         """
         Run a guardrails call with a pydantic model to parse the response into.
         """
+        self.publish_service.start_section(f"🛤 Running rail for {model.__name__}")
+
         def completion_func(prompt: str, instructions: str):
             return self.completions_repo.complete(
                 prompt=prompt,
@@ -153,41 +155,49 @@ class RailService:
         log.debug('Running rail',
                   rail_model=model.__name__,
                   rail_message=prompt)
-
-        # Format the prompt for publish service, such that the `<output> ... </output>` tags are put in a ```xml block
-        formatted_prompt = prompt.replace('<output>', '```xml\n<output>').replace('</output>', '</output>\n```')
+        self.publish_service.publish_code_block(
+            heading='Prompt',
+            code=prompt,
+            language='xml',  # xml for nice guardrails highlighting
+        )
 
         # Invoke guardrails
         raw_o, dict_o = pr_guard(
             completion_func,
             prompt_params=prompt_params,
         )
+
         log.debug('Ran rail',
                   rail_model=model.__name__,
                   raw_output=raw_o,
                   dict_output=dict_o)
 
+        self.publish_service.publish_code_block(
+            heading='Raw output',
+            code=raw_o,
+            language='json',
+        )
+
         if dict_o is None:
-            self.publish_service.publish_call(
-                summary=f"{model.__name__}: Guardrails rejected the output",
-                prompt=formatted_prompt,
-                raw_response=raw_o,
-                default_open=('raw_response',)
-            )
+            self.publish_service.end_section(f"❌ Guardrails could not  {model.__name__}")
             log.warning(f'Got None from rail',
                         rail_model=model.__name__,
                         raw_output=raw_o)
             return None
 
+        self.publish_service.publish_code_block(
+            heading='Raw output',
+            code=raw_o,
+            language='json',
+        )
+
         # Parse the output into a pydantic object
         try:
             parsed_obj = model.parse_obj(dict_o)
-            self.publish_service.publish_call(
-                summary=f"{model.__name__}: Parsed output",
-                prompt=formatted_prompt,
-                raw_response=raw_o,
-                parsed_response=parsed_obj.json(indent=2),
-                default_open=('parsed_response',)
+            self.publish_service.publish_code_block(
+                heading='Parsed output',
+                code=parsed_obj.json(indent=2),
+                language='json',
             )
             return parsed_obj
         except pydantic.ValidationError:
@@ -195,14 +205,19 @@ class RailService:
                         rail_object=model.__name__,
                         raw_output=raw_o,
                         dict_output=dict_o)
-            self.publish_service.publish_call(
-                summary=f"{model.__name__}: Failed to parse output dict",
-                prompt=formatted_prompt,
-                raw_response=raw_o,
-                dict_response=json.dumps(dict_o, indent=2),
-                error=traceback.format_exc(),
-                default_open=('dict_response', 'error',)
+            self.publish_service.publish_code_block(
+                heading='Parsed output',
+                code=json.dumps(dict_o, indent=2),
+                language='json',
+                default_open=True,
             )
+            self.publish_service.publish_code_block(
+                heading='Error',
+                code=traceback.format_exc(),
+                language='error',
+                default_open=True,
+            )
+            return None
 
     def run_rail_object(
         self,
@@ -237,22 +252,27 @@ class RailService:
         if not success:
             return None
 
-        suffix = "two steps" if rail.two_step else "one step"
-        self.publish_service.publish_update(f"Running rail {rail.__class__.__name__} in {suffix}...")
-
         # Run the rail
         prompt = rail.get_prompt_message()
         if rail.two_step:
             initial_prompt = prompt
+            self.publish_service.start_section(f"💬 Asking for {rail.__class__.__name__}")
+
+            self.publish_service.publish_code_block(
+                heading="Prompt",
+                code=prompt,
+                language="",
+            )
             prompt = self.completions_repo.complete(
                 prompt=initial_prompt,
                 system_prompt=self.raw_system_prompt,
             )
-            self.publish_service.publish_call(
-                summary=f"Ran raw query",
-                prompt=initial_prompt,
-                response=prompt,
+            self.publish_service.publish_code_block(
+                heading="Response",
+                code=prompt,
+                language="",
             )
+            self.publish_service.end_section(f"💬 Asked for {rail.__class__.__name__}")
         return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod

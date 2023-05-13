@@ -294,6 +294,7 @@ class PlanPullRequest(Action):
         files: list[FileDescriptor],
         issue: Issue,
     ) -> list[str]:
+        self.publish_service.update_section("📝 Planning pull request")
         self.log.debug('Getting filepaths to look at...')
 
         response = self.rail_service.run_prompt_rail(
@@ -314,6 +315,7 @@ class PlanPullRequest(Action):
                 for filepath in real_filepaths:
                     self.log.debug(f' -  {filepath}')
 
+        self.publish_service.update_section("📝 Planned pull request")
         return real_filepaths
 
     def write_notes_about_files(

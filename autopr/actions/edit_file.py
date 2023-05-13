@@ -125,7 +125,7 @@ class EditFile(Action):
             self.log.warning(f"File {filepath} does not exist, creating it instead.")
             return create_file_action.run(create_args, context)
 
-        self.publish_service.update_section(title=f"Editing existing file: {args.filepath}")
+        self.publish_service.update_section(title=f"✍️ Editing file: {args.filepath}")
 
         # Grab file contents
         with open(filepath, "r") as f:
@@ -197,8 +197,7 @@ class EditFile(Action):
         )
         edit_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(edit_file_chain)
         if edit_file_hunk is None:
-            self.log.error("Failed to edit file")
-            self.publish_service.update_section(title=f"Failed to edit file: {args.filepath}")
+            self.publish_service.update_section(title=f"❌ Failed to edit file: {args.filepath}")
             return add_element_to_context_list(
                 context,
                 "action_history",
@@ -234,7 +233,7 @@ class EditFile(Action):
         with open(path, "w") as f:
             f.write("\n".join(lines))
 
-        self.publish_service.update_section(title=f"Edited existing file: {args.filepath}")
+        self.publish_service.update_section(title=f"✍️ Edited file: {args.filepath}")
         return add_element_to_context_list(
             context,
             "action_history",

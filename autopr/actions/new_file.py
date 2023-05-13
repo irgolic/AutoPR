@@ -58,13 +58,15 @@ class NewFile(Action):
         args: Arguments,
         context: ContextDict,
     ) -> ContextDict:
-        self.publish_service.update_section(title=f"Creating new file: {args.filepath}")
+        self.publish_service.update_section(title=f"📄 Creating new file: {args.filepath}")
 
         # Check if file exists
         repo_path = self.repo.working_tree_dir
         assert repo_path is not None
         filepath = os.path.join(repo_path, args.filepath)
         if os.path.exists(filepath):
+            self.publish_service.update_section(title=f"❌ Failed to create new file: {args.filepath} "
+                                                      f"(file already exists)")
             return add_element_to_context_list(
                 context,
                 "action_history",
@@ -72,6 +74,8 @@ class NewFile(Action):
             )
         # Check if filename is a directory (doesnt exist yet)
         if os.path.basename(filepath) == "":
+            self.publish_service.update_section(title=f"❌ Failed to create new file: {args.filepath} "
+                                                      f"(filename is a directory)")
             return add_element_to_context_list(
                 context,
                 "action_history",
@@ -98,6 +102,7 @@ class NewFile(Action):
         )
         new_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(new_file_chain)
         if new_file_hunk is None:
+            self.publish_service.update_section(title=f"❌ Failed to create new file: {args.filepath}")
             return add_element_to_context_list(
                 context,
                 "action_history",
@@ -113,7 +118,7 @@ class NewFile(Action):
         with open(path, "w") as f:
             f.write(new_file_hunk.contents)
 
-        self.publish_service.update_section(title=f"Created new file: {args.filepath}")
+        self.publish_service.update_section(title=f"📄 Created new file: {args.filepath}")
         return add_element_to_context_list(
             context,
             "action_history",

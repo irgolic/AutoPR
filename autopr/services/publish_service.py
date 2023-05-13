@@ -160,6 +160,42 @@ class PublishService:
         self.log.debug("Publishing update", text=text)
         self.update()
 
+    def publish_code_block(
+        self,
+        heading: str,
+        code: str,
+        default_open: bool = False,
+        language: str = "xml",
+        section_title: Optional[str] = None,
+    ):
+        """
+        Publish a code block as a collapsible child to the current section.
+
+        Parameters
+        ----------
+        heading: str
+            The title of the collapsible
+        code: str
+            The contents of the collapsible
+        default_open: bool, optional
+            Whether the collapsible should be open by default
+        language: str, optional
+            The language of the code (defaults to python)
+        section_title: str, optional
+            The title that the parent section should be updated to
+        """
+
+        details = f"""<details>
+<summary>{heading}</summary{" open" if default_open else ""}>
+
+~~~{language}
+{code}
+~~~
+
+</details>
+"""
+        return self.publish_update(details, section_title=section_title)
+
     def start_section(
         self,
         title: str,

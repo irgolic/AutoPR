@@ -140,7 +140,8 @@ You are about to make a decision on what to do next, and return a JSON that foll
         # Get the action
         action_type = self.actions[action_id]
 
-        self.publish_service.start_section(f"🚀 Running {action_id}")
+        section_title = f"🚀 Running {action_id}"
+        self.publish_service.start_section(section_title)
 
         # If the action defines arguments, ask the LLM to fill them in
         if action_type.Arguments is not Action.Arguments:
@@ -159,8 +160,16 @@ You are about to make a decision on what to do next, and return a JSON that foll
         action = self.instantiate_action(action_type)
 
         # Run the action
-        results = action.run(arguments, context)
+        try:
+            results = action.run(arguments, context)
+        except Exception:
+            self.log.exception(f"Failed to run action {action_id}")
+            self.publish_service.publish_call()
+            self.publish_service.end_section(f"❌ Failed {action_id}")
+            return context
 
+        if self.publish_service.sections_stack[-1].title == section_title:
+            self.publish_service.end_section(f"✅ Finished {action_id}")
         self.publish_service.end_section()
 
         return results
