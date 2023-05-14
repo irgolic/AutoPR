@@ -137,7 +137,7 @@ class RailService:
         """
         Run a guardrails call with a pydantic model to parse the response into.
         """
-        self.publish_service.start_section(f"🛤 Running rail for {model.__name__}")
+        self.publish_service.start_section(f"🛤 Running {model.__name__} on rail")
 
         def completion_func(prompt: str, instructions: str):
             return self.completions_repo.complete(
@@ -162,10 +162,23 @@ class RailService:
         )
 
         # Invoke guardrails
-        raw_o, dict_o = pr_guard(
-            completion_func,
-            prompt_params=prompt_params,
-        )
+        try:
+            raw_o, dict_o = pr_guard(
+                completion_func,
+                prompt_params=prompt_params,
+            )
+        except Exception:
+            self.publish_service.publish_code_block(
+                heading='Error',
+                code=traceback.format_exc(),
+                language='error',
+                default_open=True,
+            )
+            self.publish_service.end_section(f"💥 {model.__name__} derailed (guardrails error)")
+            log.exception(f'Guardrails threw an exception',
+                          rail_model=model.__name__,
+                          rail_message=prompt)
+            return None
 
         log.debug('Ran rail',
                   rail_model=model.__name__,
@@ -179,15 +192,15 @@ class RailService:
         )
 
         if dict_o is None:
-            self.publish_service.end_section(f"❌ Guardrails could not  {model.__name__}")
+            self.publish_service.end_section(f"💥 {model.__name__} derailed (guardrails returned None)")
             log.warning(f'Got None from rail',
                         rail_model=model.__name__,
                         raw_output=raw_o)
             return None
 
         self.publish_service.publish_code_block(
-            heading='Raw output',
-            code=raw_o,
+            heading='Parsed output',
+            code=json.dumps(dict_o, indent=2),
             language='json',
         )
 
@@ -195,10 +208,11 @@ class RailService:
         try:
             parsed_obj = model.parse_obj(dict_o)
             self.publish_service.publish_code_block(
-                heading='Parsed output',
+                heading='Validated output',
                 code=parsed_obj.json(indent=2),
                 language='json',
             )
+            self.publish_service.end_section(f"🛤 Ran {model.__name__} on rail")
             return parsed_obj
         except pydantic.ValidationError:
             log.warning(f'Got invalid output from rail',
@@ -206,17 +220,12 @@ class RailService:
                         raw_output=raw_o,
                         dict_output=dict_o)
             self.publish_service.publish_code_block(
-                heading='Parsed output',
-                code=json.dumps(dict_o, indent=2),
-                language='json',
-                default_open=True,
-            )
-            self.publish_service.publish_code_block(
                 heading='Error',
                 code=traceback.format_exc(),
                 language='error',
                 default_open=True,
             )
+            self.publish_service.end_section(f"💥 {model.__name__} derailed (validation error)")
             return None
 
     def run_rail_object(

@@ -32,7 +32,7 @@ class PublishService:
 
     To publish updates to the current section, call:
     - `publish_update` to publish a simple textual update
-    - `publish_call` to publish a multi-hunk update with a summary and subsections
+    - `publish_code_block` to publish text in a triple-backtick-style code block
     """
 
     def __init__(
@@ -66,60 +66,6 @@ class PublishService:
                                    "title={title}&" \
                                    "labels=bug&" \
                                    "body={body}"
-
-    def publish_call(
-        self,
-        summary: str,
-        section_title: Optional[str] = None,
-        default_open=('response',),
-        **kwargs
-    ):
-        """
-        Create a new self-contained collapsible section with subsections.
-
-        Try to create sections manually with `start_section` and `end_section` instead, to
-        show incremental progress as soon as possible instead of waiting for the call to finish.
-
-        Parameters
-        ----------
-        summary: str
-            The title of the new section
-        section_title: str, optional
-            The title of the parent section to update
-        default_open: Iterable[str], optional
-            Which subsections to open (not collapsed) by default
-        """
-        subsections = []
-        for k, v in kwargs.items():
-            # Cast keys to title case
-            title = k.title()
-            title = title.replace("_", " ")
-
-            # Construct subsection
-            subsection = f"""<details{" open" if k in default_open else ""}>
-<summary>{title}</summary>
-
-~~~xml
-{v}
-~~~
-</details>"""
-            subsections.append(subsection)
-
-        # Concatenate subsections
-        subsections_content = '\n\n'.join(subsections)
-
-        # Prefix them with a quotation mark
-        subsections_content = '\n'.join([f"> {line}" for line in subsections_content.splitlines()])
-
-        # Construct progress string
-        progress_str = f"""<details>
-<summary>{summary}</summary>
-
-{subsections_content}
-
-</details>
-"""
-        self.publish_update(progress_str, section_title=section_title)
 
     def set_pr_description(self, title: str, body: str):
         """

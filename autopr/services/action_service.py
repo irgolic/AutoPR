@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional, Collection, Type
 
 import pydantic
@@ -164,7 +165,12 @@ You are about to make a decision on what to do next, and return a JSON that foll
             results = action.run(arguments, context)
         except Exception:
             self.log.exception(f"Failed to run action {action_id}")
-            self.publish_service.publish_call()
+            self.publish_service.publish_code_block(
+                heading="Error",
+                code=traceback.format_exc(),
+                language="python",  # FIXME
+                                    #  does nice syntax highlighting for tracebacks, but should be made configurable
+            )
             self.publish_service.end_section(f"❌ Failed {action_id}")
             return context
 
