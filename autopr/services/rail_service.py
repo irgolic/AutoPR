@@ -99,6 +99,7 @@ class RailService:
         """
         Run a guardrails call with the given rail spec and prompt parameters.
         """
+        title_heading = heading[0].upper() + heading[1:]
         self.publish_service.start_section(f"🛤 Running {heading} rail")
 
         str_prompt = self.get_rail_message(rail_spec, prompt_params)
@@ -139,7 +140,7 @@ class RailService:
                 code=traceback.format_exc(),
                 language='python',
             )
-            self.publish_service.end_section(f"💥 {heading.title()} derailed (guardrails error)")
+            self.publish_service.end_section(f"💥 {title_heading} derailed (guardrails error)")
             return None
 
         log.debug('Ran rail',
@@ -155,7 +156,7 @@ class RailService:
             log.warning(f'Got None from rail',
                         rail_spec=rail_spec,
                         prompt_params=prompt_params)
-            self.publish_service.end_section(f"💥 {heading.title()} derailed (guardrails returned None)")
+            self.publish_service.end_section(f"💥 {title_heading} derailed (guardrails returned None)")
             return None
 
         self.publish_service.publish_code_block(
