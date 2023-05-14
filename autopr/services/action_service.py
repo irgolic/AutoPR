@@ -187,7 +187,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
         max_iterations: int = 5,
     ) -> ContextDict:
         for _ in range(max_iterations):
-            self.publish_service.start_section("❓ Deciding next action")
+            self.publish_service.start_section("❓ Choosing next action")
 
             # Pick an action
             pick = self.pick_action(
@@ -195,6 +195,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
                 context=context,
             )
             if pick is None:
+                self.publish_service.end_section("🏁 No action chosen")
                 break
             action_type, args = pick
 
@@ -233,7 +234,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
             heading="action arguments",
         )
         if dict_o is None:
-            self.log.error("Guardrails failed to choose an action")
+            self.log.error("Guardrails failed to specify action arguments")
             return None
 
         # Parse the arguments
