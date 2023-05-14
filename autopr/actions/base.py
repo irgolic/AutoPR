@@ -127,8 +127,6 @@ def get_all_actions(parent=Action) -> Collection[Type[Action]]:
 
     descendants = set()
     for subclass in parent.__subclasses__():
-        if subclass.id == "finished":
-            raise ValueError(f"{subclass.__name__}: Action ID 'finished' is reserved")
         descendants.add(subclass)
         # get subclasses of subclasses
         descendants.update(get_all_actions(subclass))

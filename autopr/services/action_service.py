@@ -16,6 +16,20 @@ from autopr.services.rail_service import RailService
 
 
 class ActionService:
+    class Finished(Action):
+        id = "finished"
+
+        class Arguments(Action.Arguments):
+            reason: str
+
+            output_spec = """<string
+                name="reason"
+                required="true"
+            />"""
+
+        def run(self, arguments: Action.Arguments, context: ContextDict) -> ContextDict:
+            return context
+
     def __init__(
         self,
         repo: Repo,
@@ -44,6 +58,9 @@ class ActionService:
         self,
         action_ids: Collection[str],
     ) -> str:
+        # Add finished action
+        if "finished" not in action_ids:
+            action_ids = [*action_ids, "finished"]
         # Write the "choice" output spec
         output_spec = f"""<choice
             name="action"
@@ -51,27 +68,22 @@ class ActionService:
         >"""
         for action_id in action_ids:
             action = self.actions[action_id]
-            case_spec = f"""<case
+            output_spec += f"""<case
                 name="{action.id}"
                 {f'description="{action.description}"' if action.description else ""}
             >"""
             if action.Arguments.output_spec:
-                case_spec += f"""<object
+                output_spec += f"""<object
                     name="{action.id}"
                 >
                 {action.Arguments.output_spec}
                 </object>"""
-            case_spec += f"""</case>"""
-            output_spec += case_spec
-        output_spec += f"""<case
-            name="finished"
-        >
-        <object
-             name="finished"
-        >
-        </object>
-        </case>
-        </choice>"""
+            else:
+                output_spec += """<string 
+                    name="reason"
+                />"""
+            output_spec += f"""</case>"""
+        output_spec += f"""</choice>"""
 
         # Wrap it in a rail spec
         return f"""
@@ -194,7 +206,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
                 action_ids=action_ids,
                 context=context,
             )
-            if pick is None:
+            if pick is None or pick[0].id == "finished":
                 self.publish_service.end_section("🏁 No action chosen")
                 break
             action_type, args = pick
@@ -254,6 +266,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
         rail_spec = self._write_action_selection_rail_spec(
             action_ids=action_ids,
         )
+        self.log.debug("Wrote action-selection rail spec:\n%s", rail_spec=rail_spec)
 
         # Instantiate the rail
         dict_o = self.rail_service.run_rail_string(
