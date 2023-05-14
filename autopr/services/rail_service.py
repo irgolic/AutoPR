@@ -211,7 +211,7 @@ class RailService:
             self.publish_service.publish_code_block(
                 heading='Error',
                 code=traceback.format_exc(),
-                language='error',
+                language='python',
                 default_open=True,
             )
             self.publish_service.end_section(f"💥 {model.__name__} derailed (guardrails error)")
@@ -262,7 +262,7 @@ class RailService:
             self.publish_service.publish_code_block(
                 heading='Error',
                 code=traceback.format_exc(),
-                language='error',
+                language='python',
                 default_open=True,
             )
             self.publish_service.end_section(f"💥 {model.__name__} derailed (validation error)")
