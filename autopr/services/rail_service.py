@@ -98,7 +98,7 @@ class RailService:
 
         str_prompt = self.get_rail_message(rail_spec, prompt_params)
         self.publish_service.publish_code_block(
-            heading='Rail spec',
+            heading='Prompt',
             code=str_prompt,
             language='xml',  # xml for nice guardrails highlighting
         )
