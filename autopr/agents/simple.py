@@ -62,6 +62,8 @@ class Simple(Agent):
         self.publish_service.set_pr_description(pr_desc.title, pr_desc.body)
 
         for current_commit in pr_desc.commits:
+            self.publish_service.start_section(f"🔨 Writing commit {current_commit.commit_message}")
+
             # Generate the changes
             context = self.action_service.run_actions_iteratively(
                 self.codegen_actions,
@@ -71,3 +73,8 @@ class Simple(Agent):
 
             # Commit and push the changes
             self.commit_service.commit(current_commit.commit_message, push=True)
+
+            if self.diff_service.get_diff():
+                self.publish_service.end_section(f"✅ Committed {current_commit.commit_message}")
+            else:
+                self.publish_service.end_section(f"⚠️ Empty commit {current_commit.commit_message}")
