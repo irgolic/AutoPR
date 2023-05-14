@@ -230,6 +230,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
             prompt_params={
                 "context": str(context),
             },
+            heading="action arguments",
         )
         if dict_o is None:
             self.log.error("Guardrails failed to choose an action")
@@ -259,6 +260,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
             prompt_params={
                 "context": str(context),
             },
+            heading="action choice",
         )
         if dict_o is None:
             self.log.error("Guardrails failed to choose an action")

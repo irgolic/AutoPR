@@ -90,11 +90,16 @@ class RailService:
         self.temperature = temperature
         self.raw_system_prompt = raw_system_prompt
 
-    def run_rail_string(self, rail_spec: str, prompt_params: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def run_rail_string(
+        self,
+        rail_spec: str,
+        prompt_params: dict[str, Any],
+        heading: str = "",
+    ) -> Optional[dict[str, Any]]:
         """
         Run a guardrails call with the given rail spec and prompt parameters.
         """
-        self.publish_service.start_section(f"🛤 Running rail")
+        self.publish_service.start_section(f"🛤 Running {heading} rail")
 
         str_prompt = self.get_rail_message(rail_spec, prompt_params)
         self.publish_service.publish_code_block(
@@ -134,7 +139,7 @@ class RailService:
                 code=traceback.format_exc(),
                 language='python',
             )
-            self.publish_service.end_section(f"💥 Derailed (guardrails error)")
+            self.publish_service.end_section(f"💥 {heading.title()} derailed (guardrails error)")
             return None
 
         log.debug('Ran rail',
@@ -150,7 +155,7 @@ class RailService:
             log.warning(f'Got None from rail',
                         rail_spec=rail_spec,
                         prompt_params=prompt_params)
-            self.publish_service.end_section(f"💥 Derailed (guardrails returned None)")
+            self.publish_service.end_section(f"💥 {heading.title()} derailed (guardrails returned None)")
             return None
 
         self.publish_service.publish_code_block(
@@ -158,7 +163,7 @@ class RailService:
             code=json.dumps(dict_o, indent=2),
             language='json',
         )
-        self.publish_service.end_section(f"🛤 Ran rail")
+        self.publish_service.end_section(f"🛤 Ran {heading} rail")
 
         return dict_o
 
