@@ -11,13 +11,33 @@ from autopr.models.artifacts import Issue
 import structlog
 
 
+class CodeBlock(pydantic.BaseModel):
+    """
+    A block of text to be shown as a code block in the pull request description.
+    """
+    heading: str
+    code: str
+    language: str = "xml"
+    default_open: bool = False
+
+    def __str__(self):
+        return f"""<details{" open" if self.default_open else ""}>
+<summary>{self.heading}</summary>
+
+~~~{self.language}
+{self.code}
+~~~
+
+</details>"""
+
+
 class UpdateSection(pydantic.BaseModel):
     """
     A section of the pull request description, used to keep state while publishing updates.
     """
     level: int
     title: str
-    updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
+    updates: list[Union[str, CodeBlock, 'UpdateSection']] = pydantic.Field(default_factory=list)
 
 
 class PublishService:
@@ -129,17 +149,18 @@ class PublishService:
         section_title: str, optional
             The title that the parent section should be updated to
         """
-
-        details = f"""<details>
-<summary>{heading}</summary{" open" if default_open else ""}>
-
-~~~{language}
-{code}
-~~~
-
-</details>
-"""
-        return self.publish_update(details, section_title=section_title)
+        block = CodeBlock(
+            heading=heading,
+            code=code,
+            language=language,
+            default_open=default_open,
+        )
+        self.sections_stack[-1].updates.append(block)
+        if section_title:
+            if len(self.sections_stack) == 1:
+                raise ValueError("Cannot set section title on root section")
+            self.sections_stack[-1].title = section_title
+        self.update()
 
     def start_section(
         self,
@@ -203,9 +224,11 @@ class PublishService:
     def _build_progress_update(self, section: UpdateSection, finalize: bool = False, open_default: bool = False) -> str:
         if section.level == 0:
             return '\n\n'.join(
-                self._build_progress_update(s, finalize=finalize, open_default=s is section.updates[-1] and not finalize)
+                self._build_progress_update(s,
+                                            finalize=finalize,
+                                            open_default=s is section.updates[-1] and not finalize)
                 if isinstance(s, UpdateSection)
-                else s
+                else str(s)
                 for s in section.updates
             )
 
@@ -218,6 +241,14 @@ class PublishService:
                 updates += [self._build_progress_update(update,
                                                         finalize=finalize,
                                                         open_default=update is section.updates[-1])]
+                continue
+            if isinstance(update, CodeBlock):
+                # If is the last code block
+                if update is section.updates[-1]:
+                    # Clone the block and set default_open to True
+                    update = update.copy()
+                    update.default_open = True
+                updates += [str(update)]
                 continue
             updates += [update]
 
