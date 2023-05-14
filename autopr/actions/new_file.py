@@ -119,8 +119,10 @@ class NewFile(Action):
             f.write(new_file_hunk.contents)
 
         self.publish_service.update_section(title=f"📄 Created new file: {args.filepath}")
+        if outcome := new_file_hunk.outcome:
+            outcome = " with outcome: " + outcome
         return add_element_to_context_list(
             context,
             "action_history",
-            f"Created new file with outcome: {new_file_hunk.outcome}"
+            f"Created {args.filepath}{outcome}"
         )
