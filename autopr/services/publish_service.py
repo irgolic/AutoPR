@@ -203,10 +203,10 @@ class PublishService:
 
         self.update()
 
-    def _build_progress_update(self, section: UpdateSection, finalize: bool = False, is_last: bool = False) -> str:
+    def _build_progress_update(self, section: UpdateSection, finalize: bool = False, open_default: bool = False) -> str:
         if section.level == 0:
             return '\n\n'.join(
-                self._build_progress_update(s, finalize=finalize)
+                self._build_progress_update(s, finalize=finalize, open_default=s is section.updates[-1] and not finalize)
                 if isinstance(s, UpdateSection)
                 else s
                 for s in section.updates
@@ -220,7 +220,7 @@ class PublishService:
                 # Recursively build updates
                 updates += [self._build_progress_update(update,
                                                         finalize=finalize,
-                                                        is_last=update is section.updates[-1])]
+                                                        open_default=update is section.updates[-1])]
                 continue
             updates += [update]
 
@@ -238,7 +238,7 @@ class PublishService:
         updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
 
         # Leave the last section open if we're not finalizing (i.e. if we're still running or errored)
-        progress += f"""<details{' open' if is_last and not finalize else ''}>
+        progress += f"""<details{' open' if open_default else ''}>
 <summary>{section.title}</summary>
 
 {updates}
