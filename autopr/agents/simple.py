@@ -71,10 +71,10 @@ class Simple(Agent):
                 max_iterations=self.max_codegen_iterations,
             )
 
-            # Commit and push the changes
-            self.commit_service.commit(current_commit.commit_message, push=True)
-
             if self.diff_service.get_diff():
                 self.publish_service.end_section(f"✅ Committed {current_commit.commit_message}")
             else:
                 self.publish_service.end_section(f"⚠️ Empty commit {current_commit.commit_message}")
+
+            # Commit and push the changes
+            self.commit_service.commit(current_commit.commit_message, push=True)
