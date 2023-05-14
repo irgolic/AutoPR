@@ -172,7 +172,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
                                     #  does nice syntax highlighting for tracebacks, but should be made configurable
             )
             self.publish_service.end_section(f"❌ Failed {action_id}")
-            return context
+            raise
 
         if self.publish_service.sections_stack[-1].title == section_title:
             self.publish_service.end_section(f"✅ Finished {action_id}")
