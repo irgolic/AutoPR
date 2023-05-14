@@ -18,7 +18,6 @@ class UpdateSection(pydantic.BaseModel):
     level: int
     title: str
     updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
-    result: Optional[str] = None
 
 
 class PublishService:
@@ -181,7 +180,6 @@ class PublishService:
     def end_section(
         self,
         title: Optional[str] = None,
-        result: Optional[str] = None,
     ):
         """
         End the current section.
@@ -198,7 +196,6 @@ class PublishService:
         self.log.debug("Ending section", title=title)
         if title:
             self.sections_stack[-1].title = title
-        self.sections_stack[-1].result = result
         self.sections_stack.pop()
 
         self.update()
@@ -223,15 +220,6 @@ class PublishService:
                                                         open_default=update is section.updates[-1])]
                 continue
             updates += [update]
-
-        # Add result as an open section at the end of updates
-        if section.result:
-            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
-            updates += [f"""<details open>
-<summary>📝 Result</summary>
-
-{result}
-</details>"""]
 
         # Prefix updates with quotation
         updates = '\n\n'.join(updates)
