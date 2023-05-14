@@ -94,6 +94,15 @@ class RailService:
         """
         Run a guardrails call with the given rail spec and prompt parameters.
         """
+        self.publish_service.start_section(f"🛤 Running rail")
+
+        str_prompt = self.get_rail_message(rail_spec, prompt_params)
+        self.publish_service.publish_code_block(
+            heading='Rail spec',
+            code=str_prompt,
+            language='xml',  # xml for nice guardrails highlighting
+        )
+
         def completion_func(prompt: str, instructions: str):
             return self.completions_repo.complete(
                 prompt=prompt,
@@ -101,30 +110,55 @@ class RailService:
                 temperature=self.temperature,
             )
 
-        pr_guard = gr.Guard.from_rail_string(
-            rail_spec,  # make sure to import custom validators before this
-            num_reasks=self.num_reasks,
-        )
+        try:
+            pr_guard = gr.Guard.from_rail_string(
+                rail_spec,  # make sure to import custom validators before this
+                num_reasks=self.num_reasks,
+            )
 
-        log.debug(
-            'Running rail',
-            rail_spec=rail_spec,
-            prompt_params=prompt_params,
-        )
-        # Invoke guardrails
-        raw_o, dict_o = pr_guard(
-            completion_func,
-            prompt_params=prompt_params
-        )
+            log.debug(
+                'Running rail',
+                rail_spec=rail_spec,
+                prompt_params=prompt_params,
+            )
+            # Invoke guardrails
+            raw_o, dict_o = pr_guard(
+                completion_func,
+                prompt_params=prompt_params
+            )
+        except Exception:
+            log.exception('Error running rail',
+                          prompt=str_prompt)
+            self.publish_service.publish_code_block(
+                heading='Error',
+                code=traceback.format_exc(),
+                language='python',
+            )
+            self.publish_service.end_section(f"💥 Derailed (guardrails error)")
+            return None
+
         log.debug('Ran rail',
                   raw_output=raw_o,
                   dict_output=dict_o)
+        self.publish_service.publish_code_block(
+            heading='Raw output',
+            code=raw_o,
+            language='json',
+        )
 
         if dict_o is None:
             log.warning(f'Got None from rail',
                         rail_spec=rail_spec,
                         prompt_params=prompt_params)
+            self.publish_service.end_section(f"💥 Derailed (guardrails returned None)")
             return None
+
+        self.publish_service.publish_code_block(
+            heading='Parsed output',
+            code=json.dumps(dict_o, indent=2),
+            language='json',
+        )
+        self.publish_service.end_section(f"🛤 Ran rail")
 
         return dict_o
 
