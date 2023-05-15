@@ -23,7 +23,9 @@ class PlanAndCode(Agent):
     def __init__(
         self,
         *args,
-        plan_pull_request_action: str = "plan_pull_request",
+        planning_actions: Collection[str] = (
+            "plan_pull_request",
+        ),
         codegen_actions: Collection[str] = (
             'new_file',
             'edit_file',
@@ -32,7 +34,7 @@ class PlanAndCode(Agent):
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.plan_pull_request_action = plan_pull_request_action
+        self.planning_actions = planning_actions
         self.codegen_actions = codegen_actions
         self.max_codegen_iterations = max_codegen_iterations
 
@@ -48,14 +50,19 @@ class PlanAndCode(Agent):
         )
 
         # Generate the pull request plan (commit messages and relevant filepaths)
-        context = self.action_service.run_action(self.plan_pull_request_action, context)
+        context = self.action_service.run_actions_iteratively(
+            self.planning_actions,
+            context,
+            max_iterations=1,
+        )
 
         # Get the pull request description from the context
         if 'pull_request_description' not in context:
-            raise ValueError(f"Action {self.plan_pull_request_action} did not return a pull request description")
+            # Stop the agent if the action did not return a pull request description
+            return
         pr_desc = context['pull_request_description']
         if not isinstance(pr_desc, PullRequestDescription):
-            raise TypeError(f"Action {self.plan_pull_request_action} returned a pull request description of type "
+            raise TypeError(f"Actions returned a pull request description of type "
                             f"{type(pr_desc)} instead of PullRequestDescription")
 
         # Publish the description
