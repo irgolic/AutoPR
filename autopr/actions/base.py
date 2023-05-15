@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Type, Collection, Any
+from typing import ClassVar, List, Type, Collection, Any, Optional
 
 import pydantic
 import structlog
@@ -26,11 +26,45 @@ class ContextDict(dict[str, Any]):
                 raise KeyError(f"Key {key} not found in context")
         return ContextDict({key: self[key] for key in keys})
 
-    def __str__(self):
-        return "\n\n".join(f"""{key.title()}: 
-```
+    @staticmethod
+    def key_to_heading(key: str) -> str:
+        """
+        Convert a context key to a heading.
+        """
+        return key.replace("_", " ").title()
+
+    def as_string(
+        self,
+        variable_headings: Optional[dict[str, str]] = None,
+        enclosure_mark: str = "+-+",
+    ):
+        """
+        Format the context as a string.
+
+        Parameters
+        ----------
+
+        variable_headings
+            A dictionary mapping context keys to headings.
+            If not provided, the keys will be used as headings.
+        enclosure_mark
+            The string to use to enclose each variable.
+        """
+        if variable_headings is None:
+            variable_headings = {}
+        for key in self:
+            if key not in variable_headings:
+                variable_headings[key] = self.key_to_heading(key)
+
+        context_string = "Context, each variable enclosed by " + enclosure_mark + ":\n\n"
+        context_string += "\n\n".join(f"""{variable_headings[key]}:
+{enclosure_mark}
 {str(value)}
-```""" for key, value in self.items())
+{enclosure_mark}""" for key, value in self.items())
+        return context_string
+
+    def __str__(self):
+        return self.as_string()
 
 
 class Action:
