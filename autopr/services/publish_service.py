@@ -64,15 +64,15 @@ class PublishService:
 
         self.pr_title: str = f"Fix #{issue.number}: {issue.title}"
         self.pr_body: str = ""
-        self.sections_stack: list[UpdateSection] = [
-            UpdateSection(
-                level=0,
-                title="root",
-            )
-        ]
-        self.sections_list: list[UpdateSection] = []
+        self.root_section = UpdateSection(
+            level=0,
+            title="root",
+        )
+        self.sections_stack: list[UpdateSection] = [self.root_section]
 
         self.log = structlog.get_logger(service="publish")
+
+        self._last_code_block: Optional[CodeBlock] = None
 
         self.issue_template = """
 ## Traceback
@@ -119,7 +119,7 @@ class PublishService:
         """
         self.sections_stack[-1].updates.append(text)
         if section_title:
-            if len(self.sections_stack) == 1:
+            if self.sections_stack is self.root_section:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
         self.log.debug("Publishing update", text=text)
@@ -155,9 +155,10 @@ class PublishService:
             language=language,
             default_open=default_open,
         )
+        self._last_code_block = block
         self.sections_stack[-1].updates.append(block)
         if section_title:
-            if len(self.sections_stack) == 1:
+            if self.sections_stack is self.root_section:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
         self.update()
@@ -221,12 +222,24 @@ class PublishService:
 
         self.update()
 
+    def _contains_last_code_block(self, parent: UpdateSection) -> bool:
+        for section in reversed(parent.updates):
+            if isinstance(section, CodeBlock):
+                return section is self._last_code_block
+            elif isinstance(section, UpdateSection):
+                return self._contains_last_code_block(section)
+        return False
+
     def _build_progress_update(self, section: UpdateSection, finalize: bool = False, open_default: bool = False) -> str:
         if section.level == 0:
             return '\n\n'.join(
-                self._build_progress_update(s,
-                                            finalize=finalize,
-                                            open_default=s is section.updates[-1] and not finalize)
+                self._build_progress_update(
+                    s,
+                    finalize=finalize,
+                    open_default=(
+                        not finalize and (s is section.updates[-1] or self._contains_last_code_block(s))
+                    ),
+                )
                 if isinstance(s, UpdateSection)
                 else str(s)
                 for s in section.updates
@@ -238,13 +251,17 @@ class PublishService:
         for update in section.updates:
             if isinstance(update, UpdateSection):
                 # Recursively build updates
-                updates += [self._build_progress_update(update,
-                                                        finalize=finalize,
-                                                        open_default=update is section.updates[-1])]
+                updates += [self._build_progress_update(
+                    update,
+                    finalize=finalize,
+                    open_default=(
+                        self._contains_last_code_block(update) or update is section.updates[-1]
+                    ),
+                )]
                 continue
             if isinstance(update, CodeBlock):
                 # If is the last code block
-                if update is section.updates[-1]:
+                if self._last_code_block is None or update is self._last_code_block or update is section.updates[-1]:
                     # Clone the block and set default_open to True
                     update = update.copy()
                     update.default_open = True
@@ -266,7 +283,7 @@ class PublishService:
         return progress
 
     def _build_progress_updates(self, success: Optional[bool] = False):
-        progress = self._build_progress_update(self.sections_stack[0], finalize=bool(success))
+        progress = self._build_progress_update(self.root_section, finalize=bool(success))
         if success is None:
             progress += f"\n\n" \
                     f'<img src="{self.loading_gif_url}"' \
