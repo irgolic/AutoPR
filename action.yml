@@ -33,7 +33,7 @@ inputs:
     default: '2'
   agent_id:
     description: 'ID of the brain to use'
-    default: 'simple'
+    default: 'plan_and_code'
   agent_config:
     description: 'Configuration for the coordinating agent in yaml format'
     default: ''

@@ -10,7 +10,7 @@ from autopr.models.events import EventUnion
 log = structlog.get_logger()
 
 
-class Simple(Agent):
+class PlanAndCode(Agent):
     """
     A simple Brain agent that:
     - Plans a pull request
@@ -18,7 +18,7 @@ class Simple(Agent):
     """
 
     #: The ID of the agent, used to identify it in the settings
-    id = "simple"
+    id = "plan_and_code"
 
     def __init__(
         self,
