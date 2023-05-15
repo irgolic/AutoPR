@@ -197,6 +197,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
         self,
         action_ids: Collection[str],
         context: ContextDict,
+        context_headings: Optional[dict[str, str]] = None,
         max_iterations: int = 5,
         include_finished: bool = False,
     ) -> ContextDict:
@@ -212,6 +213,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
                 action_ids=action_ids,
                 context=context,
                 include_finished=include_finished,
+                context_headings=context_headings,
             )
             if pick is None or pick[0].id == "finished":
                 self.publish_service.end_section("🏁 No action chosen")
@@ -248,7 +250,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
         dict_o = self.rail_service.run_rail_string(
             rail_spec,
             prompt_params={
-                "context": str(context),
+                "context": context.as_string(),
             },
             heading="action arguments",
         )
@@ -269,7 +271,14 @@ You are about to make a decision on what to do next, and return a JSON that foll
         action_ids: Collection[str],
         context: ContextDict,
         include_finished: bool = False,
+        context_headings: Optional[dict[str, str]] = None,
     ) -> Optional[tuple[type[Action], Action.Arguments]]:
+        """
+        Pick an action to run next.
+
+        Returns a tuple of the action type and the arguments to instantiate it with.
+
+        """
         # Generate the action-select rail spec
         rail_spec = self._write_action_selection_rail_spec(
             action_ids=action_ids,
@@ -281,7 +290,9 @@ You are about to make a decision on what to do next, and return a JSON that foll
         dict_o = self.rail_service.run_rail_string(
             rail_spec,
             prompt_params={
-                "context": str(context),
+                "context": context.as_string(
+                    variable_headings=context_headings,
+                ),
             },
             heading="action choice",
         )

@@ -71,10 +71,17 @@ class PlanAndCode(Agent):
         for current_commit in pr_desc.commits:
             self.publish_service.start_section(f"🔨 Writing commit {current_commit.commit_message}")
 
+            # Set the current commit in the context
+            context['current_commit'] = current_commit
+
             # Generate the changes
             context = self.action_service.run_actions_iteratively(
                 self.codegen_actions,
                 context,
+                context_headings={
+                    'pull_request_description': 'Plan for the pull request',
+                    'current_commit': "Commit we are currently generating",
+                },
                 max_iterations=self.max_codegen_iterations,
                 include_finished=True,
             )
