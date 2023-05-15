@@ -52,15 +52,26 @@ class ContextDict(dict[str, Any]):
         """
         if variable_headings is None:
             variable_headings = {}
+
+        # Add any missing keys to the variable headings
         for key in self:
             if key not in variable_headings:
                 variable_headings[key] = self.key_to_heading(key)
 
         context_string = "Context, each variable enclosed by " + enclosure_mark + ":\n\n"
-        context_string += "\n\n".join(f"""{variable_headings[key]}:
+        for key, value in self.items():
+            # Format the value as a string
+            if isinstance(value, list):
+                valstr = "\n".join(str(item) for item in value)
+            else:
+                valstr = str(value)
+
+            # Add the variable to the context string
+            context_string += f"""\n\n{variable_headings[key]}:
 {enclosure_mark}
-{str(value)}
-{enclosure_mark}""" for key, value in self.items())
+{valstr}
+{enclosure_mark}"""
+
         return context_string
 
     def __str__(self):
