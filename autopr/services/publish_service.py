@@ -502,8 +502,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         )
 
         if response.status_code == 200:
-            self.log.debug('Pull request draft status updated successfully',
-                           headers=response.headers)
+            self.log.debug('Pull request draft status updated successfully')
             return
 
         self.log.error('Failed to update pull request draft status',
@@ -523,8 +522,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            self.log.debug('Pull request updated successfully',
-                           headers=response.headers)
+            self.log.debug('Pull request updated successfully')
             # Update draft status
             if self._drafts_supported:
                 self._set_pr_draft_status(existing_pr['node_id'], not success)
