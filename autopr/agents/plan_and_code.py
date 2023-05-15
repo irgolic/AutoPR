@@ -74,6 +74,9 @@ class PlanAndCode(Agent):
             # Set the current commit in the context
             context['current_commit'] = current_commit
 
+            # Clear action_history in the context for each commit
+            context['action_history'] = []
+
             # Generate the changes
             context = self.action_service.run_actions_iteratively(
                 self.codegen_actions,
@@ -81,6 +84,7 @@ class PlanAndCode(Agent):
                 context_headings={
                     'pull_request_description': 'Plan for the pull request',
                     'current_commit': "Commit we are currently generating",
+                    'action_history': "Actions that have been run so far",
                 },
                 max_iterations=self.max_codegen_iterations,
                 include_finished=True,
