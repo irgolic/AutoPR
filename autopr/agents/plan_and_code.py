@@ -90,7 +90,13 @@ class PlanAndCode(Agent):
                 include_finished=True,
             )
 
-            if self.diff_service.get_diff():
+            diff = self.diff_service.get_diff()
+            if diff:
+                self.publish_service.publish_code_block(
+                    heading="Diff",
+                    code=diff,
+                    language="diff",
+                )
                 self.publish_service.end_section(f"✅ Committed {current_commit.commit_message}")
             else:
                 self.publish_service.end_section(f"⚠️ Empty commit {current_commit.commit_message}")
