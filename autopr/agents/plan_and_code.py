@@ -76,6 +76,7 @@ class PlanAndCode(Agent):
                 self.codegen_actions,
                 context,
                 max_iterations=self.max_codegen_iterations,
+                include_finished=True,
             )
 
             if self.diff_service.get_diff():

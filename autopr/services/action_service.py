@@ -57,9 +57,10 @@ class ActionService:
     def _write_action_selection_rail_spec(
         self,
         action_ids: Collection[str],
+        include_finished: bool = False,
     ) -> str:
         # Add finished action
-        if "finished" not in action_ids:
+        if include_finished and "finished" not in action_ids:
             action_ids = [*action_ids, "finished"]
         # Write the "choice" output spec
         output_spec = f"""<choice
@@ -197,14 +198,20 @@ You are about to make a decision on what to do next, and return a JSON that foll
         action_ids: Collection[str],
         context: ContextDict,
         max_iterations: int = 5,
+        include_finished: bool = False,
     ) -> ContextDict:
         for _ in range(max_iterations):
-            self.publish_service.start_section("❓ Choosing next action")
+            if len(action_ids) == 1 and not include_finished:
+                action_id = next(iter(action_ids))
+                context = self.run_action(action_id, context)
+                break
 
+            self.publish_service.start_section("❓ Choosing next action")
             # Pick an action
             pick = self.pick_action(
                 action_ids=action_ids,
                 context=context,
+                include_finished=include_finished,
             )
             if pick is None or pick[0].id == "finished":
                 self.publish_service.end_section("🏁 No action chosen")
@@ -261,10 +268,12 @@ You are about to make a decision on what to do next, and return a JSON that foll
         self,
         action_ids: Collection[str],
         context: ContextDict,
+        include_finished: bool = False,
     ) -> Optional[tuple[type[Action], Action.Arguments]]:
         # Generate the action-select rail spec
         rail_spec = self._write_action_selection_rail_spec(
             action_ids=action_ids,
+            include_finished=include_finished,
         )
         self.log.debug("Wrote action-selection rail spec:\n%s", rail_spec=rail_spec)
 
