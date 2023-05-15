@@ -330,7 +330,7 @@ class PublishService:
         """
         body = self._build_body()
         title = self.pr_title
-        self._publish(title, body)
+        self._publish_pull_request(title, body)
 
     def finalize(self, success: bool):
         """
@@ -344,14 +344,26 @@ class PublishService:
         """
         body = self._build_body(success=success)
         title = self.pr_title
-        self._publish(title, body, success=success)
+        self._publish_pull_request(title, body, success=success)
 
-    def _publish(
+    def _publish_pull_request(
         self,
         title: str,
         body: str,
         success: bool = False,
     ):
+        """
+        Publish the PR to the provider.
+
+        Parameters
+        ----------
+        title: str
+            The title of the PR
+        body: str
+            The body of the PR
+        success: bool
+            Whether generation was successful or not
+        """
         raise NotImplementedError
 
 
@@ -424,7 +436,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         body = super()._build_body(success=success)
         return shield + '\n\n' + body
 
-    def _publish(self, title: str, body: str, success: bool = False):
+    def _publish_pull_request(self, title: str, body: str, success: bool = False):
         existing_pr = self._find_existing_pr()
         if existing_pr:
             self._update_pr(existing_pr, title, body, success)
@@ -564,7 +576,7 @@ class DummyPublishService(PublishService):
             )
         )
 
-    def _publish(
+    def _publish_pull_request(
         self,
         title: str,
         body: str,
