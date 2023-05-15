@@ -93,7 +93,7 @@ class ActionService:
 {output_spec}
 </output>
 <instructions>
-You are a helpful assistant only capable of communicating with valid JSON, and no other text.
+You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
 
 @json_suffix_prompt_examples
 </instructions>
@@ -119,7 +119,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
 {arguments.output_spec}
 </output>
 <instructions>
-You are a helpful assistant only capable of communicating with valid JSON, and no other text.
+You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
 
 @json_suffix_prompt_examples
 </instructions>
