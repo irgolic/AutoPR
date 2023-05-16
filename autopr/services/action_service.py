@@ -72,17 +72,25 @@ class ActionService:
             output_spec += f"""<case
                 name="{action.id}"
                 {f'description="{action.description}"' if action.description else ""}
+            >
+            <object
+                name="{action.id}"
             >"""
             if action.Arguments.output_spec:
-                output_spec += f"""<object
-                    name="{action.id}"
-                >
-                {action.Arguments.output_spec}
-                </object>"""
+                output_spec += action.Arguments.output_spec
             else:
+                if action.Arguments is not Action.Arguments:
+                    # Guardrails RFC (GRAIL-001) plans to generate output specs from pydantic models automatically,
+                    # but for now, we need to manually write them.
+                    raise ValueError(
+                        f"{action.__name__}.Arguments ({action_id}) is missing an output spec"
+                    )
                 output_spec += """<string 
                     name="reason"
                 />"""
+            output_spec += f"""
+            </object>
+            """
             output_spec += f"""</case>"""
         output_spec += f"""</choice>"""
 

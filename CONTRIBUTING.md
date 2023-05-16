@@ -7,157 +7,106 @@ Join [Discord](https://discord.gg/ykk7Znt3K6) to discuss ideas and get guidance.
 
 ## Overview
 
-AutoPR works in two main steps:
-- Gather context and plan a pull request
-- Generate code for each commit
+AutoPR is built around two main concepts:
+- actions: orthogonal components that perform a specific task
+- agents: components that iteratively run actions
 
-It's easy to add a new implementation for either of the two steps, or for the orchestration of them. 
-As long as the file is in the correct directory, it will be automatically picked up by the action – simply refer to it by its id.
-Alternatively, write the agent in its own directory module, just make sure to export it to `__all__` in the `__init__.py` file. 
+Agents orchestrate an action flow to handle an event, such as a label being added to an issue.
 
-## Using a custom component
+## Actions
 
-To use a custom brain or pull request or code generator agent, simply refer to it by its `id` in the action's `with` section.
-Make sure you're pointing to the correct branch (in this example `main`).
+To write a custom action, subclass `Action`, give it an `id`, and implement the `run` method.
 
-Example:
-
-`>>> .github/workflows/autopr.yml`
-```yaml
-
-...
-    - name: AutoPR
-      uses: irgolic/AutoPR@main
-      with:
-        codegen_agent_id: my-codegen-agent
-        pull_request_agent_id: my-pr-agent
-        brain_agent_id: my-brain-agent
-...
-```
-
-### Brain agents
-
-Brain agents are responsible for handling the "issue labeled" event to generate the pull request, normally by invoking pull request planning and code generating subagents.
-
-To add a new brain agent, create a new file or directory in `autopr/agents/brain_agent/` and subclass `BrainAgentBase`.
-
-Example:
-
-`>>> autopr/agents/brain_agent/my_brain_agent.py`
+Here's a skeleton of the simplest possible action:
 
 ```python
+class MyAction(Action):
+    id = "my_action"
 
-from autopr.agents.brain_agent import BrainAgentBase
-from autopr.models.events import EventUnion
+    def run(self, arguments: Action.Arguments, context: ContextDict) -> ContextDict:
+        # do something
+        return context
+```
 
+You can also give it a description to help the model understand what it does, and define arguments for your action.  
+Subclass `Action.Arguments`, declare them as pydantic fields, and write a guardrails `output_spec`.
 
-class MyBrainAgent(BrainAgentBase):
-    id = "my-brain-agent"
+Here's an example of an action that summarizes an issue:
 
-    def _plan_pull_request(
+```python
+class SummarizeIssue(Action):
+    id = "summarize_issue"
+    description = "Summarize the issue into a single sentence."
+
+    class Arguments(Action.Arguments):
+        single_sentence_summary: str
+
+        output_spec = "<string name='single_sentence_summary'/>"
+
+    def run(self, arguments: Arguments, context: ContextDict) -> ContextDict:
+        context["summary"] = arguments.single_sentence_summary
+        return context
+```
+
+The context is a dictionary that is passed between actions by the agent, to share information among them.
+
+## Agents
+
+Agents are the main entry point for AutoPR. They are responsible for running actions in response to events.
+
+To write a custom agent, subclass `Agent`, give it an `id`, and implement the `handle_event` method.
+
+```python
+class MyAgent(Agent):
+    id = "my_agent"
+
+    def __init__(
+        self,
+        *args,
+        my_action_id: str = "my_action",
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.my_action_id = my_action_id
+
+    def handle_event(
         self,
         event: EventUnion,
     ) -> None:
-        # Get the issue
-        issue = event.issue
-        # Plan the pull request
-        pr_desc = self.pull_request_agent.plan_pull_request(self.repo, issue, event)
-        # Generate a change
-        self.codegen_agent.generate_changes(
-            self.repo,
-            issue,
-            pr_desc,
-            pr_desc.commits[0],
+        # Initialize the context
+        context = ContextDict(
+            issue=event.issue,
         )
-        # Publish the pull request
-        self.publish_service.set_pr_description(pr_desc)
+        
+        # Run the action
+        context = self.action_service.run_action(self.my_action_id, context)
+
 ```
 
-### Pull request agents
+You can pass keyword arguments to your agent via the `autopr.yml` workflow file, for example:
 
-To add a new PR planner, create a new file or directory in `autopr/agents/pull_request_agent/` and subclass `PullRequestAgentBase`. 
-The new class should declare an `id` and implement the `_plan_pull_request` method.
-
-Example:
-
-`>>> autopr/agents/planner_agent/my_planner_agent.py`
-```python
-
-from typing import Union
-from git.repo import Repo
-from autopr.agents.pull_request_agent import PullRequestAgentBase
-from autopr.models.artifacts import Issue
-from autopr.models.rail_objects import PullRequestDescription
-from autopr.models.events import EventUnion
-
-
-
-class MyPullRequestAgent(PullRequestAgentBase):
-    id = "my-pr-agent"
-
-    def _plan_pull_request(
-        self, 
-        issue: Issue, 
-        repo: Repo,
-        event: EventUnion,
-    ) -> Union[str, PullRequestDescription]:
-        return """
-Title: My PR title
-Body: My PR body
-Commits:
-  1. Title: My commit title
-     Files:
-       - path/to/file.py
-       - path/to/another/file.py
-  2. Title: My second commit title
-     Files:
-       - path/to/file.py
-       - path/to/another/file.py
-"""
+```yaml
+...
+    - name: AutoPR
+      uses: docker://ghcr.io/irgolic/autopr:latest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        agent_id: my_agent
+        agent_config: |
+          my_action_id: my_other_action
+...
 ```
 
-The plan can be returned as a `PullRequestDescription` object, or as a string as shown in the dummy example above.
-If it is returned as a string, it will automatically be parsed into a `PullRequestDescription` object with guardrails.
+Events are the input to agents. They are defined in `autopr/models/events.py`.  
+Currently only `IssueLabeledEvent` is supported.
 
+## Services
 
-### Codegen agents
+Actions and agents have access to services that provide useful functionality, such as language model calls (rail_service), or posting updates (publish_service).
 
-To add a new code generator, create a new file in `autopr/agents/codegen_agent/` and subclass `CodegenAgentBase`. 
-Similarly to the pull request agent, the new class should declare an `id` and implement the `_generate_code` method.
-
-Example:
-
-`>>> autopr/agents/codegen_agent/my_codegen_agent.py`
-```python
-
-from autopr.agents.codegen_agent import CodegenAgentBase
-from autopr.models.artifacts import Issue, DiffStr
-from git.repo import Repo
-from autopr.models.rail_objects import CommitPlan, PullRequestDescription
-
-class MyCodegenAgent(CodegenAgentBase):
-    id = "my-codegen-agent"
-
-    def _generate_patch(
-        self,
-        repo: Repo,
-        issue: Issue,
-        pr_desc: PullRequestDescription,
-        current_commit: CommitPlan,
-    ) -> None:    
-        diff = """
---- /dev/null
-+++ dummy.py
-@@ -0,0 +1,2 @@
-+def dummy():
-+    pass
-"""
-        self.diff_service.apply_diff(diff)
-```
-
-A codegen agent is expected to make file changes, either by generating a diff or otherwise.
-If you'd like to work on codegen, check out the [autonomous codegen agent](https://github.com/irgolic/AutoPR/tree/main/autopr/agents/codegen_agent/autonomous_v1).
-
+TODO overview of services
 
 ## How guardrails is used in AutoPR
 
