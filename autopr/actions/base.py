@@ -58,7 +58,7 @@ class ContextDict(dict[str, Any]):
             if key not in variable_headings:
                 variable_headings[key] = self.key_to_heading(key)
 
-        context_string = "Context, each variable enclosed by " + enclosure_mark + ":\n\n"
+        context_string = "Given context variables enclosed by " + enclosure_mark + ":"
         for key, value in self.items():
             # Format the value as a string
             if isinstance(value, list):
