@@ -22,7 +22,10 @@ class RequestMoreInfo(Action):
         message = arguments.message
 
         # Add a comment to the issue
-        self.publish_service.comment_on_issue(message)
+        success = self.publish_service.comment_on_issue(message)
+        if not success:
+            self.log.error(f"Failed to comment on issue")
+            raise RuntimeError(f"Failed to comment on issue")
 
         # Return the context
         return context

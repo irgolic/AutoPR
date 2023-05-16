@@ -363,7 +363,7 @@ class PublishService:
         title = self.pr_title
         self._publish_pull_request(title, body, success=success)
 
-    def comment_on_issue(self, text: str):
+    def comment_on_issue(self, text: str) -> bool:
         """
         Comment on the issue with the given text.
 
@@ -592,7 +592,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         return None
 
-    def comment_on_issue(self, text: str):
+    def comment_on_issue(self, text: str) -> bool:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/issues/{self.issue.number}/comments'
         headers = self._get_headers()
         data = {
@@ -602,12 +602,13 @@ AutoPR encountered an error while trying to fix {issue_link}.
 
         if response.status_code == 201:
             self.log.debug('Commented on issue successfully')
-            return
+            return True
 
         self.log.error('Failed to comment on issue',
                        code=response.status_code,
                        response=response.json(),
                        headers=response.headers)
+        return False
 
 
 class DummyPublishService(PublishService):
