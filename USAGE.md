@@ -61,21 +61,29 @@ you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-
 - `target_branch_name_template`: The template for the name of the target branch. Defaults to `autopr/{issue_number}`.
 - `temperature`: The temperature for the model. Defaults to `0.9`.
 - `rail_temperature`: The temperature for the guardrails calls. Defaults to `0.9`.
-- `pull_request_agent_id`: The ID of the planner to use. Defaults to `rail-v1`.
-- `codegen_agent_id`: The ID of the code generator to use. Defaults to `rail-v1`.
-- `brain_agent_id`: The ID of the brain to use. Defaults to `simple-v1`.
-- `pull_request_agent_config`: The configuration for the planner. Empty by default.
-- `codegen_agent_config`: The configuration for the code generator. Empty by default.
-- `brain_agent_config`: The configuration for the coordinating agent. Empty by default.
+- `agent_id`: The ID of the agent to use. Defaults to `plan_and_code`.
+- `agent_config`: The configuration for the agent. Empty by default.
+
+Specify `agent_config` as a yaml string, e.g.:
+
+```yaml
+...
+    - name: AutoPR
+      uses: docker://ghcr.io/irgolic/autopr:latest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        agent_config: |
+          planning_actions: 
+          - plan_pull_request
+...
+```
 
 #### Agent Configuration Options
 
-Initial Prototype Pull Request Agent and Codegen Agent (`rail-v1`)
+The `plan_and_code` agent has the following configuration options:
 
-- `file_context_token_limit`: The maximum number of tokens in the file context. Defaults to `5000`.
-- `file_chunk_size`: How many tokens fit in a file chunk. Defaults to `500`.
-
-Autonomous Codegen Agent (`auto-v1`)
-
-- `context_size`: How many lines around the selected code hunk to include. Defaults to `3`.
-- `iterations_per_commit`: The maximum number of thinking steps per commit. Defaults to `5`.
+- `planning_actions`: The actions to run to plan the pull request. Defaults to `plan_pull_request` and `request_more_information`
+- `codegen_actions`: The actions to run to generate the pull request. Defaults to `new_file` and `edit_file`.
+- `max_codegen_iterations`: The maximum number of iterations to run the code generation actions for. Defaults to `5`.
