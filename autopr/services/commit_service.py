@@ -4,10 +4,6 @@ from git.repo import Repo
 
 import structlog
 
-from autopr.models.artifacts import DiffStr
-from autopr.models.rail_objects import CommitPlan
-from autopr.services.diff_service import DiffService
-
 
 class CommitService:
     """
@@ -28,9 +24,7 @@ class CommitService:
         self.branch_name = branch_name
         self.base_branch_name = base_branch_name
 
-        self._empty_commit = CommitPlan(
-            commit_message="[empty]",
-        )
+        self._empty_commit_message = "[placeholder]"
 
         self.log = structlog.get_logger(service="commit")
 
@@ -48,12 +42,12 @@ class CommitService:
         self.repo.heads[self.branch_name].checkout()
 
         # Create empty commit
-        self.commit(self._empty_commit)
+        self.commit(self._empty_commit_message)
 
-    def commit(self, commit: CommitPlan, push: bool = True) -> None:
+    def commit(self, commit_message: str, push: bool = True) -> None:
         # Remove empty commit if exists
-        if commit is not self._empty_commit and \
-                self.repo.head.commit.message.rstrip() == self._empty_commit.commit_message:
+        if commit_message != self._empty_commit_message and \
+                self.repo.head.commit.message.rstrip() == self._empty_commit_message:
             self.log.debug('Removing empty commit...')
             self.repo.git.execute(["git", "reset", "HEAD^"])
 
@@ -66,11 +60,11 @@ class CommitService:
 
         # Add and commit all
         self.repo.git.execute(["git", "add", "."])
-        self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit.commit_message])
+        self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit_message])
 
         # Get the commit's diff for log
         diff = self.repo.git.execute(["git", "diff", "HEAD^", "HEAD"])
-        self.log.info("Committed changes", commit_message=commit.commit_message, diff=diff)
+        self.log.info("Committed changes", commit_message=commit_message, diff=diff)
 
         # Push branch to remote
         if push:

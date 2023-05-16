@@ -7,9 +7,28 @@ import pydantic
 import requests
 
 from autopr.models.artifacts import Issue
-from autopr.models.rail_objects import PullRequestDescription, CommitPlan
 
 import structlog
+
+
+class CodeBlock(pydantic.BaseModel):
+    """
+    A block of text to be shown as a code block in the pull request description.
+    """
+    heading: str
+    code: str
+    language: str = "xml"
+    default_open: bool = False
+
+    def __str__(self):
+        return f"""<details{" open" if self.default_open else ""}>
+<summary>{self.heading}</summary>
+
+~~~{self.language}
+{self.code}
+~~~
+
+</details>"""
 
 
 class UpdateSection(pydantic.BaseModel):
@@ -18,8 +37,7 @@ class UpdateSection(pydantic.BaseModel):
     """
     level: int
     title: str
-    updates: list[Union[str, 'UpdateSection']] = pydantic.Field(default_factory=list)
-    result: Optional[str] = None
+    updates: list[Union[str, CodeBlock, 'UpdateSection']] = pydantic.Field(default_factory=list)
 
 
 class PublishService:
@@ -33,7 +51,7 @@ class PublishService:
 
     To publish updates to the current section, call:
     - `publish_update` to publish a simple textual update
-    - `publish_call` to publish a multi-hunk update with a summary and subsections
+    - `publish_code_block` to publish text in a triple-backtick-style code block
     """
 
     def __init__(
@@ -44,16 +62,17 @@ class PublishService:
         self.issue = issue
         self.loading_gif_url = loading_gif_url
 
-        self.pr_desc: PullRequestDescription = self._create_placeholder(issue)
-        self.sections_stack: list[UpdateSection] = [
-            UpdateSection(
-                level=0,
-                title="root",
-            )
-        ]
-        self.sections_list: list[UpdateSection] = []
+        self.pr_title: str = f"Fix #{issue.number}: {issue.title}"
+        self.pr_body: str = ""
+        self.root_section = UpdateSection(
+            level=0,
+            title="root",
+        )
+        self.sections_stack: list[UpdateSection] = [self.root_section]
 
         self.log = structlog.get_logger(service="publish")
+
+        self._last_code_block: Optional[CodeBlock] = None
 
         self.issue_template = """
 ## Traceback
@@ -67,82 +86,20 @@ class PublishService:
                                    "labels=bug&" \
                                    "body={body}"
 
-    def _create_placeholder(self, issue: Issue) -> PullRequestDescription:
-        placeholder_pr_desc = PullRequestDescription(
-            title=f"Fix #{issue.number}: {issue.title}",
-            body="",
-            commits=[],
-        )
-        return placeholder_pr_desc
-
-    def publish_call(
-        self,
-        summary: str,
-        section_title: Optional[str] = None,
-        default_open=('response',),
-        **kwargs
-    ):
+    def set_pr_description(self, title: str, body: str):
         """
-        Create a new self-contained collapsible section with subsections.
-
-        Try to create sections manually with `start_section` and `end_section` instead, to
-        show incremental progress as soon as possible instead of waiting for the call to finish.
-
-        Parameters
-        ----------
-        summary: str
-            The title of the new section
-        section_title: str, optional
-            The title of the parent section to update
-        default_open: Iterable[str], optional
-            Which subsections to open (not collapsed) by default
-        """
-        subsections = []
-        for k, v in kwargs.items():
-            # Cast keys to title case
-            title = k.title()
-            title = title.replace("_", " ")
-
-            # Prefix content with quotation marks and A ZERO-WIDTH SPACE (!!!) to prevent escaping backticks
-            content = '\n'.join([
-                f"    {line}" for line in v.splitlines()
-            ])
-
-            # Construct subsection
-            subsection = f"""<details{" open" if k in default_open else ""}>
-<summary>{title}</summary>
-
-{content}
-</details>"""
-            subsections.append(subsection)
-
-        # Concatenate subsections
-        subsections_content = '\n\n'.join(subsections)
-
-        # Prefix them with a quotation mark
-        subsections_content = '\n'.join([f"> {line}" for line in subsections_content.splitlines()])
-
-        # Construct progress string
-        progress_str = f"""<details>
-<summary>{summary}</summary>
-
-{subsections_content}
-
-</details>
-"""
-        self.publish_update(progress_str, section_title=section_title)
-
-    def set_pr_description(self, pr: PullRequestDescription):
-        """
-        Set the pull request description to the given value.
+        Set the pull request title and body.
         A description heading will be added to the body.
 
         Parameters
         ----------
-        pr: PullRequestDescription
-            The new pull request description
+        title: str
+            The title of the pull request
+        body: str
+            The body of the pull request
         """
-        self.pr_desc = pr
+        self.pr_title = title
+        self.pr_body = body
         self.update()
 
     def publish_update(
@@ -162,10 +119,48 @@ class PublishService:
         """
         self.sections_stack[-1].updates.append(text)
         if section_title:
-            if len(self.sections_stack) == 1:
+            if self.sections_stack is self.root_section:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
         self.log.debug("Publishing update", text=text)
+        self.update()
+
+    def publish_code_block(
+        self,
+        heading: str,
+        code: str,
+        default_open: bool = False,
+        language: str = "xml",
+        section_title: Optional[str] = None,
+    ):
+        """
+        Publish a code block as a collapsible child to the current section.
+
+        Parameters
+        ----------
+        heading: str
+            The title of the collapsible
+        code: str
+            The contents of the collapsible
+        default_open: bool, optional
+            Whether the collapsible should be open by default
+        language: str, optional
+            The language of the code (defaults to python)
+        section_title: str, optional
+            The title that the parent section should be updated to
+        """
+        block = CodeBlock(
+            heading=heading,
+            code=code,
+            language=language,
+            default_open=default_open,
+        )
+        self._last_code_block = block
+        self.sections_stack[-1].updates.append(block)
+        if section_title:
+            if self.sections_stack is self.root_section:
+                raise ValueError("Cannot set section title on root section")
+            self.sections_stack[-1].title = section_title
         self.update()
 
     def start_section(
@@ -207,7 +202,6 @@ class PublishService:
     def end_section(
         self,
         title: Optional[str] = None,
-        result: Optional[str] = None,
     ):
         """
         End the current section.
@@ -224,17 +218,30 @@ class PublishService:
         self.log.debug("Ending section", title=title)
         if title:
             self.sections_stack[-1].title = title
-        self.sections_stack[-1].result = result
         self.sections_stack.pop()
 
         self.update()
 
-    def _build_progress_update(self, section: UpdateSection, finalize: bool = False) -> str:
+    def _contains_last_code_block(self, parent: UpdateSection) -> bool:
+        for section in reversed(parent.updates):
+            if isinstance(section, CodeBlock):
+                return section is self._last_code_block
+            elif isinstance(section, UpdateSection):
+                return self._contains_last_code_block(section)
+        return False
+
+    def _build_progress_update(self, section: UpdateSection, finalize: bool = False, open_default: bool = False) -> str:
         if section.level == 0:
             return '\n\n'.join(
-                self._build_progress_update(s, finalize=finalize)
+                self._build_progress_update(
+                    s,
+                    finalize=finalize,
+                    open_default=(
+                        not finalize and (s is section.updates[-1] or self._contains_last_code_block(s))
+                    ),
+                )
                 if isinstance(s, UpdateSection)
-                else s
+                else str(s)
                 for s in section.updates
             )
 
@@ -244,24 +251,30 @@ class PublishService:
         for update in section.updates:
             if isinstance(update, UpdateSection):
                 # Recursively build updates
-                updates += [self._build_progress_update(update, finalize=finalize)]
+                updates += [self._build_progress_update(
+                    update,
+                    finalize=finalize,
+                    open_default=(
+                        self._contains_last_code_block(update) or update is section.updates[-1]
+                    ),
+                )]
+                continue
+            if isinstance(update, CodeBlock):
+                # If is the last code block
+                if self._last_code_block is None or update is self._last_code_block or update is section.updates[-1]:
+                    # Clone the block and set default_open to True
+                    update = update.copy()
+                    update.default_open = True
+                updates += [str(update)]
                 continue
             updates += [update]
-
-        # Add result as an open section at the end of updates
-        if section.result:
-            result = '\n'.join([f"> {line}" for line in section.result.splitlines()])
-            updates += [f"""<details open>
-<summary>📝 Result</summary>
-
-{result}
-</details>"""]
 
         # Prefix updates with quotation
         updates = '\n\n'.join(updates)
         updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
 
-        progress += f"""<details>
+        # Leave the last section open if we're not finalizing (i.e. if we're still running or errored)
+        progress += f"""<details{' open' if open_default else ''}>
 <summary>{section.title}</summary>
 
 {updates}
@@ -269,18 +282,9 @@ class PublishService:
 
         return progress
 
-    def _build_progress_updates(self, finalize: bool = False):
-        progress = self._build_progress_update(self.sections_stack[0], finalize=finalize)
-        if finalize:
-#             progress = f"""<details>
-# <summary>Click to see progress updates</summary>
-#
-# {progress}
-# </details>
-# """
-            # TODO should we put this in a collapsible on finalize or not? Now it's pretty short
-            pass
-        else:
+    def _build_progress_updates(self, success: Optional[bool] = False):
+        progress = self._build_progress_update(self.root_section, finalize=bool(success))
+        if success is None:
             progress += f"\n\n" \
                     f'<img src="{self.loading_gif_url}"' \
                     f' width="200" height="200"/>'
@@ -313,9 +317,9 @@ class PublishService:
         body = f"Fixes #{self.issue.number}"
 
         # Build PR description
-        if self.pr_desc.body:
+        if self.pr_body:
             body += f"\n\n## Description\n\n" \
-                    f"{self.pr_desc.body}"
+                    f"{self.pr_body}"
 
         # Build status
         body += f"\n\n## Status\n\n"
@@ -332,7 +336,7 @@ class PublishService:
                     f"If there's a problem with this pull request, please " \
                     f"[open an issue]({self._build_issue_template_link()})."
 
-        progress = self._build_progress_updates(finalize=success is not None)
+        progress = self._build_progress_updates(success=success)
         if progress:
             body += f"\n\n{progress}"
         return body
@@ -342,8 +346,8 @@ class PublishService:
         Update the PR body with the current progress.
         """
         body = self._build_body()
-        title = self.pr_desc.title
-        self._publish(title, body)
+        title = self.pr_title
+        self._publish_pull_request(title, body)
 
     def finalize(self, success: bool):
         """
@@ -356,15 +360,27 @@ class PublishService:
             Whether the PR was successful or not
         """
         body = self._build_body(success=success)
-        title = self.pr_desc.title
-        self._publish(title, body, success=success)
+        title = self.pr_title
+        self._publish_pull_request(title, body, success=success)
 
-    def _publish(
+    def _publish_pull_request(
         self,
         title: str,
         body: str,
         success: bool = False,
     ):
+        """
+        Publish the PR to the provider.
+
+        Parameters
+        ----------
+        title: str
+            The title of the PR
+        body: str
+            The body of the PR
+        success: bool
+            Whether generation was successful or not
+        """
         raise NotImplementedError
 
 
@@ -437,7 +453,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         body = super()._build_body(success=success)
         return shield + '\n\n' + body
 
-    def _publish(self, title: str, body: str, success: bool = False):
+    def _publish_pull_request(self, title: str, body: str, success: bool = False):
         existing_pr = self._find_existing_pr()
         if existing_pr:
             self._update_pr(existing_pr, title, body, success)
@@ -515,8 +531,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         )
 
         if response.status_code == 200:
-            self.log.debug('Pull request draft status updated successfully',
-                           headers=response.headers)
+            self.log.debug('Pull request draft status updated successfully')
             return
 
         self.log.error('Failed to update pull request draft status',
@@ -536,8 +551,7 @@ AutoPR encountered an error while trying to fix {issue_link}.
         response = requests.patch(url, json=data, headers=headers)
 
         if response.status_code == 200:
-            self.log.debug('Pull request updated successfully',
-                           headers=response.headers)
+            self.log.debug('Pull request updated successfully')
             # Update draft status
             if self._drafts_supported:
                 self._set_pr_draft_status(existing_pr['node_id'], not success)
@@ -579,7 +593,7 @@ class DummyPublishService(PublishService):
             )
         )
 
-    def _publish(
+    def _publish_pull_request(
         self,
         title: str,
         body: str,

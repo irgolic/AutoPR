@@ -3,9 +3,8 @@ import guardrails as gr
 
 from autopr.models.rail_objects import RailObject
 
-# Make sure to import these, so all rail objects initialize
-import autopr.agents.codegen_agent
-import autopr.agents.pull_request_agent
+# Make sure to import, so all rail objects initialize
+import autopr.actions
 
 
 @pytest.mark.parametrize(

@@ -125,49 +125,46 @@ class ChainService:
             return self.model(template.to_string())
 
     def run_chain(self, chain: PromptChain) -> Any:
+        self.publish_service.start_section(f"⛓ Running {chain.__class__.__name__} chain")
         # Make sure the prompt is not too long
         max_length = self.context_limit - self.min_tokens
         success = chain.ensure_token_length(max_length)
         if not success:
             return None
 
-        self.publish_service.publish_update(f"Running chain {chain.__class__.__name__}")
         if chain.output_parser:
             parser = chain.output_parser
         else:
             parser = None
         prompt_value = self._get_model_template(chain, parser)
         str_prompt = prompt_value.to_string()
+
+        self.publish_service.publish_code_block(
+            heading="Prompt",
+            code=str_prompt,
+        )
         self.log.info("Running chain", prompt=str_prompt)
-        output = self._run_model(prompt_value)
-        self.log.info("Got result", result=output)
+
+        raw_output = self._run_model(prompt_value)
+
+        self.publish_service.publish_code_block(
+            heading="Output",
+            code=raw_output,
+        )
+        self.log.info("Got result", raw_output=raw_output)
+
         if parser is not None:
-            raw_output = output
             output = parser.parse(raw_output)
+            self.log.info("Parsed output", result=output)
             if output is None:
-                self.publish_service.publish_call(
-                    summary=f"{parser.__class__.__name__}: Failed to parse result",
-                    prompt=str_prompt,
-                    raw_response=raw_output,
-                    default_open=('raw_response',),
-                )
+                self.publish_service.end_section(f"❌ Chain {chain.__class__.__name__} failed to parse result")
+                return None
             else:
-                if isinstance(output, pydantic.BaseModel):
-                    pretty_result = output.json(indent=2)
-                else:
-                    pretty_result = str(output)
-                self.publish_service.publish_call(
-                    summary=f"{parser.__class__.__name__}: Parsed result",
-                    prompt=str_prompt,
-                    raw_response=raw_output,
-                    result=pretty_result,
-                    default_open=('result',),
+                self.publish_service.publish_code_block(
+                    heading="Parsed output",
+                    code=output.json(indent=2) if isinstance(output, pydantic.BaseModel) else str(output),
                 )
-            self.log.info("Parsed result", result=output)
         else:
-            self.publish_service.publish_call(
-                summary="Received response",
-                prompt=str_prompt,
-                response=output,
-            )
+            output = raw_output
+        self.publish_service.end_section(f"⛓ {chain.__class__.__name__} completed")
         return output
