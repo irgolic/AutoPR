@@ -25,6 +25,7 @@ class PlanAndCode(Agent):
         *args,
         planning_actions: Collection[str] = (
             "plan_pull_request",
+            "request_more_information"
         ),
         codegen_actions: Collection[str] = (
             'new_file',

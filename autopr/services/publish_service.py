@@ -363,6 +363,17 @@ class PublishService:
         title = self.pr_title
         self._publish_pull_request(title, body, success=success)
 
+    def comment_on_issue(self, text: str) -> bool:
+        """
+        Comment on the issue with the given text.
+
+        Parameters
+        ----------
+        text: str
+            The text to comment
+        """
+        raise NotImplementedError
+
     def _publish_pull_request(
         self,
         title: str,
@@ -580,6 +591,24 @@ AutoPR encountered an error while trying to fix {issue_link}.
             self.log.error('Failed to get pull requests', response_text=response.text)
 
         return None
+
+    def comment_on_issue(self, text: str) -> bool:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/issues/{self.issue.number}/comments'
+        headers = self._get_headers()
+        data = {
+            'body': text,
+        }
+        response = requests.post(url, json=data, headers=headers)
+
+        if response.status_code == 201:
+            self.log.debug('Commented on issue successfully')
+            return True
+
+        self.log.error('Failed to comment on issue',
+                       code=response.status_code,
+                       response=response.json(),
+                       headers=response.headers)
+        return False
 
 
 class DummyPublishService(PublishService):
