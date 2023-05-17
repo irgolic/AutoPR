@@ -5,6 +5,5 @@ class DeleteFile(Action):
         self.file_path = file_path
 
     def run(self, repository, commit_plan):
-        # Implementation of the run method to delete the specified file
-        # and create a commit plan will be added in the next commit.
-        pass
+        repository.remove_file(self.file_path)
+        commit_plan.add_change("delete", self.file_path)
