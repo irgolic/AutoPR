@@ -9,6 +9,7 @@ from autopr.main import main, Settings
 import yaml
 
 from autopr.log_config import configure_logging
+from autopr.models.events import IssueLabelEvent
 from autopr.services.commit_service import CommitService
 from autopr.services.event_service import GitHubEventService
 from autopr.services.publish_service import GitHubPublishService
@@ -70,14 +71,19 @@ if __name__ == '__main__':
     owner, repo_name = remote_url.removesuffix(".git").split('/')[-2:]
 
     # Format branch name
-    branch_name = settings.target_branch_name_template.format(issue_number=event.issue.number)
+    if isinstance(event, IssueLabelEvent):
+        branch_name = settings.target_branch_name_template.format(issue_number=event.issue.number)
+        base_branch = settings.base_branch
+    else:
+        branch_name = event.pull_request.head_branch
+        base_branch = event.pull_request.base_branch
 
     # Create commit service
     commit_service = CommitService(
         repo=repo,
         repo_path=repo_path,
         branch_name=branch_name,
-        base_branch_name=settings.base_branch,
+        base_branch_name=base_branch,
     )
 
     # Create publish service

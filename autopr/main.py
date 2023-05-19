@@ -51,14 +51,6 @@ def main(
     # Instantiate repo
     repo = Repo(repo_path)
 
-    # Checkout base branch
-    log.debug(f'Checking out {settings.base_branch}...')
-    repo.heads[settings.base_branch].checkout()
-
-    # Pull latest changes
-    log.debug('Pulling latest changes...')
-    repo.remotes.origin.pull()
-
     # Create completions repo
     completions_repo = get_completions_repo(
         publish_service=publish_service,
@@ -68,9 +60,6 @@ def main(
         max_tokens=settings.max_tokens,
         temperature=settings.temperature,
     )
-
-    # Create the new branch
-    commit_service.overwrite_new_branch()
 
     # Create rail and chain service
     rail_service = RailService(
