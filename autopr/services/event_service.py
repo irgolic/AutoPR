@@ -4,7 +4,7 @@ import requests
 import structlog
 
 from autopr.models.artifacts import Issue, Message
-from autopr.models.events import IssueLabeledEvent, EventUnion
+from autopr.models.events import IssueLabelEvent, EventUnion
 
 
 class EventService:
@@ -23,7 +23,7 @@ class GitHubEventService(EventService):
     """
     Service for parsing GitHub events into one of the `EventUnion` types.
 
-    Currently only supports `IssueLabeledEvent`, which is triggered when a label is added to an issue.
+    Currently only supports `IssueLabelEvent`, which is triggered when a label is added to an issue.
 
     See https://docs.github.com/en/webhooks-and-events/events/issue-event-types
     """
@@ -35,7 +35,7 @@ class GitHubEventService(EventService):
         self.github_token = github_token
         self.log = structlog.get_logger()
 
-    def _to_issue_labeled_event(self, event: dict[str, Any]) -> IssueLabeledEvent:
+    def _to_issue_label_event(self, event: dict[str, Any]) -> IssueLabelEvent:
         """
         See https://docs.github.com/en/webhooks-and-events/events/issue-event-types#labeled
         """
@@ -79,12 +79,12 @@ class GitHubEventService(EventService):
             messages=comments_list,
         )
 
-        return IssueLabeledEvent(
+        return IssueLabelEvent(
             issue=issue,
             label=event['label']['name'],
         )
 
     def parse_event(self, event_name: str, event_dict: dict[str, Any]):
         if event_name == 'issues':
-            return self._to_issue_labeled_event(event_dict)
+            return self._to_issue_label_event(event_dict)
         raise ValueError(f"Unsupported event name: {event_name}")
