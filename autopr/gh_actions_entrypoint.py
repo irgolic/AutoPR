@@ -47,6 +47,15 @@ if __name__ == '__main__':
     with open(event_path, 'r') as f:
         event_json = json.load(f)
 
+    log.info("Got input variables",
+             settings=settings,
+             repo_path=repo_path,
+             run_id=run_id,
+             event_name=event_name,
+             event_path=event_path)
+
+    print(json.dumps(event_json, indent=2))
+
     # Extract event
     event_service = GitHubEventService(
         github_token=github_token,
