@@ -3,9 +3,9 @@ from typing import Collection
 import structlog
 
 from autopr.actions.base import ContextDict
-from autopr.actions.utils.commit import PullRequestDescription, CommitPlan
+from autopr.actions.utils.commit import PullRequestDescription, CommitPlan, PullRequestAmendment
 from autopr.agents.base import Agent
-from autopr.models.events import EventUnion, IssueLabelEvent
+from autopr.models.events import EventUnion, PullRequestCommentEvent, IssueLabelEvent
 
 log = structlog.get_logger()
 
@@ -28,6 +28,10 @@ class PlanAndCode(Agent):
             "plan_pull_request",
             "request_more_information"
         ),
+        response_actions: Collection[str] = (
+            "plan_commits",
+            "request_more_information",
+        ),
         codegen_actions: Collection[str] = (
             'new_file',
             'edit_file',
@@ -37,6 +41,7 @@ class PlanAndCode(Agent):
     ):
         super().__init__(*args, **kwargs)
         self.planning_actions = planning_actions
+        self.response_actions = response_actions
         self.codegen_actions = codegen_actions
         self.max_codegen_iterations = max_codegen_iterations
 
@@ -83,6 +88,56 @@ class PlanAndCode(Agent):
         self.commit_service.commit(commit_plan.commit_message, push=True)
 
         return context
+
+    def respond_to_pr_comment(
+        self,
+        event: PullRequestCommentEvent,
+    ):
+        # Checkout the head branch
+        head_branch = event.pull_request.head_branch
+        self.repo.heads[head_branch].checkout()
+
+        # Initialize the context
+        context = ContextDict(
+            pull_request=event.pull_request,
+            request=event.new_comment,
+        )
+
+        # Run the response actions
+        context = self.action_service.run_actions_iteratively(
+            self.response_actions,
+            context,
+            max_iterations=1,
+        )
+
+        # Get the pull request description from the context
+        if 'pull_request_amendment' not in context:
+            raise ValueError(f"Action did not return a pull request amendment")
+        pull_request_amendment = context['pull_request_amendment']
+        if not isinstance(pull_request_amendment, PullRequestAmendment):
+            raise ValueError(f"Action returned a pull request amendment that is not a PullRequestDescription object")
+
+        if pull_request_amendment.comment:
+            # Comment on the pull request
+            self.publish_service.publish_comment(pull_request_amendment.comment, event.pull_request.number)
+
+        if pull_request_amendment.commits:
+            # Stop the agent if the action did not return a pull request description
+            commits = pull_request_amendment.commits
+            if not all(isinstance(commit, CommitPlan)
+                       for commit in commits):
+                raise ValueError(f"Action returned commits that are not CommitPlan objects")
+
+            for current_commit in commits:
+                context = self.write_commit(
+                    current_commit,
+                    context,
+                    context_headings={
+                        'pull_request': "Pull request that we are adding commits to",
+                        'request': "Request that we are responding to",
+                    }
+                )
+                self.log.info(f"Committed {current_commit.commit_message}")
 
     def create_pull_request(
         self,
@@ -133,5 +188,7 @@ class PlanAndCode(Agent):
     ) -> None:
         if isinstance(event, IssueLabelEvent):
             self.create_pull_request(event)
+        elif isinstance(event, PullRequestCommentEvent):
+            self.respond_to_pr_comment(event)
         else:
             raise NotImplementedError(f"Event type {type(event)} not supported")
