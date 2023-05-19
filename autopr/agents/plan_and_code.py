@@ -88,6 +88,9 @@ class PlanAndCode(Agent):
         self,
         event: IssueLabelEvent,
     ) -> None:
+        # Create new branch
+        self.commit_service.overwrite_new_branch()
+
         issue = event.issue
 
         # Initialize the context
