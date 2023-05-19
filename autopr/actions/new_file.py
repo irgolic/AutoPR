@@ -25,7 +25,9 @@ This is the plan for the file we're creating:
 {{plan}}
 ```
 
-Please send me the contents of the file."""
+Please send me the contents of the file.
+
+{{format_instructions}}"""
 
     context: ContextDict
     context_hunks: list[ContextFile]
