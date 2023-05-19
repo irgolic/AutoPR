@@ -3,18 +3,19 @@ from typing import Collection
 import structlog
 
 from autopr.actions.base import ContextDict
-from autopr.actions.utils.commit import PullRequestDescription
+from autopr.actions.utils.commit import PullRequestDescription, CommitPlan
 from autopr.agents.base import Agent
-from autopr.models.events import EventUnion
+from autopr.models.events import EventUnion, IssueLabelEvent
 
 log = structlog.get_logger()
 
 
 class PlanAndCode(Agent):
     """
-    A simple Brain agent that:
-    - Plans a pull request
-    - Implements each commit in the pull request
+    A simple agent that:
+    - plans commits from issues or pull request comments,
+    - opens and responds to pull requests,
+    - writes commits to the pull request.
     """
 
     #: The ID of the agent, used to identify it in the settings
