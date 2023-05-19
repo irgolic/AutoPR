@@ -35,6 +35,12 @@ class GitHubEventService(EventService):
         self.github_token = github_token
         self.log = structlog.get_logger()
 
+    def get_headers(self):
+        return {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': f'Bearer {self.github_token}'
+        }
+
     def _to_issue_label_event(self, event: dict[str, Any]) -> IssueLabelEvent:
         """
         See https://docs.github.com/en/webhooks-and-events/events/issue-event-types#labeled
@@ -43,10 +49,7 @@ class GitHubEventService(EventService):
         url = event['issue']['comments_url']
         assert url.startswith('https://api.github.com/repos/'), "Unexpected comments_url"
         self.log.info("Getting issue comments", url=url)
-        headers = {
-            'Accept': 'application/vnd.github.v3+json',
-            'Authorization': f'Bearer {self.github_token}'
-        }
+        headers = self.get_headers()
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         comments_json = response.json()
@@ -61,14 +64,11 @@ class GitHubEventService(EventService):
         comments_list.append(body_message)
 
         # Get comments
-        comments = {}
         for comment_json in comments_json:
-            comment_id = comment_json['id']
             comment = Message(
                 body=comment_json['body'] or "",
                 author=comment_json['user']['login'],
             )
-            comments[comment_id] = comment
             comments_list.append(comment)
 
         # Create issue
