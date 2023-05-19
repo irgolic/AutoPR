@@ -14,14 +14,14 @@ class Event(pydantic.BaseModel):
     event_type: str
 
 
-class IssueLabeledEvent(Event):
+class IssueLabelEvent(Event):
     """
     Event triggered when a label is added to an issue.
     """
-    event_type: Literal['issue_opened'] = 'issue_opened'
+    event_type: Literal['issue_label'] = 'issue_label'
 
     issue: Issue
     label: str
 
 
-EventUnion = IssueLabeledEvent
+EventUnion = IssueLabelEvent

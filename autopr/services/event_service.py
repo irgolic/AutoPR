@@ -4,7 +4,7 @@ import requests
 import structlog
 
 from autopr.models.artifacts import Issue, Message
-from autopr.models.events import IssueLabeledEvent, EventUnion
+from autopr.models.events import IssueLabelEvent, EventUnion
 
 
 class EventService:
@@ -23,7 +23,7 @@ class GitHubEventService(EventService):
     """
     Service for parsing GitHub events into one of the `EventUnion` types.
 
-    Currently only supports `IssueLabeledEvent`, which is triggered when a label is added to an issue.
+    Currently only supports `IssueLabelEvent`, which is triggered when a label is added to an issue.
 
     See https://docs.github.com/en/webhooks-and-events/events/issue-event-types
     """
@@ -35,7 +35,13 @@ class GitHubEventService(EventService):
         self.github_token = github_token
         self.log = structlog.get_logger()
 
-    def _to_issue_labeled_event(self, event: dict[str, Any]) -> IssueLabeledEvent:
+    def get_headers(self):
+        return {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': f'Bearer {self.github_token}'
+        }
+
+    def _to_issue_label_event(self, event: dict[str, Any]) -> IssueLabelEvent:
         """
         See https://docs.github.com/en/webhooks-and-events/events/issue-event-types#labeled
         """
@@ -43,10 +49,7 @@ class GitHubEventService(EventService):
         url = event['issue']['comments_url']
         assert url.startswith('https://api.github.com/repos/'), "Unexpected comments_url"
         self.log.info("Getting issue comments", url=url)
-        headers = {
-            'Accept': 'application/vnd.github.v3+json',
-            'Authorization': f'Bearer {self.github_token}'
-        }
+        headers = self.get_headers()
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         comments_json = response.json()
@@ -61,14 +64,11 @@ class GitHubEventService(EventService):
         comments_list.append(body_message)
 
         # Get comments
-        comments = {}
         for comment_json in comments_json:
-            comment_id = comment_json['id']
             comment = Message(
                 body=comment_json['body'] or "",
                 author=comment_json['user']['login'],
             )
-            comments[comment_id] = comment
             comments_list.append(comment)
 
         # Create issue
@@ -79,12 +79,12 @@ class GitHubEventService(EventService):
             messages=comments_list,
         )
 
-        return IssueLabeledEvent(
+        return IssueLabelEvent(
             issue=issue,
             label=event['label']['name'],
         )
 
     def parse_event(self, event_name: str, event_dict: dict[str, Any]):
         if event_name == 'issues':
-            return self._to_issue_labeled_event(event_dict)
+            return self._to_issue_label_event(event_dict)
         raise ValueError(f"Unsupported event name: {event_name}")

@@ -3,18 +3,19 @@ from typing import Collection
 import structlog
 
 from autopr.actions.base import ContextDict
-from autopr.actions.utils.commit import PullRequestDescription
+from autopr.actions.utils.commit import PullRequestDescription, CommitPlan
 from autopr.agents.base import Agent
-from autopr.models.events import EventUnion
+from autopr.models.events import EventUnion, IssueLabelEvent
 
 log = structlog.get_logger()
 
 
 class PlanAndCode(Agent):
     """
-    A simple Brain agent that:
-    - Plans a pull request
-    - Implements each commit in the pull request
+    A simple agent that:
+    - plans commits from issues or pull request comments,
+    - opens and responds to pull requests,
+    - writes commits to the pull request.
     """
 
     #: The ID of the agent, used to identify it in the settings
@@ -39,9 +40,53 @@ class PlanAndCode(Agent):
         self.codegen_actions = codegen_actions
         self.max_codegen_iterations = max_codegen_iterations
 
-    def handle_event(
+    def write_commit(
         self,
-        event: EventUnion,
+        commit_plan: CommitPlan,
+        context: ContextDict,
+        context_headings: dict[str, str]
+    ) -> ContextDict:
+        self.publish_service.start_section(f"🔨 Writing commit {commit_plan.commit_message}")
+
+        # Set the current commit in the context
+        context['current_commit'] = commit_plan
+
+        # Clear action_history in the context for each commit
+        context['action_history'] = []
+
+        # Generate the changes
+        context = self.action_service.run_actions_iteratively(
+            self.codegen_actions,
+            context,
+            context_headings={
+                'current_commit': 'Commit we are currently generating',
+                'action_history': 'Actions that have been run so far',
+                **context_headings,
+            },
+            max_iterations=self.max_codegen_iterations,
+            include_finished=True,
+        )
+
+        # Show the diff in the progress report
+        diff = self.diff_service.get_diff()
+        if diff:
+            self.publish_service.publish_code_block(
+                heading="Diff",
+                code=diff,
+                language="diff",
+            )
+            self.publish_service.end_section(f"✅ Committed {commit_plan.commit_message}")
+        else:
+            self.publish_service.end_section(f"⚠️ Empty commit {commit_plan.commit_message}")
+
+        # Commit and push the changes
+        self.commit_service.commit(commit_plan.commit_message, push=True)
+
+        return context
+
+    def create_pull_request(
+        self,
+        event: IssueLabelEvent,
     ) -> None:
         issue = event.issue
 
@@ -70,37 +115,19 @@ class PlanAndCode(Agent):
         self.publish_service.set_pr_description(pr_desc.title, pr_desc.body)
 
         for current_commit in pr_desc.commits:
-            self.publish_service.start_section(f"🔨 Writing commit {current_commit.commit_message}")
-
-            # Set the current commit in the context
-            context['current_commit'] = current_commit
-
-            # Clear action_history in the context for each commit
-            context['action_history'] = []
-
-            # Generate the changes
-            context = self.action_service.run_actions_iteratively(
-                self.codegen_actions,
+            context = self.write_commit(
+                current_commit,
                 context,
                 context_headings={
                     'pull_request_description': 'Plan for the pull request',
-                    'current_commit': "Commit we are currently generating",
-                    'action_history': "Actions that have been run so far",
                 },
-                max_iterations=self.max_codegen_iterations,
-                include_finished=True,
             )
 
-            diff = self.diff_service.get_diff()
-            if diff:
-                self.publish_service.publish_code_block(
-                    heading="Diff",
-                    code=diff,
-                    language="diff",
-                )
-                self.publish_service.end_section(f"✅ Committed {current_commit.commit_message}")
-            else:
-                self.publish_service.end_section(f"⚠️ Empty commit {current_commit.commit_message}")
-
-            # Commit and push the changes
-            self.commit_service.commit(current_commit.commit_message, push=True)
+    def handle_event(
+        self,
+        event: EventUnion,
+    ) -> None:
+        if isinstance(event, IssueLabelEvent):
+            self.create_pull_request(event)
+        else:
+            raise NotImplementedError(f"Event type {type(event)} not supported")
