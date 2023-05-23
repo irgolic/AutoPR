@@ -56,13 +56,23 @@ class PublishService:
 
     def __init__(
         self,
+        owner: str,
+        repo_name: str,
+        head_branch: str,
+        base_branch: str,
         issue: Optional[Issue] = None,
         pull_request_number: Optional[int] = None,
-        loading_gif_url: str = "https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif",
+        loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
+        overwrite_existing: bool = False,
     ):
+        self.owner = owner
+        self.repo_name = repo_name
+        self.head_branch = head_branch
+        self.base_branch = base_branch
         self.issue = issue
         self.pr_number = pull_request_number
         self.loading_gif_url = loading_gif_url
+        self.overwrite_existing = overwrite_existing
 
         self.max_comment_length = 60000
 
@@ -104,8 +114,12 @@ class PublishService:
         body: str
             The body of the pull request
         """
-        self.title = title
-        self._set_title(title)
+        if self.pr_number is None:
+            self.update()
+            if self.pr_number is None:
+                raise RuntimeError("Error creating pull request")
+        else:
+            self._set_title(title)
 
     def publish_update(
         self,
@@ -436,21 +450,27 @@ class GitHubPublishService(PublishService):
     def __init__(
         self,
         token: str,
+        run_id: str,
         owner: str,
         repo_name: str,
         head_branch: str,
         base_branch: str,
-        run_id: str,
         issue: Optional[Issue] = None,
         pull_request_number: Optional[int] = None,
         loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
+        overwrite_existing: bool = False,
     ):
-        super().__init__(issue, pull_request_number, loading_gif_url)
+        super().__init__(
+            owner=owner,
+            repo_name=repo_name,
+            head_branch=head_branch,
+            base_branch=base_branch,
+            issue=issue,
+            pull_request_number=pull_request_number,
+            loading_gif_url=loading_gif_url,
+            overwrite_existing=overwrite_existing,
+        )
         self.token = token
-        self.owner = owner
-        self.repo = repo_name
-        self.head_branch = head_branch
-        self.base_branch = base_branch
         self.run_id = run_id
 
         self._drafts_supported = True
@@ -478,7 +498,7 @@ Pull Request: {pr_link}
         }
 
     def _get_shield(self, success: Optional[bool] = None):
-        action_url = f'https://github.com/{self.owner}/{self.repo}/actions/runs/{self.run_id}'
+        action_url = f'https://github.com/{self.owner}/{self.repo_name}/actions/runs/{self.run_id}'
         if success is None:
             shield = f"[![AutoPR Running](https://img.shields.io/badge/AutoPR-running-yellow)]({action_url})"
         elif success:
@@ -491,11 +511,11 @@ Pull Request: {pr_link}
         shield = self._get_shield(success=False)
         kwargs['shield'] = shield
         if self.issue is not None:
-            kwargs['issue_link'] = f"https://github.com/{self.owner}/{self.repo}/issues/{self.issue.number}"
+            kwargs['issue_link'] = f"https://github.com/{self.owner}/{self.repo_name}/issues/{self.issue.number}"
         else:
             kwargs['issue_link'] = "None"
         if self.pr_number is not None:
-            kwargs['pr_link'] = f"https://github.com/{self.owner}/{self.repo}/pull/{self.pr_number}"
+            kwargs['pr_link'] = f"https://github.com/{self.owner}/{self.repo_name}/pull/{self.pr_number}"
         else:
             kwargs['pr_link'] = "None"
         return super()._build_issue_template_link(**kwargs)
@@ -509,9 +529,7 @@ Pull Request: {pr_link}
         return bodies
 
     def _set_title(self, title: str):
-        existing_pr = self._find_existing_pr()
-        if existing_pr:
-            self._update_pr_title(existing_pr, title)
+        self._update_pr_title(self.pr_number, title)
 
     def _publish_progress(self, bodies: list[str], success: bool = False):
         # If PR does not exist yet
@@ -540,7 +558,7 @@ Pull Request: {pr_link}
         Returns the PR dict of the first open pull request with the same head and base branches
         """
 
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
         headers = self._get_headers()
         params = {'state': 'open', 'head': f'{self.owner}:{self.head_branch}', 'base': self.base_branch}
         response = requests.get(url, headers=headers, params=params)
@@ -555,7 +573,7 @@ Pull Request: {pr_link}
         return None
 
     def _create_pr(self, title: str, bodies: list[str], success: bool) -> int:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
         headers = self._get_headers()
         data = {
             'head': self.head_branch,
@@ -601,7 +619,7 @@ Pull Request: {pr_link}
         return pr_number
 
     def _patch_pr(self, pr_number: int, data: dict[str, Any]):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{pr_number}'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
         headers = self._get_headers()
         response = requests.patch(url, json=data, headers=headers)
 
@@ -624,7 +642,7 @@ Pull Request: {pr_link}
         return is_draft_error
 
     def _get_pull_request_node_id(self, pr_number: int) -> str:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{pr_number}'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
         headers = self._get_headers()
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
@@ -684,7 +702,7 @@ Pull Request: {pr_link}
         self._patch_pr(pr_number, {'title': title})
 
     def _update_pr_comment(self, comment_id: str, body: str):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/comments/{comment_id}'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/comments/{comment_id}'
         headers = self._get_headers()
         response = requests.patch(url, json={'body': body}, headers=headers)
 
@@ -698,7 +716,7 @@ Pull Request: {pr_link}
                        headers=response.headers)
 
     def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo}/issues/{issue_number}/comments'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}/comments'
         headers = self._get_headers()
         data = {
             'body': text,
@@ -719,23 +737,17 @@ Pull Request: {pr_link}
 class DummyPublishService(PublishService):
     def __init__(self):
         super().__init__(
-            issue=Issue(
-                number=1,
-                title="Test issue",
-                author="test",
-                messages=[],
-            )
+            owner='',
+            repo_name='',
+            head_branch='',
+            base_branch='',
         )
 
-    def _publish_progress(
-        self,
-        body: str,
-        success: bool = False,
-    ):
+    def _publish_progress(self, body: str, success: bool = False):
         pass
 
     def _set_title(self, title: str):
         pass
 
-    def publish_comment(self, text: str, success: bool = False):
+    def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
         pass
