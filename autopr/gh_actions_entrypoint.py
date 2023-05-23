@@ -74,9 +74,13 @@ if __name__ == '__main__':
     if isinstance(event, IssueLabelEvent):
         branch_name = settings.target_branch_name_template.format(issue_number=event.issue.number)
         base_branch = settings.base_branch
+        issue = event.issue
+        pull_request_number = None
     else:
         branch_name = event.pull_request.head_branch
         base_branch = event.pull_request.base_branch
+        issue = None
+        pull_request_number = event.pull_request.number
 
     # Create commit service
     commit_service = CommitService(
@@ -88,13 +92,14 @@ if __name__ == '__main__':
 
     # Create publish service
     publish_service = GitHubPublishService(
-        issue=event.issue,
         token=github_token,
         owner=owner,
         repo_name=repo_name,
         head_branch=branch_name,
         base_branch=settings.base_branch,
         run_id=run_id,
+        issue=issue,
+        pull_request_number=pull_request_number,
         loading_gif_url=settings.loading_gif_url,
     )
 

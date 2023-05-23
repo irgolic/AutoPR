@@ -98,5 +98,5 @@ def main(
         action_service=action_service,
     )
 
-    # Generate and set_pr_description the PR
+    # Generate the PR
     agent_service.run_agent(settings.agent_id, settings.agent_config, event)
