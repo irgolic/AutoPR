@@ -286,29 +286,6 @@ class PublishService:
 
         return progress
 
-    def _build_issue_template_link(self, **kwargs):
-        if sys.exc_info()[0] is not None:
-            error = traceback.format_exc()
-        else:
-            error = "No traceback"
-        kwargs['error'] = error
-
-        body = self.error_report_template.format(**kwargs)
-        if sys.exc_info()[0] is not None:
-            title = traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])[0].strip()
-        elif self.issue is not None:
-            title = f'Error fixing "{self.issue.title}"'
-        else:
-            title = "Error running AutoPR"
-
-        issue_link = self.new_error_report_link_template.format(
-            body=body,
-            title=title,
-        )
-        # Map characters to their URL-encoded equivalents
-        encoded_url = issue_link.replace(' ', '%20').replace('\n', '%0A').replace('"', '%22').replace("#", "%23")
-        return encoded_url
-
     def _build_bodies(self, success: Optional[bool] = None) -> list[str]:
         """
         Builds the body of the pull request, splitting it into multiple bodies if necessary.
@@ -358,7 +335,31 @@ class PublishService:
                     f'<img src="{self.loading_gif_url}"' \
                     f' width="200" height="200"/>'
         bodies += [body]
+        self.log.debug("Built bodies", bodies=bodies)
         return bodies
+
+    def _build_issue_template_link(self, **kwargs):
+        if sys.exc_info()[0] is not None:
+            error = traceback.format_exc()
+        else:
+            error = "No traceback"
+        kwargs['error'] = error
+
+        body = self.error_report_template.format(**kwargs)
+        if sys.exc_info()[0] is not None:
+            title = traceback.format_exception_only(sys.exc_info()[0], sys.exc_info()[1])[0].strip()
+        elif self.issue is not None:
+            title = f'Error fixing "{self.issue.title}"'
+        else:
+            title = "Error running AutoPR"
+
+        issue_link = self.new_error_report_link_template.format(
+            body=body,
+            title=title,
+        )
+        # Map characters to their URL-encoded equivalents
+        encoded_url = issue_link.replace(' ', '%20').replace('\n', '%0A').replace('"', '%22').replace("#", "%23")
+        return encoded_url
 
     def update(self):
         """
