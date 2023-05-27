@@ -326,7 +326,7 @@ class PublishService:
                 progress_update = str(section)
             if len(body) + len('\n\n' + progress_update) > self.max_comment_length:
                 bodies += [body]
-                body = f"## Progress Updates (continued)\n\n{progress_update}"
+                body = f"## Status (continued)\n\n{progress_update}"
             else:
                 body += f"\n\n{progress_update}"
 
