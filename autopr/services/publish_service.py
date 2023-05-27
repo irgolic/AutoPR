@@ -533,26 +533,28 @@ Pull Request: {pr_link}
         self._update_pr_title(self.pr_number, title)
 
     def _publish_progress(self, bodies: list[str], success: bool = False):
-        # If PR does not exist yet
+        # If PR does not exist yet, create it
         if not self.pr_number:
             self.pr_number = self._create_pr(self.title, bodies, success)
-        else:
-            for i, body in enumerate(bodies):
-                if i >= len(self._comment_ids):
-                    comment_id = self.publish_comment(body, self.pr_number)
-                    if comment_id is None:
-                        raise RuntimeError("Failed to publish progress comment")
-                    self._comment_ids.append(comment_id)
-                    continue
-                comment_id = self._comment_ids[i]
-                if isinstance(comment_id, str):
-                    self._update_pr_comment(comment_id, body)
-                else:
-                    self._update_pr_body(self.pr_number, body)
+            return
 
-            # Update draft status
-            if self._drafts_supported:
-                self._set_pr_draft_status(self.pr_number, not success)
+        # Update the comments
+        for i, body in enumerate(bodies):
+            if i >= len(self._comment_ids):
+                comment_id = self.publish_comment(body, self.pr_number)
+                if comment_id is None:
+                    raise RuntimeError("Failed to publish progress comment")
+                self._comment_ids.append(comment_id)
+                continue
+            comment_id = self._comment_ids[i]
+            if comment_id is self.PRBodySentinel:
+                self._update_pr_body(self.pr_number, body)
+            else:
+                self._update_pr_comment(str(comment_id), body)
+
+        # Update draft status
+        if self._drafts_supported:
+            self._set_pr_draft_status(self.pr_number, not success)
 
     def _find_existing_pr(self):
         """
