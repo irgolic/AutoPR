@@ -533,6 +533,10 @@ Pull Request: {pr_link}
         self._update_pr_title(self.pr_number, title)
 
     def _publish_progress(self, bodies: list[str], success: bool = False):
+        # If overwrite existing, find the PR number
+        if not self.pr_number and self.overwrite_existing:
+            self.pr_number = self._find_existing_pr()
+
         # If PR does not exist yet, create it
         if not self.pr_number:
             self.pr_number = self._create_pr(self.title, bodies, success)
