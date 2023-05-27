@@ -46,3 +46,6 @@ inputs:
   rail_temperture:
     description: 'Temperature for the guardrails calls'
     default: '0.9'
+  overwrite_existing:
+    description: 'Whether to overwrite existing branches and pull requests when creating from issues'
+    default: 'false'

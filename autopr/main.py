@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     base_branch: str = 'main'
     target_branch_name_template: str = 'autopr/{issue_number}'
-    overwrite_existing_branch: bool = False
+    overwrite_existing: bool = False
     loading_gif_url: str = "https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif"
     model: str = "gpt-4"
     temperature: float = 0.8
@@ -134,14 +134,14 @@ class MainService:
             issue=issue,
             pull_request_number=pull_request_number,
             loading_gif_url=self.settings.loading_gif_url,
-            overwrite_existing=self.settings.overwrite_existing_branch,
+            overwrite_existing=self.settings.overwrite_existing,
             **additional_kwargs,
         )
 
     def get_branch_name(self):
         if isinstance(self.event, IssueLabelEvent):
             branch_name = self.settings.target_branch_name_template.format(issue_number=self.event.issue.number)
-            if not self.settings.overwrite_existing_branch:
+            if not self.settings.overwrite_existing:
                 # check if branch exists, if so, append a number to the end
                 remote = self.repo.remote()
                 references = remote.fetch()
