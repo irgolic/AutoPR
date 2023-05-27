@@ -74,7 +74,8 @@ class PublishService:
         self.loading_gif_url = loading_gif_url
         self.overwrite_existing = overwrite_existing
 
-        self.max_comment_length = 60000
+        # GitHub comment length limit is ~262144, not 65536 as stated in the docs
+        self.max_comment_length = 260000
 
         if issue is not None:
             self.title: str = f"Fix #{issue.number}: {issue.title}"
