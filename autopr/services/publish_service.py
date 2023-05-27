@@ -705,7 +705,7 @@ Pull Request: {pr_link}
         self._patch_pr(pr_number, {'title': title})
 
     def _update_pr_comment(self, comment_id: str, body: str):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/comments/{comment_id}'
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/comments/{comment_id}'
         headers = self._get_headers()
         response = requests.patch(url, json={'body': body}, headers=headers)
 
