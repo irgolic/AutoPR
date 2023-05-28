@@ -575,7 +575,14 @@ Pull Request: {pr_link}
             if prs:
                 return prs[0]  # Return the first pull request found
         else:
-            self.log.error('Failed to get pull requests', response_text=response.text)
+            self.log.error(
+                'Failed to get pull requests',
+                response_text=response.text,
+                request_url=url,
+                request_params=params,
+                code=response.status_code,
+                headers=response.headers,
+            )
 
         return None
 
@@ -601,12 +608,16 @@ Pull Request: {pr_link}
                     self.log.error('Failed to create pull request',
                                    code=response.status_code,
                                    response=response.json(),
+                                   request_url=url,
+                                   request_body=data,
                                    headers=response.headers)
                     raise RuntimeError('Failed to create pull request')
             else:
                 self.log.error('Failed to create pull request',
                                code=response.status_code,
                                response=response.json(),
+                               request_url=url,
+                               request_body=data,
                                headers=response.headers)
                 raise RuntimeError('Failed to create pull request')
 
@@ -637,6 +648,8 @@ Pull Request: {pr_link}
         self.log.error('Failed to update pull request',
                        code=response.status_code,
                        response=response.json(),
+                       request_url=url,
+                       request_body=data,
                        headers=response.headers)
 
     def _is_draft_error(self, response_text: str):
@@ -658,6 +671,8 @@ Pull Request: {pr_link}
             self.log.error('Failed to get pull request node id',
                            code=response.status_code,
                            response=response.json(),
+                           request_url=url,
+                           request_headers=headers,
                            headers=response.headers)
             raise RuntimeError('Failed to get pull request node id')
 
@@ -699,6 +714,7 @@ Pull Request: {pr_link}
         self.log.error('Failed to update pull request draft status',
                        code=response.status_code,
                        response=response.json(),
+                       request=graphql_query,
                        headers=response.headers)
         self._drafts_supported = False
 
@@ -720,6 +736,8 @@ Pull Request: {pr_link}
         self.log.error('Failed to update comment',
                        code=response.status_code,
                        response=response.json(),
+                       request_url=url,
+                       request_body={'body': body},
                        headers=response.headers)
 
     def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
@@ -737,6 +755,8 @@ Pull Request: {pr_link}
         self.log.error('Failed to comment on issue',
                        code=response.status_code,
                        response=response.json(),
+                       request_url=url,
+                       request_body=data,
                        headers=response.headers)
         return None
 
