@@ -224,7 +224,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
                 context_headings=context_headings,
             )
             if pick is None or pick[0].id == "finished":
-                self.publish_service.end_section("🏁 No action chosen")
+                self.publish_service.end_section("🏁 Finished")
                 break
             action_type, args = pick
 
