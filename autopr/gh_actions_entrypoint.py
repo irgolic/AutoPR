@@ -31,11 +31,21 @@ class GithubMainService(MainService):
     settings_class = GitHubActionSettings
     publish_service_class = GitHubPublishService
 
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.github_token = os.environ['INPUT_GITHUB_TOKEN']
+        self.repo.git.config('--global',
+                             'http.https://github.com/.extraheader',
+                             f"AUTHORIZATION: bearer {self.github_token}")
+
     def get_repo_path(self):
         return os.environ['GITHUB_WORKSPACE']
 
     def get_event(self):
-        github_token = os.environ['INPUT_GITHUB_TOKEN']
         event_name = os.environ['GITHUB_EVENT_NAME']
         event_path = os.environ['GITHUB_EVENT_PATH']
 
@@ -47,16 +57,15 @@ class GithubMainService(MainService):
 
         # Extract event
         event_service = GitHubEventService(
-            github_token=github_token,
+            github_token=self.github_token,
         )
         return event_service.parse_event(event_name, event_json)
 
     def get_publish_service(self, **additional_kwargs):
-        github_token = os.environ['INPUT_GITHUB_TOKEN']
         run_id = os.environ['GITHUB_RUN_ID']
 
         return super().get_publish_service(
-            token=github_token,
+            token=self.github_token,
             run_id=run_id,
             **additional_kwargs,
         )
