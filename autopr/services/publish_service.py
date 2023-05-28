@@ -476,7 +476,6 @@ class GitHubPublishService(PublishService):
         self.run_id = run_id
 
         self._drafts_supported = True
-        self._comment_id = None
 
         # list of comment IDs, incl. PRBodySentinel to denote the body of the PR
         self._comment_ids: list[Union[str, Type[GitHubPublishService.PRBodySentinel]]] = []
