@@ -474,6 +474,7 @@ class GitHubPublishService(PublishService):
         )
         self.token = token
         self.run_id = run_id
+        self.pr_node_id = None
 
         self._drafts_supported = True
 
@@ -535,11 +536,18 @@ Pull Request: {pr_link}
     def _publish_progress(self, bodies: list[str], success: bool = False):
         # If overwrite existing, find the PR number
         if not self.pr_number and self.overwrite_existing:
-            self.pr_number = self._find_existing_pr()
+            pr = self._find_existing_pr()
+            if pr is not None:
+                self.pr_number = pr['number']
+                self.pr_node_id = pr['node_id']
 
         # If PR does not exist yet, create it
         if not self.pr_number:
-            self.pr_number = self._create_pr(self.title, bodies, success)
+            pr = self._create_pr(self.title, bodies, success)
+            if pr is None:
+                raise RuntimeError("Failed to create PR")
+            self.pr_number = pr['number']
+            self.pr_node_id = pr['node_id']
             return
 
         # Update the comments
@@ -558,9 +566,11 @@ Pull Request: {pr_link}
 
         # Update draft status
         if self._drafts_supported:
-            self._set_pr_draft_status(self.pr_number, not success)
+            if self.pr_node_id is None:
+                self.pr_node_id = self._get_pull_request_node_id(self.pr_number)
+            self._set_pr_draft_status(self.pr_node_id, not success)
 
-    def _find_existing_pr(self):
+    def _find_existing_pr(self) -> dict[str, Any]:
         """
         Returns the PR dict of the first open pull request with the same head and base branches
         """
@@ -574,19 +584,18 @@ Pull Request: {pr_link}
             prs = response.json()
             if prs:
                 return prs[0]  # Return the first pull request found
-        else:
-            self.log.error(
-                'Failed to get pull requests',
-                response_text=response.text,
-                request_url=url,
-                request_params=params,
-                code=response.status_code,
-                headers=response.headers,
-            )
+        self.log.error(
+            'Failed to get pull requests',
+            response_text=response.text,
+            request_url=url,
+            request_params=params,
+            code=response.status_code,
+            headers=response.headers,
+        )
 
         return None
 
-    def _create_pr(self, title: str, bodies: list[str], success: bool) -> int:
+    def _create_pr(self, title: str, bodies: list[str], success: bool) -> dict[str, Any]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
         headers = self._get_headers()
         data = {
@@ -623,7 +632,8 @@ Pull Request: {pr_link}
 
         self.log.debug('Pull request created successfully',
                        headers=response.headers)
-        pr_number = response.json()['number']
+        pr = response.json()
+        pr_number = pr['number']
 
         self._comment_ids = [self.PRBodySentinel]
 
@@ -634,7 +644,7 @@ Pull Request: {pr_link}
                 raise RuntimeError("Failed to publish progress comment")
             self._comment_ids.append(id_)
 
-        return pr_number
+        return pr
 
     def _patch_pr(self, pr_number: int, data: dict[str, Any]):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
@@ -676,8 +686,7 @@ Pull Request: {pr_link}
                            headers=response.headers)
             raise RuntimeError('Failed to get pull request node id')
 
-    def _set_pr_draft_status(self, pr_number: int, is_draft: bool):
-        pull_request_node_id = self._get_pull_request_node_id(pr_number)
+    def _set_pr_draft_status(self, pr_node_id: int, is_draft: bool):
         # sadly this is only supported by graphQL
         if is_draft:
             graphql_query = '''
@@ -700,7 +709,7 @@ Pull Request: {pr_link}
         }
 
         # Undraft the pull request
-        data = {'pullRequestId': pull_request_node_id}
+        data = {'pullRequestId': pr_node_id}
         response = requests.post(
             'https://api.github.com/graphql',
             headers=headers,
