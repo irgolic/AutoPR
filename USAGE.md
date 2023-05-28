@@ -63,6 +63,7 @@ you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-
 - `rail_temperature`: The temperature for the guardrails calls. Defaults to `0.9`.
 - `agent_id`: The ID of the agent to use. Defaults to `plan_and_code`.
 - `agent_config`: The configuration for the agent. Empty by default.
+- `overwrite_existing`: Whether to overwrite the branch being generated for the issue instead of always making a new pull request. Defaults to `false`.
 
 Specify `agent_config` as a yaml string, e.g.:
 

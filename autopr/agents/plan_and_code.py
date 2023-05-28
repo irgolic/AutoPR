@@ -115,7 +115,8 @@ class PlanAndCode(Agent):
                             f"{type(pr_desc)} instead of PullRequestDescription")
 
         # Publish the description
-        self.publish_service.set_pr_description(pr_desc.title, pr_desc.body)
+        self.publish_service.set_title(pr_desc.title)
+        self.publish_service.publish_comment(pr_desc.body, issue.number)
 
         for current_commit in pr_desc.commits:
             context = self.write_commit(
