@@ -474,7 +474,8 @@ class GitHubPublishService(PublishService):
         )
         self.token = token
         self.run_id = run_id
-        self.pr_node_id = None
+
+        self.pr_node_id: Optional[str] = None
 
         self._drafts_supported = True
 
@@ -570,7 +571,7 @@ Pull Request: {pr_link}
                 self.pr_node_id = self._get_pull_request_node_id(self.pr_number)
             self._set_pr_draft_status(self.pr_node_id, not success)
 
-    def _find_existing_pr(self) -> dict[str, Any]:
+    def _find_existing_pr(self) -> Optional[dict[str, Any]]:
         """
         Returns the PR dict of the first open pull request with the same head and base branches
         """
@@ -671,7 +672,7 @@ Pull Request: {pr_link}
             self._drafts_supported = False
         return is_draft_error
 
-    def _get_pull_request_node_id(self, pr_number: int) -> str:
+    def _get_pull_request_node_id(self, pr_number: str) -> str:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
         headers = self._get_headers()
         response = requests.get(url, headers=headers)
@@ -686,7 +687,7 @@ Pull Request: {pr_link}
                            headers=response.headers)
             raise RuntimeError('Failed to get pull request node id')
 
-    def _set_pr_draft_status(self, pr_node_id: int, is_draft: bool):
+    def _set_pr_draft_status(self, pr_node_id: str, is_draft: bool):
         # sadly this is only supported by graphQL
         if is_draft:
             graphql_query = '''

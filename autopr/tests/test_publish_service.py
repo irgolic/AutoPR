@@ -27,11 +27,13 @@ def test_github_publish_service(mock_patch, mock_post, mock_get):
 
     # Test _find_existing_pr
     pr = service._find_existing_pr()
+    assert pr is not None
     assert pr['number'] == 1
     assert pr['node_id'] == 'node1'
 
     # Test _create_pr
     pr = service._create_pr('title', ['body1', 'body2'], True)
+    assert pr is not None
     assert pr['number'] == 2
     assert service._comment_ids == [service.PRBodySentinel, 'comment1']
 
