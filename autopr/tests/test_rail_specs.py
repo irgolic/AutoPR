@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import guardrails as gr
-from autopr.actions.base import Action, ContextDict
+from autopr.actions.base import Action, ContextDict, get_all_actions
 
 from autopr.models.rail_objects import RailObject
 
@@ -24,6 +24,7 @@ def test_guardrails_spec_validity(rail_type):
 
 class A(Action):
     id = "a"
+    description = "i am a"
 
     class Arguments(Action.Arguments):
         a: str
@@ -51,15 +52,35 @@ action_service = ActionService(
 )
 
 
+all_actions = get_all_actions()
+all_action_ids = [a.id for a in all_actions]
+
+
 @pytest.mark.parametrize(
     "rail_spec",
     [
+        action_service._write_action_selection_rail_spec(['a'], include_finished=True),
+        action_service._write_action_selection_rail_spec(['b'], include_finished=False),
         action_service._write_action_selection_rail_spec(['a', 'b'], include_finished=True),
         action_service._write_action_selection_rail_spec(['a', 'b'], include_finished=False),
         action_service._write_action_args_query_rail_spec(A.Arguments),
     ]
 )
-def test_action_service_spec_validity(rail_spec):
+def test_mock_action_service_spec_validity(rail_spec):
     """Test that all action service specs are valid."""
+    print(rail_spec)
+    gr.Guard.from_rail_string(rail_spec)
+
+
+@pytest.mark.parametrize(
+    "rail_spec",
+    [
+        action_service._write_action_selection_rail_spec(all_action_ids, include_finished=True),
+    ] + [
+        action_service._write_action_selection_rail_spec([a_id], include_finished=True)
+        for a_id in all_action_ids
+    ]
+)
+def test_real_action_service_spec_validity(rail_spec):
     print(rail_spec)
     gr.Guard.from_rail_string(rail_spec)
