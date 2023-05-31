@@ -336,7 +336,7 @@ class PublishService:
                     f'<img src="{self.loading_gif_url}"' \
                     f' width="200" height="200"/>'
         bodies += [body]
-        self.log.debug("Built bodies", bodies=bodies)
+        # self.log.debug("Built bodies", bodies=bodies)
         return bodies
 
     def _build_issue_template_link(self, **kwargs):
