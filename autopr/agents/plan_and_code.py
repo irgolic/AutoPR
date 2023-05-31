@@ -178,7 +178,7 @@ class PlanAndCode(Agent):
 
         # Publish the description
         self.publish_service.set_title(pr_desc.title)
-        self.publish_service.publish_comment(pr_desc.body, issue.number)
+        self.publish_service.publish_comment(pr_desc.body)
 
         for current_commit in pr_desc.commits:
             context = self.write_commit(
