@@ -54,14 +54,17 @@ class CommitService:
         # Fetch
         self.log.debug('Fetching...')
         self.repo.remotes.origin.fetch()
+        remote = self.repo.remote()
+        references = remote.fetch()
 
         # If branch already exists, checkout and pull
-        if self.branch_name in self.repo.heads:
+        if f'{remote.name}/{self.branch_name}' in [ref.name for ref in references]:
             self.log.debug(f'Checking out {self.branch_name}...')
             self.repo.heads[self.branch_name].checkout()
             self.log.debug('Pulling latest changes...')
             self.repo.remotes.origin.pull()
         else:
+            self.log.debug(f'Branch {self.branch_name} does not exist, creating...')
             self.overwrite_new_branch()
 
     def commit(self, commit_message: str, push: bool = True) -> None:
