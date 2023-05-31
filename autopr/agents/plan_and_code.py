@@ -95,11 +95,18 @@ class PlanAndCode(Agent):
     ):
         # Checkout the head branch
         head_branch = event.pull_request.head_branch
+        base_branch = event.pull_request.base_branch
         self.repo.heads[head_branch].checkout()
+
+        # Get list of commits on the branch
+        commits = [
+            commit.message
+            for commit in self.repo.iter_commits(f"{base_branch}..{head_branch}")
+        ]
 
         # Initialize the context
         context = ContextDict(
-            pull_request=event.pull_request,
+            commits_in_pull_request=commits,
             request=event.new_comment,
         )
 
