@@ -13,16 +13,20 @@ class RequestMoreInfo(Action):
 
     def run(self, arguments: Arguments, context: ContextDict) -> ContextDict:
         # Get the issue from the context
-        issue = context['issue']
-        if not isinstance(issue, Issue):
-            self.log.error(f"Expected issue to be of type Issue, got {type(issue)}")
-            raise TypeError(f"Expected issue to be of type Issue, got {type(issue)}")
+        if 'issue' in context:
+            issue = context['issue']
+            if not isinstance(issue, Issue):
+                self.log.error(f"Expected issue to be of type Issue, got {type(issue)}")
+                raise TypeError(f"Expected issue to be of type Issue, got {type(issue)}")
+            issue_number = issue.number
+        else:
+            issue_number = None
 
         # Get the message from the arguments
         message = arguments.message
 
         # Add a comment to the issue
-        success = self.publish_service.publish_comment(message, issue.number)
+        success = self.publish_service.publish_comment(message, issue_number)
         if not success:
             self.log.error(f"Failed to comment on issue")
             raise RuntimeError(f"Failed to comment on issue")
