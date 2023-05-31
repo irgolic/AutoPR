@@ -55,6 +55,7 @@ class MainService:
             branch_name=self.branch_name,
             base_branch_name=self.base_branch_name,
         )
+        commit_service.ensure_branch_exists()
 
         # Create completions repo
         completions_repo = get_completions_repo(

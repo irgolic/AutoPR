@@ -50,6 +50,20 @@ class CommitService:
         # Create empty commit
         self.commit(self._empty_commit_message)
 
+    def ensure_branch_exists(self):
+        # Fetch
+        self.log.debug('Fetching...')
+        self.repo.remotes.origin.fetch()
+
+        # If branch already exists, checkout and pull
+        if self.branch_name in self.repo.heads:
+            self.log.debug(f'Checking out {self.branch_name}...')
+            self.repo.heads[self.branch_name].checkout()
+            self.log.debug('Pulling latest changes...')
+            self.repo.remotes.origin.pull()
+        else:
+            self.overwrite_new_branch()
+
     def commit(self, commit_message: str, push: bool = True) -> None:
         # Remove empty commit if exists
         if commit_message != self._empty_commit_message and \
