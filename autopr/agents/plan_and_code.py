@@ -119,14 +119,15 @@ class PlanAndCode(Agent):
 
         # Get the pull request description from the context
         if 'pull_request_amendment' not in context:
-            raise ValueError(f"Action did not return a pull request amendment")
+            # Stop the agent if the action did not return a pull request description
+            return
         pull_request_amendment = context['pull_request_amendment']
         if not isinstance(pull_request_amendment, PullRequestAmendment):
             raise ValueError(f"Action returned a pull request amendment that is not a PullRequestDescription object")
 
         if pull_request_amendment.comment:
             # Comment on the pull request
-            self.publish_service.publish_comment(pull_request_amendment.comment, event.pull_request.number)
+            self.publish_service.publish_comment(pull_request_amendment.comment)
 
         if pull_request_amendment.commits:
             # Stop the agent if the action did not return a pull request description
