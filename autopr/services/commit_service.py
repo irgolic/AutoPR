@@ -59,10 +59,16 @@ class CommitService:
 
         # If branch already exists, checkout and pull
         if f'{remote.name}/{self.branch_name}' in [ref.name for ref in references]:
-            self.log.debug(f'Checking out {self.branch_name}...')
-            self.repo.heads[self.branch_name].checkout()
-            self.log.debug('Pulling latest changes...')
-            self.repo.remotes.origin.pull()
+            # Check if branch exists locally
+            if self.branch_name in [ref.name for ref in self.repo.heads]:
+                self.log.debug(f'Checking out {self.branch_name}...')
+                self.repo.heads[self.branch_name].checkout()
+                self.log.debug('Pulling latest changes...')
+                self.repo.remotes.origin.pull()
+            else:
+                # If not, create a local branch that tracks the remote branch
+                self.log.debug(f'Checking out -b {self.branch_name}...')
+                self.repo.create_head(self.branch_name, f'{remote.name}/{self.branch_name}').checkout()
         else:
             self.log.debug(f'Branch {self.branch_name} does not exist, creating...')
             self.overwrite_new_branch()
