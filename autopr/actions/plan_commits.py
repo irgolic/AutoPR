@@ -10,13 +10,11 @@ class PlanCommits(Action):
     class Arguments(Action.Arguments):
         pull_request_amendment: PullRequestAmendment
 
-        output_spec = f"""<list 
-    name='planned_commits'
+        output_spec = f"""<object
+    name='pull_request_amendment'
 >
-<object>
-{CommitPlan.output_spec}
-</object>
-</list>"""
+{PullRequestAmendment.output_spec}
+</object>"""
 
     def run(self, arguments: Arguments, context: ContextDict) -> ContextDict:
         # Add the commits to the pull request
