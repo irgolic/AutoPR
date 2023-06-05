@@ -101,7 +101,7 @@ class PlanAndCode(Agent):
         # Get list of commits on the branch
         commits = [
             commit.message
-            for commit in self.repo.iter_commits(f"{base_branch}..{head_branch}")
+            for commit in self.repo.iter_commits(f"origin/{base_branch}..{head_branch}")
         ]
 
         # Initialize the context
