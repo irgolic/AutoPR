@@ -180,7 +180,9 @@ If looking at files would be a waste of time with regard to the issue, respond w
         }
 
     def trim_params(self) -> bool:
-        return trim_chunk(self.selected_file_contents)
+        if trim_chunk(self.selected_file_contents):
+            return True
+        return super().trim_params()
 
 
 class ContinueLookingAtFiles(PromptRail):
@@ -234,7 +236,9 @@ Also, let me know if we should take a look at any other files – our budget is 
         }
 
     def trim_params(self) -> bool:
-        return trim_chunk(self.selected_file_contents)
+        if trim_chunk(self.selected_file_contents):
+            return True
+        return super().trim_params()
 
 
 class ProposePullRequest(PromptRail):
