@@ -113,6 +113,8 @@ You are about to make a decision on what to do next, and return a JSON that foll
 @xml_prefix_prompt
 
 {{output_schema}}
+
+@json_suffix_prompt_examples
 </prompt>
 </rail>
 """
@@ -139,6 +141,8 @@ You are about to make a decision on what to do next, and return a JSON that foll
 @xml_prefix_prompt
 
 {{output_schema}}
+
+@json_suffix_prompt_examples
 </prompt>
 </rail>
 """
