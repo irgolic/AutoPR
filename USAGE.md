@@ -7,16 +7,16 @@ This guide will walk you through setting up and using AutoPR, the GitHub Action 
 
 Before getting started, ensure you have:
 
-1. A GitHub repository for your project. Alternatively, you can use the [AutoPR-template](https://github.com/irgolic/AutoPR-template/) to create a new repository.
+1. A GitHub repository for your project. You can use the [AutoPR-template](https://github.com/irgolic/AutoPR-template/) to create a new repository.
 2. An OpenAI API key with access to ChatGPT.
 
 ### Setup
 
 Follow these steps to set up AutoPR in your GitHub repository:
 
-1. Create a new file in your repository named `.github/workflows/autopr.yml` and copy the contents from [the AutoPR-template workflow YAML file](https://github.com/irgolic/AutoPR-template/blob/main/.github/workflows/autopr.yml). Or just download the this file and upload it to `.github/workflows` folder in your repository.
+1. Create a new file in your repository named `.github/workflows/autopr.yml` and copy the contents from [the AutoPR-template workflow YAML file](https://github.com/irgolic/AutoPR-template/blob/main/.github/workflows/autopr.yml).
 2. Configure the action as necessary (see [Customization](#customization) below).
-3. In your GitHub repository settings, navigate to `Secrets and variables -> Actions` and add your OpenAI API key as `OPENAI_API_KEY`. You may need also add an personal access token if you need AutoPR to be able to update `GitHub Actions Workflows` directly, then set this token for `Checkout` and `AutoPR` step.
+3. In your GitHub repository settings, navigate to `Secrets and variables -> Actions` and add your OpenAI API key as `OPENAI_API_KEY`.
 4. In your GitHub repository settings, go to `Actions -> General` and scroll down to `Workflow permissions`. Enable `Allow GitHub Actions to create and approve pull requests`.
 5. Create a label in your repository that contains the string "AutoPR" (e.g., "Run AutoPR 🚀" or simply "AutoPR").
 
@@ -34,9 +34,33 @@ To use AutoPR, follow these steps:
 
 You can customize the behavior of AutoPR by modifying the `autopr.yml` file in your `.github/workflows` directory. 
 
+#### Using a personal access token (PAT)
+
+The default token (`{{ secrets.GITHUB_TOKEN }}`) does not have permissions to create/edit Github Action Workflow files.
+The only way to get around this is to create a personal access token (PAT), add it as a secret in your repository, and reference it as a token.
+
+1. Create a [personal access token](https://github.com/settings/tokens?type=beta) with the `Contents`, `Issues`, `Pull requests`, `Workflows` scopes.
+2. Add the token as a secret in your repository (for example, named `PAT`).
+3. Set it in the `github_token` parameter, for example: 
+
+```yaml
+    - name: AutoPR
+      uses: docker://ghcr.io/irgolic/autopr:latest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      with:
+        github_token: ${{ secrets.PAT }}`
+```
+
+#### Using a different model
+
 For example, if you don't have access to `gpt-4`, you can set the parameters following the `with:` line at the end of the workflow file to:
 
 ```yaml
+    - name: AutoPR
+      uses: docker://ghcr.io/irgolic/autopr:latest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         model: 'gpt-3.5-turbo'
@@ -49,7 +73,7 @@ In the mean time, if you have access to the `gpt-4` API, please use that instead
 Please note that ChatGPT Plus does not give you access to the `gpt-4` API; 
 you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-4-api). 
 
-#### Inputs
+#### All customization options
 
 - `github_token`: The action's GitHub token (`{{ secrets.GITHUB_TOKEN }}`). Required.
 - `base_branch`: The base branch for the pull request. Defaults to `main`.
@@ -61,21 +85,30 @@ you need to sign up on [the GPT-4 API waitlist](https://openai.com/waitlist/gpt-
 - `target_branch_name_template`: The template for the name of the target branch. Defaults to `autopr/{issue_number}`.
 - `temperature`: The temperature for the model. Defaults to `0.9`.
 - `rail_temperature`: The temperature for the guardrails calls. Defaults to `0.9`.
-- `pull_request_agent_id`: The ID of the planner to use. Defaults to `rail-v1`.
-- `codegen_agent_id`: The ID of the code generator to use. Defaults to `rail-v1`.
-- `brain_agent_id`: The ID of the brain to use. Defaults to `simple-v1`.
-- `pull_request_agent_config`: The configuration for the planner. Empty by default.
-- `codegen_agent_config`: The configuration for the code generator. Empty by default.
-- `brain_agent_config`: The configuration for the coordinating agent. Empty by default.
+- `agent_id`: The ID of the agent to use. Defaults to `plan_and_code`.
+- `agent_config`: The configuration for the agent. Empty by default.
+- `overwrite_existing`: Whether to overwrite the branch being generated for the issue instead of always making a new pull request. Defaults to `false`.
+
+Specify `agent_config` as a yaml string, e.g.:
+
+```yaml
+...
+    - name: AutoPR
+      uses: docker://ghcr.io/irgolic/autopr:latest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        agent_config: |
+          planning_actions: 
+          - plan_pull_request
+...
+```
 
 #### Agent Configuration Options
 
-Initial Prototype Pull Request Agent and Codegen Agent (`rail-v1`)
+The `plan_and_code` agent has the following configuration options:
 
-- `file_context_token_limit`: The maximum number of tokens in the file context. Defaults to `5000`.
-- `file_chunk_size`: How many tokens fit in a file chunk. Defaults to `500`.
-
-Autonomous Codegen Agent (`auto-v1`)
-
-- `context_size`: How many lines around the selected code hunk to include. Defaults to `3`.
-- `iterations_per_commit`: The maximum number of thinking steps per commit. Defaults to `5`.
+- `planning_actions`: The actions to run to plan the pull request. Defaults to `plan_pull_request` and `request_more_information`
+- `codegen_actions`: The actions to run to generate the pull request. Defaults to `new_file` and `edit_file`.
+- `max_codegen_iterations`: The maximum number of iterations to run the code generation actions for. Defaults to `5`.
