@@ -36,7 +36,7 @@ You can customize the behavior of AutoPR by modifying the `autopr.yml` file in y
 
 #### Using a personal access token (PAT)
 
-The default token (`{{ secrets.GITHUB_TOKEN }}`) does not have permissions to create/edit Github Action Workflow files.
+The default token (`{{ secrets.GITHUB_TOKEN }}`) does not have permissions to create/edit Github Action Workflow files (located in `.github/workflows`).
 The only way to get around this is to create a personal access token (PAT), add it as a secret in your repository, and reference it as a token.
 
 1. Create a [personal access token](https://github.com/settings/tokens?type=beta) with the `Contents`, `Issues`, `Pull requests`, `Workflows` scopes.
