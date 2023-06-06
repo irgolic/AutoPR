@@ -17,6 +17,7 @@ class PlanCommits(Action):
 </object>"""
 
     def run(self, arguments: Arguments, context: ContextDict) -> ContextDict:
+        self.publish_service.update_section("📝 Planning commits")
         # Add the commits to the pull request
         context['pull_request_amendment'] = arguments.pull_request_amendment
 
@@ -24,5 +25,6 @@ class PlanCommits(Action):
         if arguments.pull_request_amendment.comment:
             self.publish_service.publish_comment(arguments.pull_request_amendment.comment)
 
+        self.publish_service.update_section("📝 Planned commits")
         # Return the context
         return context

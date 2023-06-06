@@ -24,6 +24,9 @@ class PlanAndCode(Agent):
     def __init__(
         self,
         *args,
+        inspection_actions: Collection[str] = (
+            "look_at_files",
+        ),
         planning_actions: Collection[str] = (
             "plan_pull_request",
             "request_more_information"
@@ -40,6 +43,7 @@ class PlanAndCode(Agent):
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+        self.inspection_actions = inspection_actions
         self.planning_actions = planning_actions
         self.response_actions = response_actions
         self.codegen_actions = codegen_actions
@@ -110,6 +114,13 @@ class PlanAndCode(Agent):
             request=event.new_comment,
         )
 
+        # Run the inspection actions
+        context = self.action_service.run_actions_iteratively(
+            self.inspection_actions,
+            context,
+            max_iterations=1,
+        )
+
         # Run the response actions
         context = self.action_service.run_actions_iteratively(
             self.response_actions,
@@ -159,6 +170,13 @@ class PlanAndCode(Agent):
         # Initialize the context
         context = ContextDict(
             issue=issue,
+        )
+
+        # Run the inspection actions
+        context = self.action_service.run_actions_iteratively(
+            self.inspection_actions,
+            context,
+            max_iterations=1,
         )
 
         # Generate the pull request plan (commit messages and relevant filepaths)
