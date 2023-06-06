@@ -213,7 +213,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
             if len(action_ids) == 1 and not include_finished:
                 action_id = next(iter(action_ids))
                 context = self.run_action(action_id, context)
-                break
+                continue
 
             self.publish_service.start_section("❓ Choosing next action")
             # Pick an action
