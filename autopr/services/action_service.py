@@ -103,7 +103,7 @@ class ActionService:
 <instructions>
 You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
 
-@json_suffix_prompt_examples
+@autopr_json_suffix_prompt_examples
 </instructions>
 <prompt>
 {{{{context}}}}
@@ -113,8 +113,6 @@ You are about to make a decision on what to do next, and return a JSON that foll
 @xml_prefix_prompt
 
 {{output_schema}}
-
-@json_suffix_prompt_examples
 </prompt>
 </rail>
 """
@@ -131,7 +129,7 @@ You are about to make a decision on what to do next, and return a JSON that foll
 <instructions>
 You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
 
-@json_suffix_prompt_examples
+@autopr_json_suffix_prompt_examples
 </instructions>
 <prompt>
 {{{{context}}}}
@@ -141,8 +139,6 @@ You are about to make a decision on what to do next, and return a JSON that foll
 @xml_prefix_prompt
 
 {{output_schema}}
-
-@json_suffix_prompt_examples
 </prompt>
 </rail>
 """

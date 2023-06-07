@@ -1,3 +1,6 @@
+import pkg_resources
+from lxml import etree as ET
+
 import json
 import traceback
 from typing import Callable, Any, Optional, TypeVar, Type
@@ -12,6 +15,7 @@ import structlog
 
 from autopr.repos.completions_repo import CompletionsRepo
 from autopr.services.publish_service import PublishService
+from guardrails.utils.constants import constants
 
 log = structlog.get_logger()
 
@@ -72,6 +76,8 @@ class RailService:
         System prompt to use for ordinary LLM calls (if `PromptRail.two_step` is True)
     """
 
+    _constants_imported = False
+
     def __init__(
         self,
         completions_repo: CompletionsRepo,
@@ -89,6 +95,32 @@ class RailService:
         self.num_reasks = num_reasks
         self.temperature = temperature
         self.raw_system_prompt = raw_system_prompt
+
+        self._import_constants()
+
+    def _import_constants(self):
+        if self._constants_imported:
+            return
+
+        constants_file = pkg_resources.resource_filename('autopr', 'constants.xml')
+
+        with open(constants_file, "r") as f:
+            xml = f.read()
+
+        parser = ET.XMLParser(encoding="utf-8")
+        parsed_constants = ET.fromstring(xml, parser=parser)
+
+        for child in parsed_constants:
+            if isinstance(child, ET._Comment):
+                continue
+            if isinstance(child, str):
+                continue
+
+            constant_name = child.tag
+            constant_value = child.text
+            constants[constant_name] = constant_value
+
+        self._constants_imported = True
 
     def run_rail_string(
         self,
