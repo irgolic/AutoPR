@@ -77,7 +77,7 @@ class AgentService:
         try:
             agent.handle_event(event)
         except Exception as e:
-            self.log.exception("Failed to generate pull request", event_=event, exc_info=e)
+            self.log.exception("Agent failed", event_=event, exc_info=e)
             self.publish_service.finalize(success=False)
             raise e
 

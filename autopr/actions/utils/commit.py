@@ -106,3 +106,25 @@ class PullRequestDescription(RailObject):
                 f"{changes_prefix}{changes_prefix.join(commit_plan.commit_changes_description.splitlines())}\n"
             )
         return pr_text_description
+
+
+class PullRequestAmendment(RailObject):
+    output_spec = f"""<string
+    name="comment"
+    description="A comment to add to the pull request."
+    required="false"
+    on-fail="noop"
+/>
+<list
+    name="commits"
+    required="false"
+    on-fail="reask"
+    description="Additional commits to add to the pull request. Commits must change the code in the repository, and must not be empty."
+>
+<object>
+{CommitPlan.output_spec}
+</object>
+</list>"""
+
+    comment: Optional[str] = None
+    commits: list[CommitPlan] = pydantic.Field(default_factory=list)
