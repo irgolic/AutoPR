@@ -1,5 +1,5 @@
 import pkg_resources
-from lxml import etree as ET
+import lxml.etree as ET
 
 import json
 import traceback
