@@ -493,6 +493,31 @@ Pull Request: {pr_link}
 
 """ + self.error_report_template
 
+    def _log_failed_request(
+        self,
+        reason: str,
+        response: requests.Response,
+        request_url: str,
+        request_headers: Optional[dict[str, Any]] = None,
+        request_params: Optional[dict[str, Any]] = None,
+        request_body: Optional[dict[str, Any]] = None,
+    ):
+        try:
+            text = response.json()
+        except json.JSONDecodeError:
+            text = response.text
+
+        self.log.error(
+            reason,
+            request_url=request_url,
+            request_headers=request_headers,
+            request_params=request_params,
+            request_body=request_body,
+            response_text=text,
+            response_code=response.status_code,
+            response_headers=response.headers,
+        )
+
     def _get_headers(self):
         return {
             'Authorization': f'Bearer {self.token}',
@@ -585,15 +610,14 @@ Pull Request: {pr_link}
             prs = response.json()
             if prs:
                 return prs[0]  # Return the first pull request found
-        self.log.error(
-            'Failed to get pull requests',
-            response_text=response.text,
-            request_url=url,
-            request_params=params,
-            code=response.status_code,
-            headers=response.headers,
-        )
 
+        self._log_failed_request(
+            'Failed to get pull requests',
+            request_url=url,
+            request_headers=headers,
+            request_params=params,
+            response=response,
+        )
         return None
 
     def _create_pr(self, title: str, bodies: list[str], success: bool) -> dict[str, Any]:
@@ -615,20 +639,23 @@ Pull Request: {pr_link}
                 del data['draft']
                 response = requests.post(url, json=data, headers=headers)
                 if response.status_code != 201:
-                    self.log.error('Failed to create pull request',
-                                   code=response.status_code,
-                                   response=response.json(),
-                                   request_url=url,
-                                   request_body=data,
-                                   headers=response.headers)
+                    self._log_failed_request(
+                        'Failed to create pull request',
+                        request_url=url,
+                        request_headers=headers,
+                        request_body=data,
+                        response=response,
+                    )
+
                     raise RuntimeError('Failed to create pull request')
             else:
-                self.log.error('Failed to create pull request',
-                               code=response.status_code,
-                               response=response.json(),
-                               request_url=url,
-                               request_body=data,
-                               headers=response.headers)
+                self._log_failed_request(
+                    'Failed to create pull request',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body=data,
+                    response=response,
+                )
                 raise RuntimeError('Failed to create pull request')
 
         self.log.debug('Pull request created successfully',
@@ -656,12 +683,13 @@ Pull Request: {pr_link}
             self.log.debug('Pull request updated successfully')
             return
 
-        self.log.error('Failed to update pull request',
-                       code=response.status_code,
-                       response=response.json(),
-                       request_url=url,
-                       request_body=data,
-                       headers=response.headers)
+        self._log_failed_request(
+            'Failed to update pull request',
+            request_url=url,
+            request_headers=headers,
+            request_body=data,
+            response=response,
+        )
 
     def _is_draft_error(self, response_text: str):
         response_obj = json.loads(response_text)
@@ -678,14 +706,15 @@ Pull Request: {pr_link}
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return response.json()['node_id']
-        else:
-            self.log.error('Failed to get pull request node id',
-                           code=response.status_code,
-                           response=response.json(),
-                           request_url=url,
-                           request_headers=headers,
-                           headers=response.headers)
-            raise RuntimeError('Failed to get pull request node id')
+
+        self._log_failed_request(
+            'Failed to get pull request node id',
+            request_url=url,
+            request_headers=headers,
+            response=response,
+        )
+
+        raise RuntimeError('Failed to get pull request node id')
 
     def _set_pr_draft_status(self, pr_node_id: str, is_draft: bool):
         # sadly this is only supported by graphQL
@@ -711,21 +740,26 @@ Pull Request: {pr_link}
 
         # Undraft the pull request
         data = {'pullRequestId': pr_node_id}
+        url = 'https://api.github.com/graphql'
+        body = {'query': graphql_query, 'variables': data}
         response = requests.post(
-            'https://api.github.com/graphql',
+            url,
             headers=headers,
-            json={'query': graphql_query, 'variables': data}
+            json=body,
         )
 
         if response.status_code == 200:
             self.log.debug('Pull request draft status updated successfully')
             return
 
-        self.log.error('Failed to update pull request draft status',
-                       code=response.status_code,
-                       response=response.json(),
-                       request=graphql_query,
-                       headers=response.headers)
+        self._log_failed_request(
+            'Failed to update pull request draft status',
+            request_url=url,
+            request_headers=headers,
+            request_body=body,
+            response=response,
+        )
+
         self._drafts_supported = False
 
     def _update_pr_body(self, pr_number: int, body: str):
@@ -743,12 +777,13 @@ Pull Request: {pr_link}
             self.log.debug('Comment updated successfully')
             return
 
-        self.log.error('Failed to update comment',
-                       code=response.status_code,
-                       response=response.json(),
-                       request_url=url,
-                       request_body={'body': body},
-                       headers=response.headers)
+        self._log_failed_request(
+            'Failed to update comment',
+            request_url=url,
+            request_headers=headers,
+            request_body={'body': body},
+            response=response,
+        )
 
     def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}/comments'
@@ -762,12 +797,13 @@ Pull Request: {pr_link}
             self.log.debug('Commented on issue successfully')
             return response.json()['id']
 
-        self.log.error('Failed to comment on issue',
-                       code=response.status_code,
-                       response=response.json(),
-                       request_url=url,
-                       request_body=data,
-                       headers=response.headers)
+        self._log_failed_request(
+            'Failed to comment on issue',
+            request_url=url,
+            request_headers=headers,
+            request_body=data,
+            response=response,
+        )
         return None
 
 
