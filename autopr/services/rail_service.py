@@ -102,6 +102,14 @@ class RailService:
         title_heading = heading[0].upper() + heading[1:]
         self.publish_service.start_section(f"🛤 Running {heading} rail")
 
+        instructions = self.get_rail_instructions(rail_spec, prompt_params)
+        if instructions.strip():
+            self.publish_service.publish_code_block(
+                heading='Instructions',
+                code=instructions,
+                language='xml',  # xml for nice guardrails highlighting
+            )
+
         str_prompt = self.get_rail_message(rail_spec, prompt_params)
         self.publish_service.publish_code_block(
             heading='Prompt',
@@ -325,9 +333,17 @@ class RailService:
         return self.run_rail_object(rail.output_type, prompt)
 
     @staticmethod
+    def get_rail_instructions(
+        rail_spec: str,
+        prompt_params: dict[str, Any]
+    ) -> str:
+        pr_guard = gr.Guard.from_rail_string(rail_spec)
+        return str(pr_guard.instructions.format(**prompt_params))
+
+    @staticmethod
     def get_rail_message(
         rail_spec: str,
         prompt_params: dict[str, Any]
-    ):
+    ) -> str:
         pr_guard = gr.Guard.from_rail_string(rail_spec)
-        return pr_guard.base_prompt.format(**prompt_params)
+        return str(pr_guard.prompt.format(**prompt_params))
