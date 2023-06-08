@@ -15,6 +15,7 @@
 
 
 AutoPR autonomously writes pull requests in response to issues with ChatGPT.  
+Get started with [AutoPR-template](https://github.com/irgolic/AutoPR-template).  
 Built with [Guardrails](https://github.com/ShreyaR/guardrails) and [Langchain](https://github.com/hwchase17/langchain).    
 
 </div>
