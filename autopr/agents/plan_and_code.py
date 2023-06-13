@@ -68,7 +68,7 @@ class PlanAndCode(Agent):
             self.codegen_actions,
             context,
             context_headings={
-                'current_commit': 'Commit we are currently generating',
+                'current_commit': f'Commit we are currently generating: {commit_plan.commit_message}',
                 'action_history': 'Actions that have been run so far',
                 **context_headings,
             },
