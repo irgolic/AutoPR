@@ -26,7 +26,7 @@ BaseModelSubclass = TypeVar('BaseModelSubclass', bound=pydantic.BaseModel)
 class RailService:
     """
     Service for invoking guardrails according to PromptRail and RailObject subclasses.
-    See PromptRail, RailObject, and [Guardrails docs](https://docs.guardrails.io/) for more information.
+    See PromptRail, RailObject, and [Guardrails docs](https://shreyar.github.io/guardrails/rail/) for more information.
 
     To make a guardrails call:
     - define a RailObject subclass
