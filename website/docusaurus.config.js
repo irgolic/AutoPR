@@ -22,7 +22,6 @@ const config = {
   projectName: 'AutoPR', // Usually your repo name.
   trailingSlash: false,
 
-
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 

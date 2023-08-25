@@ -19,4 +19,4 @@ Follow these steps to set up AutoPR in your GitHub repository:
 3. In your GitHub repository settings, navigate to `Secrets and variables -> Actions` and add your OpenAI API key as `OPENAI_API_KEY`.
 4. In your GitHub repository settings, go to `Actions -> General` and scroll down to `Workflow permissions`. Enable `Allow GitHub Actions to create and approve pull requests`.
 
-That's it! Check out the [Customization guide](./customization) to see how to customize AutoPR for your repository.
+That's it! Check out the [Configuring guide](../configuring) to see how to customize AutoPR for your repository.

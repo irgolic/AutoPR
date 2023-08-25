@@ -7,7 +7,7 @@ sidebar_position: 3
 Triggers are the sensors of your repository. They monitor for specific events, and once an event
 occurs, they initiate a workflow. Let's deep dive into how to write triggers.
 
-**Important**: Before you begin writing a trigger, [set up validation in your editor](setting-up-yaml-schema) for ease of writing.
+**Important**: Before you begin writing a trigger, [set up validation in your editor](../tutorials/setting-up-yaml-schema) for ease of writing.
 
 Triggers are located in your `.autopr` configuration directory, as the `.autopr/triggers.yaml` file.
 Alternatively, you can also define triggers in the `.autopr/triggers/*.yaml` folder.
@@ -15,7 +15,7 @@ Alternatively, you can also define triggers in the `.autopr/triggers/*.yaml` fol
 ## 🧐 Properties of different triggers
 
 Each trigger has the `run` property, which specified the workflow that should be activated when the trigger condition is met.
-The `run` property must match the name of either a [default workflow](../workflow-catalogue) or a [custom-defined workflow](writing-a-workflow).
+The `run` property must match the name of either a [default workflow](../workflow-catalogue) or a [custom-defined workflow](../tutorials/writing-a-workflow).
 
 They also have the `parameters` property, which is an optional object that contains global variables used in the workflow.
 For example, the `parameters` property can be used to define the `FILE_SUMMARY_PROMPT` variable, which is used in the
