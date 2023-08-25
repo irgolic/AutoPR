@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[508],{856:t=>{t.exports=JSON.parse('{"title":"\ud83c\udf31 Installing","slug":"/category/-installing","permalink":"/category/-installing","navigation":{"previous":{"title":"\ud83c\udf33 AutoPR","permalink":"/"},"next":{"title":"\ud83d\udc19 GitHub","permalink":"/installing/github"}}}')}}]);
