@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2023 Rafael Frančišek Irgolič
+Copyright (c) 2023 Raphael Francis Ltd
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

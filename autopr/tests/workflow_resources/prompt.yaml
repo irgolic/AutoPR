@@ -1,0 +1,16 @@
+gen_workflow:
+  outputs:
+    - msg_summary
+  steps:
+    - set_vars:
+        msg:
+          const: 'The world is beautiful, flowers are blooming, and the birds are singing.'
+    - action: prompt
+      inputs:
+        prompt_context:
+          - var: msg
+            heading: 'Message to be summarized'
+        prompt: "What is this message trying to convey?"
+        instructions: "Respond in a single short sentence."
+      outputs:
+        result: msg_summary

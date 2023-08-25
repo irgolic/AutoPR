@@ -1,0 +1,93 @@
+---
+sidebar_position: 3
+---
+
+# 🏁 Triggers
+
+Triggers are the sensors of your repository. They monitor for specific events, and once an event
+occurs, they initiate a workflow. Let's deep dive into how to write triggers.
+
+**Important**: Before you begin writing a trigger, [set up validation in your editor](setting-up-yaml-schema) for ease of writing.
+
+Triggers are located in your `.autopr` configuration directory, as the `.autopr/triggers.yaml` file.
+Alternatively, you can also define triggers in the `.autopr/triggers/*.yaml` folder.
+
+## 🧐 Properties of different triggers
+
+Each trigger has the `run` property, which specified the workflow that should be activated when the trigger condition is met.
+The `run` property must match the name of either a [default workflow](../workflow-catalogue) or a [custom-defined workflow](writing-a-workflow).
+
+They also have the `parameters` property, which is an optional object that contains global variables used in the workflow.
+For example, the `parameters` property can be used to define the `FILE_SUMMARY_PROMPT` variable, which is used in the
+[generate_readme_summaries](../workflow-catalogue#generate_readme_summaries) workflow.
+
+Additionally, each respective trigger has its own unique properties:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="labeltrigger" label="Label Trigger">
+
+Activates when a label is added to an issue or a pull request.
+- **`label_substring`**: Trigger when a label contains this substring.
+- **`on_issue`**: Whether the trigger should respond to issues.
+- **`on_pull_request`**: Whether the trigger should respond to pull requests.
+
+```yaml
+triggers:
+  - type: "label"
+    label_substring: "summarize"
+    on_issue: false
+    on_pull_request: true
+    run: "summarize_pr"
+```
+
+</TabItem>
+<TabItem value="pushtrigger" label="Push Trigger">
+
+Activates when a push is made to the specified branch.
+- **`branch_name`**: Pinpoints the branch that the trigger observes for changes.
+
+```yaml
+triggers:
+  - type: "push"
+    branch_name: "main"
+    run: "generate_readme_summaries"
+    parameters:
+      FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
+      FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
+      IGNORE_FILES:
+        - docs
+        - .github
+        - .autopr
+        - tests
+```
+
+</TabItem>
+</Tabs>
+
+## 📄 Example
+
+Below is an example of a `.autopr/triggers.yaml` file, that summarizes pull requests when the `summarize` label is added,
+and generates README summaries when a push is made to the `main` branch.
+
+```yaml
+triggers:
+  - type: label
+    label_substring: summarize
+    on_issue: false
+    on_pull_request: true
+    run: summarize_pr
+  - type: push
+    branch_name: main
+    run: generate_readme_summaries
+    parameters:
+      FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
+      FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
+      IGNORE_FILES:
+        - docs
+        - .github
+        - .autopr
+        - tests
+```

@@ -1,84 +1,50 @@
-from typing import ClassVar, List, Type, Collection, Any, Optional
+import inspect
+import typing
+from typing import ClassVar, Type, Any, Optional, TypeVar, Generic, Union
 
 import pydantic
-import structlog
 from git.repo import Repo
-from pydantic import Extra
 
-from autopr.models.rail_objects import RailObject
-from autopr.services.chain_service import ChainService
+from autopr.log_config import get_logger
+from autopr.models.executable import ExecutableId
+from autopr.services.cache_service import CacheService
+from autopr.services.commit_service import CommitService
+from autopr.services.platform_service import PlatformService
 from autopr.services.publish_service import PublishService
-from autopr.services.rail_service import RailService
 
 
-class ContextDict(dict[str, Any]):
+Inputs = TypeVar('Inputs', bound=Union[pydantic.BaseModel, type(None)])
+Outputs = TypeVar('Outputs', bound=Union[pydantic.BaseModel, type(None)])
+
+
+class ActionMeta(type):
     """
-    A dictionary of context variables passed between actions.
-    Overrides `__str__` to format the context in a prompt-friendly way.
+    Metaclass for actions.
+    Its only responsibility is to register actions in a global registry.
     """
+    actions_registry: dict[ExecutableId, type] = {}
 
-    def select_keys(self, keys: Collection[str]) -> "ContextDict":
-        """
-        Select a subset of keys from the context.
-        """
-        for key in keys:
-            if key not in self:
-                raise KeyError(f"Key {key} not found in context")
-        return ContextDict({key: self[key] for key in keys})
+    def __new__(mcs, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> type:
+        cls = super().__new__(mcs, name, bases, attrs)
+        if name == "Action":
+            return cls
+        if not hasattr(cls, "id"):
+            raise ValueError(f"Action `{cls.__name__}` does not specify `id` class variable")
+        id_ = getattr(cls, "id")
+        if id_ in mcs.actions_registry and not mcs.is_same_class(cls, mcs.actions_registry[id_]):
+            raise ValueError(f"Action `{cls.__name__}` has duplicate ID `{id_}`")
+        mcs.actions_registry[id_] = cls
+        return cls
 
     @staticmethod
-    def key_to_heading(key: str) -> str:
-        """
-        Convert a context key to a heading.
-        """
-        return key.replace("_", " ").title()
-
-    def as_string(
-        self,
-        variable_headings: Optional[dict[str, str]] = None,
-        enclosure_mark: str = "+-+",
-    ):
-        """
-        Format the context as a string.
-
-        Parameters
-        ----------
-
-        variable_headings
-            A dictionary mapping context keys to headings.
-            If not provided, the keys will be used as headings.
-        enclosure_mark
-            The string to use to enclose each variable.
-        """
-        if variable_headings is None:
-            variable_headings = {}
-
-        # Add any missing keys to the variable headings
-        for key in self:
-            if key not in variable_headings:
-                variable_headings[key] = self.key_to_heading(key)
-
-        context_string = "Given context variables enclosed by " + enclosure_mark + ":"
-        for key, value in self.items():
-            # Format the value as a string
-            if isinstance(value, list):
-                valstr = "\n".join(str(item) for item in value)
-            else:
-                valstr = str(value)
-
-            # Add the variable to the context string
-            context_string += f"""\n\n{variable_headings[key]}:
-{enclosure_mark}
-{valstr}
-{enclosure_mark}"""
-
-        return context_string
-
-    def __str__(self):
-        return self.as_string()
+    def is_same_class(cls1, cls2):
+        return (
+            inspect.getfile(cls1) == inspect.getfile(cls2)
+            and cls1.__qualname__ == cls2.__qualname__
+        )
 
 
-class Action:
+class Action(Generic[Inputs, Outputs], metaclass=ActionMeta):
     """
     Base class for all actions.
 
@@ -87,92 +53,75 @@ class Action:
     and returning a string describing the result of the action.
     """
 
-    # The ID of the action, used to identify it in the AutoPR configuration. `finished` is a reserved ID. Required.
+    #: The ID of the action, used to identify it in the AutoPR configuration. `finished` is a reserved ID. Required.
     id: ClassVar[str]
 
-    # The description of the action, used to describe it to the LLM upon action selection.
-    description: ClassVar[str] = ""
+    #: The name of the action, used to describe it to the LLM upon action selection. Optional, defaults to `id`.
+    name: ClassVar[Optional[str]] = None
 
-    class Arguments(RailObject):
-        """
-        Arguments for the action.
-        If the action takes arguments that should be queried by the LLM (e.g., filename),
-        subclass and override this class in your Action subclass,
-        defining the arguments as pydantic fields.
+    #: The description of the action, used to describe it to the LLM upon action selection. Optional.
+    description: ClassVar[Optional[str]] = None
 
-        Example:
-            ```
-            class Arguments(Action.Arguments):
-                filepaths: list[str]
-
-                output_spec = "<list name='filepaths'><string/></list>"
-            ```
-        """
-
-        # `output_spec` describes the structure of the arguments for guardrails,
-        # to be mapped into the model subclass.
-        # Soon to be deprecated, as guardrails adopts pydantic Field parameters.
-        output_spec: ClassVar[str] = ""
-
-    def run(
-        self,
-        args: Arguments,
-        context: ContextDict,
-    ) -> ContextDict:
+    async def run(self, inputs: Inputs) -> Outputs:
         """
         Run the action.
-        The return value should be a string describing the action's result.
 
-        Parameters
-        ----------
-        args : Arguments
-            The arguments provided by the LLM, as per the overridden `Arguments` class.
-        context : ContextDict
-            The context for the action,
-            containing information about e.g., the issue, the current commit, and other actions' results.
-
-        Returns
-        -------
-        ContextDict
-            The updated context, adding any new information to the context.
+        Read the `inputs` argument to read variables from the context.
+        Return outputs to write variables to the context.
         """
         raise NotImplementedError
 
     def __init__(
         self,
         repo: Repo,
-        rail_service: RailService,
-        chain_service: ChainService,
         publish_service: PublishService,
-        **kwargs,
-    ):
+        platform_service: PlatformService,
+        cache_service: CacheService,
+        commit_service: CommitService,
+        **kwargs: Any,
+    ) -> None:
         # Use repo for git operations
         self.repo = repo
-
-        # Use rail and chain services to run LLM calls
-        self.rail_service = rail_service
-        self.chain_service = chain_service
 
         # Use publish service for in-progress updates
         self.publish_service = publish_service
 
+        # Use platform service for platform-specific operations
+        self.platform_service = platform_service
+
+        # Use cache service for caching data
+        self.cache_service = cache_service
+
+        # Use commit service for committing changes
+        self.commit_service = commit_service
+
         # Use log for more detailed debug messages
-        self.log = structlog.get_logger(service="action",
-                                        id=self.id)
+        self.log = get_logger(service="action",
+                              id=self.id)
 
         # Define kwargs to pass configuration to actions via `action_config`
         if kwargs:
             self.log.warning("Action received unexpected kwargs that it will ignore",
                              kwargs=kwargs)
 
+    @classmethod
+    def _get_inputs_type(cls) -> type[Inputs]:
+        i = typing.get_args(cls.__orig_bases__[0])[0]  # pyright: ignore
+        if isinstance(i, TypeVar):
+            raise ValueError(f"Action `{cls.id}` does not specify inputs type argument")
+        return i
 
-def get_all_actions(parent=Action) -> Collection[Type[Action]]:
-    # import to initialize Action subclasses
-    import autopr.actions
+    @classmethod
+    def _get_outputs_type(cls) -> type[Outputs]:
+        o = typing.get_args(cls.__orig_bases__[0])[1]  # pyright: ignore
+        if isinstance(o, TypeVar):
+            raise ValueError(f"Action `{cls.id}` does not specify outputs type argument")
+        return o
 
-    descendants = set()
-    for subclass in parent.__subclasses__():
-        descendants.add(subclass)
-        # get subclasses of subclasses
-        descendants.update(get_all_actions(subclass))
-    return descendants
+
+def get_actions_dict() -> dict[ExecutableId, Type[Action[Any, Any]]]:
+    # initialize all Action subclass declarations in the folder
+    import autopr.actions  # pyright: ignore[reportUnusedImport]
+
+    # return all subclasses of Action as registered in the metaclass
+    return ActionMeta.actions_registry

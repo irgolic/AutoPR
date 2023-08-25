@@ -1,0 +1,47 @@
+insert_into_readme_test:
+  inputs:
+    - filepath
+    - delimiter
+    - content
+  outputs:
+    - content
+  steps:
+    - action: read_file
+      inputs:
+        filepath:
+          var: filepath
+        ensure_exists: true
+      outputs:
+        contents: new_contents
+    - action: insert_content_into_text
+      inputs:
+        existing_content:
+          var: new_contents
+        delimiter:
+          var: delimiter
+        content_to_add:
+          var: content
+      outputs:
+        content: content
+    - action: write_into_file
+      inputs:
+        filepath:
+          var: filepath
+        content:
+          var: content
+        append_at_the_end: false
+      outputs:
+        success: success
+
+insert_into_readme_workflow:
+  outputs:
+    - content
+  steps:
+    - workflow: insert_into_readme_test
+      inputs:
+        filepath:
+          const: "README.md"
+        delimiter: "<!-- tag -->"
+        content: "Insert Me"
+      outputs:
+        content: content

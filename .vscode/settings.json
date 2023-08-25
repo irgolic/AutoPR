@@ -1,0 +1,25 @@
+{
+    "python.testing.pytestArgs": [
+        "autopr"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+        "autopr",
+        "Pydantic",
+        "subfolders",
+        "todos"
+    ],
+    "yaml.schemas": {
+        "./trigger_schema.json": [
+          ".autopr/triggers.{yaml,yml}",
+          ".autopr/triggers/*.{yaml,yml}",
+          "autopr/tests/triggers/*.{yaml,yml}"
+        ],
+        "./workflow_schema.json": [
+            ".autopr/workflows.{yaml,yml}",
+            ".autopr/workflows/*.{yaml,yml}",
+            "autopr/tests/workflow_resources/*.{yaml,yml}"
+        ]
+    }    
+}

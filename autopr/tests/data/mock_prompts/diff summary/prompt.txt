@@ -1,0 +1,16 @@
+Diff of the changes in the pull request:
+```
+diff --git a/newscript.py b/newscript.py
+new file mode 100644
+index 0000000..02d3dc2
+--- /dev/null
++++ b/newscript.py
+@@ -0,0 +1 @@
++#TODO do stuff here
+\ No newline at end of file
+
+```
+
+Summarize the changes in the pull request for each file, with concrete line items, 
+prefix the line items with emoji to semantically highlight the contents of the changes.
+The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.

@@ -1,0 +1,5 @@
+triggers:
+  - label_substring: AutoPR
+    on_pull_request: true
+    on_issue: true
+    run: hello_workflow

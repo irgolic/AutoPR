@@ -1,0 +1,314 @@
+---
+sidebar_position: 1
+---
+
+# 💧 Writing an Action
+
+**Actions** are written in **python**; they define small reusable blocks of functionality. 
+
+They are defined in [the `autopr/actions` folder](https://github.com/irgolic/AutoPR/tree/main/autopr/actions).
+You can also define custom actions in your own repository, placing them in `.autopr/actions`.
+
+To get acquainted with actions, let's walk through all the elements of a simple action one-by-one.
+Our example action will **run a bash command and return its output**.
+If you'd like to get started quickly by copying the example action's full code, head to [quickstart at the bottom of the page](#quickstart-the-full-code-example).
+
+## 🏡 Inputs and Outputs are Pydantic Models
+
+To configure actions, and for actions to communicate with each other, they may receive **inputs** and send **outputs**. 
+
+These are defined with [**pydantic**](https://docs.pydantic.dev/1.10/), a popular python library for data validation and serialization.
+
+
+```python
+import pydantic
+
+# Our action will receive a `command` string as its input
+class BashInputs(pydantic.BaseModel):
+    command: str
+
+
+# Our action will return `stdout` and `stderr` strings as its output, 
+# which are the standard output and standard error streams of the command
+class BashOutputs(pydantic.BaseModel):
+    stdout: str
+    stderr: str
+```
+
+## 🏷️ Actions have IDs and are Strongly Typed
+
+Each action must have a unique ID, which is used to reference the action in the workflow. This ID must be unique among all actions and workflows.
+
+To declare an action with the inputs and outputs defined above, we create a class that inherits from the `Action` class.
+The inputs and outputs are passed as generic arguments to the `Action` class, and annotated on the `run` method.
+This might look a bit complicated, but it makes sure that we don't make any mistakes when writing our action.
+
+
+```python
+from autopr.actions.base import Action
+
+
+class BashAction(Action[BashInputs, BashOutputs]):
+    id = "my-bash"
+    
+    async def run(self, inputs: BashInputs) -> BashOutputs:
+        # TODO execute the command and return the outputs 
+        ...
+
+```
+
+If an action does not receive inputs or outputs, you can pass `None` as the argument instead of a pydantic model.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="noinputs" label="Without Inputs">
+
+```python
+class ActionWithoutInputs(Action[None, BashOutputs]):
+    id = "action-without-inputs"
+
+    async def run(self, inputs: None) -> BashOutputs:
+        ...
+```
+
+</TabItem>
+<TabItem value="nooutputs" label="Without Outputs">
+
+```python
+class ActionWithoutInputs(Action[BashInputs, None]):
+    id = "action-without-inputs"
+
+    async def run(self, inputs: BashInputs) -> None:
+        ...
+```
+
+</TabItem>
+<TabItem value="noio" label="Without Inputs or Outputs">
+
+```python
+class ActionWithoutInputs(Action[None, None]):
+    id = "action-without-inputs"
+
+    async def run(self, inputs: None) -> None:
+        ...
+```
+
+</TabItem>
+</Tabs>
+
+
+## 🏃 Actions run asynchronously
+
+The action's `run` method is an `async` method, which means that it runs using python's [asyncio](https://docs.python.org/3/library/asyncio.html) library.
+This means that if an action ever has to wait for something, it can do so while yielding control to other actions and not blocking the entire workflow.
+
+Finally, let's implement the Bash action's `run` method.
+
+
+```python
+import asyncio
+
+
+class BashAction(Action[BashInputs, BashOutputs]):
+    """
+    Run a bash command and return its output.
+    """
+    
+    id = "my-bash"
+
+    async def run(self, inputs: BashInputs) -> BashOutputs:
+        # Get the input value
+        command = inputs.command
+        
+        # Run the command
+        process = await asyncio.create_subprocess_shell(
+            command,
+            shell=True,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        # Get standard output and standard error streams
+        stdout, stderr = await process.communicate()
+
+        # Set the output values
+        return BashOutputs(
+            stdout=stdout.decode("utf-8"),
+            stderr=stderr.decode("utf-8"),
+        )
+```
+
+## 🧪 Actions can easily be previewed
+
+To preview an action, you can run it manually using the `run_action_manually` utility function.
+This will create a temporary GitHub repository, and run the action in it.
+Feel free to use this space as a scratchpad to test your action.
+
+```python
+# When you run this file
+if __name__ == "__main__":
+    from autopr.tests.utils import run_action_manually
+    asyncio.run(
+        # Run the action manually
+        run_action_manually(
+            action=BashAction,
+            inputs=BashInputs(
+                command="echo 'Hello World!'"
+            ),
+        )
+    )
+```
+
+import Admonition from '@theme/Admonition';
+
+<Admonition type="tip" icon="" title="Output">
+
+```
+Start section: 🚀 Running my_bash-3
+Inputs: {
+  "command": "echo 'Hello World!'"
+}
+Outputs: {
+  "stderr": "",
+  "stdout": "Hello World!\n"
+}
+End section
+```
+
+</Admonition>
+
+## 🔨 Actions are simple to test
+
+When you implement an action, please add a test for it in [the `tests/test_actions.py` file](https://github.com/irgolic/AutoPR/tree/main/autopr/tests/test_actions.py).
+This can be as simple as adding a test case to the list of parameters in the `test_workflow` function.
+
+```python
+
+@pytest.mark.parametrize(
+    "action_id, inputs, expected_outputs, repo_resource",
+    [
+        ...
+
+        # Add a test case for your action, specifying:
+        (
+            # its ID;
+            "my-bash",
+            # sample inputs to run the action with;
+            {
+                "command": "echo Hello world!",
+            },
+            # the expected outputs;
+            {
+                "stdout": "Hello world!\n",
+                "stderr": "",
+            },
+            # if necessary, the name of a mock repository resource to use (see `tests/repo_resources`);
+            None,
+        ),
+
+        ...
+    ]
+)
+@pytest.mark.asyncio
+async def test_actions(
+    mocker,
+    action_id: ExecutableId,
+    inputs: ContextDict,
+    expected_outputs: dict[str, Any],
+    repo_resource: Optional[str],
+):
+    ...
+
+    outputs = await run_action_manually(
+        action=action_id,
+        inputs=inputs,
+        repo_resource=repo_resource
+    )
+    assert outputs == expected_outputs
+
+```
+
+## 📝 Actions are Documented with Docstrings
+
+Docstrings are used to document actions, and are displayed in the generated action reference documentation.
+
+```python
+class BashAction(Action[BashInputs, BashOutputs]):
+    """
+    Run a bash command and return its output.
+    """
+
+    id = "my-bash"
+
+    async def run(self, inputs: BashInputs) -> BashOutputs:
+        ...
+```
+
+
+## 🌕 Quickstart: The Full Code Example
+
+Create a new file in the `actions` directory, and use this as a template to get started.
+
+
+```python title="autopr/actions/bash.py"
+import asyncio
+
+import pydantic
+
+from autopr.actions.base import Action
+
+
+# The action's inputs
+class Inputs(pydantic.BaseModel):
+    command: str
+
+
+# The action's outputs
+class Outputs(pydantic.BaseModel):
+    stdout: str
+    stderr: str
+
+
+class Bash(Action[Inputs, Outputs]):
+    """
+    Run a bash command and return its output.
+    """
+
+    id = "my-bash"
+
+    async def run(self, inputs: Inputs) -> Outputs:
+        # Get the input value
+        command = inputs.command
+
+        # Run the command
+        process = await asyncio.create_subprocess_shell(
+            command,
+            shell=True,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        # Get standard output and standard error streams
+        stdout, stderr = await process.communicate()
+
+        # Set the output values
+        return Outputs(
+            stdout=stdout.decode("utf-8"),
+            stderr=stderr.decode("utf-8"),
+        )
+
+
+# When you run this file
+if __name__ == "__main__":
+    from autopr.tests.utils import run_action_manually
+    asyncio.run(
+        # Run the action manually
+        run_action_manually(
+            action=Bash,
+            inputs=Inputs(
+                command="echo 'Hello World!'"
+            ),
+        )
+    )
+
+```

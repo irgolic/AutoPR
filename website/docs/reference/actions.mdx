@@ -1,0 +1,126 @@
+---
+sidebar_position: 1
+---
+
+# 💧 Actions
+
+Actions are the building blocks of AutoPR. They are the smallest unit of work that can be performed by the system.
+
+For an in-depth tutorial on how to write a basic action, check out the [tutorial](../tutorials/writing-an-action).
+
+## 🌱 The Hello World Example
+
+```python
+import pydantic
+from autopr.actions.base import Action
+
+
+class Inputs(pydantic.BaseModel):
+    name: str
+
+
+class Outputs(pydantic.BaseModel):
+    greeting: str
+
+
+class Hello(Action[Inputs, Outputs]):
+    id = "hello"
+
+    async def run(self, inputs: Inputs) -> Outputs:
+        return Outputs(greeting=f"Hello, {inputs.name}!")
+
+```
+
+## 📝 Anatomy of an Action
+
+Actions are defined as classes that inherit from `Action[Inputs, Outputs]`, where `Inputs` and `Outputs` are Pydantic
+models that define the input and output data of the action.
+
+The `run` method is the asynchronous entrypoint of the action. It receives the input data as a parameter and returns the output data
+as a result.
+
+The `id` attribute is a unique identifier for the action. It is used to reference the action in the workflows.
+
+
+## 🚚 Services
+
+Actions are able to perform both routine and platform-specific throught the utilization of **services**.
+These services abstract and encapsulate specialized functions, enabling actions to operate seamlessly across different contexts.
+
+They are accessible as instance attributes. For example, if you'd like to cache some data, you can do so by calling
+`self.cache_service.store(key, value)`, and retrieve it later with `self.cache_service.retrieve(key)`.
+
+The services available are:
+- **publish_service**: Streamlines the creation, management, and publishing of structured updates to pull request (PR) descriptions.
+- **platform_service**: Provides a suite of tools tailored for interactions with platforms (eg. Github), allowing for tasks like fetching issue or PR metadata.
+- **cache_service**: Ensures data persistence by allowing actions to save and retrieve data across different runs.
+- **commit_service**: Offers a structured approach to git operations, such as staging, committing, and pushing changes.
+
+Below are listed all the mentioned services, with their methods and properties.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="publish_service" label="Publish Service">
+
+`PublishService` provides a structured way to publish updates on the status of the action.
+You can modify the PR, add simple textual updates, code blocks, or create collapsible sections.
+
+Example of usage can be seen in
+[`prompt`](https://github.com/irgolic/AutoPR/blob/main/autopr/actions/prompt.py).
+
+#### Key Methods:
+
+- `publish_update(text, section_title=None)`: Adds a textual update to the current section.
+- `publish_code_block(heading, code, ...)`: Embeds a code block as a collapsible child in the current section.
+- `start_section(title)`: Initializes a new section.
+- `update_section(title: str)`: Updates the title of the current section.
+- `end_section(title=None)`: Concludes the current section.
+
+</TabItem>
+<TabItem value="platform_service" label="Platform Service">
+
+`PlatformService` offers platform-specific operations, such as getting issue, retrieving PR, and updating PR comments.
+
+#### Key Methods:
+
+- `find_existing_pr(head_branch, base_branch)`: Searches for an existing open pull request with the specified head and base branches.
+- `create_pr(title, bodies, draft, head_branch, base_branch)`: Creates a new pull request on GitHub.
+- `update_pr_body(pr_number, body)`: Modifies the body of an existing pull request.
+- `update_pr_title(pr_number, title)`: Alters the title of an existing pull request.
+- `update_comment(comment_id, body)`: Updates the content of a specific comment on GitHub.
+- `publish_comment(text, issue_number)`: Adds a comment to a specific issue or pull request.
+- `set_pr_draft_status(pr_number, is_draft)`: Adjusts the draft status of a pull request.
+
+</TabItem>
+<TabItem value="cache_service" label="Cache Service">
+
+The `CacheService` offers a mechanism to store and retrieve data in a caching system, making it easier to manage
+transient data that doesn't need permanent storage but should be quickly accessible. In the backend, `CacheService` is implemented with [shelve](https://docs.python.org/3/library/shelve.html).
+
+Example of usage can be seen in action [`prompt`](https://github.com/irgolic/AutoPR/blob/main/autopr/actions/prompt.py).
+
+#### Key Methods:
+
+- `store(key, value, namespace=None)`: Saves the provided value with the specified key in the cache.
+- `retrieve(key, namespace=None)`: Retrieves the value associated with the specified key from the cache. If the key isn't found, it returns `None`.
+
+</TabItem>
+<TabItem value="commit_service" label="Commit Service">
+
+The `CommitService` offers a structured way to manage git operations on a repository, particularly focusing on creating
+branches, committing changes, and pushing updates to remote repositories.
+
+Example of usage can be seen in actions
+[`commit_and_push`](https://github.com/irgolic/AutoPR/blob/main/autopr/actions/commit_and_push.py).
+
+#### Key Methods:
+
+- `commit(commit_message, push=True, filepaths=None)`: Handles the commit operation. If there's an existing empty
+  commit, it removes it. It then stages changes, either all changes or only those specified in `filepaths`, and makes a
+  commit with the provided `commit_message`. If `push` is set to `True`, it also pushes the commit to the remote repository.
+
+</TabItem>
+</Tabs>
+

@@ -1,320 +1,283 @@
+import asyncio
+import json
 import traceback
-from typing import Optional, Collection, Type
+import typing
+from typing import Any, Optional, Collection, Type, TypeVar, Iterable
 
+import jinja2
 import pydantic
-import structlog
 from git.repo import Repo
+from pydantic import ValidationError, BaseModel
 
-from autopr.actions.base import get_all_actions, Action
+from autopr.actions.base import get_actions_dict, Action, Outputs, Inputs
+from autopr.log_config import get_logger
+from autopr.models.config.transform import TransformsInto
+from autopr.models.executable import ContextDict, ExecutableId
 
-from autopr.actions.base import ContextDict
-from autopr.models.rail_objects import RailObject
-from autopr.repos.completions_repo import CompletionsRepo
-from autopr.services.chain_service import ChainService
+from autopr.models.config.elements import ActionConfig, IterableActionConfig, ValueDeclaration
+from autopr.services.cache_service import CacheService, ShelveCacheService
+from autopr.services.commit_service import CommitService
+from autopr.services.platform_service import PlatformService
 from autopr.services.publish_service import PublishService
-from autopr.services.rail_service import RailService
+from autopr.services.utils import truncate_strings, format_for_publishing
+
+ActionSubclass = Action[Any, Any]
 
 
 class ActionService:
-    class Finished(Action):
-        id = "finished"
-
-        class Arguments(Action.Arguments):
-            reason: str
-
-            output_spec = """<string
-                name="reason"
-                required="true"
-            />"""
-
-        def run(self, arguments: Action.Arguments, context: ContextDict) -> ContextDict:
-            return context
+    # class Finished(Action):
+    #     id = "finished"
 
     def __init__(
         self,
         repo: Repo,
-        completions_repo: CompletionsRepo,
-        publish_service: PublishService,
-        rail_service: RailService,
-        chain_service: ChainService,
+        config_dir: str,
+        platform_service: PlatformService,
+        commit_service: CommitService,
         num_reasks: int = 3
     ):
         self.repo = repo
-        self.completions_repo = completions_repo
-        self.publish_service = publish_service
-        self.rail_service = rail_service
-        self.chain_service = chain_service
+        self.config_dir = config_dir
+        self.platform_service = platform_service
+        self.commit_service = commit_service
         self.num_reasks = num_reasks
 
         # Load all actions in the `autopr/actions` directory
-        self.actions: dict[str, type[Action]] = {
-            action.id: action
-            for action in get_all_actions()
-        }
+        self.actions: dict[ExecutableId, type[ActionSubclass]] = get_actions_dict()
 
-        self.log = structlog.get_logger(service="action_service")
+        self.log = get_logger(service="action_service")
 
-    def _write_action_selection_rail_spec(
-        self,
-        action_ids: Collection[str],
-        include_finished: bool = False,
-    ) -> str:
-        # Add finished action
-        if include_finished and "finished" not in action_ids:
-            action_ids = [*action_ids, "finished"]
-        # Write the "choice" output spec
-        output_spec = f"""<choice
-            name="action"
-            on-fail-choice="reask"
-        >"""
-        for action_id in action_ids:
-            action = self.actions[action_id]
-            output_spec += f"""<case
-                name="{action.id}"
-                {f'description="{action.description}"' if action.description else ""}
-            >
-            <object
-                name="{action.id}"
-            >"""
-            if action.Arguments.output_spec:
-                output_spec += action.Arguments.output_spec
-            else:
-                if action.Arguments is not Action.Arguments:
-                    # Guardrails RFC (GRAIL-001) plans to generate output specs from pydantic models automatically,
-                    # but for now, we need to manually write them.
-                    raise ValueError(
-                        f"{action.__name__}.Arguments ({action_id}) is missing an output spec"
-                    )
-                output_spec += """<string 
-                    name="reason"
-                />"""
-            output_spec += f"""
-            </object>
-            """
-            output_spec += f"""</case>"""
-        output_spec += f"""</choice>"""
-
-        # Wrap it in a rail spec
-        return f"""
-<rail version="0.1">
-<output>
-{output_spec}
-</output>
-<instructions>
-You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
-
-@autopr_json_suffix_prompt_examples
-</instructions>
-<prompt>
-{{{{context}}}}
-
-You are about to make a decision on what to do next, and return a JSON that follows the correct schema.
-
-@xml_prefix_prompt
-
-{{output_schema}}
-</prompt>
-</rail>
-"""
-
-    @staticmethod
-    def _write_action_args_query_rail_spec(
-        arguments: Type[Action.Arguments],
-    ) -> str:
-        return f"""
-<rail version="0.1">
-<output>
-{arguments.output_spec}
-</output>
-<instructions>
-You are AutoPR, an autonomous pull request creator and a helpful assistant only capable of communicating with valid JSON, and no other text.
-
-@autopr_json_suffix_prompt_examples
-</instructions>
-<prompt>
-{{{{context}}}}
-
-You are about to make a decision on what to do next, and return a JSON that follows the correct schema.
-
-@xml_prefix_prompt
-
-{{output_schema}}
-</prompt>
-</rail>
-"""
+    def find_action(self, id_: ExecutableId) -> Optional[type[Action[Any, Any]]]:
+        if id_ in self.actions:
+            return self.actions[id_]
+        return None
 
     def instantiate_action(
         self,
-        action_type: Type[Action],
-    ):
+        action_type: Type[Action[Inputs, Outputs]],
+        publish_service: PublishService,
+    ) -> Action[Inputs, Outputs]:
+        cache_service = ShelveCacheService(
+            config_dir=self.config_dir,
+            action_id=action_type.id,
+        )
         return action_type(
             repo=self.repo,
-            rail_service=self.rail_service,
-            chain_service=self.chain_service,
-            publish_service=self.publish_service,
+            publish_service=publish_service,
+            platform_service=self.platform_service,
+            commit_service=self.commit_service,
+            cache_service=cache_service,
         )
 
-    def run_action(
+    def get_action_inputs(
         self,
-        action_id: str,
+        action_type: Type[Action[Inputs, Outputs]],
+        action_inputs: Inputs,
         context: ContextDict,
-    ) -> ContextDict:
-        # Get the action
-        action_type = self.actions[action_id]
-
-        section_title = f"🚀 Running {action_id}"
-        self.publish_service.start_section(section_title)
-
-        # If the action defines arguments, ask the LLM to fill them in
-        if action_type.Arguments is not Action.Arguments:
-            # Ask the LLM to fill in the arguments
-            arguments = self.ask_for_action_arguments(
-                action_type=action_type,
-                context=context,
-            )
-            if arguments is None:
-                self.log.error("Guardrails failed to specify action arguments")
-                return context
+    ) -> Optional[Inputs]:
+        # Get the inputs
+        inputs_type = action_type._get_inputs_type()
+        if isinstance(None, inputs_type):
+            inputs = None
         else:
-            arguments = Action.Arguments()
+            if action_inputs is None:
+                specified_inputs = {}
+            else:
+                specified_inputs = action_inputs
+
+            input_values = {}
+            for input_name, template in specified_inputs:
+                # resolve prompt contexts
+                if isinstance(template, TransformsInto):
+                    template = template.transform_from_config(template, context)
+                # resolve variable declarations
+                elif any(isinstance(template, t) for t in typing.get_args(ValueDeclaration)):
+                    template = template.render(context)
+                # resolve string as template (backwards compatibility, should be removed)
+                elif isinstance(template, str):
+                    template = context.render_nested_template(template)
+
+                if isinstance(template, pydantic.BaseModel):
+                    template = template.dict()
+
+                if template is not None:
+                    input_values[input_name] = template
+
+            try:
+                inputs = inputs_type(**input_values)  # pyright: ignore[reportGeneralTypeIssues]
+            except ValidationError as e:
+                raise ValueError(
+                    f"Invalid inputs for {action_type.id}:\n\n{e}"
+                ) from e
+
+        return inputs
+
+    async def _instantiate_and_run_action(
+        self,
+        action_type: Type[Action[Inputs, Outputs]],
+        action_id: str,
+        inputs: Inputs,
+        publish_service: PublishService,
+    ):
+        if inputs is not None:
+            formatted_inputs = format_for_publishing(inputs)
+        else:
+            formatted_inputs = "None"
+        await publish_service.publish_code_block("Inputs", formatted_inputs, language="json")
 
         # Instantiate the action
-        action = self.instantiate_action(action_type)
+        action = self.instantiate_action(
+            action_type=action_type,
+            publish_service=publish_service,
+        )
 
         # Run the action
         try:
-            results = action.run(arguments, context)
+            outputs = await action.run(inputs)
         except Exception:
             self.log.exception(f"Failed to run action {action_id}")
-            self.publish_service.publish_code_block(
+            await publish_service.publish_code_block(
                 heading="Error",
                 code=traceback.format_exc(),
                 language="python",  # FIXME
                                     #  does nice syntax highlighting for tracebacks, but should be made configurable
             )
-            self.publish_service.end_section(f"❌ Failed {action_id}")
+            await publish_service.end_section(f"❌ Failed {action_id}")
             raise
 
-        if self.publish_service.sections_stack[-1].title == section_title:
-            self.publish_service.end_section(f"✅ Finished {action_id}")
-        self.publish_service.end_section()
+        return outputs
 
-        return results
-
-    def run_actions_iteratively(
+    async def run_action(
         self,
-        action_ids: Collection[str],
+        action_config: ActionConfig,
         context: ContextDict,
-        context_headings: Optional[dict[str, str]] = None,
-        max_iterations: int = 5,
-        include_finished: bool = False,
+        publish_service: PublishService,
     ) -> ContextDict:
-        for _ in range(max_iterations):
-            if len(action_ids) == 1 and not include_finished:
-                action_id = next(iter(action_ids))
-                context = self.run_action(action_id, context)
-                continue
+        action_id = action_config.action
+        section_title = f"💧 Running `{action_id}`"
+        await publish_service.start_section(section_title)
 
-            self.publish_service.start_section("❓ Choosing next action")
-            # Pick an action
-            pick = self.pick_action(
-                action_ids=action_ids,
-                context=context,
-                include_finished=include_finished,
-                context_headings=context_headings,
+        action_type = self.actions[action_id]
+
+        # Get inputs
+        inputs = self.get_action_inputs(action_type, action_config.inputs, context)
+
+        # Run action
+        outputs = await self._instantiate_and_run_action(
+            action_type=action_type,
+            action_id=action_id,
+            inputs=inputs,
+            publish_service=publish_service,
+        )
+
+        if outputs is not None:
+            # Publish raw outputs
+            await publish_service.publish_code_block(
+                "Outputs",
+                format_for_publishing(outputs),
+                language="json",
             )
-            if pick is None or pick[0].id == "finished":
-                self.publish_service.end_section("🏁 Finished")
-                break
-            action_type, args = pick
 
-            # Instantiate the action
-            action = self.instantiate_action(action_type)
+        # Extract outputs
+        new_context = {
+            context_key: getattr(outputs, output_name)
+            for output_name, context_key in action_config.outputs or {}
+            if context_key is not None
+        }
+        
+        if new_context:
+            # Publish outputs
+            await publish_service.publish_code_block(
+                "New Variables",
+                format_for_publishing(new_context),
+                language="json",
+            )
 
-            self.publish_service.update_section(f"🚀 Running {action.id}")
+        # End the section
+        if publish_service.sections_stack[-1].title == section_title:
+            await publish_service.end_section(f"💧 Finished running `{action_id}`")
+        else:
+            await publish_service.end_section()
 
-            # Run the action
-            context = action.run(args, context)
+        return ContextDict(new_context)
 
-            self.publish_service.end_section()
-
-        return context
-
-    def ask_for_action_arguments(
+    async def run_action_iteratively(
         self,
-        action_type: Type[Action],
+        iter_action_config: IterableActionConfig,
         context: ContextDict,
-    ) -> Optional[Action.Arguments]:
-        if action_type.Arguments is Action.Arguments:
-            # No arguments to fill in
-            return Action.Arguments()
+        publish_service: PublishService,
+    ) -> ContextDict:
+        action_id = iter_action_config.action
+        section_title = f"💦 Iteratively running `{action_id}`"
+        await publish_service.start_section(section_title)
 
-        # Generate the arguments query spec
-        rail_spec = self._write_action_args_query_rail_spec(
-            arguments=action_type.Arguments,
+        action_type = self.actions[action_id]
+
+        iteration = iter_action_config.iterate
+        if isinstance(iteration, int):
+            # iterate `iteration` times
+            item_name = iter_action_config.as_
+            iter_context = context
+            coros = []
+            for i in range(iteration):
+                if item_name is not None:
+                    iter_context = ContextDict(iter_context | {item_name: i})
+
+                # Get inputs
+                inputs = self.get_action_inputs(action_type, iter_action_config.inputs, iter_context)
+
+                coros.append(self._instantiate_and_run_action(
+                    action_type=action_type,
+                    action_id=action_id,
+                    inputs=inputs,
+                    publish_service=await publish_service.create_child(f"💧 Iteration {i+1}"),
+                ))
+        else:  # isinstance(iteration, ContextVarPath)
+            # iterate over a list in the context
+            list_var = context.get_path(iteration)
+            if not isinstance(list_var, Iterable):
+                raise ValueError(f"Expected {iteration} to be an iterable")
+
+            # Get inputs including the list item
+            item_name = iter_action_config.as_
+            if item_name is None:
+                raise ValueError("Expected `as` to be specified for action iterating over a list")
+            coros = []
+            for item in list_var:
+                iter_context = ContextDict(context | {item_name: item})
+                inputs = self.get_action_inputs(action_type, iter_action_config.inputs, iter_context)
+                coros.append(self._instantiate_and_run_action(
+                    action_type=action_type,
+                    action_id=action_id,
+                    inputs=inputs,
+                    publish_service=await publish_service.create_child(
+                        title=f"💧 Iteration: `{truncate_strings(str(item), length=40)}`"
+                    ),
+                ))
+
+        # Gather the action runs
+        outputses = await asyncio.gather(*coros)
+
+        # Extract outputs
+        new_context = {}
+        for output_name, context_key in iter_action_config.list_outputs or {}:
+            if context_key is None:
+                continue
+            new_context[context_key] = [
+                getattr(outputs, output_name)
+                for outputs in outputses
+            ]
+
+        await publish_service.publish_code_block(
+            "Outputs",
+            format_for_publishing(new_context),
+            language="json",
         )
 
-        # Run the rail
-        dict_o = self.rail_service.run_rail_string(
-            rail_spec,
-            prompt_params={
-                "context": context.as_string(),
-            },
-            heading="action arguments",
-        )
-        if dict_o is None:
-            self.log.error("Guardrails failed to specify action arguments")
-            return None
+        # End the section
+        if publish_service.sections_stack[-1].title == section_title:
+            await publish_service.end_section(f"💦 Finished iterating `{action_id}`")
+        else:
+            await publish_service.end_section()
 
-        # Parse the arguments
-        try:
-            args = action_type.Arguments.parse_obj(dict_o)
-        except pydantic.ValidationError as e:
-            self.log.error("Guardrails failed to parse action arguments", error=e)
-            return None
-        return args
-
-    def pick_action(
-        self,
-        action_ids: Collection[str],
-        context: ContextDict,
-        include_finished: bool = False,
-        context_headings: Optional[dict[str, str]] = None,
-    ) -> Optional[tuple[type[Action], Action.Arguments]]:
-        """
-        Pick an action to run next.
-
-        Returns a tuple of the action type and the arguments to instantiate it with.
-
-        """
-        # Generate the action-select rail spec
-        rail_spec = self._write_action_selection_rail_spec(
-            action_ids=action_ids,
-            include_finished=include_finished,
-        )
-        self.log.debug("Wrote action-selection rail spec:\n%s", rail_spec=rail_spec)
-
-        # Instantiate the rail
-        dict_o = self.rail_service.run_rail_string(
-            rail_spec,
-            prompt_params={
-                "context": context.as_string(
-                    variable_headings=context_headings,
-                ),
-            },
-            heading="action choice",
-        )
-        if dict_o is None:
-            self.log.error("Guardrails failed to choose an action")
-            return None
-
-        # Get the action
-        action_id = dict_o["action"]
-        if action_id == "finished":
-            # Done!
-            return None
-
-        action_args_dict = dict_o.get(action_id, {})
-        action = self.actions[action_id]
-        args = action.Arguments.parse_obj(action_args_dict)
-        return action, args
+        return ContextDict(new_context)

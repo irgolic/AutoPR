@@ -1,0 +1,25 @@
+hello_workflow:
+  steps:
+    - workflow: bash_workflow
+      inputs:
+        command: echo 'Hello, world!'
+      outputs:
+        msg: msg
+bash_workflow:
+  inputs:
+    - command
+  outputs:
+    - msg
+  steps:
+    - action: bash
+      inputs:
+        command: |
+          echo {{ command }}
+      outputs:
+        stdout: my_command
+    - action: bash
+      inputs:
+        command: |
+          {{ my_command }}
+      outputs:
+        stdout: msg

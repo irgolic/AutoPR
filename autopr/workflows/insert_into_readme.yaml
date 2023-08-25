@@ -1,0 +1,49 @@
+insert_into_readme:
+  # Inserts content into a file between two HTML-style comments.
+  # If the file does not exist, it will be created.
+  # Unless two comments are found, the tag-delimited content will be appended to the end of the file.
+
+  inputs:
+    #: The path to the file to insert into
+    - filepath
+    #: The tagname, used in HTML-style comments (<!-- tag -->) surrounding the content
+    - tag
+    #: The content to insert
+    - content
+
+  # outputs:
+    #: The content of the file after the insertion
+    # - content
+
+  steps:
+    # Read the file
+    - action: read_file
+      inputs:
+        filepath:
+          var: filepath
+        ensure_exists: true
+      outputs:
+        contents: new_contents
+
+    # Insert the content between two <!-- tag --> markdown comments
+    - action: insert_content_into_text
+      inputs:
+        existing_content:
+          var: new_contents
+        delimiter:
+          template: "<!-- {{ tag }} -->"
+        content_to_add:
+          var: content
+      outputs:
+        content: content
+
+    # Write the file
+    - action: write_into_file
+      inputs:
+        filepath:
+          var: filepath
+        content:
+          var: content
+        append_at_the_end: false
+      outputs:
+        success: success

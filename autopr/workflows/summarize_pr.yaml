@@ -1,0 +1,24 @@
+summarize_pr:
+  inputs:
+    - pull_request
+  steps:
+    - action: bash
+      inputs:
+        command: 'git diff {{ pull_request.base_commit_sha }}'
+      outputs:
+        stdout: pr_diff
+    - action: prompt
+      inputs:
+        prompt_context:
+          - var: pr_diff
+            heading: 'Diff of the changes in the pull request'
+        instructions: "Express yourself in beautiful markdown, mostly with line items, each prefixed with an emoji."
+        prompt: |
+          Summarize the changes in the pull request for each file, with concrete line items, 
+          prefix the line items with emoji to semantically highlight the contents of the changes.
+          The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+      outputs:
+        result: summary
+    - action: comment
+      inputs:
+        comment: '{{ summary }}'

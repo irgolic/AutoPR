@@ -1,0 +1,101 @@
+---
+sidebar_position: 8
+---
+
+# 💧 Action Catalogue
+
+See here for a list of available actions to use in your workflows.
+
+## `bash`
+
+Run a bash command and return its output.
+
+Inputs:
+- `command`: The command to run.
+
+Outputs:
+- `stdout`: The standard output of the command.
+- `stderr`: The standard error of the command.
+
+## `comment`
+
+Posts a comment on an issue or pull request.
+
+Inputs:
+- `comment`: The body of the comment.
+- `issue_number`: The number of the issue or pull request to comment on. Optional, defaults to the pull request.
+
+## `commit_and_push`
+
+Commits and pushes the changes to the current branch.
+
+Inputs:
+- `commit_message`: The commit message. Optional, defaults to "AutoPR commit".
+- `filepaths`: The filepaths to commit. Optional, defaults to all files.
+
+## `crawl_folder`
+
+This action lists all the files and subfolders in a folder, excluding certain files and directories.
+
+Inputs:
+- `folder_path`: The folder to crawl.
+- `entries_to_ignore`: Files and subfolders to ignore during the crawl. Optional, defaults to `[]`.
+- `ignore_binary_files`: Whether to ignore binary files. Optional, defaults to `True`.
+
+Outputs:
+- `contents`: The list of files in the folder.
+
+## `insert_content_into_text`
+
+This action inserts content into a string at a specified delimiter. If the delimiter occurs only once in the string,
+the content is appended to the end of the string with delimiters. If the delimiter occurs two or more times, the
+content is inserted between the last two delimiters.
+
+Inputs:
+- `existing_content`: The existing content of the file/text etc.
+- `delimiter`: The delimiter to insert the content after. Example: `<!-- tag -->`
+- `content_to_add`: The content to insert
+
+Outputs:
+- `content`: The content of the file after the insertion
+
+
+## `prompt`
+
+Prompt the language model to generate a string.
+
+Inputs:
+- `model`: The model to use to generate the variable. Optional, defaults to "gpt-3.5-turbo-16k".
+- `prompt_context`: The context headings that are used to generate the variable. Optional, defaults to `None`.
+- `instructions`: The instructions to use to generate the variable. Optional, defaults to `""`.
+- `prompt`: The prompt to use to generate the variable. Optional, defaults to `""`.
+- `max_prompt_tokens`: Max tokens to use for the prompt. Optional, defaults to `8000`.
+- `max_response_tokens`: Max tokens to use for the response. Optional, defaults to `2000`.
+- `temperature`: The temperature to use for the response. Optional, defaults to `0.6`.
+
+Outputs:
+- `result`: The result of the LLM call.
+
+## `read_file.py`
+
+A class representing an action to read the contents of a file.
+
+Inputs:
+- `file_path`: The path to the file to read.
+- `ensure_exists`: Whether to raise an error if the file does not exist. Optional, defaults to `True`.
+
+Outputs:
+- `content`: The contents of the file.
+- `success`: Whether the file was read successfully.
+
+## `write_into_file.py`
+
+This action writes content into a file.
+
+Inputs:
+- `filepath`: The path of the file you want to write into.
+- `content`: The content to insert.
+- `append_at_the_end`: Whether to append the content just to the end of the file, or replace the entire file content. Optional, defaults to `True`.
+
+Outputs:
+- `success`: If the file was written to successfully.

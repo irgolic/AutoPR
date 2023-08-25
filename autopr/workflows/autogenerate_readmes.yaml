@@ -1,0 +1,206 @@
+reformat_results:
+  inputs:
+    - folder_name
+    - summary_dict
+    - folder_summary
+  outputs:
+    - formatted_summary
+  steps:
+    # Write README summary contents
+    - set_vars:
+        formatted_summary:
+          template: |
+            
+            ## 🌳 Living Summary
+            
+            {{ folder_summary }}
+            
+            {% for filename, description in summary_dict.items() %}
+            ### `{{ filename }}`
+            
+            {{ description }}
+
+            {% endfor %}
+
+
+# Workflows for summarizing file
+summarize_file:
+  # Read file and summarize it
+  inputs:
+    - path
+  outputs:
+    - summary
+  steps:
+
+    # Read the file
+    - action: read_file
+      inputs:
+        filepath:
+          var: path
+      outputs:
+        contents: contents
+
+    # Summarize the file
+    - action: prompt
+      inputs:
+        prompt_context:
+          - var: contents
+            heading: "File contents"
+        prompt:
+          param:
+            default: "What is the purpose of this file? Respond in 3-5 sentences."
+            name: FILE_SUMMARY_PROMPT
+        instructions:
+          param:
+            default: "Respond in 3-5 sentences."
+            name: FILE_SUMMARY_INSTRUCTIONS
+      outputs:
+        result: summary
+
+summarize_folder:
+  inputs:
+    - path
+    - ls_folder
+  outputs:
+    - folder_summary
+  steps:
+    # For each file/folder in the folder, summarize it
+    - iterate: ls_folder
+      as: subfolder_name
+      workflow: generate_summary
+      inputs:
+        path:
+          lambda: os.path.join(path, subfolder_name)
+      list_outputs:
+        summary: file_summaries_list # list[str]
+
+    # Join the summaries with the file/folder names
+    - set_vars:
+        summary_dict:
+          lambda: |
+            {
+              name: summary 
+              for name, summary in zip(ls_folder, file_summaries_list)
+              if summary != ""
+            }
+
+    # Generate summary for the folder
+    - action: prompt
+      inputs:
+        prompt_context:
+          - heading: "Files in this folder"
+            template: |
+              {% for name, summary in summary_dict.items() %}
+              {{ name }}:
+              ---
+              {{ summary }}
+              ---
+              {% endfor %}
+        prompt:
+          param:
+            default: "What's this folder all about? Respond in 3-5 sentences."
+            name: FOLDER_SUMMARY_PROMPT
+        instructions:
+          param:
+            default: "Respond in 3-5 sentences."
+            name: FOLDER_SUMMARY_INSTRUCTIONS
+      outputs:
+        result: folder_summary
+
+    # Construct absolute path to README and folder base name
+    - set_vars:
+        readme_path:
+          lambda: os.path.join(path, "README.md")
+        folder_name:
+          lambda: os.path.basename(path)
+
+    # Format the results
+    - workflow: reformat_results
+      inputs:
+        folder_name:
+          var: folder_name
+        summary_dict:
+          var: summary_dict
+        folder_summary:
+          var: folder_summary
+      outputs:
+        formatted_summary: formatted_summary
+
+    # Write README summary contents
+    - workflow: insert_into_readme
+      inputs:
+        filepath:
+          var: readme_path
+        tag:
+          const: "Living README Summary"
+        content:
+          var: formatted_summary
+
+    # Commit and push the changes
+    - action: commit_and_push
+      inputs:
+        commit_message:
+          template: |
+            "Living summary: {{ path }}"
+        filepaths:
+          template:
+            - "{{ readme_path }}"
+
+
+generate_summary:
+  # Entrypoint for summarizing both files and folders
+  inputs:
+    - path
+  outputs:
+    - summary
+  steps:
+    - if_lambda: not os.path.isdir(path)
+      then: summarize_file
+      else:
+        - set_vars:
+            ignored_files_param:
+              param:
+                name: IGNORE_FILES
+                default: []
+            all_ignored_files:
+              lambda: ignored_files_param + ["README.md"]
+        # Crawl the folder
+        - action: crawl_folder
+          inputs:
+            folder_path:
+              var: path
+            entries_to_ignore:
+              var: all_ignored_files
+          outputs:
+            contents: ls_folder
+
+        # Summarize the folder if it's not empty
+        - if_lambda: "len(ls_folder) == 0"
+          then:
+            set_vars:
+              summary:
+                const: ""
+          else:
+            workflow: summarize_folder
+            inputs:
+              path:
+                var: path
+              ls_folder:
+                var: ls_folder
+            outputs:
+              folder_summary: summary
+
+generate_readme_summaries:
+  # Executions of the defined workflows
+  steps:
+    # Summarize the folders
+    - workflow: generate_summary
+      inputs:
+        path:
+          const: .
+
+    # Commit and push the cache
+    - action: commit_and_push
+      inputs:
+        commit_message:
+          const: "Save README summaries cache"

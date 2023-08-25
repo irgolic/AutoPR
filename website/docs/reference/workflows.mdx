@@ -1,0 +1,389 @@
+---
+sidebar_position: 2
+---
+
+# 🌊 Workflows
+
+A workflow is an orchestration of actions.
+It can be triggered by an event, or it can be invoked by another workflow.
+In this section, we'll walk you through all the building blocks of a workflow.
+
+AutoPR comes with some default workflows, which you can find in [the workflow catalogue](../workflow-catalogue).
+
+It's easy to define custom workflows to automate various tasks.
+You can define workflows in `.autopr/workflows.yaml` or `.autopr/workflows/*.yaml`.
+
+## 🗝️ Workflow Skeleton
+
+A workflow definition has the following structure:
+
+```yaml
+workflow_name:
+  inputs:
+    - input1
+    - input2
+  outputs:
+    - output1
+    - output2
+  steps:
+    ...
+```
+
+This defines a workflow with the name `workflow_name`,
+which has two inputs named `input1` and `input2`, and two outputs named `output1` and `output2`.
+
+In the `steps` section, we operate with inputs to produce the desired outputs.
+
+Both `inputs` and `outputs` are optional.
+
+## 🏃‍ Steps
+
+There are multiple different possible steps to use in a workflow.
+Each step has a different purpose and syntax.
+
+### `set_vars`
+
+Workflows use the `set_vars` step to declare and construct variables.
+
+The same syntax can be used in action and workflow inputs, defaulting to `template`.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="constants" label="Constants">
+
+In AutoPR workflows, you can define constants with the `const` keyword.
+These hold various types (strings, integers, lists, dictionaries, etc.)
+
+```yaml
+set_constant_workflow:
+  outputs:
+    - int_const
+    - str_const
+    - list_const
+    - dict_const
+  steps:
+    - set_vars:
+        int_const:
+          const: 1
+        str_const:
+          const: "Hello world!"
+        list_const:
+          const:
+            - 1
+            - 2
+            - 3
+        dict_const:
+          const:
+            key1: value1
+            key2: value2
+```
+
+Here, we've defined a workflow named `set_constant_workflow` that defines and outputs four constants:
+- `int_const` with value `1`
+- `str_const` with value `"Hello world!"`
+- `list_const` with value `[1, 2, 3]`
+- `dict_const` with value `{"key1": "value1", "key2": "value2"}`
+
+You'll notice a similar pattern in the other examples as well.
+
+</TabItem>
+<TabItem value="templates" label="Templates">
+
+`template` uses Jinja2 templating to generate the variable's value. They can be useful when you already have a variable
+that you want to use as a template for another variable.
+
+```yaml
+set_template_workflow:
+  outputs:
+    - templated_var
+  steps:
+    - set_vars:
+        var_to_template:
+          const: "World"
+        templated_var:
+          template: 'Hello, {{ template }}!'
+```
+
+</TabItem>
+<TabItem value="lambdas" label="Lambdas">
+
+`lambda` is a Python expression that computes the variable's value.
+
+```yaml
+set_lambda_workflow:
+  outputs:
+    - lambda_var
+  steps:
+    - set_vars:
+        first_list:
+          const:
+            - 1
+            - 2
+            - 3
+        second_list:
+          const:
+            - "a"
+            - "b"
+            - "c"
+        lambda_var:
+          lambda: "dict(zip(first_list, second_list))"
+```
+
+</TabItem>
+<TabItem value="params" label="Params">
+
+`param` is an optional field that is assigned the value of the variable if it is not defined in the trigger declaration.
+
+```yaml
+set_params_workflow:
+  outputs:
+    - param_var
+  steps:
+    - set_vars:
+        param_var:
+          param:
+            name: IGNORE_FILES
+            default: []
+```
+
+If `IGNORE_FILES` is defined in the trigger, `param_var` will be assigned its value.
+Otherwise, `param_var` will be assigned an empty list.
+
+In the triggers, such parameters are specified as follows:
+
+```yaml
+triggers:
+  - name: trigger_name
+    workflow: set_params_workflow
+    params:
+      IGNORE_FILES:
+        - "file1"
+        - "file2"
+```
+
+</TabItem>
+<TabItem value="vars" label="Variables">
+
+If we've got already variable in scope and we want to assign its value to another variable, this is the way to do it:
+
+```yaml
+set_variable_workflow:
+  outputs:
+    - second_variable
+  steps:
+    - set_vars:
+        first_variable:
+          const: "Hello world!"
+        second_variable:
+          var: first_variable
+```
+
+</TabItem>
+</Tabs>
+
+### `action`
+
+`action` is a step that allows you to invoke an action from the [action catalogue](../action-catalogue).
+
+An action is a predefined operation or task that has inputs and outputs.
+
+One of the actions that comes with AutoPR is the `bash` action, which allows you to execute arbitrary bash commands,
+so we'll use it as an example:
+
+```yaml
+bash_workflow:
+  inputs:
+    - message
+  outputs:
+    - stdout
+  steps:
+    - action: bash
+      inputs:
+        command:
+          template: |
+            'echo "{{ message }}"'
+      outputs:
+        stdout: stdout
+```
+
+Note how the inputs use the same syntax as the `set_vars` step.
+
+When this workflow is triggered, it will execute the `bash` action with the given command and return its output in the `stdout` output.
+
+### `workflow`
+
+If you build a workflow that performs a specific task, you can invoke it from another workflow with the `workflow` step.
+This is particularly useful if you either want to reduce complexity of the workflows or
+reuse some of the workflows you've already defined.
+
+The available workflows are listed in the [workflow catalogue](../workflow-catalogue),
+or you can use one of your [custom-defined workflows](../tutorials/writing-a-workflow).
+
+Like invoking an action, invoking a workflow also has inputs and outputs.
+
+<Tabs>
+<TabItem value="setvarsworkflowinvocation" label="Vars example">
+
+Here's an example workflow that combines two variables using the `lambda` keyword:
+
+```yaml
+set_vars_workflow:
+  inputs:
+    - var1
+    - var2
+  outputs:
+    - var3
+  steps:
+    - set_vars:
+        var3:
+          lambda: "var1 + var2"
+```
+
+Now, we can define another workflow, which will use the `set_vars_workflow` we've just defined.
+
+```yaml
+usage_of_set_vars_workflow:
+  outputs:
+    - var3
+  steps:
+    - workflow: set_vars_workflow
+      inputs:
+        var1:
+          const: 1
+        var2:
+          const: 2
+      outputs:
+        var3: var3
+```
+
+This workflow, when triggered, will return value `3` in its `var3` output.
+
+</TabItem>
+<TabItem value="inputs" label="Bash example">
+
+We could also invoke the workflow defined above in the `action` section:
+
+```yaml
+invocation_of_bash_workflow:
+  outputs:
+    - output
+  steps:
+    - workflow: bash_workflow
+      inputs:
+        message:
+          const: "Hello world!"
+      outputs:
+        stdout: output
+```
+
+</TabItem>
+</Tabs>
+
+Note how the inputs use the same syntax as the `set_vars` step.
+
+### `if_lambda`
+
+Conditionals are decision-making steps based on certain conditions, the first of which is the `if_lambda` step.
+
+Assuming we've got workflows `summarize_file` and `summarize_dir` defined, we can use them in a conditional: 
+
+```yaml
+summarize_entry:
+  inputs:
+    - path
+  outputs:
+    - summary
+  steps:
+    - if_lambda: not os.path.isdir(path)
+      then: summarize_file
+      else: summarize_dir
+```
+
+This workflow has a very important assumption that the `summarize_file` and `summarize_dir` workflows have variable `path`
+as its only input and `summary` as its only output. This is because the `summarize_entry` workflow uses the `path` input
+and outputs.
+
+### `iterate`
+
+If we have a variable that's a list, or we would like to iterate a number of times,
+we can use the `iterate` step and perform some action or workflow multiple times.
+
+Workflows can iterate over lists or ranges, and combine with the `action` and `workflow` keyword.
+Most notably, they add an `as` keyword to define the name of the variable that will be used in the iteration,
+and change the `outputs` keyword to `list_outputs`, to define the list of outputs that will be returned.
+
+[//]: # (TODO add workflow iteration example)
+
+<Tabs>
+<TabItem value="action" label="Action iteration over a list">
+
+If `iterate`'s value is a variable of type `list`, the workflow will use iteration over a list.
+
+```yaml
+iter_var_action:
+  inputs:
+    - list_of_commands
+  outputs:
+    - outputs_list
+    - concatenated_outputs
+  steps:
+    - action: bash
+      iterate: list_of_commands
+      as: cmd
+      inputs:
+        command:
+          template: |
+            '{{ cmd }}'
+      list_outputs:
+        stdout: outputs_list
+    - action: bash
+      inputs:
+        command:
+          template: |
+            echo '{{ outputs_list | join("") }}'
+      outputs:
+        stdout: concatenated_outputs
+```
+
+This workflow will execute all the commands in the `list_of_commands` input and return the list of outputs in the `outputs_list` output.
+
+</TabItem>
+<TabItem value="workflow" label="Action iteration over a range">
+
+If `iterate`'s value is an integer, it will iterate as many times as specified. Variable, listed in the `as` field will
+serve as an iterator variable, which will be incremented by one in each iteration.
+
+```yaml
+iter_range_by_index_action:
+  inputs:
+    - list_of_commands
+  outputs:
+    - outputs_list
+    - concatenated_outputs
+  steps:
+    - action: bash
+      iterate: 2
+      as: cmd
+      inputs:
+        command:
+          lambda: '{{ list_of_commands[cmd] }}'
+      list_outputs:
+        stdout: outputs_list
+    - action: bash
+      inputs:
+        command:
+          template: |
+            echo '{{ outputs_list | join("") }}'
+      outputs:
+        stdout: concatenated_outputs
+```
+
+</TabItem>
+</Tabs>
+
+
+## 🚀 Let's go!
+
+Great, now you know how to define workflows. The next step is to [define your own custom workflow](../tutorials/writing-a-workflow).

@@ -5,3 +5,8 @@ __pycache__/
 *.diff
 !autopr/tests/resources/**/*.diff
 *.patch
+.ipynb_checkpoints
+
+.python-version
+
+!.vscode/

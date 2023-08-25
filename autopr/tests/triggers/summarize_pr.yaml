@@ -1,0 +1,5 @@
+triggers:
+  - label_substring: summarize
+    on_issue: false
+    on_pull_request: true
+    run: summarize_pr

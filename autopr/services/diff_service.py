@@ -1,12 +1,12 @@
 import tempfile
 from typing import Optional
 
-import structlog
 from git.repo import Repo
 
+from autopr.log_config import get_logger
 from autopr.models.artifacts import DiffStr
 
-log = structlog.get_logger()
+log = get_logger(__name__)
 
 
 class DiffService:

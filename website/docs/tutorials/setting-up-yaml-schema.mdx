@@ -1,0 +1,54 @@
+---
+sidebar_position: 3
+---
+
+# 📄 Writing YAML with Validation
+
+When working with YAML files, validating them is like a superpower that saves you a lot of time and effort.
+
+Each of the actions and workflows in AutoPR clearly define their inputs and outputs.
+By enabling validation, you inform your editor of these definitions, so it can help you avoid writing invalid YAML.
+
+There are three schemas available for validation:
+- `trigger_schema.json` - validates trigger files
+- `workflow_schema.json` - validates workflows files
+- `strict_workflow_schema.json` - validates workflows files, with strong typing for workflows
+
+## Writing with strict typing
+
+Compared to `workflow_schema`, `strict_workflow_schema` is also aware of workflow definitions (and their inputs/outputs).
+If you're using it to write custom workflows that reference themselves, you will need to regenerate it after definining
+the new workflows' names, inputs and outputs.
+
+Regenerate by running `python -m autopr.models.config.entrypoints`
+(or `make schema` if you're in the root of the AutoPR repository).
+
+Make sure to select the new schema file you generated if you were previously working off a remote URL.
+
+## Editor config
+
+AutoPR workflows and triggers are strictly typed, and the YAML files that define them are validated against a JSON schema.
+Configuring these in your editor can help you avoid errors and typos, and can help you discover new features.
+
+
+### VS Code
+
+AutoPR includes a [`.vscode` folder](https://github.com/irgolic/AutoPR/tree/docs-launch/.vscode),
+which already contains settings for schema validation. Additionally, make sure you have extension `YAML by Red Hat` installed.
+
+If you want to set schema validation for an external repository, simply copy
+[the `.vscode` folder](https://github.com/irgolic/AutoPR/tree/docs-launch/.vscode)
+into the root of your workspace.
+
+### PyCharm
+
+Head to `Preferences > Languages & Frameworks > Schemas and DTDs > JSON Schema Mappings` and add the following mappings:
+- AutoPR Triggers: `https://raw.githubusercontent.com/irgolic/AutoPR/triggers.schema.json`
+- AutoPR Workflows: `https://raw.githubusercontent.com/irgolic/AutoPR/workflows.schema.json`
+- AutoPR Strict Workflows: `https://raw.githubusercontent.com/irgolic/AutoPR/workflows-strict.schema.json`
+
+![PyCharm Schema Settings](/img/pycharm_schema_settings.png)
+
+Afterwards, while editing a YAML file, select the corresponding schema in the bottom right corner of the editor.
+
+![PyCharm Schema Selection](/img/pycharm_schema_selection.gif)

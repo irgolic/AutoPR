@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.9, 3.11]
         poetry-version: [1.3.2]
     steps:
       - name: Checkout repository
@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local
-          key: poetry-${{ matrix.poetry-version }}
+          key: poetry-${{ matrix.python-version }}-${{ matrix.poetry-version }}
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: pydeps-${{ hashFiles('**/poetry.lock') }}
+          key: pydeps-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         run: poetry install --with test --no-interaction --no-root

@@ -1,0 +1,5 @@
+triggers:
+  - branch_name: main
+    run: generate_readme_summaries
+    parameters:
+      FILE_SUMMARY_PROMPT: "What's the purpose of this file REALLY? Respond in 3-5 sentences."

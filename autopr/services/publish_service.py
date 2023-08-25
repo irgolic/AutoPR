@@ -1,3 +1,5 @@
+import asyncio
+import copy
 import json
 import sys
 import traceback
@@ -6,9 +8,9 @@ from typing import Optional, Union, Any, Type
 import pydantic
 import requests
 
-from autopr.models.artifacts import Issue
-
-import structlog
+from autopr.log_config import get_logger
+from autopr.models.artifacts import Issue, Message, PullRequest
+from autopr.services.platform_service import PlatformService, DummyPlatformService
 
 
 class CodeBlock(pydantic.BaseModel):
@@ -54,42 +56,61 @@ class PublishService:
     - `publish_code_block` to publish text in a triple-backtick-style code block
     """
 
+    schedule_updates_async = False
+
     def __init__(
         self,
+        platform_service: PlatformService,
         owner: str,
         repo_name: str,
-        head_branch: str,
         base_branch: str,
+        head_branch: str,
         issue: Optional[Issue] = None,
-        pull_request_number: Optional[int] = None,
+        pr_number: Optional[int] = None,
+        title: Optional[str] = None,
         loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
         overwrite_existing: bool = False,
+        **kwargs,
     ):
+        self.platform_service = platform_service
         self.owner = owner
         self.repo_name = repo_name
-        self.head_branch = head_branch
-        self.base_branch = base_branch
         self.issue = issue
-        self.pr_number = pull_request_number
+        self.pr_number = pr_number
+        self.base_branch = base_branch
+        self.head_branch = head_branch
+
         self.loading_gif_url = loading_gif_url
         self.overwrite_existing = overwrite_existing
 
         # GitHub comment length limit is ~262144, not 65536 as stated in the docs
-        self.max_comment_length = 260000
+        self.max_comment_length = 200000
 
-        if issue is not None:
-            self.title: str = f"Fix #{issue.number}: {issue.title}"
+        # Root publish service instance is used to perform operations
+        self.root_publish_service: Optional[PublishService] = None
+
+        # list of comment IDs, incl. PRBodySentinel to denote the body of the PR
+        self._comment_ids: list[Union[str, Type[PlatformService.PRBodySentinel]]] = []
+
+        if title is None:
+            if issue is not None:
+                self.title: str = f"Fix #{issue.number}: {issue.title}"
+            else:
+                self.title: str = "AutoPR"
         else:
-            self.title: str = "AutoPR"
+            self.title: str = title
         self.root_section = UpdateSection(
             level=0,
             title="root",
         )
         self.sections_stack: list[UpdateSection] = [self.root_section]
 
-        self.log = structlog.get_logger(service="publish")
+        self.child_count = 0
 
-        self._last_code_block: Optional[CodeBlock] = None
+        self.log = get_logger(service="publish")
+
+        self._last_code_blocks: dict[PublishService, CodeBlock] = {}
+        self._scheduled_update_task: Optional[asyncio.Task[Any]] = None
 
         self.error_report_template = """
 ## Traceback
@@ -103,7 +124,28 @@ class PublishService:
                                               "labels=bug&" \
                                               "body={body}"
 
-    def set_title(self, title: str):
+    async def create_child(self, title: str) -> 'PublishService':
+        """
+        Create another instance of publish service, with its root in the current section.
+        """
+        await self.start_section(title)
+        child = type(self)(**self.__dict__)
+        child.root_publish_service = self.root_publish_service or self
+        child.root_section = self.root_section
+        child.sections_stack = [self.sections_stack[-1]]
+
+        self.child_count += 1
+
+        if "path" in self.log._context:
+            log_id = self.log._context["path"] + f".{self.child_count}"
+        else:
+            log_id = f"{self.child_count}"
+        child.log = self.log.bind(path=log_id)
+
+        await self.end_section()
+        return child
+
+    async def set_title(self, title: str):
         """
         Set the pull request title and body.
         A description heading will be added to the body.
@@ -115,14 +157,16 @@ class PublishService:
         body: str
             The body of the pull request
         """
+        if self.root_publish_service is not None:
+            return await self.root_publish_service.set_title(title)
         if self.pr_number is None:
-            self.update()
+            await self.update(wait=True)
             if self.pr_number is None:
                 raise RuntimeError("Error creating pull request")
         else:
-            self._set_title(title)
+            await self.platform_service.set_title(title)
 
-    def publish_update(
+    async def publish_update(
         self,
         text: str,
         section_title: Optional[str] = None,
@@ -143,9 +187,9 @@ class PublishService:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
         self.log.debug("Publishing update", text=text)
-        self.update()
+        await self.update()
 
-    def publish_code_block(
+    async def publish_code_block(
         self,
         heading: str,
         code: str,
@@ -175,15 +219,18 @@ class PublishService:
             language=language,
             default_open=default_open,
         )
-        self._last_code_block = block
+        if self.root_publish_service is not None:
+            self.root_publish_service._last_code_blocks[self] = block
+        else:
+            self._last_code_blocks[self] = block
         self.sections_stack[-1].updates.append(block)
         if section_title:
             if self.sections_stack is self.root_section:
                 raise ValueError("Cannot set section title on root section")
             self.sections_stack[-1].title = section_title
-        self.update()
+        await self.update()
 
-    def start_section(
+    async def start_section(
         self,
         title: str,
     ):
@@ -202,9 +249,9 @@ class PublishService:
         )
         self.sections_stack[-1].updates.append(new_section)  # Add the new section as a child
         self.sections_stack.append(new_section)
-        self.update()
+        await self.update()
 
-    def update_section(self, title: str):
+    async def update_section(self, title: str):
         """
         Update the title of the current section.
 
@@ -217,9 +264,9 @@ class PublishService:
             raise ValueError("Cannot set section title on root section")
         self.log.debug("Updating section", title=title)
         self.sections_stack[-1].title = title
-        self.update()
+        await self.update()
 
-    def end_section(
+    async def end_section(
         self,
         title: Optional[str] = None,
     ):
@@ -240,33 +287,47 @@ class PublishService:
             self.sections_stack[-1].title = title
         self.sections_stack.pop()
 
-        self.update()
+        await self.update()
 
     def _contains_last_code_block(self, parent: UpdateSection) -> bool:
         for section in reversed(parent.updates):
             if isinstance(section, CodeBlock):
-                return section is self._last_code_block
+                return section in self._last_code_blocks.values()
             elif isinstance(section, UpdateSection):
                 return self._contains_last_code_block(section)
         return False
 
-    def _build_progress_update(self, section: UpdateSection, open_default: bool = False) -> str:
+    def _build_progress_update(
+        self,
+        leaf_node_count: int,
+        section: UpdateSection,
+        open_default: bool = False,
+        is_root: bool = False,
+    ) -> tuple[str, int]:
         progress = ""
         # Get list of steps
         updates = []
         for update in section.updates:
+            if leaf_node_count == 0:
+                break
+
             if isinstance(update, UpdateSection):
                 # Recursively build updates
-                updates += [self._build_progress_update(
+                new_update, leaf_node_count = self._build_progress_update(
+                    leaf_node_count,
                     update,
                     open_default=(
                         self._contains_last_code_block(update) or update is section.updates[-1]
                     ),
-                )]
+                )
+                updates += [new_update]
                 continue
+
+            leaf_node_count -= 1
+
             if isinstance(update, CodeBlock):
                 # If is the last code block
-                if self._last_code_block is None or update is self._last_code_block or update is section.updates[-1]:
+                if update is self._last_code_blocks.values() or update is section.updates[-1]:
                     # Clone the block and set default_open to True
                     update = update.copy()
                     update.default_open = True
@@ -275,19 +336,38 @@ class PublishService:
             updates += [update]
 
         # Prefix updates with quotation
-        updates = '\n\n'.join(updates)
-        updates = '\n'.join([f"> {line}" for line in updates.splitlines()])
+        updates_str = '\n\n'.join(updates)
 
         # Leave the last section open if we're not finalizing (i.e. if we're still running or errored)
-        progress += f"""<details{' open' if open_default else ''}>
+        if not is_root:
+            if len(updates) > 1:
+                updates_str = '\n'.join([f"> {line}" for line in updates_str.splitlines()])
+            elif len(updates) == 1 and section.level > 1:
+                open_default = True
+            progress += f"""<details{' open' if open_default else ''}>
 <summary>{section.title}</summary>
 
-{updates}
+{updates_str}
 </details>"""
+        else:
+            progress += updates_str
 
-        return progress
+        return progress, leaf_node_count
 
-    def _build_bodies(self, success: Optional[bool] = None) -> list[str]:
+    def _pop_leaf_nodes(self, section: UpdateSection, num: int) -> int:
+        while num > 0:
+            if len(section.updates) == 0:
+                break
+            elif isinstance(section.updates[0], UpdateSection):
+                num = self._pop_leaf_nodes(section.updates[0], num)
+                if len(section.updates[0].updates) == 0:
+                    section.updates.pop(0)
+            else:
+                section.updates.pop(0)
+                num -= 1
+        return num
+
+    def _build_bodies(self, success: Optional[bool] = None, exceptions: Optional[list[Exception]] = None) -> list[str]:
         """
         Builds the body of the pull request, splitting it into multiple bodies if necessary.
         Assumes that the top-level section groups are each small enough to fit within `max_comment_length`.
@@ -306,36 +386,47 @@ class PublishService:
         elif not success:
             body += f"This pull request was being autonomously generated by " \
                     f"[AutoPR](https://github.com/irgolic/AutoPR), but it encountered an error."
-            if sys.exc_info()[0] is not None:
-                body += f"\n\nError:\n\n```\n{traceback.format_exc()}\n```"
+            if exceptions:
+                for exception in exceptions:
+                    body += (f"\n\nError:\n\n```\n"
+                             f"{traceback.format_exception(type(exception), exception, exception.__traceback__)}"
+                             f"\n```")
             body += f'\n\nPlease <a href="{self._build_issue_template_link()}">open an issue</a> to report this.'
         elif success:
             body += f"This pull request was autonomously generated by [AutoPR](https://github.com/irgolic/AutoPR).\n\n" \
                     f"If there's a problem with this pull request, please " \
                     f"[open an issue]({self._build_issue_template_link()})."
 
-        for section in self.root_section.updates:
-            if isinstance(section, UpdateSection):
-                progress_update = self._build_progress_update(
-                    section,
+        # Iteratively try adding n sections to the body until we hit the max length
+        root = copy.deepcopy(self.root_section)
+        n = 0
+        while root.updates:
+            new_body = body
+            finished = False
+            while len(new_body) < self.max_comment_length and not finished:
+                n += 1
+                progress_update, finished = self._build_progress_update(
+                    n,
+                    root,
                     open_default=(
-                        not success and
-                        (section is self.root_section.updates[-1] or self._contains_last_code_block(section))
+                        not success
                     ),
+                    is_root=True,
                 )
-            else:
-                progress_update = str(section)
-            if len(body) + len('\n\n' + progress_update) > self.max_comment_length:
-                bodies += [body]
-                body = f"## Status (continued)\n\n{progress_update}"
-            else:
-                body += f"\n\n{progress_update}"
+                new_body = body + f"\n\n{progress_update}"
+            bodies += [new_body]
+            self._pop_leaf_nodes(root, n)
+            if finished:
+                break
+            body = f"## Status (continued)"
+            n = 0
+        if not bodies:
+            bodies += [body]
 
         if success is None:
-            body += f"\n\n" \
-                    f'<img src="{self.loading_gif_url}"' \
-                    f' width="200" height="200"/>'
-        bodies += [body]
+            bodies[-1] += f"\n\n" \
+                          f'<img src="{self.loading_gif_url}"' \
+                          f' width="200" height="200"/>'
         # self.log.debug("Built bodies", bodies=bodies)
         return bodies
 
@@ -362,14 +453,41 @@ class PublishService:
         encoded_url = issue_link.replace(' ', '%20').replace('\n', '%0A').replace('"', '%22').replace("#", "%23")
         return encoded_url
 
-    def update(self):
+    async def update(self, wait: bool = False):
+        """
+        Schedule an _update call in the async event loop, at most once every two seconds.
+        """
+        if self.root_publish_service is not None:
+            return await self.root_publish_service.update(wait=wait)
+        if not self.schedule_updates_async:
+            return await self._update()
+
+        if self._scheduled_update_task is not None:
+            # wait for the previous update to finish
+            if wait:
+                self.log.debug("Waiting for previous update to finish")
+                await self._scheduled_update_task
+            return
+        self.log.debug("Scheduling update")
+        self._scheduled_update_task = asyncio.create_task(self._update())
+        if wait:
+            self.log.debug("Waiting for update to finish")
+            await self._scheduled_update_task
+
+    async def _update(self):
         """
         Update the PR body with the current progress.
         """
-        bodies = self._build_bodies()
-        self._publish_progress(bodies)
+        try:
+            bodies = self._build_bodies()
+            await self._publish_progress(bodies)
+        except Exception:
+            self.log.error("Error updating PR", exc_info=True)
+        finally:
+            self._scheduled_update_task = None
+            self.log.debug("Update finished")
 
-    def finalize(self, success: bool):
+    async def finalize(self, success: bool, exceptions: Optional[list[Exception]] = None):
         """
         Finalize the PR, either successfully or unsuccessfully.
         Will render the final PR description without the loading gif.
@@ -378,46 +496,24 @@ class PublishService:
         ----------
         success: bool
             Whether the PR was successful or not
+        exceptions: Optional[list[Exception]]
+            A list of exceptions that occurred during the PR
         """
         bodies = self._build_bodies(success=success)
-        self._publish_progress(bodies, success=success)
+        await self._publish_progress(bodies, success=success)
 
-    def publish_comment(self, text: str, issue_number: Optional[int] = None) -> Optional[str]:
+    async def publish_comment(self, text: str, issue_number: Optional[int] = None) -> Optional[str]:
+        if self.root_publish_service is not None:
+            return await self.root_publish_service.publish_comment(text, issue_number)
         if issue_number is None:
             if self.pr_number is None:
-                self.update()
+                await self.update(wait=True)
                 if self.pr_number is None:
                     raise RuntimeError("Error creating pull request")
             issue_number = self.pr_number
-        return self._publish_comment(text, issue_number)
+        return await self.platform_service.publish_comment(text, issue_number)
 
-    def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
-        """
-        Publish a comment to the issue (pull requests are also issues).
-
-        Parameters
-        ----------
-
-        text: str
-            The text to comment
-        issue_number: Optional[int]
-            The issue number to comment on. If None, should comment on the PR.
-        """
-        raise NotImplementedError
-
-    def _set_title(self, title: str):
-        """
-        Set the title of the pull request.
-
-        Parameters
-        ----------
-
-        title: str
-            The title to set
-        """
-        raise NotImplementedError
-
-    def _publish_progress(
+    async def _publish_progress(
         self,
         bodies: list[str],
         success: bool = False,
@@ -434,7 +530,46 @@ class PublishService:
         success: bool
             Whether generation was successful or not
         """
-        raise NotImplementedError
+        # If overwrite existing, find the PR number
+        if not self.pr_number and self.overwrite_existing:
+            pr_number = await self.platform_service.find_existing_pr(self.head_branch, self.base_branch)
+            if pr_number is not None:
+                self.pr_number = pr_number
+
+        # If PR does not exist yet, create it
+        # TODO `pr_number` is not propagated to children!
+        #  with lists they retain the reference, but with ints they don't
+        if not self.pr_number:
+            pr_number, comment_ids = await self.platform_service.create_pr(
+                self.title,
+                bodies,
+                success,
+                self.head_branch,
+                self.base_branch
+            )
+            if pr_number is None:
+                raise RuntimeError("Failed to create PR")
+            self.pr_number = pr_number
+            self._comment_ids.extend(comment_ids)
+            return
+
+        # Update the comments
+        for i, body in enumerate(bodies):
+            if i >= len(self._comment_ids):
+                comment_id = await self.publish_comment(body, self.pr_number)
+                if comment_id is None:
+                    raise RuntimeError("Failed to publish progress comment")
+                    # self.log.error("Failed to publish progress comment")
+                self._comment_ids.append(comment_id)
+                continue
+            comment_id = self._comment_ids[i]
+            if comment_id is PlatformService.PRBodySentinel:
+                await self.platform_service.update_pr_body(self.pr_number, body)
+            else:
+                await self.platform_service.update_comment(str(comment_id), body)
+
+        # Update draft status
+        await self.platform_service.set_pr_draft_status(self.pr_number, not success)
 
 
 class GitHubPublishService(PublishService):
@@ -446,43 +581,37 @@ class GitHubPublishService(PublishService):
 
     """
 
-    class PRBodySentinel:
-        pass
+    schedule_updates_async = True
 
     def __init__(
         self,
-        token: str,
+        platform_service,
         run_id: str,
         owner: str,
         repo_name: str,
-        head_branch: str,
         base_branch: str,
+        head_branch: str,
         issue: Optional[Issue] = None,
-        pull_request_number: Optional[int] = None,
+        pr_number: Optional[int] = None,
+        title: Optional[str] = None,
         loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
         overwrite_existing: bool = False,
+        **kwargs,
     ):
         super().__init__(
+            platform_service=platform_service,
             owner=owner,
             repo_name=repo_name,
+            issue=issue,
+            pr_number=pr_number,
+            loading_gif_url=loading_gif_url,
+            title=title,
+            overwrite_existing=overwrite_existing,
             head_branch=head_branch,
             base_branch=base_branch,
-            issue=issue,
-            pull_request_number=pull_request_number,
-            loading_gif_url=loading_gif_url,
-            overwrite_existing=overwrite_existing,
+            **kwargs,
         )
-        self.token = token
         self.run_id = run_id
-
-        self.pr_node_id: Optional[str] = None
-
-        self._drafts_supported = True
-
-        # list of comment IDs, incl. PRBodySentinel to denote the body of the PR
-        self._comment_ids: list[Union[str, Type[GitHubPublishService.PRBodySentinel]]] = []
-
-        self.max_char_length = 65536
 
         self.error_report_template = """
 {shield}
@@ -492,38 +621,6 @@ Issue: {issue_link}
 Pull Request: {pr_link}
 
 """ + self.error_report_template
-
-    def _log_failed_request(
-        self,
-        reason: str,
-        response: requests.Response,
-        request_url: str,
-        request_headers: Optional[dict[str, Any]] = None,
-        request_params: Optional[dict[str, Any]] = None,
-        request_body: Optional[dict[str, Any]] = None,
-    ):
-        try:
-            text = response.json()
-        except json.JSONDecodeError:
-            text = response.text
-
-        self.log.error(
-            reason,
-            request_url=request_url,
-            request_headers=request_headers,
-            request_params=request_params,
-            request_body=request_body,
-            response_text=text,
-            response_code=response.status_code,
-            response_headers=response.headers,
-        )
-
-    def _get_headers(self):
-        return {
-            'Authorization': f'Bearer {self.token}',
-            'Accept': 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28',
-        }
 
     def _get_shield(self, success: Optional[bool] = None):
         action_url = f'https://github.com/{self.owner}/{self.repo_name}/actions/runs/{self.run_id}'
@@ -548,279 +645,57 @@ Pull Request: {pr_link}
             kwargs['pr_link'] = "None"
         return super()._build_issue_template_link(**kwargs)
 
-    def _build_bodies(self, success: Optional[bool] = None):
-        bodies = super()._build_bodies(success=success)
+    def _build_bodies(self, success: Optional[bool] = None, exceptions: Optional[list[Exception]] = None):
+        bodies = super()._build_bodies(success=success, exceptions=exceptions)
 
         # Make shield
         shield = self._get_shield(success=success)
         bodies[0] = shield + '\n\n' + bodies[0]
         return bodies
 
-    def _set_title(self, title: str):
-        self._update_pr_title(self.pr_number, title)
-
-    def _publish_progress(self, bodies: list[str], success: bool = False):
-        # If overwrite existing, find the PR number
-        if not self.pr_number and self.overwrite_existing:
-            pr = self._find_existing_pr()
-            if pr is not None:
-                self.pr_number = pr['number']
-                self.pr_node_id = pr['node_id']
-
-        # If PR does not exist yet, create it
-        if not self.pr_number:
-            pr = self._create_pr(self.title, bodies, success)
-            if pr is None:
-                raise RuntimeError("Failed to create PR")
-            self.pr_number = pr['number']
-            self.pr_node_id = pr['node_id']
-            return
-
-        # Update the comments
-        for i, body in enumerate(bodies):
-            if i >= len(self._comment_ids):
-                comment_id = self.publish_comment(body, self.pr_number)
-                if comment_id is None:
-                    raise RuntimeError("Failed to publish progress comment")
-                self._comment_ids.append(comment_id)
-                continue
-            comment_id = self._comment_ids[i]
-            if comment_id is self.PRBodySentinel:
-                self._update_pr_body(self.pr_number, body)
-            else:
-                self._update_pr_comment(str(comment_id), body)
-
-        # Update draft status
-        if self._drafts_supported:
-            if self.pr_node_id is None:
-                self.pr_node_id = self._get_pull_request_node_id(self.pr_number)
-            self._set_pr_draft_status(self.pr_node_id, not success)
-
-    def _find_existing_pr(self) -> Optional[dict[str, Any]]:
-        """
-        Returns the PR dict of the first open pull request with the same head and base branches
-        """
-
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
-        headers = self._get_headers()
-        params = {'state': 'open', 'head': f'{self.owner}:{self.head_branch}', 'base': self.base_branch}
-        response = requests.get(url, headers=headers, params=params)
-
-        if response.status_code == 200:
-            prs = response.json()
-            if prs:
-                return prs[0]  # Return the first pull request found
-
-        self._log_failed_request(
-            'Failed to get pull requests',
-            request_url=url,
-            request_headers=headers,
-            request_params=params,
-            response=response,
-        )
-        return None
-
-    def _create_pr(self, title: str, bodies: list[str], success: bool) -> dict[str, Any]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
-        headers = self._get_headers()
-        data = {
-            'head': self.head_branch,
-            'base': self.base_branch,
-            'title': title,
-            'body': bodies[0],
-        }
-        if self._drafts_supported:
-            data['draft'] = "true" if not success else "false"
-        response = requests.post(url, json=data, headers=headers)
-
-        if response.status_code != 201:
-            # if draft pull request is not supported
-            if self._is_draft_error(response.text):
-                del data['draft']
-                response = requests.post(url, json=data, headers=headers)
-                if response.status_code != 201:
-                    self._log_failed_request(
-                        'Failed to create pull request',
-                        request_url=url,
-                        request_headers=headers,
-                        request_body=data,
-                        response=response,
-                    )
-
-                    raise RuntimeError('Failed to create pull request')
-            else:
-                self._log_failed_request(
-                    'Failed to create pull request',
-                    request_url=url,
-                    request_headers=headers,
-                    request_body=data,
-                    response=response,
-                )
-                raise RuntimeError('Failed to create pull request')
-
-        self.log.debug('Pull request created successfully',
-                       headers=response.headers)
-        pr = response.json()
-        pr_number = pr['number']
-
-        self._comment_ids = [self.PRBodySentinel]
-
-        # Add additional bodies as comments
-        for body in bodies[1:]:
-            id_ = self.publish_comment(body, pr_number)
-            if id_ is None:
-                raise RuntimeError("Failed to publish progress comment")
-            self._comment_ids.append(id_)
-
-        return pr
-
-    def _patch_pr(self, pr_number: int, data: dict[str, Any]):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
-        headers = self._get_headers()
-        response = requests.patch(url, json=data, headers=headers)
-
-        if response.status_code == 200:
-            self.log.debug('Pull request updated successfully')
-            return
-
-        self._log_failed_request(
-            'Failed to update pull request',
-            request_url=url,
-            request_headers=headers,
-            request_body=data,
-            response=response,
-        )
-
-    def _is_draft_error(self, response_text: str):
-        response_obj = json.loads(response_text)
-        is_draft_error = 'message' in response_obj and \
-            'draft pull requests are not supported' in response_obj['message'].lower()
-        if is_draft_error:
-            self.log.warning("Pull request drafts error on this repo")
-            self._drafts_supported = False
-        return is_draft_error
-
-    def _get_pull_request_node_id(self, pr_number: str) -> str:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
-        headers = self._get_headers()
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            return response.json()['node_id']
-
-        self._log_failed_request(
-            'Failed to get pull request node id',
-            request_url=url,
-            request_headers=headers,
-            response=response,
-        )
-
-        raise RuntimeError('Failed to get pull request node id')
-
-    def _set_pr_draft_status(self, pr_node_id: str, is_draft: bool):
-        # sadly this is only supported by graphQL
-        if is_draft:
-            graphql_query = '''
-                mutation ConvertPullRequestToDraft($pullRequestId: ID!) {
-                  convertPullRequestToDraft(input: { pullRequestId: $pullRequestId }) {
-                    clientMutationId
-                  }
-                }
-            '''
-        else:
-            graphql_query = '''
-                mutation MarkPullRequestReadyForReview($pullRequestId: ID!) {
-                  markPullRequestReadyForReview(input: { pullRequestId: $pullRequestId }) {
-                    clientMutationId
-                  }
-                }
-            '''
-        headers = self._get_headers() | {
-            'Content-Type': 'application/json'
-        }
-
-        # Undraft the pull request
-        data = {'pullRequestId': pr_node_id}
-        url = 'https://api.github.com/graphql'
-        body = {'query': graphql_query, 'variables': data}
-        response = requests.post(
-            url,
-            headers=headers,
-            json=body,
-        )
-
-        if response.status_code == 200:
-            self.log.debug('Pull request draft status updated successfully')
-            return
-
-        self._log_failed_request(
-            'Failed to update pull request draft status',
-            request_url=url,
-            request_headers=headers,
-            request_body=body,
-            response=response,
-        )
-
-        self._drafts_supported = False
-
-    def _update_pr_body(self, pr_number: int, body: str):
-        self._patch_pr(pr_number, {'body': body})
-
-    def _update_pr_title(self, pr_number: int, title: str):
-        self._patch_pr(pr_number, {'title': title})
-
-    def _update_pr_comment(self, comment_id: str, body: str):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/comments/{comment_id}'
-        headers = self._get_headers()
-        response = requests.patch(url, json={'body': body}, headers=headers)
-
-        if response.status_code == 200:
-            self.log.debug('Comment updated successfully')
-            return
-
-        self._log_failed_request(
-            'Failed to update comment',
-            request_url=url,
-            request_headers=headers,
-            request_body={'body': body},
-            response=response,
-        )
-
-    def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}/comments'
-        headers = self._get_headers()
-        data = {
-            'body': text,
-        }
-        response = requests.post(url, json=data, headers=headers)
-
-        if response.status_code == 201:
-            self.log.debug('Commented on issue successfully')
-            return response.json()['id']
-
-        self._log_failed_request(
-            'Failed to comment on issue',
-            request_url=url,
-            request_headers=headers,
-            request_body=data,
-            response=response,
-        )
-        return None
-
 
 class DummyPublishService(PublishService):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            platform_service=DummyPlatformService(),
             owner='',
             repo_name='',
-            head_branch='',
             base_branch='',
+            head_branch='',
         )
 
-    def _publish_progress(self, body: str, success: bool = False):
-        pass
+    async def start_section(
+        self,
+        title: str,
+    ):
+        print(f'Start section: {title}')
 
-    def _set_title(self, title: str):
-        pass
+    async def end_section(
+        self,
+        title: Optional[str] = None,
+    ):
+        print('End section')
 
-    def _publish_comment(self, text: str, issue_number: int) -> Optional[str]:
+    async def publish_update(
+        self,
+        text: str,
+        section_title: Optional[str] = None,
+    ):
+        print(text)
+
+    async def publish_code_block(
+        self,
+        heading: str,
+        code: str,
+        default_open: bool = False,
+        language: str = "xml",
+        section_title: Optional[str] = None,
+    ):
+        print(f"""
+{heading}
+```{language}        
+{code}
+```""")
+
+    async def finalize(self, success: bool, exceptions: Optional[list[Exception]] = None):
         pass

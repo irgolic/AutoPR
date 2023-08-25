@@ -1,8 +1,9 @@
 import os
+from typing import Optional
 
 from git.repo import Repo
 
-import structlog
+from autopr.log_config import get_logger
 
 
 class CommitService:
@@ -26,7 +27,7 @@ class CommitService:
 
         self._empty_commit_message = "[placeholder]"
 
-        self.log = structlog.get_logger(service="commit")
+        self.log = get_logger(service="commit")
 
     def overwrite_new_branch(self):
         # Checkout and pull base branch
@@ -73,22 +74,23 @@ class CommitService:
             self.log.debug(f'Branch {self.branch_name} does not exist, creating...')
             self.overwrite_new_branch()
 
-    def commit(self, commit_message: str, push: bool = True) -> None:
+    def commit(
+        self,
+        commit_message: str,
+        push: bool = True,
+        filepaths: Optional[list[str]] = None,
+    ) -> None:
         # Remove empty commit if exists
         if commit_message != self._empty_commit_message and \
                 self.repo.head.commit.message.rstrip() == self._empty_commit_message:
             self.log.debug('Removing empty commit...')
             self.repo.git.execute(["git", "reset", "HEAD^"])
 
-        # Remove guardrails log if exists (so it's not committed later)
-        if 'guardrails.log' in self.repo.untracked_files:
-            self.log.debug('Removing guardrails.log...')
-            os.remove(
-                os.path.join(self.repo_path, 'guardrails.log')
-            )
-
-        # Add and commit all
-        self.repo.git.execute(["git", "add", "."])
+        # Add and commit
+        if filepaths is None:
+            self.repo.git.execute(["git", "add", "-A"])
+        else:
+            self.repo.git.execute(["git", "add", *filepaths])
         self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit_message])
 
         # Get the commit's diff for log

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autopr"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Rafael Irgolic <hello@irgolic.com>"]
 license = "MIT"
@@ -9,20 +9,23 @@ packages = [{include = "autopr"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-guardrails-ai = {git = "https://github.com/irgolic/guardrails.git", branch="main"}
-pydantic = "^1.10.6"
+pydantic = "^1.10.9"
 gitpython = "^3.1.31"
-transformers = "^4.27.1"
 structlog = "^22.3.0"
 tenacity = "^8.2.2"
 pathspec = "^0.11.1"
-langchain = "^0.0.144"
 pyyaml = "^6.0"
+tiktoken = "^0.4.0"
+jinja2 = "^3.1.2"
+openai = "^0.27.9"
 
 [tool.poetry.group.test.dependencies]
 pyright = "^1.1.306"
 pytest = "^7.2.2"
 pytest-subtests = "^0.10.0"
+pytest-asyncio = "^0.21.1"
+pytest-mock = "^3.11.1"
+aioresponses = "^0.7.4"
 
 [build-system]
 requires = ["poetry-core"]
@@ -30,4 +33,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 exclude = ["**/resources/**"]
-include= ["**/autopr/**"]
+include = ["**/autopr/**"]
+reportMissingTypeArgument = true
+reportIncompatibleMethodOverride = true

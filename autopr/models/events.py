@@ -1,4 +1,4 @@
-from typing import Literal, Union
+from typing import Literal, Union, Optional
 
 import pydantic
 
@@ -11,25 +11,35 @@ class Event(pydantic.BaseModel):
     """
     event_type: str
 
+    pull_request: Optional[PullRequest] = None
+    issue: Optional[Issue] = None
 
-class IssueLabelEvent(Event):
-    """
-    Event triggered when a label is added to an issue.
-    """
-    event_type: Literal['issue_label'] = 'issue_label'
 
-    issue: Issue
+class LabelEvent(Event):
+    """
+    Event triggered when a label is added to an issue or pull request.
+    """
+    event_type: Literal['label'] = 'label'
+
     label: str
 
 
-class PullRequestCommentEvent(Event):
+class CommentEvent(Event):
     """
-    Event triggered when a comment is added to a pull request.
+    Event triggered when a comment is added to an issue or pull request.
     """
-    event_type: Literal['pull_request_comment'] = 'pull_request_comment'
+    event_type: Literal['comment'] = 'comment'
 
-    pull_request: PullRequest
-    new_comment: Message
+    comment: Message
+
+
+class PushEvent(Event):
+    """
+    Event triggered when a push is made to a branch.
+    """
+    event_type: Literal['push'] = 'push'
+
+    branch: str
 
 
 # class CodeReviewEvent(Event):
@@ -43,4 +53,4 @@ class PullRequestCommentEvent(Event):
 #     new_comment: Message
 
 
-EventUnion = Union[IssueLabelEvent, PullRequestCommentEvent]  # | CodeReviewEventa
+EventUnion = Union[LabelEvent, CommentEvent, PushEvent]  # | CodeReviewEvent

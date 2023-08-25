@@ -1,0 +1,386 @@
+---
+sidebar_position: 2
+---
+
+# 🌊 Writing a Workflow
+
+In this tutorial, we'll write a simple workflow that summarizes the changes in a pull request.
+Please note that this workflow resembles one of the default workflows in AutoPR, but is altered for sake of demonstration.
+
+You can define custom workflows in the `.autopr/workflows.yaml` file or `.autopr/workflows/*.yaml` folder in your repository.
+
+For a comprehensive overview of how to define workflows, please refer to [the workflows refrence](../reference/workflows).
+
+## 🐣 Before we get Started
+
+Workflows are written in YAML.
+
+[**Set up validation in your editor**](setting-up-yaml-schema) before you begin writing a workflow;
+this will help you discover the available actions and workflows, and help you write workflows faster and with fewer errors.
+
+You may use either the `workflow_schema.json` or `strict_workflow_schema.json` file.
+If you'd like to strictly type the workflow invocations as well, use the `strict_workflow_schema.json` file.
+As per the guide linked above, 
+you will need to regenerate it after defining the skeletons of your workflows, as it is generated from the workflows themselves.
+
+## 💦 The Actions
+
+The actions we'll be using are:
+- `bash`, to get the diff of the pull request;
+- `prompt`, to prompt the user to summarize the changes in the pull request;
+- `comment`, to post the summary as a comment on the pull request.
+
+## 🌊 The Workflow Definition
+
+Let's define the skeleton, including the inputs and outputs, which are defined as a list of variable names.
+
+```yaml
+summarize_my_pr:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+  outputs:
+    # The summary of the changes in the pull request
+    - summary
+  steps:
+    ...
+
+summarize_and_comment:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+  steps:
+    ...
+```
+
+We have defined two workflows, one which summarizes the PR, and one which invokes it, and then posts the summary as a comment on the pull request.
+`summarize_and_comment` will be the entrypoint we would specify in the trigger.
+
+In this case, `pull_request` is a special input that is automatically passed when the workflow is triggered by a pull request.
+Its model is defined as `PullRequest` in [`models/artifacts.py`](https://github.com/irgolic/AutoPR/blob/main/autopr/models/artifacts.py#L31).
+
+## 🏃‍ Defining the `summarize_my_pr` workflow
+
+Let's add the steps one by one.
+
+### Getting the Diff of the Pull Request
+
+We will invoke `git diff` bash command, against the pull request's base commit, to get the diff of the pull request.
+
+```yaml
+- action: bash
+  inputs:
+    command: 'git diff {{ pull_request.base_commit_sha }}'
+  outputs:
+    stdout: pr_diff
+```
+
+Inputs are [jinja2](https://jinja.palletsprojects.com/en/3.0.x/) templates by default,
+which means we can use variables like `pull_request.base_commit_sha` in them.
+
+Outputs define the names of the variables that the action will output.
+
+Alternatively, we could explicitly denote the input as a template,
+or define it as a template first, and then explicitly reference it as a variable.
+We could even construct the string with a python lambda function.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="explicittemplate" label="Explicit Template">
+
+```yaml
+- action: bash
+  inputs:
+    command:
+      template: 'git diff {{ pull_request.base_commit_sha }}'
+  outputs:
+    stdout: pr_diff
+```
+
+</TabItem>
+<TabItem value="setvars" label="Separate Variable">
+
+```yaml
+- set_vars:
+    pr_diff_command:
+      template: 'git diff {{ pull_request.base_commit_sha }}'
+- action: bash
+  inputs:
+    command:
+      var: pr_diff_command
+  outputs:
+    stdout: pr_diff
+```
+
+</TabItem>
+<TabItem value="lambda" label="Lambda">
+
+```yaml
+- action: bash
+  inputs:
+    command:
+      lambda: |
+        "git diff " + pull_request.base_commit_sha
+  outputs:
+    stdout: pr_diff
+```
+
+</TabItem>
+</Tabs>
+
+Please see [the workflows refrence](../reference/workflows#variable-declarations) for more information on all the possible ways to define inputs.
+
+### Generating the Summary
+
+Next, we'll prompt OpenAI's language models to summarize the changes in the pull request.
+
+The action takes instructions and a prompt as inputs, as well as prompt context.
+Prompt context is a list of variables and headings that prefix the language model prompt.
+The entries follow a similar syntax to `set_vars` and `inputs`, allowing use of the `var`, `template`, and `lambda` keywords coupled with the `heading`.
+
+The action outputs the result of the prompt as a variable caled `summary`.
+
+If you'd like to abstract any input (such as the prompt) out into a parameter configurable in the trigger definition,
+you can use the `param` keyword and a default value to reference the variable.
+This way, you can define the default value in the workflow definition, and override it in the trigger definition.
+For sake of example, let's go with the parameterized version.
+
+<Tabs>
+<TabItem value="simpleprompt" label="Simple">
+
+```yaml
+- action: prompt
+  inputs:
+    instructions: "Express yourself in beautiful markdown, mostly with line items, each prefixed with an emoji."
+    prompt: |
+      Summarize the changes in the pull request for each file, with concrete line items,
+      prefix the line items with emoji to semantically highlight the contents of the changes.
+      The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+    prompt_context:
+      - var: pr_diff
+        heading: 'Diff of the changes in the pull request'
+  outputs:
+    result: summary
+```
+
+</TabItem>
+<TabItem value="paramprompt" label="Parameterized">
+
+```yaml
+- action: prompt
+  inputs:
+    instructions: "Express yourself in beautiful markdown, mostly with line items, each prefixed with an emoji."
+    prompt:
+      param:
+        name: SUMMARY_PROMPT
+        default: |
+          Summarize the changes in the pull request for each file, with concrete line items,
+          prefix the line items with emoji to semantically highlight the contents of the changes.
+          The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+    prompt_context:
+      - var: pr_diff
+        heading: 'Diff of the changes in the pull request'
+  outputs:
+    result: summary
+```
+
+</TabItem>
+</Tabs>
+
+By default, the `prompt` action invokes `chatgpt-3.5-turbo-16k` model, but we can specify a different model by setting the `model` input.
+
+### The full `summarize_my_pr` workflow
+
+Our `summarize_my_pr` workflow is now complete.
+
+```yaml
+summarize_my_pr:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+  outputs:
+    # The summary of the changes in the pull request
+    - summary
+  steps:
+    # Get the diff of the pull request
+    - action: bash
+      inputs:
+        command: 'git diff {{ pull_request.base_commit_sha }}'
+      outputs:
+        stdout: pr_diff
+    # Generate the summary
+    - action: prompt
+      inputs:
+        instructions: "Express yourself in beautiful markdown, mostly with line items, each prefixed with an emoji."
+        prompt:
+          param:
+            name: SUMMARY_PROMPT
+            default: |
+              Summarize the changes in the pull request for each file, with concrete line items,
+              prefix the line items with emoji to semantically highlight the contents of the changes.
+              The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+        prompt_context:
+          - var: pr_diff
+            heading: 'Diff of the changes in the pull request'
+      outputs:
+        result: summary
+```
+
+## 🏃‍ Defining the `summarize_and_comment` Workflow
+
+Now, we'll define the `summarize_and_comment` workflow, which invokes the `summarize_my_pr` workflow,
+and then posts the summary as a comment on the pull request by running the `comment` action.
+
+### Invoking the `summarize_my_pr` Workflow
+
+We'll invoke the `summarize_my_pr` workflow, pass the pull request as an input, and receive the summary as an output.
+
+```yaml
+- workflow: summarize_my_pr
+  inputs:
+    pull_request:
+      var: pull_request
+  outputs:
+    summary: comment_text
+```
+
+At this point, if you're using `strict_workflow_schema.json` for validation, 
+and you've not regenerated it since defining the `summarize_my_pr` workflow,
+you'll get an error on the above step.
+Follow the instructions in the [**validation guide**](setting-up-yaml-schema) to regenerate the schema.
+
+### Posting the Summary as a Comment
+
+Finally, we'll post the summary as a comment on the pull request.
+
+```yaml
+- action: comment
+  inputs:
+    comment:
+      var: comment_text
+```
+
+The action takes a `comment` input (the `comment_text` variable returned by the `summarize_my_pr` workflow),
+which will be posted on the pull request.
+
+### The full `summarize_and_comment` Workflow
+
+The complete `summarize_and_comment` workflow is as follows:
+
+```yaml
+summarize_and_comment:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+  steps:
+    # Summarize the pull request
+    - workflow: summarize_my_pr
+      inputs:
+        pull_request:
+          var: pull_request
+      outputs:
+        summary: comment_text
+    # Post the summary as a comment on the pull request
+    - action: comment
+      inputs:
+        comment:
+          var: comment_text
+```
+
+## 🌊 The Complete Workflow File
+
+The complete workflow file is as follows:
+
+```yaml
+summarize_my_pr:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+
+  outputs:
+    # The summary of the changes in the pull request
+    - summary
+
+  steps:
+    # Get the diff of the pull request
+    - action: bash
+      inputs:
+        command: 'git diff {{ pull_request.base_commit_sha }}'
+      outputs:
+        stdout: pr_diff
+
+    # Generate the summary
+    - action: prompt
+      inputs:
+        instructions: "Express yourself in beautiful markdown, mostly with line items, each prefixed with an emoji."
+        prompt:
+          param:
+            name: SUMMARY_PROMPT
+            default: |
+              Summarize the changes in the pull request for each file, with concrete line items,
+              prefix the line items with emoji to semantically highlight the contents of the changes.
+              The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+        prompt_context:
+          - var: pr_diff
+            heading: 'Diff of the changes in the pull request'
+      outputs:
+        result: summary
+
+summarize_pr:
+  inputs:
+    # The pull request the workflow was triggered by
+    - pull_request
+
+  steps:
+    # Summarize the pull request
+    - workflow: summarize_my_pr
+      inputs:
+        pull_request:
+          var: pull_request
+      outputs:
+        summary: summary
+
+    # Post the summary as a comment on the pull request
+    - action: comment
+      inputs:
+        comment:
+          var: summary
+```
+
+## 🏁 Triggering
+
+Finally, we'll define the trigger that invokes the `summarize_and_comment` workflow.
+
+The parameterized version will override the prompt with a custom prompt,
+if the `prompt` action invocation above in `summarize_my_pr` is parameterized.
+
+<Tabs>
+<TabItem value="simpletrigger" label="Simple">
+
+```yaml
+triggers:
+  - type: label
+    label_substring: "summarize"
+    on_pull_request: true
+    run: summarize_and_comment
+```
+
+</TabItem>
+<TabItem value="paramtrigger" label="Parameterized">
+
+```yaml
+triggers:
+  - type: label
+    label_substring: "summarize"
+    on_pull_request: true
+    run: summarize_and_comment
+    parameters:
+      SUMMARY_PROMPT: |
+        Summarize the changes in the pull request for each file in 3-5 sentences.
+        The file may have been trimmed, there will be a `... (trimmed) ...` line in the diff if so.
+```
+
+</TabItem>
+</Tabs>

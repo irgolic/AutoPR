@@ -1,0 +1,4980 @@
+{
+  "title": "ParsingModel[TopLevelTriggerConfig]",
+  "$ref": "#/definitions/TopLevelTriggerConfig",
+  "definitions": {
+    "TemplateDeclaration": {
+      "title": "TemplateDeclaration",
+      "description": "A template declaration is a string that can be rendered within a context.",
+      "type": "object",
+      "properties": {
+        "template": {
+          "title": "Template",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            }
+          ]
+        }
+      },
+      "required": [
+        "template"
+      ],
+      "additionalProperties": false
+    },
+    "VarDeclaration": {
+      "title": "VarDeclaration",
+      "description": "A variable declaration is a string that references a variable (or path to nested variable) in the context.",
+      "type": "object",
+      "properties": {
+        "var": {
+          "title": "Var",
+          "type": "string"
+        }
+      },
+      "required": [
+        "var"
+      ],
+      "additionalProperties": false
+    },
+    "ConstDeclaration": {
+      "title": "ConstDeclaration",
+      "description": "A constant declaration is a string that is interpreted as a constant value.",
+      "type": "object",
+      "properties": {
+        "const": {
+          "title": "Const"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LambdaDeclaration": {
+      "title": "LambdaDeclaration",
+      "description": "A lambda declaration is a python expression that can be evaluated within a context.",
+      "type": "object",
+      "properties": {
+        "lambda": {
+          "title": "Lambda",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lambda"
+      ],
+      "additionalProperties": false
+    },
+    "Param": {
+      "title": "Param",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "default": {
+          "title": "Default",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "default"
+      ],
+      "additionalProperties": false
+    },
+    "ParamDeclaration": {
+      "title": "ParamDeclaration",
+      "description": "A parameter declaration is a string that references a parameter passed in trigger invocation.",
+      "type": "object",
+      "properties": {
+        "param": {
+          "$ref": "#/definitions/Param"
+        }
+      },
+      "required": [
+        "param"
+      ],
+      "additionalProperties": false
+    },
+    "commentInputsActionFieldTemplate": {
+      "title": "commentInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "title": "Comment",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "issue_number": {
+          "title": "Issue Number",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "comment"
+      ],
+      "additionalProperties": false
+    },
+    "commentActionModel": {
+      "title": "commentActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "comment"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/commentInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "commentIterableActionModel": {
+      "title": "commentIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "comment"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/commentInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "set_issue_titleInputsActionFieldTemplate": {
+      "title": "set_issue_titleInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "set_issue_titleActionModel": {
+      "title": "set_issue_titleActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "set_issue_title"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/set_issue_titleInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "set_issue_titleIterableActionModel": {
+      "title": "set_issue_titleIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "set_issue_title"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/set_issue_titleInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "crawl_folderInputsActionFieldTemplate": {
+      "title": "crawl_folderInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "entries_to_ignore": {
+          "title": "Entries To Ignore",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "folder_path": {
+          "title": "Folder Path",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ignore_binary_files": {
+          "title": "Ignore Binary Files",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "folder_path"
+      ],
+      "additionalProperties": false
+    },
+    "crawl_folderOutputsActionFieldTemplate": {
+      "title": "crawl_folderOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "crawl_folderActionModel": {
+      "title": "crawl_folderActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "crawl_folder"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/crawl_folderInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/crawl_folderOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "crawl_folderIterableActionModel": {
+      "title": "crawl_folderIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "crawl_folder"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/crawl_folderInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/crawl_folderOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "bashBashInputsActionFieldTemplate": {
+      "title": "bashBashInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "command": {
+          "title": "Command",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "bashBashOutputsActionFieldTemplate": {
+      "title": "bashBashOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "stdout": {
+          "title": "Stdout",
+          "type": "string"
+        },
+        "stderr": {
+          "title": "Stderr",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "bashActionModel": {
+      "title": "bashActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "bash"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/bashBashInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/bashBashOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "bashIterableActionModel": {
+      "title": "bashIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "bash"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/bashBashInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/bashBashOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "commit_and_pushInputsActionFieldTemplate": {
+      "title": "commit_and_pushInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "commit_message": {
+          "title": "Commit Message",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "filepaths": {
+          "title": "Filepaths",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "commit_and_pushActionModel": {
+      "title": "commit_and_pushActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "commit_and_push"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/commit_and_pushInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "commit_and_pushIterableActionModel": {
+      "title": "commit_and_pushIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "commit_and_push"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/commit_and_pushInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "write_into_fileInputsActionFieldTemplate": {
+      "title": "write_into_fileInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "filepath": {
+          "title": "Filepath",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "content": {
+          "title": "Content",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "append_at_the_end": {
+          "title": "Append At The End",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "filepath",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "write_into_fileOutputsActionFieldTemplate": {
+      "title": "write_into_fileOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "success": {
+          "title": "Success",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "write_into_fileActionModel": {
+      "title": "write_into_fileActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "write_into_file"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/write_into_fileInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/write_into_fileOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "write_into_fileIterableActionModel": {
+      "title": "write_into_fileIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "write_into_file"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/write_into_fileInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/write_into_fileOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "insert_content_into_textInputsActionFieldTemplate": {
+      "title": "insert_content_into_textInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "existing_content": {
+          "title": "Existing Content",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "delimiter": {
+          "title": "Delimiter",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "content_to_add": {
+          "title": "Content To Add",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "existing_content",
+        "delimiter",
+        "content_to_add"
+      ],
+      "additionalProperties": false
+    },
+    "insert_content_into_textOutputsActionFieldTemplate": {
+      "title": "insert_content_into_textOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "insert_content_into_textActionModel": {
+      "title": "insert_content_into_textActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "insert_content_into_text"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/insert_content_into_textInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/insert_content_into_textOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "insert_content_into_textIterableActionModel": {
+      "title": "insert_content_into_textIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "insert_content_into_text"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/insert_content_into_textInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/insert_content_into_textOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigVar": {
+      "title": "PromptContextInConfigVar",
+      "description": "A variable declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "var": {
+          "title": "Var",
+          "type": "string"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "var",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigTemplate": {
+      "title": "PromptContextInConfigTemplate",
+      "description": "A template string for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "template": {
+          "title": "Template",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            }
+          ]
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "template",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigLambda": {
+      "title": "PromptContextInConfigLambda",
+      "description": "A lambda declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "lambda": {
+          "title": "Lambda",
+          "type": "string"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "lambda",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigConst": {
+      "title": "PromptContextInConfigConst",
+      "description": "A constant declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "const": {
+          "title": "Const"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfig": {
+      "title": "PromptContextInConfig",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/PromptContextInConfigVar"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigTemplate"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigLambda"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigConst"
+          }
+        ]
+      }
+    },
+    "promptInputsActionFieldTemplate": {
+      "title": "promptInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "model": {
+          "title": "Model",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "prompt_context": {
+          "title": "Prompt Context",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PromptContextInConfig"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "instructions": {
+          "title": "Instructions",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "prompt": {
+          "title": "Prompt",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "max_prompt_tokens": {
+          "title": "Max Prompt Tokens",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "max_response_tokens": {
+          "title": "Max Response Tokens",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "strategy": {
+          "title": "Strategy",
+          "anyOf": [
+            {
+              "enum": [
+                "middle out"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "temperature": {
+          "title": "Temperature",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "promptOutputsActionFieldTemplate": {
+      "title": "promptOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "result": {
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "promptActionModel": {
+      "title": "promptActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "prompt"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/promptInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/promptOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "promptIterableActionModel": {
+      "title": "promptIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "prompt"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/promptInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/promptOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "read_fileInputsActionFieldTemplate": {
+      "title": "read_fileInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "filepath": {
+          "title": "Filepath",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ensure_exists": {
+          "title": "Ensure Exists",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "filepath"
+      ],
+      "additionalProperties": false
+    },
+    "read_fileOutputsActionFieldTemplate": {
+      "title": "read_fileOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        },
+        "success": {
+          "title": "Success",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "read_fileActionModel": {
+      "title": "read_fileActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "read_file"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/read_fileInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/read_fileOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "read_fileIterableActionModel": {
+      "title": "read_fileIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "read_file"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/read_fileInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/read_fileOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_prInputs": {
+      "title": "summarize_prInputs",
+      "type": "object",
+      "properties": {
+        "pull_request": {
+          "title": "Pull Request",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "pull_request"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_prWorkflowModel": {
+      "title": "summarize_prWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_prInputs"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_pr"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_prIterableWorkflowModel": {
+      "title": "summarize_prIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_prInputs"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_pr"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "reformat_resultsInputs": {
+      "title": "reformat_resultsInputs",
+      "type": "object",
+      "properties": {
+        "folder_name": {
+          "title": "Folder Name",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "summary_dict": {
+          "title": "Summary Dict",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "folder_summary": {
+          "title": "Folder Summary",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "folder_name",
+        "summary_dict",
+        "folder_summary"
+      ],
+      "additionalProperties": false
+    },
+    "reformat_resultsOutputs": {
+      "title": "reformat_resultsOutputs",
+      "type": "object",
+      "properties": {
+        "formatted_summary": {
+          "title": "Formatted Summary",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reformat_resultsWorkflowModel": {
+      "title": "reformat_resultsWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/reformat_resultsInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/reformat_resultsOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "reformat_results"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "reformat_resultsIterableWorkflowModel": {
+      "title": "reformat_resultsIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/reformat_resultsInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/reformat_resultsOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "reformat_results"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_fileInputs": {
+      "title": "summarize_fileInputs",
+      "type": "object",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_fileOutputs": {
+      "title": "summarize_fileOutputs",
+      "type": "object",
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "summarize_fileWorkflowModel": {
+      "title": "summarize_fileWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_fileInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/summarize_fileOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_file"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_fileIterableWorkflowModel": {
+      "title": "summarize_fileIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_fileInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/summarize_fileOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_file"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_folderInputs": {
+      "title": "summarize_folderInputs",
+      "type": "object",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ls_folder": {
+          "title": "Ls Folder",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "ls_folder"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_folderOutputs": {
+      "title": "summarize_folderOutputs",
+      "type": "object",
+      "properties": {
+        "folder_summary": {
+          "title": "Folder Summary",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "summarize_folderWorkflowModel": {
+      "title": "summarize_folderWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_folderInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/summarize_folderOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_folder"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "summarize_folderIterableWorkflowModel": {
+      "title": "summarize_folderIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/summarize_folderInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/summarize_folderOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "summarize_folder"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "generate_summaryInputs": {
+      "title": "generate_summaryInputs",
+      "type": "object",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "generate_summaryOutputs": {
+      "title": "generate_summaryOutputs",
+      "type": "object",
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "generate_summaryWorkflowModel": {
+      "title": "generate_summaryWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/generate_summaryInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/generate_summaryOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "generate_summary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "generate_summaryIterableWorkflowModel": {
+      "title": "generate_summaryIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/generate_summaryInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/generate_summaryOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "generate_summary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "generate_readme_summariesWorkflowModel": {
+      "title": "generate_readme_summariesWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "generate_readme_summaries"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "generate_readme_summariesIterableWorkflowModel": {
+      "title": "generate_readme_summariesIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "generate_readme_summaries"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "insert_into_readmeInputs": {
+      "title": "insert_into_readmeInputs",
+      "type": "object",
+      "properties": {
+        "filepath": {
+          "title": "Filepath",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "tag": {
+          "title": "Tag",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "content": {
+          "title": "Content",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "filepath",
+        "tag",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "insert_into_readmeWorkflowModel": {
+      "title": "insert_into_readmeWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/insert_into_readmeInputs"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "insert_into_readme"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "insert_into_readmeIterableWorkflowModel": {
+      "title": "insert_into_readmeIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/insert_into_readmeInputs"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "insert_into_readme"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "SetVars": {
+      "title": "SetVars",
+      "type": "object",
+      "properties": {
+        "set_vars": {
+          "title": "Set Vars",
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/TemplateDeclaration"
+              },
+              {
+                "$ref": "#/definitions/VarDeclaration"
+              },
+              {
+                "$ref": "#/definitions/ConstDeclaration"
+              },
+              {
+                "$ref": "#/definitions/LambdaDeclaration"
+              },
+              {
+                "$ref": "#/definitions/ParamDeclaration"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "set_vars"
+      ],
+      "additionalProperties": false
+    },
+    "ExtraModel": {
+      "title": "ExtraModel",
+      "type": "object",
+      "properties": {}
+    },
+    "WorkflowInvocation": {
+      "title": "WorkflowInvocation",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/ExtraModel"
+        },
+        "outputs": {
+          "$ref": "#/definitions/ExtraModel"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "IterableWorkflowInvocation": {
+      "title": "IterableWorkflowInvocation",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/ExtraModel"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/ExtraModel"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "IfContextNotExists": {
+      "title": "IfContextNotExists",
+      "type": "object",
+      "properties": {
+        "then": {
+          "title": "Then",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "else": {
+          "title": "Else",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "if_not_in_context": {
+          "title": "If Not In Context",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "then",
+        "if_not_in_context"
+      ],
+      "additionalProperties": false
+    },
+    "IfExistsContext": {
+      "title": "IfExistsContext",
+      "type": "object",
+      "properties": {
+        "then": {
+          "title": "Then",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "else": {
+          "title": "Else",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "if_in_context": {
+          "title": "If In Context",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "then",
+        "if_in_context"
+      ],
+      "additionalProperties": false
+    },
+    "IfLambda": {
+      "title": "IfLambda",
+      "type": "object",
+      "properties": {
+        "then": {
+          "title": "Then",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "else": {
+          "title": "Else",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/commentActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commentIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleActionModel"
+                },
+                {
+                  "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/crawl_folderIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashActionModel"
+                },
+                {
+                  "$ref": "#/definitions/bashIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushActionModel"
+                },
+                {
+                  "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/write_into_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textActionModel"
+                },
+                {
+                  "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptActionModel"
+                },
+                {
+                  "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileActionModel"
+                },
+                {
+                  "$ref": "#/definitions/read_fileIterableActionModel"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/WorkflowInvocation"
+            },
+            {
+              "$ref": "#/definitions/IterableWorkflowInvocation"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SetVars"
+                },
+                {
+                  "$ref": "#/definitions/IfLambda"
+                },
+                {
+                  "$ref": "#/definitions/IfExistsContext"
+                },
+                {
+                  "$ref": "#/definitions/IfContextNotExists"
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/commentActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commentIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/crawl_folderIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/write_into_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/read_fileIterableActionModel"
+                      }
+                    ]
+                  },
+                  {
+                    "$ref": "#/definitions/WorkflowInvocation"
+                  },
+                  {
+                    "$ref": "#/definitions/IterableWorkflowInvocation"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/SetVars"
+                      },
+                      {
+                        "$ref": "#/definitions/IfLambda"
+                      },
+                      {
+                        "$ref": "#/definitions/IfExistsContext"
+                      },
+                      {
+                        "$ref": "#/definitions/IfContextNotExists"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "if_lambda": {
+          "title": "If Lambda",
+          "description": "A python lambda expression that returns a boolean. ",
+          "type": "string"
+        }
+      },
+      "required": [
+        "then",
+        "if_lambda"
+      ],
+      "additionalProperties": false
+    },
+    "LabelTrigger": {
+      "title": "LabelTrigger",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "default": "label",
+          "enum": [
+            "label"
+          ],
+          "type": "string"
+        },
+        "run": {
+          "title": "Run",
+          "anyOf": [
+            {
+              "enum": [
+                "comment",
+                "set_issue_title",
+                "crawl_folder",
+                "bash",
+                "commit_and_push",
+                "write_into_file",
+                "insert_content_into_text",
+                "prompt",
+                "read_file",
+                "summarize_pr",
+                "reformat_results",
+                "summarize_file",
+                "summarize_folder",
+                "generate_summary",
+                "generate_readme_summaries",
+                "insert_into_readme"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/commentActionModel"
+            },
+            {
+              "$ref": "#/definitions/commentIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/SetVars"
+            },
+            {
+              "$ref": "#/definitions/IfLambda"
+            },
+            {
+              "$ref": "#/definitions/IfExistsContext"
+            },
+            {
+              "$ref": "#/definitions/IfContextNotExists"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "comment",
+                      "set_issue_title",
+                      "crawl_folder",
+                      "bash",
+                      "commit_and_push",
+                      "write_into_file",
+                      "insert_content_into_text",
+                      "prompt",
+                      "read_file",
+                      "summarize_pr",
+                      "reformat_results",
+                      "summarize_file",
+                      "summarize_folder",
+                      "generate_summary",
+                      "generate_readme_summaries",
+                      "insert_into_readme"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/commentActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commentIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/SetVars"
+                  },
+                  {
+                    "$ref": "#/definitions/IfLambda"
+                  },
+                  {
+                    "$ref": "#/definitions/IfExistsContext"
+                  },
+                  {
+                    "$ref": "#/definitions/IfContextNotExists"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "title": "Parameters",
+          "type": "object"
+        },
+        "label_substring": {
+          "title": "Label Substring",
+          "type": "string"
+        },
+        "on_issue": {
+          "title": "On Issue",
+          "type": "boolean"
+        },
+        "on_pull_request": {
+          "title": "On Pull Request",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "run",
+        "label_substring",
+        "on_issue",
+        "on_pull_request"
+      ],
+      "additionalProperties": false
+    },
+    "CommentTrigger": {
+      "title": "CommentTrigger",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "default": "comment",
+          "enum": [
+            "comment"
+          ],
+          "type": "string"
+        },
+        "run": {
+          "title": "Run",
+          "anyOf": [
+            {
+              "enum": [
+                "comment",
+                "set_issue_title",
+                "crawl_folder",
+                "bash",
+                "commit_and_push",
+                "write_into_file",
+                "insert_content_into_text",
+                "prompt",
+                "read_file",
+                "summarize_pr",
+                "reformat_results",
+                "summarize_file",
+                "summarize_folder",
+                "generate_summary",
+                "generate_readme_summaries",
+                "insert_into_readme"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/commentActionModel"
+            },
+            {
+              "$ref": "#/definitions/commentIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/SetVars"
+            },
+            {
+              "$ref": "#/definitions/IfLambda"
+            },
+            {
+              "$ref": "#/definitions/IfExistsContext"
+            },
+            {
+              "$ref": "#/definitions/IfContextNotExists"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "comment",
+                      "set_issue_title",
+                      "crawl_folder",
+                      "bash",
+                      "commit_and_push",
+                      "write_into_file",
+                      "insert_content_into_text",
+                      "prompt",
+                      "read_file",
+                      "summarize_pr",
+                      "reformat_results",
+                      "summarize_file",
+                      "summarize_folder",
+                      "generate_summary",
+                      "generate_readme_summaries",
+                      "insert_into_readme"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/commentActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commentIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/SetVars"
+                  },
+                  {
+                    "$ref": "#/definitions/IfLambda"
+                  },
+                  {
+                    "$ref": "#/definitions/IfExistsContext"
+                  },
+                  {
+                    "$ref": "#/definitions/IfContextNotExists"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "title": "Parameters",
+          "type": "object"
+        },
+        "comment_substring": {
+          "title": "Comment Substring",
+          "type": "string"
+        },
+        "on_issue": {
+          "title": "On Issue",
+          "type": "boolean"
+        },
+        "on_pull_request": {
+          "title": "On Pull Request",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "run",
+        "comment_substring",
+        "on_issue",
+        "on_pull_request"
+      ],
+      "additionalProperties": false
+    },
+    "PushTrigger": {
+      "title": "PushTrigger",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "default": "push",
+          "enum": [
+            "push"
+          ],
+          "type": "string"
+        },
+        "run": {
+          "title": "Run",
+          "anyOf": [
+            {
+              "enum": [
+                "comment",
+                "set_issue_title",
+                "crawl_folder",
+                "bash",
+                "commit_and_push",
+                "write_into_file",
+                "insert_content_into_text",
+                "prompt",
+                "read_file",
+                "summarize_pr",
+                "reformat_results",
+                "summarize_file",
+                "summarize_folder",
+                "generate_summary",
+                "generate_readme_summaries",
+                "insert_into_readme"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/commentActionModel"
+            },
+            {
+              "$ref": "#/definitions/commentIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/SetVars"
+            },
+            {
+              "$ref": "#/definitions/IfLambda"
+            },
+            {
+              "$ref": "#/definitions/IfExistsContext"
+            },
+            {
+              "$ref": "#/definitions/IfContextNotExists"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "comment",
+                      "set_issue_title",
+                      "crawl_folder",
+                      "bash",
+                      "commit_and_push",
+                      "write_into_file",
+                      "insert_content_into_text",
+                      "prompt",
+                      "read_file",
+                      "summarize_pr",
+                      "reformat_results",
+                      "summarize_file",
+                      "summarize_folder",
+                      "generate_summary",
+                      "generate_readme_summaries",
+                      "insert_into_readme"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/commentActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commentIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/SetVars"
+                  },
+                  {
+                    "$ref": "#/definitions/IfLambda"
+                  },
+                  {
+                    "$ref": "#/definitions/IfExistsContext"
+                  },
+                  {
+                    "$ref": "#/definitions/IfContextNotExists"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "title": "Parameters",
+          "type": "object"
+        },
+        "branch_name": {
+          "title": "Branch Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run",
+        "branch_name"
+      ],
+      "additionalProperties": false
+    },
+    "TopLevelTriggerConfig": {
+      "title": "TopLevelTriggerConfig",
+      "type": "object",
+      "properties": {
+        "triggers": {
+          "title": "Triggers",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/LabelTrigger"
+              },
+              {
+                "$ref": "#/definitions/CommentTrigger"
+              },
+              {
+                "$ref": "#/definitions/PushTrigger"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
