@@ -12,6 +12,7 @@ from autopr.models.artifacts import Issue, Message, PullRequest
 from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent
 from datetime import datetime
 
+
 class PlatformService:
     """
     Service for making API calls to the platform (e.g., GitHub).
@@ -56,7 +57,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
         """
         Get a list of issues.
 
@@ -64,6 +65,8 @@ class PlatformService:
         ----------
         state: str
             The state of the issues to get. Can be "open", "closed", or "all".
+        since: datetime
+            The date to get issues since. If None, get all issues.
         """
         raise NotImplementedError
 
@@ -570,7 +573,7 @@ class DummyPlatformService(PlatformService):
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
