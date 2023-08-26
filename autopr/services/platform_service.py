@@ -10,7 +10,7 @@ from aiohttp import ClientSession
 from autopr.log_config import get_logger
 from autopr.models.artifacts import Issue, Message, PullRequest
 from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent
-
+from datetime import datetime
 
 class PlatformService:
     """
@@ -511,8 +511,13 @@ class GitHubPlatformService(PlatformService):
             base_commit_sha=pr_json['base']['sha'],
         )
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues?state={state}'
+
+        # Check if 'since' is provided and add it to the URL
+        if since:
+            url += f'&since={since}'
+
         headers = self._get_headers()
 
         async with ClientSession() as session:
