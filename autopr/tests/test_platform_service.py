@@ -45,6 +45,22 @@ async def test_github_platform_service(
         status=200
     )
 
+    mock_aioresponse.get(
+        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues&state=open&since=2023-08-19T17:38:34Z',
+        payload=[{
+            'number': 12,
+            'node_id': 'node1',
+            "title": "Ups an issue occurred.",
+            "body": "I am an issue. Resolve me.",
+            "user": {
+                "login": "user1"
+            },
+            "created_at": "2023-08-19T17:38:34Z",
+            "updated_at": "2023-08-20T10:25:48Z",
+        }],
+        status=200
+    )
+
     mock_aioresponse.post(
         f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/pulls',
         payload={'number': 2},
