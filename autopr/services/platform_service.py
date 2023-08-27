@@ -573,7 +573,7 @@ class DummyPlatformService(PlatformService):
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
