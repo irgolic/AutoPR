@@ -57,7 +57,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         """
         Get a list of issues.
 
