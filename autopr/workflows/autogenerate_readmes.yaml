@@ -40,7 +40,7 @@ summarize_file:
       outputs:
         contents: contents
     
-    - if_lambda: "contents == ''"
+    - if_lambda: "not contents"
       then:
         - set_vars:
             summary:
