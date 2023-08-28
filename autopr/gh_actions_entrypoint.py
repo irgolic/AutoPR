@@ -5,8 +5,6 @@ from typing import Any
 
 from autopr.main import Settings, MainService
 
-import yaml
-
 from autopr.log_config import configure_logging
 from autopr.models.events import EventUnion
 from autopr.services.platform_service import GitHubPlatformService, PlatformService
