@@ -44,14 +44,14 @@ async def test_autogenerate_readmes(
     main = create_ephemeral_main_service(
         triggers_filename="autogenerate_readmes.yaml",
         event=event,
-        repo_resource="example_repo_3",
+        repo_resource="example_repo_2",
     )
 
     await main.run()
     assert os.path.exists("README.md")
     assert os.path.exists(
         os.path.join(
-            "example_repo_3_subfolder",
+            "example_repo_2_subfolder",
             "README.md",
         )
     )

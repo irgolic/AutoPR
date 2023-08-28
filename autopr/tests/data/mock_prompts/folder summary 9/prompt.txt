@@ -11,7 +11,7 @@ __init__.py:
 This file is empty.
 ---
 
-example_repo_3_subfolder:
+example_repo_2_subfolder:
 ---
 This folder seems to revolve around testing and verifying the functionality of the "crawl_folder" action. The "crawl_folder.py" file contains a series of steps for this purpose, including module imports, test definition and execution, parameterization of test cases using `pytest.mark.parametrize`, and mocking of the OpenAI API using the `mock_openai` function. The primary objective of the folder is to rigorously test the "crawl_folder" action by comparing its actual outputs against expected outcomes, particularly concerning the list of files. This testing process ensures the correctness and reliability of the action's behavior within the project.
 ---
