@@ -514,7 +514,7 @@ class GitHubPlatformService(PlatformService):
             base_commit_sha=pr_json['base']['sha'],
         )
 
-    async def get_issues(self, state: str = "open", since: datetime = None) -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues?state={state}'
 
         # Check if 'since' is provided and add it to the URL
