@@ -5,11 +5,11 @@ from unittest.mock import patch, Mock
 import pytest
 from aioresponses import aioresponses
 
-from autopr.models.artifacts import PullRequest, Message
+from autopr.models.artifacts import PullRequest, Message, Issue
 from autopr.models.events import EventUnion, LabelEvent
 from autopr.services.platform_service import GitHubPlatformService
 from autopr.services.publish_service import GitHubPublishService
-
+from datetime import datetime
 
 @pytest.fixture
 def platform_service():
@@ -46,7 +46,7 @@ async def test_github_platform_service(
     )
 
     mock_aioresponse.get(
-        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues&state=open&since=2023-08-19T17:38:34Z',
+        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?since=2023-08-19T17:38:34Z&state=open',
         payload=[{
             'number': 12,
             'node_id': 'node1',
@@ -112,6 +112,21 @@ async def test_github_platform_service(
     # Test _publish_comment
     comment_id = await platform_service.publish_comment('new comment', 1)
     assert comment_id == 'comment1'
+
+    # Test _get_issues
+    since = datetime.strptime('2023-08-18T17:38:34Z', '%Y-%m-%dT%H:%M:%SZ')
+    issues = await platform_service.get_issues(state="open", since=since)
+
+    assert issues == [
+        Issue(
+            number=12,
+            title='Ups an issue occurred.',
+            author='user1',
+            body='I am an issue. Resolve me.',
+            timestamp='2023-08-19T17:38:34Z',
+            messeges=[]
+        )
+    ]
 
 
 @pytest.mark.parametrize(
