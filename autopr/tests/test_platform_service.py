@@ -45,10 +45,11 @@ async def test_github_platform_service(
         status=200
     )
 
+    timestamp = "2023-05-19T17:38:34Z"
     mock_aioresponse.get(
-        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?since=2023-08-19T17:38:34Z&state=open',
+        f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?state=open&since={timestamp}",
         payload=[{
-            'number': 12,
+            'number': 1,
             'node_id': 'node1',
             "title": "Ups an issue occurred.",
             "body": "I am an issue. Resolve me.",
@@ -57,6 +58,8 @@ async def test_github_platform_service(
             },
             "created_at": "2023-08-19T17:38:34Z",
             "updated_at": "2023-08-20T10:25:48Z",
+            "comments": 0,
+            "comments_url": "https://api.github.com/repos/user/repo/issues/1/comments",
         }],
         status=200
     )
@@ -114,12 +117,11 @@ async def test_github_platform_service(
     assert comment_id == 'comment1'
 
     # Test _get_issues
-    since = datetime.strptime('2023-08-18T17:38:34Z', '%Y-%m-%dT%H:%M:%SZ')
+    since = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%SZ')
     issues = await platform_service.get_issues(state="open", since=since)
-
     assert issues == [
         Issue(
-            number=12,
+            number=1,
             title='Ups an issue occurred.',
             author='user1',
             body='I am an issue. Resolve me.',
