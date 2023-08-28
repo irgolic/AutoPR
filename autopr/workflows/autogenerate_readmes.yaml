@@ -39,23 +39,31 @@ summarize_file:
           var: path
       outputs:
         contents: contents
-
-    # Summarize the file
-    - action: prompt
-      inputs:
-        prompt_context:
-          - var: contents
-            heading: "File contents"
-        prompt:
-          param:
-            default: "What is the purpose of this file? Respond in 3-5 sentences."
-            name: FILE_SUMMARY_PROMPT
-        instructions:
-          param:
-            default: "Respond in 3-5 sentences."
-            name: FILE_SUMMARY_INSTRUCTIONS
-      outputs:
-        result: summary
+    
+    - if_lambda: "contents == ''"
+      then:
+        - set_vars:
+            summary:
+              param:
+                name: IGNORE_FILES
+                default: "This file is empty."
+      else:
+        # Summarize the file
+        - action: prompt
+          inputs:
+            prompt_context:
+              - var: contents
+                heading: "File contents"
+            prompt:
+              param:
+                default: "What is the purpose of this file? Respond in 3-5 sentences."
+                name: FILE_SUMMARY_PROMPT
+            instructions:
+              param:
+                default: "Respond in 3-5 sentences."
+                name: FILE_SUMMARY_INSTRUCTIONS
+          outputs:
+            result: summary
 
 summarize_folder:
   inputs:

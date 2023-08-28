@@ -31,3 +31,4 @@ triggers:
         - .github
         - .autopr
         - tests
+      EMPTY_FILE_SUMMARY: "This file is empty."

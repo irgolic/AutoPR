@@ -1,0 +1,8 @@
+- The file contains Python code defining an action class named `WriteIntoFile`.
+- This code seems to be part of a larger framework, possibly for automation or processing pipelines.
+- The purpose is to write content into a file specified by its path.
+- The `WriteIntoFile` class takes inputs including the file path, content to insert, and whether to append or replace the content.
+- The class's `run` method opens the file and writes content based on the specified mode.
+- After successful writing, it returns an output indicating the operation's success.
+- The provided example demonstrates how to manually run this action with test inputs.
+- It creates a test file, writes "Hello world!" to it, then removes the test file.

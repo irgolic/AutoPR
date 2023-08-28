@@ -1,0 +1,11 @@
+Files in this folder:
+```
+
+triggers.yml:
+---
+This file defines triggers for automated actions based on branch names and specifies parameters for generating summaries of file purposes and handling empty files.
+---
+
+```
+
+What's this folder all about? Respond in 3-5 sentences.
