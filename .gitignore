@@ -10,3 +10,4 @@ __pycache__/
 .python-version
 
 !.vscode/
+.vscode/launch.json
