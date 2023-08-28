@@ -124,9 +124,13 @@ async def test_github_platform_service(
             number=1,
             title='Ups an issue occurred.',
             author='user1',
-            body='I am an issue. Resolve me.',
             timestamp='2023-08-19T17:38:34Z',
-            messeges=[]
+            messages=[
+                Message(
+                    body='I am an issue. Resolve me.',
+                    author='user1',
+                )
+            ]
         )
     ]
 
