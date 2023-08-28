@@ -1,6 +1,6 @@
 {
     "python.testing.pytestArgs": [
-        "autopr"
+        "autopr/tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
