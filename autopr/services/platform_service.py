@@ -519,7 +519,7 @@ class GitHubPlatformService(PlatformService):
 
         # Check if 'since' is provided and add it to the URL
         if since:
-            url += f'&since={since}'
+            url += f"&since={since.strftime('%Y-%m-%dT%H:%M:%SZ')}"
 
         headers = self._get_headers()
 

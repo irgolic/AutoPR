@@ -26,8 +26,10 @@ def mock_aioresponse():
         yield m
 
 
+@patch('requests.get')
 @pytest.mark.asyncio
 async def test_github_platform_service(
+    mock_get,
     mock_aioresponse,
     platform_service,
 ):
@@ -45,7 +47,9 @@ async def test_github_platform_service(
         status=200
     )
 
-    timestamp = "2023-05-19T17:38:34Z"
+    timestamp = "2023-08-20T10:25:48Z"
+    comments_url = f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues/1/comments"
+
     mock_aioresponse.get(
         f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?state=open&since={timestamp}",
         payload=[{
@@ -59,10 +63,12 @@ async def test_github_platform_service(
             "created_at": "2023-08-19T17:38:34Z",
             "updated_at": "2023-08-20T10:25:48Z",
             "comments": 0,
-            "comments_url": "https://api.github.com/repos/user/repo/issues/1/comments",
+            "comments_url": comments_url,
         }],
         status=200
     )
+
+    mock_get.return_value = Mock(status_code=200, json=lambda: [])
 
     mock_aioresponse.post(
         f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/pulls',
@@ -124,7 +130,7 @@ async def test_github_platform_service(
             number=1,
             title='Ups an issue occurred.',
             author='user1',
-            timestamp='2023-08-19T17:38:34Z',
+            timestamp='2023-08-20T10:25:48Z',
             messages=[
                 Message(
                     body='I am an issue. Resolve me.',
