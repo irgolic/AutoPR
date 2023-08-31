@@ -1,3 +1,4 @@
+import asyncio
 import json
 import sys
 import traceback
@@ -171,6 +172,26 @@ class PlatformService:
         -------
         Optional[EventUnion]
             The parsed event, or None if the event is not supported
+        """
+        raise NotImplementedError
+    
+    async def publish_issue(self, title: str, body: str, update_if_exists : bool) -> Optional[int]:
+        """
+        Publish an issue.
+
+        Parameters
+        ----------
+        title: str
+            The title of the issue
+        body: str
+            The body of the issue
+        update_if_exists: bool
+            Whether to update the body of the issue if issue with such title already exists
+
+        Returns
+        -------
+        Optional[int]
+            The number of the issue created or updated, or None if the issue could not be created
         """
         raise NotImplementedError
 
@@ -553,6 +574,56 @@ class GitHubPlatformService(PlatformService):
                 ),
             )
         raise NotImplementedError(f"Unknown event action: {event['action']}")
+    
+    async def update_issue_body(self, issue_number: int, body: str):
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+        headers = self._get_headers()
+
+        async with ClientSession() as session:
+            async with session.patch(url, json={'body': body}, headers=headers) as response:
+                if response.status == 200:
+                    self.log.debug('Issue updated successfully')
+                    return
+
+                await self._log_failed_request(
+                    'Failed to update issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body={'body': body},
+                    response=response,
+                )
+
+    async def _get_issue_number(self, title: str, state : str = "open") -> Optional[int]:
+        """Returns the first issue number with the given title, or None if no such issue exists"""
+        issues = await self.get_issues(state=state)
+        for issue in issues:
+            if issue.title == title:
+                return issue.number
+        return None
+
+    async def publish_issue(self, title: str, body: str, update_if_exists : bool) -> Optional[int]:
+        issue_number = await self._get_issue_number(title)
+        if update_if_exists and issue_number is not None:
+            self.log.info("Issue already exists", title=title)
+            await self.update_issue_body(issue_number, body)
+            return issue_number
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        headers = self._get_headers()
+        data = {'title': title, 'body': body}
+        async with ClientSession() as session:
+            async with session.post(url, json=data, headers=headers) as response:
+                if response.status == 201:
+                    self.log.debug('Issue created successfully')
+                    return (await response.json())['number']
+
+                await self._log_failed_request(
+                    'Failed to create issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body=data,
+                    response=response,
+                )
+        return None
 
 
 class DummyPlatformService(PlatformService):
