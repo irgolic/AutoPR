@@ -1,0 +1,42 @@
+api_git_history:
+  inputs: 
+    - endpoint_url
+    - headers
+    - filepath
+
+  steps:
+    # Make a GET request
+    - action: make_api_call
+      inputs:
+        # Define URL 
+        endpoint_url:
+          var: endpoint_url
+        # Optionally define headers
+        headers:
+          var: headers
+      outputs: 
+        contents: contents
+
+    # Save content of GET request to specific file
+    - action: write_into_file
+      inputs:
+        content: 
+          var: contents
+        # Override file contents
+        append_at_the_end: False
+        filepath: 
+          var: filepath
+      
+      
+    # Commit and push that file
+    - action: commit_and_push
+      inputs:
+        commit_message: 
+          template: |
+            Commiting API Call {{ endpoint_url }} on: {{ filepath }}
+        filepaths:
+          template: 
+            - "{{ filepath }}"
+
+
+
