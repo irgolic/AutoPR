@@ -5,6 +5,7 @@ import math
 from typing import Any, Optional, Literal
 
 import openai
+from litellm import acompletion
 import openai.error
 import tenacity
 from pydantic import BaseModel
@@ -175,7 +176,7 @@ class PromptString(Action[Inputs, Outputs]):
     )
     async def invoke_openai(self, inputs: Inputs, prompt: str, instructions: str) -> str:
         self.log.info("Invoking OpenAI API...")
-        result = await openai.ChatCompletion.acreate(
+        result = await acompletion(
             messages=[
                 {
                     "role": "system",
