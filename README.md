@@ -31,7 +31,7 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various files that are part of a Python project. The files include a Dockerfile for setting up the project environment, a Makefile for running different tasks, an action.yml file for configuring a GitHub action, and several other files related to the project's functionality and workflow. Overall, these files provide the necessary configuration, dependencies, and automation for building and running the project.
+This folder contains various files and subfolders that support automation, integration, and management of tasks and processes. The Dockerfile sets up the environment for running an app, the LICENSE.md file provides the MIT License for the software, the Makefile defines targets for a Python project, the action.yml file configures an "Automatic Pull Request" action, the autopr folder contains code files for automation, the entrypoint.sh file sets Git configurations and runs a Python module, the poetry.lock file provides an executive summary of dependencies, the pyproject.toml file is a configuration file for a Python project, and there are JSON schema files defining workflow and trigger configurations.
 
 
 ### `Dockerfile`
@@ -81,7 +81,7 @@ This folder contains various files that are part of a Python project. The files 
 
 ### `autopr`
 
-This folder contains a collection of Python files and folders that collectively make up a system called AutoPR. The files define classes and actions for various tasks such as running commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The folders contain additional code related to defining and transforming prompt contexts, managing and executing workflows, and handling triggers and configurations. Overall, these files and folders provide modular and reusable functionalities for building automated workflows or integrations.
+This folder contains a collection of Python files and subfolders that serve various purposes. The "actions" folder contains files that define specific actions and utilities for automation tasks. The "models" folder contains code files related to a project, defining data models and handling workflow execution. The "services" folder contains files that provide services for managing actions, interacting with APIs, and executing workflows. The "workflows" folder contains scripts and YAML files for loading and collecting workflows. The other files in the folder configure logging, define entry points for GitHub Actions workflows, and provide default settings and trigger configurations. Overall, this folder supports automation, integration, and management of various tasks and processes.
 
 
 ### `entrypoint.sh`
