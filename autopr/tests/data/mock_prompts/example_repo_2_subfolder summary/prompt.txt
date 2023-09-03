@@ -3,7 +3,11 @@ Files in this folder:
 
 .autopr:
 ---
-This folder appears to contain a configuration file named "triggers.yml" that defines triggers for automated actions related to branch names. The triggers seem to be designed to initiate specific actions or processes based on the names of branches within a version control system, such as Git. The content within the YAML file suggests that these triggers may be used for generating summaries of file purposes and handling empty files. Overall, the folder appears to be dedicated to configuring and managing automated processes and actions within a software development or version control context.
+- The folder contains a file named "triggers.yml" that defines triggers for a specific branch named "main".
+- The triggers are set to execute a function or command called "generate_readme_summaries".
+- The folder is likely used in a software development or automation context to specify actions that should be performed when the "main" branch is triggered.
+- The folder may be part of a larger configuration or workflow system that manages the execution of tasks based on specific events or conditions.
+- The folder provides a structured and easily readable way to define and manage triggers for the specified branch.
 ---
 
 __init__.py:
