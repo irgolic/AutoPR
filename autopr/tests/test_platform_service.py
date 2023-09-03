@@ -9,7 +9,7 @@ from autopr.models.artifacts import Issue, PullRequest, Message
 from autopr.models.events import EventUnion, LabelEvent
 from autopr.services.platform_service import GitHubPlatformService
 from autopr.services.publish_service import GitHubPublishService
-
+from datetime import datetime
 
 @pytest.fixture
 def platform_service():
@@ -26,8 +26,10 @@ def mock_aioresponse():
         yield m
 
 
+@patch('requests.get')
 @pytest.mark.asyncio
 async def test_github_platform_service(
+    mock_get,
     mock_aioresponse,
     platform_service,
 ):
@@ -44,6 +46,29 @@ async def test_github_platform_service(
         }],
         status=200
     )
+
+    timestamp = "2023-08-20T10:25:48Z"
+    comments_url = f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues/1/comments"
+
+    mock_aioresponse.get(
+        f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?state=open&since={timestamp}",
+        payload=[{
+            'number': 1,
+            'node_id': 'node1',
+            "title": "Ups an issue occurred.",
+            "body": "I am an issue. Resolve me.",
+            "user": {
+                "login": "user1"
+            },
+            "created_at": "2023-08-19T17:38:34Z",
+            "updated_at": "2023-08-20T10:25:48Z",
+            "comments": 0,
+            "comments_url": comments_url,
+        }],
+        status=200
+    )
+
+    mock_get.return_value = Mock(status_code=200, json=lambda: [])
 
     mock_aioresponse.post(
         f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/pulls',
@@ -96,6 +121,24 @@ async def test_github_platform_service(
     # Test _publish_comment
     comment_id = await platform_service.publish_comment('new comment', 1)
     assert comment_id == 'comment1'
+
+    # Test _get_issues
+    since = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%SZ')
+    issues = await platform_service.get_issues(state="open", since=since)
+    assert issues == [
+        Issue(
+            number=1,
+            title='Ups an issue occurred.',
+            author='user1',
+            timestamp='2023-08-20T10:25:48Z',
+            messages=[
+                Message(
+                    body='I am an issue. Resolve me.',
+                    author='user1',
+                )
+            ]
+        )
+    ]
 
 
 @pytest.mark.parametrize(

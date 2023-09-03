@@ -11,6 +11,7 @@ from aiohttp import ClientSession
 from autopr.log_config import get_logger
 from autopr.models.artifacts import Issue, Message, PullRequest
 from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent
+from datetime import datetime
 
 
 class PlatformService:
@@ -57,7 +58,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         """
         Get a list of issues.
 
@@ -65,6 +66,8 @@ class PlatformService:
         ----------
         state: str
             The state of the issues to get. Can be "open", "closed", or "all".
+        since: datetime
+            The date to get issues since. If None, get all issues.
         """
         raise NotImplementedError
 
@@ -548,8 +551,13 @@ class GitHubPlatformService(PlatformService):
             base_commit_sha=pr_json['base']['sha'],
         )
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues?state={state}'
+
+        # Check if 'since' is provided and add it to the URL
+        if since:
+            url += f"&since={since.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+
         headers = self._get_headers()
 
         async with ClientSession() as session:
@@ -664,7 +672,7 @@ class DummyPlatformService(PlatformService):
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: str = "open") -> list[Issue]:
+    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
