@@ -13,7 +13,13 @@ This file is empty.
 
 example_repo_2_subfolder:
 ---
-This folder seems to revolve around testing and verifying the functionality of the "crawl_folder" action. The "crawl_folder.py" file contains a series of steps for this purpose, including module imports, test definition and execution, parameterization of test cases using `pytest.mark.parametrize`, and mocking of the OpenAI API using the `mock_openai` function. The primary objective of the folder is to rigorously test the "crawl_folder" action by comparing its actual outputs against expected outcomes, particularly concerning the list of files. This testing process ensures the correctness and reliability of the action's behavior within the project.
+- The folder contains a Python script named "crawl_folder.py".
+- The script is used to perform a specific action called "crawl_folder".
+- The script imports necessary modules and libraries to execute the action.
+- It defines and runs tests for the "crawl_folder" action using the pytest framework.
+- The script uses the `pytest.mark.parametrize` decorator to specify different test inputs and expected outputs.
+- It mocks the `openai.ChatCompletion.create` function using the `mock_openai` function.
+- The script asserts the expected outputs of the action and compares them with the provided expected list of files.
 ---
 
 first_mock_file.py:
