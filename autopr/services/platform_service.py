@@ -1,3 +1,4 @@
+import asyncio
 import json
 import sys
 import traceback
@@ -176,7 +177,43 @@ class PlatformService:
             The parsed event, or None if the event is not supported
         """
         raise NotImplementedError
+    
+    async def create_issue(self, title: str, body: str) -> Optional[int]:
+        """
+        Create an issue.
 
+        Parameters
+        ----------
+        title: str
+            The title of the issue
+        body: str
+            The body of the issue
+        """
+        raise NotImplementedError
+    
+    async def get_issue_by_title(self, title: str) -> Optional[Issue]:
+        """
+        Get an issue by title.
+
+        Parameters
+        ----------
+        title: str
+            The title of the issue
+        """
+        raise NotImplementedError
+
+    async def update_issue_body(self, issue_number: int, body: str):
+        """
+        Update the body of the issue.
+
+        Parameters
+        ----------
+        issue_number: int
+            The issue number
+        body: str
+            The new body
+        """
+        raise NotImplementedError
 
 class GitHubPlatformService(PlatformService):
     """
@@ -561,6 +598,68 @@ class GitHubPlatformService(PlatformService):
                 ),
             )
         raise NotImplementedError(f"Unknown event action: {event['action']}")
+    
+    async def create_issue(self, title: str, body: str) -> Optional[int]:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        headers = self._get_headers()
+        data = {
+            'title': title,
+            'body': body,
+        }
+
+        async with ClientSession() as session:
+            async with session.post(url, json=data, headers=headers) as response:
+                if response.status == 201:
+                    self.log.debug('Issue created successfully')
+                    return (await response.json())['number']
+
+                await self._log_failed_request(
+                    'Failed to create issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body=data,
+                    response=response,
+                )
+        return None
+    
+    async def get_issue_by_title(self, title: str) -> Optional[Issue]:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        headers = self._get_headers()
+
+        async with ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status != 200:
+                    await self._log_failed_request(
+                        'Failed to get issues',
+                        request_url=url,
+                        request_headers=headers,
+                        response=response,
+                    )
+                    return None
+
+                for issue_json in await response.json():
+                    if issue_json['title'] == title:
+                        return self._extract_issue(issue_json)
+                return None
+    
+    async def update_issue_body(self, issue_number: int, body: str) -> None:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+        headers = self._get_headers()
+
+        async with ClientSession() as session:
+            async with session.patch(url, json={'body': body}, headers=headers) as response:
+                if response.status == 200:
+                    self.log.debug('Issue updated successfully')
+                    return
+
+                await self._log_failed_request(
+                    'Failed to update issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body={'body': body},
+                    response=response,
+                )
+
 
 
 class DummyPlatformService(PlatformService):

@@ -5,7 +5,7 @@ from unittest.mock import patch, Mock
 import pytest
 from aioresponses import aioresponses
 
-from autopr.models.artifacts import PullRequest, Message, Issue
+from autopr.models.artifacts import Issue, PullRequest, Message
 from autopr.models.events import EventUnion, LabelEvent
 from autopr.services.platform_service import GitHubPlatformService
 from autopr.services.publish_service import GitHubPublishService
@@ -231,3 +231,63 @@ def test_parse_event(
 
     event = platform_service.parse_event(event_json, 'pull_request_target')
     assert event == expected_event
+
+
+@pytest.mark.asyncio
+async def test_create_issue(mock_aioresponse, platform_service):
+    mock_aioresponse.post(
+        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues',
+        payload={'number': 1},
+        status=201
+    )
+
+    issue_number = await platform_service.create_issue('test_title', 'test_body')
+    assert issue_number == 1
+
+
+@pytest.mark.asyncio
+async def test_update_issue_body(mock_aioresponse, platform_service):
+    issue_number = 1
+    mock_aioresponse.patch(
+        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues/{issue_number}',
+        payload={},
+        status=200
+    )
+
+    await platform_service.update_issue_body(issue_number, 'new_body')
+
+@pytest.mark.asyncio
+async def test_get_issue_by_title(mock_aioresponse, platform_service):
+    # Mock the response for getting issues
+    issues_payload = [{
+        'number': 1,
+        'title': 'test_title',
+        'body': 'test_body',
+        'user': {'login': 'user1'},
+        'updated_at': '2023-08-18T21:20:59Z',
+        'comments_url': 'https://api.github.com/repos/user/repo/issues/1/comments'
+    }]
+    
+    # Mock the response for getting issue by title
+    mock_aioresponse.get(
+        f'https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues',
+        payload=issues_payload,
+        status=200
+    )
+
+    expected_issue = Issue(
+            messages=[
+                Message(body='test_body', author='user1')
+                ], 
+            number=1, 
+            title='test_title', 
+            author='user1', 
+            timestamp='2023-08-18T21:20:59Z'
+        )
+    
+    with patch('requests.get') as mock_get:
+        mock_get.return_value = Mock(status_code=200, json=lambda: [])
+        
+        issue = await platform_service.get_issue_by_title('test_title')
+        assert issue == expected_issue
+
