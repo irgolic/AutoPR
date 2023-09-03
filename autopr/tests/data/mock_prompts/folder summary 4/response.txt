@@ -1,8 +1,7 @@
-- The file contains Python code defining an action class named `WriteIntoFile`.
-- This code seems to be part of a larger framework, possibly for automation or processing pipelines.
-- The purpose is to write content into a file specified by its path.
-- The `WriteIntoFile` class takes inputs including the file path, content to insert, and whether to append or replace the content.
-- The class's `run` method opens the file and writes content based on the specified mode.
-- After successful writing, it returns an output indicating the operation's success.
-- The provided example demonstrates how to manually run this action with test inputs.
-- It creates a test file, writes "Hello world!" to it, then removes the test file.
+- The folder contains a Python script named "crawl_folder.py".
+- The script is used to perform a specific action called "crawl_folder".
+- The script imports necessary modules and libraries to execute the action.
+- It defines and runs tests for the "crawl_folder" action using the pytest framework.
+- The script uses the `pytest.mark.parametrize` decorator to specify different test inputs and expected outputs.
+- It mocks the `openai.ChatCompletion.create` function using the `mock_openai` function.
+- The script asserts the expected outputs of the action and compares them with the provided expected list of files.
