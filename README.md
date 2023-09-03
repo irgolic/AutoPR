@@ -31,132 +31,133 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files related to an automated workflow system. It includes a Dockerfile for setting up a Docker image, a Makefile for defining tasks and configurations, an action.yml file for configuring an Automatic Pull Request workflow, and several other files for managing the workflow, defining models and services, and configuring triggers. The code is well-documented and follows a modular and object-oriented design, making it easy to understand and extend. The folder also contains YAML files that define workflows for various tasks, which can be executed as standalone programs or used as reusable tasks in larger automation processes.
+This folder contains various files that are part of a Python project. The files include a Dockerfile for setting up the project environment, a Makefile for running different tasks, an action.yml file for configuring a GitHub action, and several other files related to the project's functionality and workflow. Overall, these files provide the necessary configuration, dependencies, and automation for building and running the project.
 
 
 ### `Dockerfile`
 
-🔧 Sets up a Docker image based on duffn/python-poetry:3.9-bullseye
-📦 Installs git from the bullseye-backports repository
-📝 Copies the entrypoint.sh script and makes it executable
-📝 Copies pyproject.toml and poetry.lock files
-🔧 Installs project dependencies using Poetry in a virtual environment
-📂 Sets the working directory to /app and copies all files
-🔧 Installs the app using Poetry
-🚀 Executes the entrypoint.sh script as the default command when the container starts
+🔧 Install git from bullseye-backports  
+📝 Set up entrypoint  
+📥 Copy pyproject.toml and poetry.lock  
+📥 Copy the entire project  
+🔧 Install project dependencies using poetry  
+🏃‍♀️ Run the app using entrypoint.sh as the command
 
 
 ### `LICENSE.md`
 
-📄 This file contains the MIT License.    
-📝 It grants permission to use, modify, and distribute the software.    
-👤 The license is issued by Raphael Francis Ltd.    
-📜 The license requires the inclusion of the copyright notice.    
-💼 It allows the software to be used for any purpose, with no warranty.    
-💰 Selling copies of the software is permitted.    
-🔒 The license does not hold the authors or copyright holders liable.    
-🔧 The software is provided "as is" and without warranty.    
-📝 This license applies to all copies or substantial portions of the software.    
-📝 The license is effective from 2023.
+📄 This file contains the MIT License for software developed by Raphael Francis Ltd.
+🔒 The license grants permission to use, copy, modify, merge, publish, distribute, sublicense, and sell the software.
+📝 The license requires that the copyright notice and permission notice be included in all copies or substantial portions of the software.
+🔧 The software is provided "as is" without warranty of any kind.
+📚 The license is designed to protect the rights of the authors and copyright holders.
+
 
 
 ### `Makefile`
 
-📝 This file defines a set of tasks and configurations for a Python project.   
-🔧 It uses `pyright` for static type checking.   
-🧪 It runs `pytest` for running tests in the `autopr/tests` directory.   
-📄 It runs `python -m autopr.models.config.entrypoints` for generating a schema.   
-🔀 The `all` task includes running type checking, tests, and generating the schema.   
-
+📝 This file defines several targets for a Python project    
+🎯 `type` target runs static type checking using Pyright    
+🧪 `test` target runs unit tests using pytest    
+📋 `schema` target runs a command to generate schema for the project    
+🔀 `all` target combines type, test, and schema targets    
+🔧 The purpose of this file is to provide a convenient way to run different tasks in the project    
+🐍 The file may be used as a Makefile or a task runner for the project    
+💡 It is recommended to read the documentation or comments in the file for more details    
+✅ The file is easy to understand and modify    
+💻 This file is an important part of the project's build and development process
 
 
 ### `action.yml`
 
-📋 This file is a configuration file for an Automatic Pull Request workflow.
-🔧 It is used to automatically generate pull requests on GitHub.
-🐳 The workflow runs using Docker.
-🎨 It includes branding information such as an icon and color.
-🔑 It requires a GitHub token as an input.
-🌐 It allows customization of the base branch, loading GIF URL, target branch name template, and whether to overwrite existing branches and pull requests.
-💡 The default values are provided for some of the inputs.
+📋 This file defines the configuration for an "Automatic Pull Request" action. 
+🔧 It specifies the details of how the action should run, including using Docker and the Docker image to use.
+🎨 It also defines the branding for the action, including the icon and color to use.
+🔑 The file outlines the required inputs for the action, such as the GitHub token and base branch.
+🔄 It provides default values for optional inputs, such as the loading GIF URL and target branch name template.
+✍️ Additionally, it includes a flag to control whether to overwrite existing branches and pull requests.
 
 
 
 ### `autopr`
 
-This folder contains various files and folders related to an automated workflow system. It includes files for defining actions and utilities, configuring logging, coordinating and executing the workflow, defining models and services, managing triggers and workflows, and defining automated tasks. The code is well-documented and follows a modular and object-oriented design, making it easy to understand and extend. The folder also contains YAML files that define workflows for various tasks, which can be executed as standalone programs or used as reusable tasks in larger automation processes.
+This folder contains a collection of Python files and folders that collectively make up a system called AutoPR. The files define classes and actions for various tasks such as running commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The folders contain additional code related to defining and transforming prompt contexts, managing and executing workflows, and handling triggers and configurations. Overall, these files and folders provide modular and reusable functionalities for building automated workflows or integrations.
 
 
 ### `entrypoint.sh`
 
-📝 The file is a shell script.
-🔧 It configures Git with a safe directory and sets the user's email and name.
+📝 This file is a shell script.
+🔧 It sets the global configuration for Git.
+📧 It sets the email address for the Git user.
+👤 It sets the name for the Git user.
+📁 It sets the safe directory for Git.
 🔌 It activates a virtual environment.
-🐍 It runs a Python module named `autopr.gh_actions_entrypoint`.
+🐍 It runs a Python module called autopr.gh_actions_entrypoint.
 
 
 ### `poetry.lock`
 
-📄 This file serves as an executive summary.     
-📝 It provides a concise overview of a document or project.     
-🔍 It highlights the main points and purpose of the file.     
-👀 Useful for someone seeing the document for the first time.     
-📑 It may include key findings, recommendations, or summaries.     
-📊 Can be used as a standalone document or as an introduction.     
-📌 Focuses on important details to give a quick understanding.     
-📝 Should be clear, concise, and easy to read.     
-🖊️ Avoids unnecessary technical jargon or complex explanations.     
-📋 Provides a high-level view of the contents of the file.    
+📄 This file is intended to serve as an executive summary.
+🔍 It provides a high-level overview of the contents of the document.
+📑 The purpose of this file is to give a concise understanding of the document's main points.
+🧐 It is designed for someone seeing the document for the first time.
+👀 It highlights the key objectives and outcomes.
+💡 It does not explain trivial details or imports.
+📝 It is brief, especially if the file is empty.
+💼 It helps the reader quickly grasp the document's purpose.
+📊 It provides a snapshot of the document's contents.
+📝 It serves as a guide for further exploration of the document.
 
 
 ### `pyproject.toml`
 
-📝 This file is a configuration file for the "autopr" project.  
-📦 It manages project dependencies using Poetry.  
-🔧 It specifies the required Python version and other dependencies.  
-🔑 It includes the author's information and the project's license.  
-📄 It specifies the README file.  
-📦 It defines the packages to be included in the project.  
-🧪 It specifies test dependencies and tools.  
-🛠️ It defines the build system for the project.  
-🔍 It configures Pyright, a static type checker, for the project.
+📋 This file is a configuration file for a Python project using Poetry as a dependency management tool. 
+📦 It specifies the project name, version, authors, license, and packages to include.
+🔧 It defines the dependencies required for the project, including Python version and various libraries.
+🔬 There is a separate section for test dependencies.
+🛠️ The file also includes configuration for the build system and Pyright, a static type checker for Python.
+
 
 
 ### `strict_workflow_schema.json`
 
-📋 This file is a JSON schema for defining a strict workflow model.
-📝 It allows you to define a workflow with different types of actions and their properties.
-🔗 The schema includes definitions for various types of actions such as commenting, setting issue titles, crawling folders, executing bash commands, committing and pushing changes, writing into files, and more.
-📂 Each action has its own set of inputs and outputs.
-🔀 The workflow can include conditional branching using if statements and lambdas.
-🔄 Actions can be executed iteratively using the iterate property.
-🧩 The schema also includes definitions for parameters, templates, variables, constants, and lambda expressions.
-📜 The workflow can be defined as a series of steps, each consisting of an action or a set of actions.
-✨ The goal of this schema is to provide a standardized way of defining and executing workflows in a strict manner.
+📄 This file is a JSON schema definition for a strict workflow model. 
+🔖 It contains definitions for various action models and their properties. 
+🚀 The purpose of this file is to provide a structured format for defining and validating workflows. 
+🔧 It includes definitions for actions like commenting, crawling folders, executing bash commands, and more. 
+💡 The file also defines parameters, inputs, outputs, and conditions for each action. 
+📚 It supports iterable actions that can be executed multiple times with different inputs. 
+🔗 Actions can be nested within each other to create complex workflows. 
+🔀 Conditional branching is supported through if-else statements. 
+👥 The file also defines workflow invocations and iterable workflow invocations. 
+📝 Overall, this file provides a comprehensive schema for designing and executing strict workflows.
 
 
 ### `trigger_schema.json`
 
-📄 This file is a JSON schema definition.
-🔍 It defines a data structure for a trigger configuration model.
-🚀 The trigger configuration model is used to configure triggers for a workflow.
-📋 Triggers can include actions such as commenting, setting issue titles, crawling folders, running bash commands, committing and pushing changes, and more.
-📂 Each action has its own model and set of inputs and outputs.
-🔀 The trigger configuration model can include multiple triggers, such as label triggers, comment triggers, and push triggers.
-🔧 The configuration allows for specifying parameters and branch names for push triggers.
-💡 The purpose of this file is to provide a structured way to define and configure triggers for a workflow.
+📋 The file contains a JSON schema definition for a configuration file.
+🔗 The schema defines various types of actions that can be performed in a workflow.
+🔀 Actions include commenting, setting issue titles, crawling folders, executing bash commands, and more.
+🔀 Actions can be performed individually or iteratively.
+🔄 The schema also includes trigger configurations for labels, comments, and pushes.
+📝 Each action has its own set of inputs and outputs.
+🔀 Triggers define when and how the actions should be executed.
+📄 The schema is organized into different definitions for each type of action or trigger.
+🔗 The definitions can be referenced within the schema to define the structure of the inputs and outputs for each action.
+🔀 Overall, this file provides a comprehensive schema for defining workflows and actions in a configuration file.
 
 
 ### `workflow_schema.json`
 
-📋 This file is a JSON schema that defines the structure of a workflow definition.
-🔢 It contains definitions for various types of actions that can be performed in the workflow.
-📝 Each action has specific inputs and outputs defined.
-🔀 The workflow definition can include steps that consist of actions, conditionals, and other workflow invocations.
-🔍 The schema also defines various types of declarations, such as templates, variables, constants, and lambdas.
-📂 Some of the actions defined include commenting on an issue, crawling a folder, executing a bash command, and committing and pushing changes to a repository.
-🔀 Conditionals can be defined using Python lambda expressions or by checking the existence of certain variables or context values.
-🔄 The workflow definition can be iterated over using the "iterate" property in certain actions.
-🔧 It also allows for setting variables and invoking other workflows as part of the overall workflow execution.
+📝 This file is a JSON schema that defines a workflow definition for a tool or system.
+🔢 It contains various definitions for different types of actions that can be performed within the workflow.
+🔀 Actions include commenting, crawling folders, executing bash commands, and more.
+📚 The schema also defines parameters, inputs, and outputs for each action.
+📑 Workflow steps are defined as an array of actions, with the ability to nest actions within each other.
+🔁 The schema allows for the definition of iterative actions that can be repeated multiple times.
+🧩 Some actions have additional properties and dependencies defined within the schema.
+💡 Conditional logic can be implemented using the IfLambda and IfContextNotExists definitions.
+🔛 The file also defines the WorkflowDefinition object, which represents the overall structure of a workflow.
+📄 Inputs, outputs, and steps are specified within the WorkflowDefinition object.
 
 <!-- Living README Summary -->

@@ -3,25 +3,25 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains two files. The `__init__.py` file is empty. The `prompt_context.py` file is a Python module that handles prompt context and configuration transformation. It defines classes and functions related to prompt context entries, prompt context, and prompt context configuration. The file also includes utility functions for calculating string lengths and imports external libraries. Overall, this folder is part of a larger codebase and is responsible for managing prompt context and its configuration.
+This folder contains two Python files. The `__init__.py` file appears to be empty. The `prompt_context.py` file contains code that implements a prompt context model for auto PR generation. It defines classes and functions related to defining and transforming prompt contexts. The code seems to be part of a larger project and includes imports of modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
 
 
 ### `__init__.py`
 
-📄 The file is empty.
+📄 This file appears to be empty.
 
 
 ### `prompt_context.py`
 
-📄 This file contains a Python module with several classes and functions. 
-🔍 It appears to be related to prompt context handling and configuration transformation.
-🔧 The file defines classes for prompt context entries, prompt context, and prompt context configuration.
-🖋️ The prompt context classes provide methods for formatting the context as a string and resolving template strings.
-📝 The prompt context configuration classes define different types of declarations for prompt context variables.
-⚙️ The file also includes a method for transforming the prompt context configuration into a prompt context object.
-🔢 There are some utility functions for calculating the token length of a string.
-🔀 The file imports various modules and types from external libraries.
-📚 The file includes type hints and annotations for better code readability.
-💡 Overall, this file is part of a larger codebase and is responsible for managing prompt context and its configuration.
+📄 This file contains Python code implementing a prompt context model for auto PR generation.
+🔧 It includes classes and functions related to defining and transforming prompt contexts.
+📝 The `PromptContext` class represents a dictionary mapping headings to context variable values.
+🔢 The `PromptContextEntry` class represents a single entry in the context heading dictionary.
+🧩 The file also defines different types of declarations for prompt context in config.
+🔀 The `PromptContextInConfig` class transforms prompt context declarations from config into `PromptContext` instances.
+🔍 The `get_string_token_length` function calculates the token length of a string based on a given model.
+📝 The file includes docstrings and comments explaining the purpose and usage of the code.
+🧪 The code seems to be part of a larger project related to auto PR generation and configuration.
+🔧 It imports modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.    
 
 <!-- Living README Summary -->
