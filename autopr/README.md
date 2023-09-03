@@ -3,79 +3,80 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various files and folders related to an automated workflow system. It includes files for defining actions and utilities, configuring logging, coordinating and executing the workflow, defining models and services, managing triggers and workflows, and defining automated tasks. The code is well-documented and follows a modular and object-oriented design, making it easy to understand and extend. The folder also contains YAML files that define workflows for various tasks, which can be executed as standalone programs or used as reusable tasks in larger automation processes.
+This folder contains a collection of Python files and folders that collectively make up a system called AutoPR. The files define classes and actions for various tasks such as running commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The folders contain additional code related to defining and transforming prompt contexts, managing and executing workflows, and handling triggers and configurations. Overall, these files and folders provide modular and reusable functionalities for building automated workflows or integrations.
 
 
 ### `__init__.py`
 
-📄 This file appears to be empty.
+📄 This file appears to be empty.     
+🤔 It is unclear what the purpose of this file is.     
+🚫 No content or code is present in this file.     
+🔍 There is no information to summarize.     
+💡 Please check if any content is missing or if there was an error in the file.     
+📝 This file may need to be filled with code or information.     
+❌ Nothing to summarize at this time.     
+📑 The purpose of this file is not apparent.     
+🔒 No data or instructions are contained in this file.     
+🔎 Review the file for any missing content or intended purpose.     
 
 
 ### `actions`
 
-This folder contains various files and modules that define actions and utilities for different tasks. These actions include dynamically importing modules, performing actions in an autonomous agent system, running bash commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and filtering files, inserting content into a text string, generating prompts using OpenAI's GPT-3 language model, reading file contents, setting the title of an issue, and writing content into a file. The files provide reusable code for automating these tasks and can be used in larger projects or workflows.
+This folder contains a collection of Python files that serve different purposes. The files define classes and actions for various tasks such as running bash commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The files make use of libraries like pydantic, asyncio, and openai, and demonstrate how to implement specific actions in automated processes. Additionally, there is a utils folder that contains code related to defining and transforming prompt contexts for auto PR generation.
 
 
 ### `gh_actions_entrypoint.py`
 
-📝 This file is a Python script that serves as the entry point for a GitHub Actions workflow. 
-🔧 It imports various modules and classes related to the autopr package and GitHub services. 
-🔑 It defines a settings class and a main service class specific to GitHub Actions. 
-💼 The main service class provides methods to interact with the GitHub platform and handle events. 
-📂 It retrieves the repository path and event information from environment variables. 
-🚀 It runs the main service using asyncio to execute the workflow.
+📝 This file is the entry point for a GitHub Actions workflow.
+🔧 It imports necessary modules and defines classes for the workflow.
+🚀 The purpose of this file is to configure and run the main service for GitHub Actions.
+⚙️ It sets up the necessary settings, platform service, and publish service for the workflow.
+🔑 It retrieves the required GitHub token and event information from environment variables.
+📂 The file also includes functions to get the repository path and load the event data.
+🔍 The event data is parsed and returned as an EventUnion object.
+📝 The file logs the start of the workflow and runs the main service using asyncio.
+
 
 
 ### `log_config.py`
 
-📝 This file is used to configure logging and create a logger object.  
-🔧 It sets up the logging level and log wrapper class.  
-🎨 If the "pretty" flag is True, it adds processors for log level, exception info, and console rendering.  
-📂 Otherwise, it uses an empty processor list.  
-🔧 It also configures the cache logger on first use.  
-🔧 The "get_logger" function returns a logger object.
+📝 This file configures logging and sets up a logger for use in the module.
 
 
 ### `main.py`
 
-📄 This file contains the implementation of the `MainService` class.
-🔧 The `MainService` class is responsible for coordinating and executing the autopr workflow.
-🛠️ It initializes various services such as `CommitService`, `ActionService`, `WorkflowService`, and `PublishService`.
-🔄 It runs triggers and workflows based on events received from the platform.
-🔗 It interacts with the platform service to get information about the repository and events.
-🔀 It determines the branch name and base branch based on the event.
-🔧 It creates and manages commits and actions related to the autopr workflow.
-🔧 It handles the publishing of the changes to the repository.
-📝 It uses a `Settings` class to define configurable parameters for the autopr workflow.
-🧩 It relies on other modules and packages for its functionality.
+📝 This file contains the implementation of the `MainService` class and the `Settings` class. 
+🔧 The `MainService` class is the main entry point for running the autopr workflow. 
+🔀 It initializes various services such as the `PlatformService`, `PublishService`, `CommitService`, and `ActionService`. 
+⚙️ It also handles the creation of branch names, triggering events, and running workflows. 
+🔧 The `Settings` class provides default values for various configuration options.
 
 
 ### `models`
 
-This folder contains files related to an automated workflow system. The `artifacts.py` file defines Pydantic models for representing messages, threads, issues, and pull requests. The `config` folder contains files that define models, actions, triggers, and variable declarations for the automation framework. The `events.py` file defines classes for different types of events that can trigger the automated process. The `executable.py` file defines types, classes, and utility functions for context variables and templates. The `__init__.py` file is currently empty and may be intended for future use or as a placeholder.
+This folder contains Python files that define different aspects of a system called AutoPR. The "artifacts.py" file defines data models for messages, threads, issues, and pull requests. The "config" folder contains files related to configuration settings and handling of variables and parameters. The "events.py" file defines models for different types of events that can trigger AutoPR to run. The "executable.py" file contains types and classes related to context variables, templates, and executable actions.
 
 
 ### `services`
 
-This folder contains various Python files that are part of a project. The files serve different purposes, such as managing actions in a workflow, providing a caching mechanism, handling commits in a Git repository, getting and applying diffs, interacting with a platform's API, publishing updates to a pull request, providing utility functions for data manipulation, and handling triggers and executing workflows. The code is well-documented and follows a modular and object-oriented design, making it easy to understand and extend.
+This folder contains several Python files that collectively provide various services and functionalities. These include managing and running actions in an automated process, providing a caching service, managing commits and branches in a Git repository, getting and applying diffs in a Git repository, making API calls to a platform (specifically GitHub) for tasks related to issues, pull requests, and comments, publishing updates to a pull request description, formatting and truncating nested Python objects for publishing purposes, and managing and executing workflows. These files are designed to be modular, extensible, and reusable for building automated workflows or integrations.
 
 
 ### `triggers.py`
 
-📄 This file defines a function called `get_all_triggers`.    
-📂 It takes two optional arguments: `config_dir` and `repo_path`.    
-🔍 The function searches for trigger configuration files in the specified directory and its subdirectories.    
-🔧 It supports both YAML and JSON file formats.    
-📝 Each trigger configuration file should conform to the `TopLevelTriggerConfig` schema.    
-🔀 The function parses the trigger configuration files and returns a list of triggers.    
-📥 The returned triggers can be used for further processing or analysis.    
-🔒 If a trigger configuration file is empty or invalid, it is skipped.    
-🚀 This function is useful for automating actions based on triggers in a repository.    
-📂 By specifying the `config_dir` and `repo_path`, you can customize where the function looks for trigger configuration files.
+📄 This file defines a function called `get_all_triggers`.  
+📁 The function takes two parameters: `config_dir` and `repo_path`.  
+🔍 It searches for trigger configuration files in the specified directory and subdirectories.  
+🔧 The trigger files can have either a `.yaml` or `.yml` extension.  
+🔐 It loads the contents of each trigger file using the `yaml` library.  
+🔁 If the file is empty or cannot be parsed, it is skipped.  
+📝 The contents of valid trigger files are converted into a list of `TopLevelTriggerConfig` objects.  
+🔀 The function returns a list of all triggers extracted from the trigger files.  
+📌 The purpose of this file is to provide a convenient way to retrieve and process trigger configurations.
 
 
 ### `workflows`
 
-This folder contains a collection of YAML files that define workflows for various tasks. The workflows automate processes such as collecting and loading workflows from YAML files, summarizing files and folders, inserting content into files, and summarizing changes in pull requests. Each file contains detailed documentation on its purpose and steps involved in the workflow. These files can be executed as standalone programs or used as reusable tasks in larger automation processes.
+This folder contains Python scripts and YAML files for loading and collecting workflows. The `__init__.py` file defines functions for loading workflows from YAML files in a folder and its subfolders, and the `get_all_workflows` function is the entry point. The `autogenerate_readmes.yaml` file contains workflows for summarizing files and folders in a directory and generating README summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file with optional tag-based delimiters. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
 
 <!-- Living README Summary -->
