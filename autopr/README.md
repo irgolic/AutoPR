@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and folders that collectively make up a system called AutoPR. The files define classes and actions for various tasks such as running commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The folders contain additional code related to defining and transforming prompt contexts, managing and executing workflows, and handling triggers and configurations. Overall, these files and folders provide modular and reusable functionalities for building automated workflows or integrations.
+This folder contains a collection of Python files and subfolders that serve various purposes. The "actions" folder contains files that define specific actions and utilities for automation tasks. The "models" folder contains code files related to a project, defining data models and handling workflow execution. The "services" folder contains files that provide services for managing actions, interacting with APIs, and executing workflows. The "workflows" folder contains scripts and YAML files for loading and collecting workflows. The other files in the folder configure logging, define entry points for GitHub Actions workflows, and provide default settings and trigger configurations. Overall, this folder supports automation, integration, and management of various tasks and processes.
 
 
 ### `__init__.py`
@@ -22,7 +22,7 @@ This folder contains a collection of Python files and folders that collectively 
 
 ### `actions`
 
-This folder contains a collection of Python files that serve different purposes. The files define classes and actions for various tasks such as running bash commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The files make use of libraries like pydantic, asyncio, and openai, and demonstrate how to implement specific actions in automated processes. Additionally, there is a utils folder that contains code related to defining and transforming prompt contexts for auto PR generation.
+This folder contains a collection of Python files and a subdirectory. The files define various actions and utilities for automation tasks. Each file represents a specific action, such as running a bash command, publishing a comment on a GitHub issue, committing and pushing changes to a remote repository, crawling a folder, inserting content into a string, generating prompts using the OpenAI API, reading the contents of a file, setting the title of an issue, and writing content into a file. The subdirectory contains a file that defines a prompt context model for auto PR generation. These files can be used individually or integrated into larger systems or workflows to automate specific tasks.
 
 
 ### `gh_actions_entrypoint.py`
@@ -54,12 +54,12 @@ This folder contains a collection of Python files that serve different purposes.
 
 ### `models`
 
-This folder contains Python files that define different aspects of a system called AutoPR. The "artifacts.py" file defines data models for messages, threads, issues, and pull requests. The "config" folder contains files related to configuration settings and handling of variables and parameters. The "events.py" file defines models for different types of events that can trigger AutoPR to run. The "executable.py" file contains types and classes related to context variables, templates, and executable actions.
+This folder contains Python code files related to a project. The files define data models for messages, threads, issues, and pull requests, as well as handle workflow execution and context manipulation. There are also models for different types of events that can trigger automated actions. Overall, this folder provides a foundation for working with messages, threads, issues, and pull requests, as well as managing workflows in an automation system.
 
 
 ### `services`
 
-This folder contains several Python files that collectively provide various services and functionalities. These include managing and running actions in an automated process, providing a caching service, managing commits and branches in a Git repository, getting and applying diffs in a Git repository, making API calls to a platform (specifically GitHub) for tasks related to issues, pull requests, and comments, publishing updates to a pull request description, formatting and truncating nested Python objects for publishing purposes, and managing and executing workflows. These files are designed to be modular, extensible, and reusable for building automated workflows or integrations.
+This folder contains a collection of Python files that serve various purposes. Some files provide services for managing and running actions, caching data, handling commits and branches in a Git repository, getting and applying diffs, interacting with a platform's API (specifically GitHub), publishing updates to pull request descriptions, and managing and executing workflows. There are also utility functions for formatting and truncating nested Python objects. Overall, the folder contains code that supports automation, integration, and management of various tasks and processes.
 
 
 ### `triggers.py`
