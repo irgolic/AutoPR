@@ -10,7 +10,7 @@ from autopr.actions.base import get_actions_dict, Action as ActionBase
 from autopr.models.config.elements import ExecModel, ActionConfig, TopLevelWorkflowConfig, StrictModel, \
     WorkflowInvocation, IterableWorkflowInvocation, IOSpecModel, WorkflowDefinition, IfLambda, IfContextNotExists, \
     IfExistsContext, SetVars, ContextModel, IOValuesModel, ActionConfigs, ContextActions, ValueDeclaration
-from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent
+from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent, CronEvent
 
 from autopr.models.executable import LambdaString, ContextVarPath, ExecutableId, Executable, \
     TemplateObject, ContextVarName, ContextDict, StrictExecutable
@@ -177,7 +177,20 @@ class PushTrigger(TriggerModel):
         return None
 
 
-Trigger = Union[LabelTrigger, CommentTrigger, PushTrigger]
+class CronTrigger(TriggerModel):
+    type: Literal["cron"] = "cron"
+    cron_schedule: str
+
+    def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
+        if isinstance(event, CronEvent) and self.cron_schedule == event.cron_schedule:
+            return ContextDict(
+                issue=event.issue,
+                pull_request=event.pull_request,
+            )
+        return None
+
+
+Trigger = Union[LabelTrigger, CommentTrigger, PushTrigger, CronTrigger]
 
 
 ###

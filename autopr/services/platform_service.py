@@ -10,7 +10,7 @@ from aiohttp import ClientSession
 
 from autopr.log_config import get_logger
 from autopr.models.artifacts import Issue, Message, PullRequest
-from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent
+from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent, CronEvent
 from datetime import datetime
 
 
@@ -582,13 +582,17 @@ class GitHubPlatformService(PlatformService):
             return PushEvent(
                 branch=event['ref'].split('/')[-1],
             )
+        if event_name == 'schedule':
+            return CronEvent(
+                cron_schedule=event['schedule'],
+            )
         if event['action'] == 'labeled':
             return LabelEvent(
                 pull_request=self._extract_pull_request(event['pull_request']) if 'pull_request' in event else None,
                 issue=self._extract_issue(event['issue']) if 'issue' in event else None,
                 label=event['label']['name'],
             )
-        elif event['action'] == 'comment':
+        if event['action'] == 'comment':
             return CommentEvent(
                 pull_request=self._extract_pull_request(event['issue']['pull_request']),
                 issue=self._extract_issue(event['issue']),

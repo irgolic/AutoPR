@@ -5,3 +5,5 @@ triggers:
     run: hello_workflow
   - branch_name: main
     run: hello_workflow
+  - cron_schedule: '0 0 * * *'
+    run: hello_workflow
