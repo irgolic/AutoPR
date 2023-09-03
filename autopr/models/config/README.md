@@ -3,21 +3,21 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various Python files that serve different purposes. The '__init__.py' file is empty and may be intended for future use. The 'common.py' file defines base model classes with different configuration settings for handling extra fields. The 'elements.py' file defines models and actions related to workflow execution and context manipulation. The 'entrypoints.py' file dynamically creates workflow models and trigger configurations using the Pydantic library. The 'transform.py' file provides a framework for converting between different representations of IO types in the config. The 'value_declarations.py' file defines classes and declarations related to variables and parameters for rendering and evaluating values within a given context.
+This folder contains Python code files related to workflow execution and context manipulation. The files define base model classes for handling extra fields, build workflow models and trigger configurations, transform between config and action variables, and declare variables and parameters for rendering and evaluating values within a context. The folder provides a framework for building and managing workflows in an automation system.
 
 
 ### `__init__.py`
 
-📄 This file is empty.     
-🔍 It does not contain any content.     
-🔒 There is no information or code in this file.     
-💡 The purpose of this file is unclear without content.     
-🔎 It may be intended for future use.     
-📝 You can add content to this file as needed.     
-📌 It is a blank canvas for your code or notes.     
-🚀 Start using this file by adding your own content.     
-🔧 It's a placeholder for future development.     
-👀 This file is currently devoid of any meaningful information.
+📄 This file appears to be empty.     
+🤔 It is unclear what the purpose of this file is.     
+🚫 No content or code is present in this file.     
+🔍 There is no information to summarize.     
+💡 Please check if any content is missing or if there was an error in the file.     
+📝 This file may need to be filled with code or information.     
+❌ Nothing to summarize at this time.     
+📑 The purpose of this file is not apparent.     
+🔒 No data or instructions are contained in this file.     
+🔎 Review the file for any missing content or intended purpose.     
 
 
 ### `common.py`
