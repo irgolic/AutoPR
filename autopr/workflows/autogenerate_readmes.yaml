@@ -45,7 +45,7 @@ summarize_file:
         - set_vars:
             summary:
               param:
-                name: IGNORE_FILES
+                name: EMPTY_FILE_SUMMARY
                 default: "This file is empty."
       else:
         # Summarize the file
