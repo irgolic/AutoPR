@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that serve different purposes. The files define classes and actions for various tasks such as running bash commands, publishing comments on GitHub issues, committing and pushing changes to a remote repository, crawling folders and listing files, inserting content into strings, generating prompts using the OpenAI API, reading file contents, setting issue titles, and writing content into files. The files make use of libraries like pydantic, asyncio, and openai, and demonstrate how to implement specific actions in automated processes. Additionally, there is a utils folder that contains code related to defining and transforming prompt contexts for auto PR generation.
+This folder contains a collection of Python files and a subdirectory. The files define various actions and utilities for automation tasks. Each file represents a specific action, such as running a bash command, publishing a comment on a GitHub issue, committing and pushing changes to a remote repository, crawling a folder, inserting content into a string, generating prompts using the OpenAI API, reading the contents of a file, setting the title of an issue, and writing content into a file. The subdirectory contains a file that defines a prompt context model for auto PR generation. These files can be used individually or integrated into larger systems or workflows to automate specific tasks.
 
 
 ### `__init__.py`
@@ -129,7 +129,7 @@ This folder contains a collection of Python files that serve different purposes.
 
 ### `utils`
 
-This folder contains two Python files. The `__init__.py` file appears to be empty. The `prompt_context.py` file contains code that implements a prompt context model for auto PR generation. It defines classes and functions related to defining and transforming prompt contexts. The code seems to be part of a larger project and includes imports of modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
+This folder contains two files. The `__init__.py` file appears to be empty and its purpose is unclear. The `prompt_context.py` file contains Python code that implements a prompt context model for auto PR generation. It defines classes and functions related to defining and transforming prompt contexts, and includes docstrings and comments explaining the purpose and usage of the code.
 
 
 ### `write_into_file.py`
