@@ -3,12 +3,21 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains two Python files. The `__init__.py` file appears to be empty. The `prompt_context.py` file contains code that implements a prompt context model for auto PR generation. It defines classes and functions related to defining and transforming prompt contexts. The code seems to be part of a larger project and includes imports of modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
+This folder contains two files. The `__init__.py` file appears to be empty and its purpose is unclear. The `prompt_context.py` file contains Python code that implements a prompt context model for auto PR generation. It defines classes and functions related to defining and transforming prompt contexts, and includes docstrings and comments explaining the purpose and usage of the code.
 
 
 ### `__init__.py`
 
-📄 This file appears to be empty.
+📄 This file appears to be empty.     
+🤔 It is unclear what the purpose of this file is.     
+🚫 No content or code is present in this file.     
+🔍 There is no information to summarize.     
+💡 Please check if any content is missing or if there was an error in the file.     
+📝 This file may need to be filled with code or information.     
+❌ Nothing to summarize at this time.     
+📑 The purpose of this file is not apparent.     
+🔒 No data or instructions are contained in this file.     
+🔎 Review the file for any missing content or intended purpose.     
 
 
 ### `prompt_context.py`
