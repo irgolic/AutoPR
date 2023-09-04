@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python scripts and YAML files for loading and collecting workflows. The `__init__.py` file defines functions for loading workflows from YAML files in a folder and its subfolders, and the `get_all_workflows` function is the entry point. The `autogenerate_readmes.yaml` file contains workflows for summarizing files and folders in a directory and generating README summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file with optional tag-based delimiters. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
+This folder contains Python scripts and YAML files related to loading and collecting workflows. The `__init__.py` script defines functions for loading workflows from YAML files. The `autogenerate_readmes.yaml` file contains workflows and actions for generating summaries of files and folders. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request. Overall, the purpose of this folder is to provide a way to load and gather workflow configurations and perform various operations related to file handling and summarization.
 
 
 ### `__init__.py`
@@ -18,16 +18,15 @@ This folder contains Python scripts and YAML files for loading and collecting wo
 
 ### `autogenerate_readmes.yaml`
 
-📄 This file contains a set of workflows for summarizing files and folders in a directory.
-📝 It includes steps for reading file contents, prompting for summaries, and generating README summaries.
-📂 The workflows can handle both individual files and folders, summarizing their contents and generating formatted summaries.
-📑 The formatted summaries are then inserted into the README file of each folder.
-🔍 The file also includes a workflow for generating summaries of all the folders in the current directory.
-🔄 The generated summaries can be committed and pushed to a repository.
-📝 The file provides prompts and instructions for writing the file and folder summaries.
-📚 It uses variables and lambda functions to dynamically generate the summaries and file paths.
-⚙️ The file also includes actions for crawling folders, committing and pushing changes, and reading and writing files.
-📂 If a folder is empty or contains only ignored files, the summary will be empty.
+📝 The file contains a set of workflows and actions for generating summaries of files and folders.
+🗂️ The main workflows are `summarize_file`, `summarize_folder`, and `generate_summary`.
+📂 `summarize_file` reads a file, prompts the user to summarize its contents, and outputs the summary.
+📁 `summarize_folder` summarizes each file/folder in a given folder and prompts the user to summarize the entire folder.
+🌳 `generate_summary` is the entry point for summarizing both files and folders.
+✨ `reformat_results` formats the results of the summarization workflows into a standardized format.
+📝 `insert_into_readme` inserts the formatted summary into a README file.
+🔁 `generate_readme_summaries` executes the defined workflows to generate summaries for the current folder and commits the changes.
+💻 The file also contains various helper actions and steps for handling file operations and prompts.
 
 
 ### `insert_into_readme.yaml`

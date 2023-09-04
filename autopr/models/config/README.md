@@ -3,21 +3,12 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code files related to workflow execution and context manipulation. The files define base model classes for handling extra fields, build workflow models and trigger configurations, transform between config and action variables, and declare variables and parameters for rendering and evaluating values within a context. The folder provides a framework for building and managing workflows in an automation system.
+This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for handling extra fields in models, defining triggers and workflows, transforming between different representations of IO types, and declaring variables and parameters. The purpose of these files is to provide a structured and type-safe way to define and configure workflows and triggers, handle transformations between different types, and render and evaluate values within a given context.
 
 
 ### `__init__.py`
 
-📄 This file appears to be empty.     
-🤔 It is unclear what the purpose of this file is.     
-🚫 No content or code is present in this file.     
-🔍 There is no information to summarize.     
-💡 Please check if any content is missing or if there was an error in the file.     
-📝 This file may need to be filled with code or information.     
-❌ Nothing to summarize at this time.     
-📑 The purpose of this file is not apparent.     
-🔒 No data or instructions are contained in this file.     
-🔎 Review the file for any missing content or intended purpose.     
+This file is empty.
 
 
 ### `common.py`
@@ -38,16 +29,15 @@ This folder contains Python code files related to workflow execution and context
 
 ### `entrypoints.py`
 
-📝 This file contains Python code for building workflow models and triggers using the Pydantic library.
-🔧 The purpose of the file is to dynamically create workflow models and trigger configurations based on the defined workflows and events.
-🔗 The file imports various modules and types from external libraries and other files.
-🔨 It defines functions to build workflow models and retrieve executable IDs.
-📜 It also defines classes for different types of triggers, such as label, comment, and push triggers.
-🔀 The file includes parsing entrypoints for workflow definitions and trigger configurations.
-📋 It provides JSON schema representations of the trigger and workflow configurations.
-💡 The main block of the file writes the JSON schemas to separate files.
-🧩 The file can be used as a module to generate workflow models and trigger configurations for an automation system.
-🔍 The code can be further explored to understand the specific implementation details and logic.
+📝 This file defines various models and functions related to workflow configurations and triggers for a workflow automation system.
+🚀 It includes models for workflow invocations, triggers (such as labels, comments, pushes, and cron schedules), and executable actions.
+🔧 The file also contains functions to dynamically build workflow models and retrieve all executable IDs.
+📋 The `build_workflows()` function dynamically creates workflow models based on currently defined workflows.
+📌 The `get_all_executable_ids()` function retrieves all executable IDs from actions and workflows.
+📄 The file defines various trigger models, such as `LabelTrigger`, `CommentTrigger`, `PushTrigger`, and `CronTrigger`, which extend the `TriggerModel` base model.
+🔗 The `TriggerModel` base model defines common properties and methods for triggers, such as the ability to get the context for a specific event.
+📑 The file also includes models for strict workflow definitions and top-level trigger configurations.
+💡 The purpose of this file is to provide a structured and type-safe way to define and configure workflows and triggers for the workflow automation system.
 
 
 ### `transform.py`
