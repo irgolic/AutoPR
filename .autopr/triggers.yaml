@@ -16,8 +16,8 @@ triggers:
         Be short and concise.
         An example of the structure I'm expecting:
         ~~~
-        💧 line item 1
-        🚚 line item 2
+        💧 line item 1     
+        🚚 line item 2     
         ~~~
         PUT FIVE SPACES ON THE END OF EACH ONLINE.
       FOLDER_SUMMARY_PROMPT: |
