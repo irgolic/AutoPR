@@ -3,21 +3,12 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code files related to a project. The files define data models for messages, threads, issues, and pull requests, as well as handle workflow execution and context manipulation. There are also models for different types of events that can trigger automated actions. Overall, this folder provides a foundation for working with messages, threads, issues, and pull requests, as well as managing workflows in an automation system.
+This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for working with messages, threads, issues, and pull requests, as well as files for handling different types of events that can trigger actions in the system. The purpose of these files is to provide a structured and type-safe way to define and configure workflows, handle transformations between different types, and represent and handle events.
 
 
 ### `__init__.py`
 
-📄 This file appears to be empty.     
-🤔 It is unclear what the purpose of this file is.     
-🚫 No content or code is present in this file.     
-🔍 There is no information to summarize.     
-💡 Please check if any content is missing or if there was an error in the file.     
-📝 This file may need to be filled with code or information.     
-❌ Nothing to summarize at this time.     
-📑 The purpose of this file is not apparent.     
-🔒 No data or instructions are contained in this file.     
-🔎 Review the file for any missing content or intended purpose.     
+This file is empty.
 
 
 ### `artifacts.py`
@@ -35,20 +26,21 @@ This folder contains Python code files related to a project. The files define da
 
 ### `config`
 
-This folder contains Python code files related to workflow execution and context manipulation. The files define base model classes for handling extra fields, build workflow models and trigger configurations, transform between config and action variables, and declare variables and parameters for rendering and evaluating values within a context. The folder provides a framework for building and managing workflows in an automation system.
+This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for handling extra fields in models, defining triggers and workflows, transforming between different representations of IO types, and declaring variables and parameters. The purpose of these files is to provide a structured and type-safe way to define and configure workflows and triggers, handle transformations between different types, and render and evaluate values within a given context.
 
 
 ### `events.py`
 
-📄 This file defines a set of Pydantic models for different types of events that can trigger AutoPR to run. 
-🔀 The `Event` model is the base model for all events and has an `event_type` attribute. 
-🔖 The `LabelEvent` model represents an event triggered when a label is added to an issue or pull request. 
-💬 The `CommentEvent` model represents an event triggered when a comment is added to an issue or pull request. 
-🚀 The `PushEvent` model represents an event triggered when a push is made to a branch. 
-🗂️ There is a commented-out `CodeReviewEvent` model that represents an event triggered when a comment is added to a code review. 
-🔀 The `EventUnion` type is a Union of the different event models. 
-❌ The file currently does not contain any implementation details or logic. 
-📝 The purpose of this file is to provide a structured way to define and handle different types of events in the AutoPR system.
+📝 This file defines several classes for different types of events in the AutoPR system.
+🔧 The purpose of this file is to provide a structured way to represent and handle different events that can trigger AutoPR.
+🏗️ The main class is `Event`, which serves as a base model for other event types.
+🔖 `LabelEvent` represents an event triggered when a label is added to an issue or pull request.
+💬 `CommentEvent` represents an event triggered when a comment is added to an issue or pull request.
+🚀 `PushEvent` represents an event triggered when a push is made to a branch.
+⏰ `CronEvent` represents an event triggered by a cron job.
+🔄 There is a commented out class `CodeReviewEvent` which represents an event triggered when a comment is added to a code review.
+🔀 `EventUnion` is a type alias that represents a union of different event types.
+
 
 
 ### `executable.py`
