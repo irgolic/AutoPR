@@ -3,21 +3,12 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that serve various purposes. Some files provide services for managing and running actions, caching data, handling commits and branches in a Git repository, getting and applying diffs, interacting with a platform's API (specifically GitHub), publishing updates to pull request descriptions, and managing and executing workflows. There are also utility functions for formatting and truncating nested Python objects. Overall, the folder contains code that supports automation, integration, and management of various tasks and processes.
+This folder contains various Python files that serve different purposes. Some files provide services for managing actions, caching, commits, diffs, platforms, publishing updates, and workflows. There are also utility functions for formatting and truncating nested Python objects. Overall, this folder represents a collection of modules that can be used to automate processes, interact with Git repositories and platforms like GitHub, and format data for publishing or displaying purposes.
 
 
 ### `__init__.py`
 
-📄 This file appears to be empty.     
-🤔 It is unclear what the purpose of this file is.     
-🚫 No content or code is present in this file.     
-🔍 There is no information to summarize.     
-💡 Please check if any content is missing or if there was an error in the file.     
-📝 This file may need to be filled with code or information.     
-❌ Nothing to summarize at this time.     
-📑 The purpose of this file is not apparent.     
-🔒 No data or instructions are contained in this file.     
-🔎 Review the file for any missing content or intended purpose.     
+This file is empty.
 
 
 ### `action_service.py`
@@ -69,15 +60,16 @@ This folder contains a collection of Python files that serve various purposes. S
 
 ### `platform_service.py`
 
-📝 This file contains the implementation of two classes: `PlatformService` and `GitHubPlatformService`. 
-📦 The `PlatformService` class is a base class for making API calls to a platform, such as GitHub. It defines several methods for interacting with issues, pull requests, and comments.
-🚀 The `GitHubPlatformService` class is a subclass of `PlatformService` that specifically handles API calls to GitHub. It implements the methods defined in the base class and adds some additional functionality, such as creating pull requests and updating their status.
-🔒 The `GitHubPlatformService` class requires a GitHub token for authentication.
-⚠️ There is also a `DummyPlatformService` class that serves as a placeholder implementation of `PlatformService`. It does not make any API calls and is mainly used for testing or as a fallback option.
-🔁 Both classes have methods that are marked as `NotImplementedError`, indicating that they need to be implemented in subclasses.
-💡 The purpose of this file is to provide a modular and extensible way to interact with a platform's API, specifically GitHub, for tasks related to issues, pull requests, and comments.
-📚 The file also includes some helper functions for logging and handling API responses.
-🔧 The classes in this file can be used as a foundation for building automated workflows or integrations with GitHub.
+📝 This file contains the implementation of two classes: `PlatformService` and `GitHubPlatformService`.
+📡 The `PlatformService` class provides an interface for making API calls to a platform, such as GitHub.
+🔒 The `GitHubPlatformService` class is a subclass of `PlatformService` and specifically implements the functionality for interacting with the GitHub platform.
+✨ It includes methods for publishing comments, creating and updating pull requests, getting issues, and parsing events.
+🛠️ The `PlatformService` class also includes some abstract methods that need to be implemented by subclasses.
+🚀 The purpose of this file is to provide a service for interacting with the GitHub platform, such as creating pull requests, updating issues, and handling events.
+🔑 The `GitHubPlatformService` class requires a token, owner, and repository name to authenticate API requests to the GitHub platform.
+❌ There is also a dummy implementation of the `PlatformService` class called `DummyPlatformService`, which does not perform any actual API calls and is used for testing or as a placeholder.
+📚 The file includes import statements for necessary modules and some utility functions and classes.
+⚠️ The file ends with an incomplete implementation of the `PlatformService` class, where some methods raise a `NotImplementedError`.
 
 
 ### `publish_service.py`
