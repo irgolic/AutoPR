@@ -4952,6 +4952,303 @@
       ],
       "additionalProperties": false
     },
+    "CronTrigger": {
+      "title": "CronTrigger",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "default": "cron",
+          "enum": [
+            "cron"
+          ],
+          "type": "string"
+        },
+        "run": {
+          "title": "Run",
+          "anyOf": [
+            {
+              "enum": [
+                "comment",
+                "set_issue_title",
+                "crawl_folder",
+                "bash",
+                "commit_and_push",
+                "write_into_file",
+                "insert_content_into_text",
+                "prompt",
+                "read_file",
+                "summarize_pr",
+                "reformat_results",
+                "summarize_file",
+                "summarize_folder",
+                "generate_summary",
+                "generate_readme_summaries",
+                "insert_into_readme"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/commentActionModel"
+            },
+            {
+              "$ref": "#/definitions/commentIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleActionModel"
+            },
+            {
+              "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderActionModel"
+            },
+            {
+              "$ref": "#/definitions/crawl_folderIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashActionModel"
+            },
+            {
+              "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushActionModel"
+            },
+            {
+              "$ref": "#/definitions/commit_and_pushIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/write_into_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textActionModel"
+            },
+            {
+              "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptActionModel"
+            },
+            {
+              "$ref": "#/definitions/promptIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileActionModel"
+            },
+            {
+              "$ref": "#/definitions/read_fileIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/SetVars"
+            },
+            {
+              "$ref": "#/definitions/IfLambda"
+            },
+            {
+              "$ref": "#/definitions/IfExistsContext"
+            },
+            {
+              "$ref": "#/definitions/IfContextNotExists"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "comment",
+                      "set_issue_title",
+                      "crawl_folder",
+                      "bash",
+                      "commit_and_push",
+                      "write_into_file",
+                      "insert_content_into_text",
+                      "prompt",
+                      "read_file",
+                      "summarize_pr",
+                      "reformat_results",
+                      "summarize_file",
+                      "summarize_folder",
+                      "generate_summary",
+                      "generate_readme_summaries",
+                      "insert_into_readme"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/commentActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commentIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/crawl_folderIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/commit_and_pushIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/write_into_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/promptIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/read_fileIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/reformat_resultsIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_fileIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/summarize_folderIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_summaryIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/generate_readme_summariesIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/insert_into_readmeIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/SetVars"
+                  },
+                  {
+                    "$ref": "#/definitions/IfLambda"
+                  },
+                  {
+                    "$ref": "#/definitions/IfExistsContext"
+                  },
+                  {
+                    "$ref": "#/definitions/IfContextNotExists"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "title": "Parameters",
+          "type": "object"
+        },
+        "cron_schedule": {
+          "title": "Cron Schedule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run",
+        "cron_schedule"
+      ],
+      "additionalProperties": false
+    },
     "TopLevelTriggerConfig": {
       "title": "TopLevelTriggerConfig",
       "type": "object",
@@ -4969,6 +5266,9 @@
               },
               {
                 "$ref": "#/definitions/PushTrigger"
+              },
+              {
+                "$ref": "#/definitions/CronTrigger"
               }
             ]
           }

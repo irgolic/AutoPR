@@ -42,6 +42,15 @@ class PushEvent(Event):
     branch: str
 
 
+class CronEvent(Event):
+    """
+    Event triggered by a cron job.
+    """
+    event_type: Literal['cron'] = 'cron'
+
+    cron_schedule: str
+
+
 # class CodeReviewEvent(Event):
 #     """
 #     Event triggered when a comment is added to a code review.
@@ -53,4 +62,4 @@ class PushEvent(Event):
 #     new_comment: Message
 
 
-EventUnion = Union[LabelEvent, CommentEvent, PushEvent]  # | CodeReviewEvent
+EventUnion = Union[LabelEvent, CommentEvent, PushEvent, CronEvent]  # | CodeReviewEvent

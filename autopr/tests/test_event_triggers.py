@@ -1,10 +1,12 @@
+import json
 from typing import Optional
 
 import pytest
 
 from autopr.models.artifacts import Issue, Message
-from autopr.models.events import LabelEvent, EventUnion, PushEvent
+from autopr.models.events import LabelEvent, EventUnion, PushEvent, CronEvent
 from autopr.models.executable import ContextDict
+from autopr.services.platform_service import GitHubPlatformService
 from autopr.tests.utils import create_ephemeral_main_service
 
 issue_label_event = LabelEvent(
@@ -26,6 +28,10 @@ issue_label_event = LabelEvent(
 
 push_event = PushEvent(
     branch="main",
+)
+
+cron_event = CronEvent(
+    cron_schedule="0 0 * * *",
 )
 
 
@@ -58,6 +64,17 @@ push_event = PushEvent(
             "bash.yaml",
             "bash.yaml",
             push_event,
+            {
+                "issue": None,
+                "pull_request": None,
+                "msg": "Hello, world!\n",
+            },
+            "example_repo_1",
+        ),
+        (
+            "bash.yaml",
+            "bash.yaml",
+            cron_event,
             {
                 "issue": None,
                 "pull_request": None,

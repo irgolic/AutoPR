@@ -65,6 +65,28 @@ triggers:
 ```
 
 </TabItem>
+<TabItem value="crontrigger" label="Cron Trigger">
+
+Activates on a schedule according to a cron expression. Feel free to use [crontab.guru](https://crontab.guru/) to help you write cron expressions.
+- **`cron_schedule`**: The cron expression that specifies the schedule (e.g. `0 0 * * *` for daily at midnight).
+
+```yaml
+triggers:
+  - type: "cron"
+    cron_schedule: "0 0 * * *"
+    run: "generate_readme_summaries"
+```
+
+When using a cron trigger, make sure to specify the same schedule in your `.github/workflows/autopr.yml` file:
+
+```yaml
+name: autopr
+on:
+  schedule:
+    - cron: "0 0 * * *"
+```
+
+</TabItem>
 </Tabs>
 
 ## 📄 Example
