@@ -38,6 +38,7 @@ The following parameters are available:
 - `FOLDER_SUMMARY_PROMPT`: the prompt to use when asking for a summary of a folder.
 - `FOLDER_SUMMARY_INSTRUCTIONS`: the instructions to use when asking for a summary of a folder.
 - `IGNORE_FILES`: a list of files to ignore when crawling the repository.
+- `EMPTY_FILE_SUMMARY`: the summary to use when a file is empty.
 
 You can invoke it by using the following trigger:
 
@@ -52,6 +53,7 @@ triggers:
       FOLDER_SUMMARY_INSTRUCTIONS: "Respond in simple sentences, using plenty of emojis."
       IGNORE_FILES:
         - docs
+      EMPTY_FILE_SUMMARY: "This file is empty."
 ```
 
 The above trigger will run the workflow whenever the `main` branch is updated.

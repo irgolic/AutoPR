@@ -10,6 +10,11 @@ Files in this folder:
 - The folder provides a structured and easily readable way to define and manage triggers for the specified branch.
 ---
 
+__init__.py:
+---
+This file is empty.
+---
+
 example_repo_2_subfolder:
 ---
 - The folder contains a Python script named "crawl_folder.py".
