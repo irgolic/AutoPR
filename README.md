@@ -31,7 +31,7 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various files and subfolders that support automation, integration, and management of tasks and processes. The Dockerfile sets up the environment for running an app, the LICENSE.md file provides the MIT License for the software, the Makefile defines targets for a Python project, the action.yml file configures an "Automatic Pull Request" action, the autopr folder contains code files for automation, the entrypoint.sh file sets Git configurations and runs a Python module, the poetry.lock file provides an executive summary of dependencies, the pyproject.toml file is a configuration file for a Python project, and there are JSON schema files defining workflow and trigger configurations.
+This folder contains various files related to a Python project. It includes a Dockerfile for setting up the project environment, a Makefile for running different tasks, an action.yml file for configuring a GitHub action, a shell script for running the project, and configuration files for Poetry and strict workflows. There are also files related to licensing, JSON schemas for defining triggers and workflows, and a folder containing Python files that implement automation tasks. Overall, this folder provides the necessary files and configurations for building and automating the project.
 
 
 ### `Dockerfile`
@@ -81,7 +81,7 @@ This folder contains various files and subfolders that support automation, integ
 
 ### `autopr`
 
-This folder contains a collection of Python files and subfolders that serve various purposes. The "actions" folder contains files that define specific actions and utilities for automation tasks. The "models" folder contains code files related to a project, defining data models and handling workflow execution. The "services" folder contains files that provide services for managing actions, interacting with APIs, and executing workflows. The "workflows" folder contains scripts and YAML files for loading and collecting workflows. The other files in the folder configure logging, define entry points for GitHub Actions workflows, and provide default settings and trigger configurations. Overall, this folder supports automation, integration, and management of various tasks and processes.
+This folder contains a collection of Python files and folders that implement various actions and services for an automated process. The files define classes and methods for tasks such as running commands, publishing comments, committing changes, crawling folders, generating prompts, reading and writing files, and setting issue titles. The folder also includes files for configuring logging, defining models and configurations, and handling triggers and workflows. Overall, the folder provides reusable components for building automation tasks and demonstrates the usage of libraries like pydantic, asyncio, and openai.
 
 
 ### `entrypoint.sh`
@@ -135,16 +135,15 @@ This folder contains a collection of Python files and subfolders that serve vari
 
 ### `trigger_schema.json`
 
-📋 The file contains a JSON schema definition for a configuration file.
-🔗 The schema defines various types of actions that can be performed in a workflow.
-🔀 Actions include commenting, setting issue titles, crawling folders, executing bash commands, and more.
-🔀 Actions can be performed individually or iteratively.
-🔄 The schema also includes trigger configurations for labels, comments, and pushes.
-📝 Each action has its own set of inputs and outputs.
-🔀 Triggers define when and how the actions should be executed.
-📄 The schema is organized into different definitions for each type of action or trigger.
-🔗 The definitions can be referenced within the schema to define the structure of the inputs and outputs for each action.
-🔀 Overall, this file provides a comprehensive schema for defining workflows and actions in a configuration file.
+📄 This file is a JSON schema definition for a trigger configuration.
+🔗 It defines various trigger types such as label, comment, push, and cron triggers.
+🔀 Each trigger type has its own set of properties and sub-properties.
+🔧 The schema also defines different action models that can be associated with each trigger type.
+📝 The action models specify the name, description, inputs, and outputs of each action.
+🔄 Some action models can be iterated over using the "iterate" property.
+🔑 The schema also includes definitions for different types of declarations like template, variable, constant, and lambda declarations.
+🗂️ There are also definitions for different types of inputs and outputs for actions.
+📅 Overall, this file provides a comprehensive schema for defining triggers and their associated actions in a workflow system.
 
 
 ### `workflow_schema.json`
