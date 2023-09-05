@@ -31,10 +31,10 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various files related to a Python project. It includes a Dockerfile for setting up the project environment, a Makefile for running different tasks, an action.yml file for configuring a GitHub action, a shell script for running the project, and configuration files for Poetry and strict workflows. There are also files related to licensing, JSON schemas for defining triggers and workflows, and a folder containing Python files that implement automation tasks. Overall, this folder provides the necessary files and configurations for building and automating the project.
+This folder contains various files and folders related to automation tasks. It includes a Dockerfile for setting up the project environment, a license file outlining the permissions and rights for the software, a Makefile for running different tasks in the project, an action.yml file defining the configuration for an automated pull request action, and several other files related to workflow configurations, data models, and schema definitions. Overall, this folder provides reusable components and configurations for automating different tasks.
 
 
-### `Dockerfile`
+### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./Dockerfile/)
 
 🔧 Install git from bullseye-backports  
 📝 Set up entrypoint  
@@ -44,7 +44,7 @@ This folder contains various files related to a Python project. It includes a Do
 🏃‍♀️ Run the app using entrypoint.sh as the command
 
 
-### `LICENSE.md`
+### [`LICENSE.md`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./LICENSE.md/)
 
 📄 This file contains the MIT License for software developed by Raphael Francis Ltd.
 🔒 The license grants permission to use, copy, modify, merge, publish, distribute, sublicense, and sell the software.
@@ -54,7 +54,7 @@ This folder contains various files related to a Python project. It includes a Do
 
 
 
-### `Makefile`
+### [`Makefile`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./Makefile/)
 
 📝 This file defines several targets for a Python project    
 🎯 `type` target runs static type checking using Pyright    
@@ -68,7 +68,7 @@ This folder contains various files related to a Python project. It includes a Do
 💻 This file is an important part of the project's build and development process
 
 
-### `action.yml`
+### [`action.yml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./action.yml/)
 
 📋 This file defines the configuration for an "Automatic Pull Request" action. 
 🔧 It specifies the details of how the action should run, including using Docker and the Docker image to use.
@@ -79,12 +79,12 @@ This folder contains various files related to a Python project. It includes a Do
 
 
 
-### `autopr`
+### [`autopr`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/)
 
-This folder contains a collection of Python files and folders that implement various actions and services for an automated process. The files define classes and methods for tasks such as running commands, publishing comments, committing changes, crawling folders, generating prompts, reading and writing files, and setting issue titles. The folder also includes files for configuring logging, defining models and configurations, and handling triggers and workflows. Overall, the folder provides reusable components for building automation tasks and demonstrates the usage of libraries like pydantic, asyncio, and openai.
+This folder contains a collection of Python files and folders that serve different purposes for automation tasks. The "actions" folder contains files that define various actions and utilities for automation, such as running commands, publishing comments, and committing changes. The "models" folder contains files that define models, actions, and configurations for a workflow automation system. The "services" folder contains files that provide services for managing actions, caching, commits, platforms, and workflows. The "workflows" folder contains scripts and files related to workflow configurations. Overall, this folder provides reusable components and configurations for automating different tasks.
 
 
-### `entrypoint.sh`
+### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./entrypoint.sh/)
 
 📝 This file is a shell script.
 🔧 It sets the global configuration for Git.
@@ -95,7 +95,7 @@ This folder contains a collection of Python files and folders that implement var
 🐍 It runs a Python module called autopr.gh_actions_entrypoint.
 
 
-### `poetry.lock`
+### [`poetry.lock`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./poetry.lock/)
 
 📄 This file is intended to serve as an executive summary.
 🔍 It provides a high-level overview of the contents of the document.
@@ -109,7 +109,7 @@ This folder contains a collection of Python files and folders that implement var
 📝 It serves as a guide for further exploration of the document.
 
 
-### `pyproject.toml`
+### [`pyproject.toml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./pyproject.toml/)
 
 📋 This file is a configuration file for a Python project using Poetry as a dependency management tool. 
 📦 It specifies the project name, version, authors, license, and packages to include.
@@ -119,44 +119,35 @@ This folder contains a collection of Python files and folders that implement var
 
 
 
-### `strict_workflow_schema.json`
+### [`strict_workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./strict_workflow_schema.json/)
 
-📄 This file is a JSON schema definition for a strict workflow model. 
-🔖 It contains definitions for various action models and their properties. 
-🚀 The purpose of this file is to provide a structured format for defining and validating workflows. 
-🔧 It includes definitions for actions like commenting, crawling folders, executing bash commands, and more. 
-💡 The file also defines parameters, inputs, outputs, and conditions for each action. 
-📚 It supports iterable actions that can be executed multiple times with different inputs. 
-🔗 Actions can be nested within each other to create complex workflows. 
-🔀 Conditional branching is supported through if-else statements. 
-👥 The file also defines workflow invocations and iterable workflow invocations. 
-📝 Overall, this file provides a comprehensive schema for designing and executing strict workflows.
+📋 This file contains a JSON schema definition for a strict workflow model. The purpose of this file is to define the structure and properties of a workflow, including the steps and actions involved in the workflow. The schema includes definitions for various types of actions, such as commenting, crawling folders, executing bash commands, and more. It also defines the structure of the workflow, including inputs, outputs, and steps.
 
 
-### `trigger_schema.json`
+### [`trigger_schema.json`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./trigger_schema.json/)
 
-📄 This file is a JSON schema definition for a trigger configuration.
-🔗 It defines various trigger types such as label, comment, push, and cron triggers.
-🔀 Each trigger type has its own set of properties and sub-properties.
-🔧 The schema also defines different action models that can be associated with each trigger type.
-📝 The action models specify the name, description, inputs, and outputs of each action.
-🔄 Some action models can be iterated over using the "iterate" property.
-🔑 The schema also includes definitions for different types of declarations like template, variable, constant, and lambda declarations.
-🗂️ There are also definitions for different types of inputs and outputs for actions.
-📅 Overall, this file provides a comprehensive schema for defining triggers and their associated actions in a workflow system.
+📝 This file contains a JSON schema definition.
+🔍 The purpose of the file is to define the structure and properties of various data models used in a system.
+🏷️ The file includes definitions for different types of actions, triggers, and parameters.
+📂 Each definition includes properties such as title, description, type, and required fields.
+📝 The file also includes references to other definitions within the schema.
+🌟 The schema provides a standardized format for validating and manipulating data within the system.
+🔧 It can be used by developers to ensure consistency and correctness when working with the defined data models.
+💡 The file can serve as a documentation resource for understanding the structure and properties of the different data models.
+🤖 The schema can be used by automated tools to generate code, perform data validation, or provide autocomplete suggestions.
+⚠️ It's important to review and understand the definitions in this file in order to correctly use and interact with the data models in the system.
 
 
-### `workflow_schema.json`
+### [`workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./workflow_schema.json/)
 
-📝 This file is a JSON schema that defines a workflow definition for a tool or system.
-🔢 It contains various definitions for different types of actions that can be performed within the workflow.
-🔀 Actions include commenting, crawling folders, executing bash commands, and more.
-📚 The schema also defines parameters, inputs, and outputs for each action.
-📑 Workflow steps are defined as an array of actions, with the ability to nest actions within each other.
-🔁 The schema allows for the definition of iterative actions that can be repeated multiple times.
-🧩 Some actions have additional properties and dependencies defined within the schema.
-💡 Conditional logic can be implemented using the IfLambda and IfContextNotExists definitions.
-🔛 The file also defines the WorkflowDefinition object, which represents the overall structure of a workflow.
-📄 Inputs, outputs, and steps are specified within the WorkflowDefinition object.
+📋 This file contains a JSON object describing a workflow definition.
+📝 The workflow definition includes various types of actions that can be performed.
+🔀 Actions can be performed iteratively or conditionally based on certain criteria.
+🔀 Actions can include commenting, setting issue titles, crawling folders, executing bash commands, committing and pushing files, and more.
+🔄 The workflow definition also includes steps which specify the order and flow of the actions.
+🔧 Inputs and outputs can be defined for the workflow and individual actions.
+🔀 The workflow definition allows for nesting of actions and conditionals, creating more complex workflows.
+📚 The file also includes definitions for various types of declarations and models used within the workflow definition.
+🗂️ The purpose of this file is to define and configure a workflow that can be executed programmatically.
 
 <!-- Living README Summary -->

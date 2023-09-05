@@ -6,12 +6,12 @@
 This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for working with messages, threads, issues, and pull requests, as well as files for handling different types of events that can trigger actions in the system. The purpose of these files is to provide a structured and type-safe way to define and configure workflows, handle transformations between different types, and represent and handle events.
 
 
-### `__init__.py`
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/__init__.py/)
 
 This file is empty.
 
 
-### `artifacts.py`
+### [`artifacts.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/artifacts.py/)
 
 📄 This file contains Python code for defining data models related to messages, threads, issues, and pull requests.
 📝 The purpose of the code is to provide a structured way to represent and manipulate these data types.
@@ -24,12 +24,12 @@ This file is empty.
 🗒️ Overall, this file provides a foundation for working with messages, threads, issues, and pull requests in Python.
 
 
-### `config`
+### [`config`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/)
 
 This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for handling extra fields in models, defining triggers and workflows, transforming between different representations of IO types, and declaring variables and parameters. The purpose of these files is to provide a structured and type-safe way to define and configure workflows and triggers, handle transformations between different types, and render and evaluate values within a given context.
 
 
-### `events.py`
+### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/events.py/)
 
 📝 This file defines several classes for different types of events in the AutoPR system.
 🔧 The purpose of this file is to provide a structured way to represent and handle different events that can trigger AutoPR.
@@ -43,7 +43,7 @@ This folder contains Python code files that define models, actions, and configur
 
 
 
-### `executable.py`
+### [`executable.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/executable.py/)
 
 📝 This file contains a Python module that defines various types and classes related to context variables, templates, and executable actions.
 

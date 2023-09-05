@@ -6,12 +6,12 @@
 This folder contains two files: "__init__.py" and "prompt_context.py". "__init__.py" is an empty file. "prompt_context.py" is a Python file that implements a prompt context model for auto PR (pull request) generation. It includes classes and functions related to defining and transforming prompt contexts, and also defines different types of declarations for prompt context in config. The file imports modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
 
 
-### `__init__.py`
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/__init__.py/)
 
 This file is empty.
 
 
-### `prompt_context.py`
+### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/prompt_context.py/)
 
 📄 This file contains Python code implementing a prompt context model for auto PR generation.
 🔧 It includes classes and functions related to defining and transforming prompt contexts.
