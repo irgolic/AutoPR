@@ -6,12 +6,12 @@
 This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for handling extra fields in models, defining triggers and workflows, transforming between different representations of IO types, and declaring variables and parameters. The purpose of these files is to provide a structured and type-safe way to define and configure workflows and triggers, handle transformations between different types, and render and evaluate values within a given context.
 
 
-### `__init__.py`
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/__init__.py/)
 
 This file is empty.
 
 
-### `common.py`
+### [`common.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/common.py/)
 
 📄 This file contains Python code
 🔒 It defines a class named "StrictModel" which inherits from pydantic.BaseModel
@@ -22,12 +22,12 @@ This file is empty.
 💡 The purpose of this file is to define two base model classes with different configuration settings for handling extra fields
 
 
-### `elements.py`
+### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/elements.py/)
 
 📜 This file contains Python code for defining models and actions related to workflow execution and context manipulation.
 
 
-### `entrypoints.py`
+### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/entrypoints.py/)
 
 📝 This file defines various models and functions related to workflow configurations and triggers for a workflow automation system.
 🚀 It includes models for workflow invocations, triggers (such as labels, comments, pushes, and cron schedules), and executable actions.
@@ -40,7 +40,7 @@ This file is empty.
 💡 The purpose of this file is to provide a structured and type-safe way to define and configure workflows and triggers for the workflow automation system.
 
 
-### `transform.py`
+### [`transform.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/transform.py/)
 
 📄 This file contains code for transforming between config and action variables.
 🔄 It defines two generic classes, `TransformsInto` and `TransformsFrom`, which handle the conversion between different representations of IO types in the config.
@@ -54,7 +54,7 @@ This file is empty.
 🔧 Overall, this file provides an abstraction for handling the transformation of IO types between the config and action variables.
 
 
-### `value_declarations.py`
+### [`value_declarations.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/value_declarations.py/)
 
 📄 This file defines a set of classes and declarations related to variables and parameters.
 📝 These classes provide functionality for rendering and evaluating values within a given context.
