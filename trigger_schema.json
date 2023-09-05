@@ -727,6 +727,466 @@
       ],
       "additionalProperties": false
     },
+    "PromptContextInConfigVar": {
+      "title": "PromptContextInConfigVar",
+      "description": "A variable declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "var": {
+          "title": "Var",
+          "type": "string"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "var",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigTemplate": {
+      "title": "PromptContextInConfigTemplate",
+      "description": "A template string for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "template": {
+          "title": "Template",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            }
+          ]
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "template",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigLambda": {
+      "title": "PromptContextInConfigLambda",
+      "description": "A lambda declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "lambda": {
+          "title": "Lambda",
+          "type": "string"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "lambda",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfigConst": {
+      "title": "PromptContextInConfigConst",
+      "description": "A constant declaration for prompt context in config.",
+      "type": "object",
+      "properties": {
+        "const": {
+          "title": "Const"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "priority": {
+          "title": "Priority",
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "PromptContextInConfig": {
+      "title": "PromptContextInConfig",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/PromptContextInConfigVar"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigTemplate"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigLambda"
+          },
+          {
+            "$ref": "#/definitions/PromptContextInConfigConst"
+          }
+        ]
+      }
+    },
+    "choiceInputsActionFieldTemplate": {
+      "title": "choiceInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "choices": {
+          "title": "Choices",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "model": {
+          "title": "Model",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "prompt_context": {
+          "title": "Prompt Context",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PromptContextInConfig"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "instructions": {
+          "title": "Instructions",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "prompt": {
+          "title": "Prompt",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "max_prompt_tokens": {
+          "title": "Max Prompt Tokens",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "max_response_tokens": {
+          "title": "Max Response Tokens",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "strategy": {
+          "title": "Strategy",
+          "anyOf": [
+            {
+              "enum": [
+                "middle out"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "temperature": {
+          "title": "Temperature",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "choices"
+      ],
+      "additionalProperties": false
+    },
+    "choiceOutputsActionFieldTemplate": {
+      "title": "choiceOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "choice": {
+          "title": "Choice",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "choiceActionModel": {
+      "title": "choiceActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "choice"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/choiceInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/choiceOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "choiceIterableActionModel": {
+      "title": "choiceIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "choice"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/choiceInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/choiceOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "commit_and_pushInputsActionFieldTemplate": {
       "title": "commit_and_pushInputsActionFieldTemplate",
       "type": "object",
@@ -1256,135 +1716,6 @@
         "inputs"
       ],
       "additionalProperties": false
-    },
-    "PromptContextInConfigVar": {
-      "title": "PromptContextInConfigVar",
-      "description": "A variable declaration for prompt context in config.",
-      "type": "object",
-      "properties": {
-        "var": {
-          "title": "Var",
-          "type": "string"
-        },
-        "heading": {
-          "title": "Heading",
-          "type": "string"
-        },
-        "priority": {
-          "title": "Priority",
-          "default": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "var",
-        "heading"
-      ],
-      "additionalProperties": false
-    },
-    "PromptContextInConfigTemplate": {
-      "title": "PromptContextInConfigTemplate",
-      "description": "A template string for prompt context in config.",
-      "type": "object",
-      "properties": {
-        "template": {
-          "title": "Template",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "object"
-            },
-            {
-              "type": "array",
-              "items": {}
-            }
-          ]
-        },
-        "heading": {
-          "title": "Heading",
-          "type": "string"
-        },
-        "priority": {
-          "title": "Priority",
-          "default": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "template",
-        "heading"
-      ],
-      "additionalProperties": false
-    },
-    "PromptContextInConfigLambda": {
-      "title": "PromptContextInConfigLambda",
-      "description": "A lambda declaration for prompt context in config.",
-      "type": "object",
-      "properties": {
-        "lambda": {
-          "title": "Lambda",
-          "type": "string"
-        },
-        "heading": {
-          "title": "Heading",
-          "type": "string"
-        },
-        "priority": {
-          "title": "Priority",
-          "default": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "lambda",
-        "heading"
-      ],
-      "additionalProperties": false
-    },
-    "PromptContextInConfigConst": {
-      "title": "PromptContextInConfigConst",
-      "description": "A constant declaration for prompt context in config.",
-      "type": "object",
-      "properties": {
-        "const": {
-          "title": "Const"
-        },
-        "heading": {
-          "title": "Heading",
-          "type": "string"
-        },
-        "priority": {
-          "title": "Priority",
-          "default": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "heading"
-      ],
-      "additionalProperties": false
-    },
-    "PromptContextInConfig": {
-      "title": "PromptContextInConfig",
-      "type": "array",
-      "items": {
-        "anyOf": [
-          {
-            "$ref": "#/definitions/PromptContextInConfigVar"
-          },
-          {
-            "$ref": "#/definitions/PromptContextInConfigTemplate"
-          },
-          {
-            "$ref": "#/definitions/PromptContextInConfigLambda"
-          },
-          {
-            "$ref": "#/definitions/PromptContextInConfigConst"
-          }
-        ]
-      }
     },
     "promptInputsActionFieldTemplate": {
       "title": "promptInputsActionFieldTemplate",
@@ -2960,6 +3291,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3045,6 +3382,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -3138,6 +3481,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3223,6 +3572,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -3341,6 +3696,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3426,6 +3787,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -3519,6 +3886,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3604,6 +3977,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -3722,6 +4101,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3807,6 +4192,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -3900,6 +4291,12 @@
                   "$ref": "#/definitions/bashIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/choiceActionModel"
+                },
+                {
+                  "$ref": "#/definitions/choiceIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/commit_and_pushActionModel"
                 },
                 {
@@ -3985,6 +4382,12 @@
                       },
                       {
                         "$ref": "#/definitions/bashIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/choiceIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4078,6 +4481,7 @@
                 "set_issue_title",
                 "crawl_folder",
                 "bash",
+                "choice",
                 "commit_and_push",
                 "write_into_file",
                 "insert_content_into_text",
@@ -4116,6 +4520,12 @@
             },
             {
               "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceIterableActionModel"
             },
             {
               "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4211,6 +4621,7 @@
                       "set_issue_title",
                       "crawl_folder",
                       "bash",
+                      "choice",
                       "commit_and_push",
                       "write_into_file",
                       "insert_content_into_text",
@@ -4249,6 +4660,12 @@
                   },
                   {
                     "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4385,6 +4802,7 @@
                 "set_issue_title",
                 "crawl_folder",
                 "bash",
+                "choice",
                 "commit_and_push",
                 "write_into_file",
                 "insert_content_into_text",
@@ -4423,6 +4841,12 @@
             },
             {
               "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceIterableActionModel"
             },
             {
               "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4518,6 +4942,7 @@
                       "set_issue_title",
                       "crawl_folder",
                       "bash",
+                      "choice",
                       "commit_and_push",
                       "write_into_file",
                       "insert_content_into_text",
@@ -4556,6 +4981,12 @@
                   },
                   {
                     "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4692,6 +5123,7 @@
                 "set_issue_title",
                 "crawl_folder",
                 "bash",
+                "choice",
                 "commit_and_push",
                 "write_into_file",
                 "insert_content_into_text",
@@ -4730,6 +5162,12 @@
             },
             {
               "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceIterableActionModel"
             },
             {
               "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4825,6 +5263,7 @@
                       "set_issue_title",
                       "crawl_folder",
                       "bash",
+                      "choice",
                       "commit_and_push",
                       "write_into_file",
                       "insert_content_into_text",
@@ -4863,6 +5302,12 @@
                   },
                   {
                     "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/commit_and_pushActionModel"
@@ -4989,6 +5434,7 @@
                 "set_issue_title",
                 "crawl_folder",
                 "bash",
+                "choice",
                 "commit_and_push",
                 "write_into_file",
                 "insert_content_into_text",
@@ -5027,6 +5473,12 @@
             },
             {
               "$ref": "#/definitions/bashIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceActionModel"
+            },
+            {
+              "$ref": "#/definitions/choiceIterableActionModel"
             },
             {
               "$ref": "#/definitions/commit_and_pushActionModel"
@@ -5122,6 +5574,7 @@
                       "set_issue_title",
                       "crawl_folder",
                       "bash",
+                      "choice",
                       "commit_and_push",
                       "write_into_file",
                       "insert_content_into_text",
@@ -5160,6 +5613,12 @@
                   },
                   {
                     "$ref": "#/definitions/bashIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/choiceIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/commit_and_pushActionModel"
