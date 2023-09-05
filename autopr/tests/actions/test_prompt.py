@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 import pytest
 
 from autopr.actions.prompt import Inputs, PromptString
-from autopr.actions.utils.prompt_context import PromptContext, PromptContextEntry
+from autopr.actions.utils.prompt_context import PromptContext, PromptContextEntry, trim_context
 from autopr.models.executable import ExecutableId
 from autopr.tests.mock_openai import mock_openai
 from autopr.tests.utils import run_action_manually, create_ephemeral_main_service, run_action_manually_with_main
@@ -59,10 +59,10 @@ async def test_caching(mocker):
 
 
 def test_trim_context():
-    inputs = Inputs(
-        strategy="middle out",
-        max_prompt_tokens=60,
-    )
+    max_prompt_tokens = 60
+    strategy = "middle out"
+    model = "gpt-3.5-turbo-16k"
+
     context = PromptContext(
         __root__=[
             PromptContextEntry(
@@ -71,7 +71,7 @@ def test_trim_context():
             ),
         ],
     )
-    trimmed_context = PromptString.trim_context(context, inputs)
+    trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
     assert trimmed_context.__root__[0].value == """Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoes, Apple, banana
 
 
@@ -80,10 +80,8 @@ def test_trim_context():
 
 s, tomatoes, Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoes, """
 
-    inputs = Inputs(
-        strategy="middle out",
-        max_prompt_tokens=100,
-    )
+    max_prompt_tokens = 100
+
     context = PromptContext(
         __root__=[
             PromptContextEntry(
@@ -100,7 +98,7 @@ s, tomatoes, Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoe
             ),
         ],
     )
-    trimmed_context = PromptString.trim_context(context, inputs)
+    trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
     assert len(trimmed_context.__root__) == 3
     assert trimmed_context.__root__[0].value == """Apple, bananas, oranges, to
 
@@ -124,10 +122,6 @@ ar, salt, pepper, """
 
 eese, Milk, eggs, cheese, """
 
-    inputs = Inputs(
-        strategy="middle out",
-        max_prompt_tokens=100,
-    )
     context = PromptContext(
         __root__=[
             PromptContextEntry(
@@ -145,7 +139,7 @@ eese, Milk, eggs, cheese, """
             ),
         ],
     )
-    trimmed_context = PromptString.trim_context(context, inputs)
+    trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
     assert len(trimmed_context.__root__) == 1
     assert trimmed_context.__root__[0].heading == "What I have in my fridge"
     assert trimmed_context.__root__[0].value == """Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, chee
