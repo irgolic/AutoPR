@@ -256,6 +256,7 @@ async def test_update_issue_body(mock_aioresponse, platform_service):
 
     await platform_service.update_issue_body(issue_number, 'new_body')
 
+
 @pytest.mark.asyncio
 async def test_get_issue_by_title(mock_aioresponse, platform_service):
     # Mock the response for getting issues
@@ -290,6 +291,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
         
         issue = await platform_service.get_issue_by_title('test_title')
         assert issue == expected_issue
+
 
 @pytest.mark.parametrize(
     "file_path, branch, start_line, end_line, expected_url",
@@ -328,6 +330,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
         )
     ]
 )
+@pytest.mark.asyncio
 async def test_get_file_url(mocker, file_path, branch, start_line, end_line, expected_url, platform_service):
     url = await platform_service.get_file_url(file_path, branch, start_line, end_line)
     assert url == expected_url
