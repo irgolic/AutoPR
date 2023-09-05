@@ -3,10 +3,10 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python scripts and YAML files related to loading and collecting workflows. The `__init__.py` script defines functions for loading workflows from YAML files. The `autogenerate_readmes.yaml` file contains workflows and actions for generating summaries of files and folders. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request. Overall, the purpose of this folder is to provide a way to load and gather workflow configurations and perform various operations related to file handling and summarization.
+This folder contains Python scripts and YAML files related to workflow configurations. The `__init__.py` script provides functions for loading and collecting workflows from YAML files. The `autogenerate_readmes.yaml` file defines a workflow for generating summaries of files and folders in a directory. The `insert_into_readme.yaml` file defines a task for inserting content into a file using tag-based delimiters. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
 
 
-### `__init__.py`
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/__init__.py/)
 
 📋 This file contains a Python script that defines functions related to loading and collecting workflows from YAML files.
 📁 It imports necessary modules and defines a logger.
@@ -16,20 +16,12 @@ This folder contains Python scripts and YAML files related to loading and collec
 🔄 The purpose of this file is to provide a way to load and gather workflow configurations for further processing.
 
 
-### `autogenerate_readmes.yaml`
+### [`autogenerate_readmes.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/autogenerate_readmes.yaml/)
 
-📝 The file contains a set of workflows and actions for generating summaries of files and folders.
-🗂️ The main workflows are `summarize_file`, `summarize_folder`, and `generate_summary`.
-📂 `summarize_file` reads a file, prompts the user to summarize its contents, and outputs the summary.
-📁 `summarize_folder` summarizes each file/folder in a given folder and prompts the user to summarize the entire folder.
-🌳 `generate_summary` is the entry point for summarizing both files and folders.
-✨ `reformat_results` formats the results of the summarization workflows into a standardized format.
-📝 `insert_into_readme` inserts the formatted summary into a README file.
-🔁 `generate_readme_summaries` executes the defined workflows to generate summaries for the current folder and commits the changes.
-💻 The file also contains various helper actions and steps for handling file operations and prompts.
+📝 This file contains a workflow for generating summaries of files and folders in a given directory. It includes steps for reading files, summarizing their contents, and generating a formatted summary for a folder. The results are then written to a README file and committed to a repository.
 
 
-### `insert_into_readme.yaml`
+### [`insert_into_readme.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/insert_into_readme.yaml/)
 
 📝 The file defines a task called "insert_into_readme" for inserting content into a file.
 📄 The task requires three inputs: filepath, tag, and content.
@@ -42,7 +34,7 @@ This folder contains Python scripts and YAML files related to loading and collec
 📝 The purpose of this file is to define the steps for inserting content into a file with optional tag-based delimiters.
 
 
-### `summarize_pr.yaml`
+### [`summarize_pr.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/summarize_pr.yaml/)
 
 📋 This file defines a workflow called "summarize_pr" for summarizing changes in a pull request.
 ⌨️ It uses a bash action to get the diff of the changes in the pull request.
