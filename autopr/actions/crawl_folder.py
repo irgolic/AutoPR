@@ -55,8 +55,10 @@ class Inputs(BaseModel):
 
 
 class Outputs(BaseModel):
+    # The contents of the folder
     contents: list[str]
-
+    # The url of the folder to crawl
+    url: str
 
 class CrawlFolder(Action[Inputs, Outputs]):
     """
@@ -86,7 +88,8 @@ class CrawlFolder(Action[Inputs, Outputs]):
             
             file_entries_to_return.append(el)
 
-        return Outputs(contents=file_entries_to_return)
+        url = await self.platform_service.get_file_url(inputs.folder_path, self.publish_service.base_branch)
+        return Outputs(contents=file_entries_to_return, url=url)
 
 
 

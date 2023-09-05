@@ -480,6 +480,10 @@
         "contents": {
           "title": "Contents",
           "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -1763,6 +1767,10 @@
         },
         "success": {
           "title": "Success",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
           "type": "string"
         }
       },

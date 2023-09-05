@@ -20,6 +20,7 @@ from autopr.tests.utils import run_action_manually
             {
                 "success": True,
                 "contents": "",
+                'url': 'https://github.com/',
             },
             "example_repo_2",
         ),

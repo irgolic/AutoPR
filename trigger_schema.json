@@ -477,6 +477,10 @@
         "contents": {
           "title": "Contents",
           "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -1761,6 +1765,10 @@
         "success": {
           "title": "Success",
           "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -2003,8 +2011,8 @@
             }
           ]
         },
-        "summary_dict": {
-          "title": "Summary Dict",
+        "summary_list": {
+          "title": "Summary List",
           "anyOf": [
             {
               "$ref": "#/definitions/TemplateDeclaration"
@@ -2046,7 +2054,7 @@
       },
       "required": [
         "folder_name",
-        "summary_dict",
+        "summary_list",
         "folder_summary"
       ],
       "additionalProperties": false
@@ -2183,6 +2191,10 @@
       "properties": {
         "summary": {
           "title": "Summary",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
           "type": "string"
         }
       },
@@ -2456,6 +2468,10 @@
       "properties": {
         "summary": {
           "title": "Summary",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
           "type": "string"
         }
       },

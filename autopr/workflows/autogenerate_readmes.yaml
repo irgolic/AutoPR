@@ -1,7 +1,7 @@
 reformat_results:
   inputs:
     - folder_name
-    - summary_dict
+    - summary_list
     - folder_summary
   outputs:
     - formatted_summary
@@ -15,8 +15,8 @@ reformat_results:
             
             {{ folder_summary }}
             
-            {% for filename, description in summary_dict.items() %}
-            ### `{{ filename }}`
+            {% for filename, description, url in summary_list %}
+            ### [`{{ filename }}`]({{ url }})
             
             {{ description }}
 
@@ -30,6 +30,7 @@ summarize_file:
     - path
   outputs:
     - summary
+    - url
   steps:
 
     # Read the file
@@ -39,6 +40,7 @@ summarize_file:
           var: path
       outputs:
         contents: contents
+        url: url
     
     - if_lambda: "not contents"
       then:
@@ -81,16 +83,17 @@ summarize_folder:
           lambda: os.path.join(path, subfolder_name)
       list_outputs:
         summary: file_summaries_list # list[str]
+        url: file_urls_list # list[str]
 
     # Join the summaries with the file/folder names
     - set_vars:
-        summary_dict:
+        summary_list:
           lambda: |
-            {
-              name: summary 
-              for name, summary in zip(ls_folder, file_summaries_list)
+            [
+              (name, summary, url) 
+              for name, summary, url in zip(ls_folder, file_summaries_list, file_urls_list) 
               if summary != ""
-            }
+              ]
 
     # Generate summary for the folder
     - action: prompt
@@ -98,7 +101,7 @@ summarize_folder:
         prompt_context:
           - heading: "Files in this folder"
             template: |
-              {% for name, summary in summary_dict.items() %}
+              {% for name, summary, _ in summary_list %}
               {{ name }}:
               ---
               {{ summary }}
@@ -127,8 +130,8 @@ summarize_folder:
       inputs:
         folder_name:
           var: folder_name
-        summary_dict:
-          var: summary_dict
+        summary_list:
+          var: summary_list
         folder_summary:
           var: folder_summary
       outputs:
@@ -161,6 +164,7 @@ generate_summary:
     - path
   outputs:
     - summary
+    - url
   steps:
     - if_lambda: not os.path.isdir(path)
       then: summarize_file
@@ -181,6 +185,7 @@ generate_summary:
               var: all_ignored_files
           outputs:
             contents: ls_folder
+            url: url
 
         # Summarize the folder if it's not empty
         - if_lambda: "len(ls_folder) == 0"

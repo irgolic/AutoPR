@@ -291,3 +291,43 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
         issue = await platform_service.get_issue_by_title('test_title')
         assert issue == expected_issue
 
+@pytest.mark.parametrize(
+    "file_path, branch, start_line, end_line, expected_url",
+    [
+        # Case 1: Both start_line and end_line are not None.
+        (
+            "file1",
+            "branch1",
+            1,
+            2,
+            "https://github.com/user/repo/tree/branch1/file1/#L1-L2"
+        ),
+        # Case 2: Only start_line is not None, and end_line is None.
+        (
+            "file2",
+            "branch2",
+            3,
+            None,
+            "https://github.com/user/repo/tree/branch2/file2/#L3"
+        ),
+        # Case 3: Only end_line is not None, and start_line is None.
+        (
+            "file3",
+            "branch3",
+            None,
+            4,
+            "https://github.com/user/repo/tree/branch3/file3/#L4"
+        ),
+        # Case 4: Both start_line and end_line are None.
+        (
+            "file4",
+            "branch4",
+            None,
+            None,
+            "https://github.com/user/repo/tree/branch4/file4/"
+        )
+    ]
+)
+async def test_get_file_url(mocker, file_path, branch, start_line, end_line, expected_url, platform_service):
+    url = await platform_service.get_file_url(file_path, branch, start_line, end_line)
+    assert url == expected_url
