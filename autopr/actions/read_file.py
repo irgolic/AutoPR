@@ -16,8 +16,12 @@ class Inputs(BaseModel):
 
 
 class Outputs(BaseModel):
+    # The contents of the file
     contents: str
+    # Whether the action was successful
     success: bool
+    # The url of the given entry in the repository.
+    url: str
 
 
 class ReadFile(Action[Inputs, Outputs]):
@@ -63,13 +67,14 @@ class ReadFile(Action[Inputs, Outputs]):
         """Read the contents of a file."""
         if inputs.ensure_exists:
             self.ensure_file_exists(inputs.filepath)
+        url = await self.platform_service.get_file_url(inputs.filepath, self.publish_service.base_branch)
         try:
             if inputs.filepath.endswith('.ipynb'):
                 contents = self.load_jupyter_notebook(inputs)
             else:
                 with open(inputs.filepath, "r") as f:
                     contents = f.read()
-            return Outputs(contents=contents, success=True)
+            return Outputs(contents=contents, success=True, url=url)
         except Exception as e:
             logger.error(
                 f"An unexpected error occurred when reading the file {inputs.filepath}: {e}."
