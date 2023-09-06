@@ -1,29 +1,26 @@
 import asyncio
-import copy
-import itertools
-import math
-from typing import Any, Optional, Literal
+from typing import Optional, Literal
 
 import openai
 import openai.error
-import tenacity
-from pydantic import BaseModel
-from tenacity import wait_exponential_jitter, retry_if_exception_type
+from pydantic import BaseModel, Field
 
 from autopr.actions.base import Action
 
-from autopr.actions.utils.prompt_context import PromptContext, PromptContextEntry, get_string_token_length, \
-    trim_context, invoke_openai
+from autopr.actions.utils.prompt_context import PromptContext, trim_context, invoke_openai
 
 
 class Inputs(BaseModel):
+    # the possible choices
+    choices: list[str]
+
     # what model to use to generate the variable
     model: str = "gpt-3.5-turbo-16k"
 
     # the context headings that are used to generate the variable
     prompt_context: Optional[PromptContext] = None
 
-    # the instructions to use to generate the variable
+    # additional instructions to use to generate the variable
     instructions: str = ""
 
     # the prompt to use to generate the variable
@@ -39,20 +36,22 @@ class Inputs(BaseModel):
     strategy: Literal["middle out"] = "middle out"
 
     # the temperature to use for the response
-    temperature: float = 0.6
+    temperature: float = 0.0
 
 
 class Outputs(BaseModel):
-    result: Any
+    choice: str
 
 
-class PromptString(Action[Inputs, Outputs]):
+class Choice(Action[Inputs, Outputs]):
     """
     Prompt to generate a string.
     """
-    id = "prompt"
+    id = "choice"
 
     def build_prompt_and_instructions(self, inputs: Inputs) -> tuple[str, str]:
+        choices_bullet_points = "\n".join(f"- {choice}" for choice in inputs.choices)
+
         # Build prompt
         prompt_elements = []
         if inputs.prompt_context:
@@ -68,13 +67,39 @@ class PromptString(Action[Inputs, Outputs]):
         if inputs.prompt:
             prompt_elements.append(inputs.prompt)
         prompt = "\n\n".join(prompt_elements)
+        prompt += f"""
+
+Respond ONLY with a single choice from the following list:
+{choices_bullet_points}"""
 
         # Build instructions
-        instructions = "You are a helpful assistant."
+        instructions = f"""
+You are a helpful assistant making a choice. You are ONLY allowed to respond with one of the following strings: 
+{choices_bullet_points}"""
         if inputs.instructions:
             instructions += f"\n\n{inputs.instructions}"
 
         return prompt, instructions
+
+    async def invoke_choice(self, inputs: Inputs, prompt: str, instructions: str) -> str:
+        choice = await invoke_openai(
+            prompt,
+            instructions,
+            inputs.model,
+            inputs.temperature,
+            inputs.max_response_tokens
+        )
+
+        await self.publish_service.publish_code_block(
+            heading="Generated Output",
+            code=choice,
+        )
+
+        if choice not in inputs.choices:
+            await self.publish_service.publish_update(f"Invalid choice: {choice}")
+            raise RuntimeError(f"Invalid choice: {choice}")
+
+        return choice
 
     async def run(self, inputs: Inputs) -> Outputs:
         prompt, instructions = self.build_prompt_and_instructions(inputs)
@@ -85,43 +110,43 @@ class PromptString(Action[Inputs, Outputs]):
         if value is not None:
             await self.publish_service.publish_update("Retrieved from cache.")
             return Outputs(
-                result=value,
+                choice=value,
             )
 
-        await self.publish_service.publish_code_block(
-            heading="Instructions",
-            code=instructions,
-        )
         await self.publish_service.publish_code_block(
             heading="Prompt",
             code=prompt,
         )
+        await self.publish_service.publish_code_block(
+            heading="Instructions",
+            code=instructions,
+        )
 
-        output = await invoke_openai(prompt, instructions, inputs.model, inputs.temperature, inputs.max_response_tokens)
+        output = await self.invoke_choice(inputs, prompt, instructions)
 
         # Cache result
         self.cache_service.store(key, output)
 
         return Outputs(
-            result=output,
+            choice=output,
         )
 
 
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
     inputs = Inputs(
+        choices=[
+            "apples",
+            "bananas",
+            "oranges",
+            "potatoes",
+            "onions",
+        ],
         prompt="What should I make a fruit salad with?",
-        instructions="No chattering, be as concise as possible.",
-        prompt_context=PromptContext(
-            __root__=[PromptContextEntry(
-                heading="What I have in my kitchen",
-                value="Apples, bananas, oranges, potatoes, and onions."
-            )]
-        ),
     )
     asyncio.run(
         run_action_manually(
-            action=PromptString,
+            action=Choice,
             inputs=inputs
         )
     )
