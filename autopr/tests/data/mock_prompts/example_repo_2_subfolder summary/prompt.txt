@@ -1,7 +1,7 @@
 Files in this folder:
 ```
 
-.autopr:
+.autopr/:
 ---
 - The folder contains a file named "triggers.yml" that defines triggers for a specific branch named "main".
 - The triggers are set to execute a function or command called "generate_readme_summaries".
@@ -15,7 +15,7 @@ __init__.py:
 This file is empty.
 ---
 
-example_repo_2_subfolder:
+example_repo_2_subfolder/:
 ---
 - The folder contains a Python script named "crawl_folder.py".
 - The script is used to perform a specific action called "crawl_folder".
