@@ -31,6 +31,7 @@ summarize_file:
   outputs:
     - summary
     - url
+    - reformatted_path_name
   steps:
 
     # Read the file
@@ -41,6 +42,10 @@ summarize_file:
       outputs:
         contents: contents
         url: url
+    
+    - set_vars:
+        reformatted_path_name:
+          lambda: os.path.basename(path)
     
     - if_lambda: "not contents"
       then:
@@ -84,14 +89,15 @@ summarize_folder:
       list_outputs:
         summary: file_summaries_list # list[str]
         url: file_urls_list # list[str]
+        reformatted_path_name: reformatted_path_name_list
 
     # Join the summaries with the file/folder names
     - set_vars:
         summary_list:
           lambda: |
             [
-              (name, summary, url) 
-              for name, summary, url in zip(ls_folder, file_summaries_list, file_urls_list) 
+              (name, summary, url)
+              for name, summary, url in zip(reformatted_path_name_list, file_summaries_list, file_urls_list) 
               if summary != ""
               ]
 
@@ -165,6 +171,7 @@ generate_summary:
   outputs:
     - summary
     - url
+    - reformatted_path_name
   steps:
     - if_lambda: not os.path.isdir(path)
       then: summarize_file
@@ -176,6 +183,8 @@ generate_summary:
                 default: []
             all_ignored_files:
               lambda: ignored_files_param + ["README.md"]
+            reformatted_path_name:
+              lambda: f"{os.path.basename(path)}/"
         # Crawl the folder
         - action: crawl_folder
           inputs:
