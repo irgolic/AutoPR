@@ -1531,6 +1531,180 @@
       ],
       "additionalProperties": false
     },
+    "find_todosInputsActionFieldTemplate": {
+      "title": "find_todosInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "title": "Comment",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "todo_keywords": {
+          "title": "Todo Keywords",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "find_todosOutputsActionFieldTemplate": {
+      "title": "find_todosOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "todos": {
+          "title": "Todos",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "find_todosActionModel": {
+      "title": "find_todosActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "find_todos"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "find_todosIterableActionModel": {
+      "title": "find_todosIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "find_todos"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
     "insert_content_into_textInputsActionFieldTemplate": {
       "title": "insert_content_into_textInputsActionFieldTemplate",
       "type": "object",
@@ -2032,6 +2206,194 @@
       ],
       "additionalProperties": false
     },
+    "publish_issueInputsActionFieldTemplate": {
+      "title": "publish_issueInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "issue_title": {
+          "title": "Issue Title",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "issue_body": {
+          "title": "Issue Body",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "skip_if_exists": {
+          "title": "Skip If Exists",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "issue_title",
+        "issue_body"
+      ],
+      "additionalProperties": false
+    },
+    "publish_issueOutputsActionFieldTemplate": {
+      "title": "publish_issueOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "title": "Issue Number",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_issueActionModel": {
+      "title": "publish_issueActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "publish_issue"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/publish_issueInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/publish_issueOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "publish_issueIterableActionModel": {
+      "title": "publish_issueIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "publish_issue"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/publish_issueInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/publish_issueOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "read_fileInputsActionFieldTemplate": {
       "title": "read_fileInputsActionFieldTemplate",
       "type": "object",
@@ -2374,6 +2736,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -2384,6 +2752,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -2467,6 +2841,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -2477,6 +2857,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -2564,6 +2950,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -2574,6 +2966,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -2657,6 +3055,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -2667,6 +3071,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -2779,6 +3189,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -2789,6 +3205,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -2872,6 +3294,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -2882,6 +3310,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -2969,6 +3403,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -2979,6 +3419,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -3062,6 +3508,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -3072,6 +3524,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -3184,6 +3642,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -3194,6 +3658,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -3277,6 +3747,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -3287,6 +3763,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -3374,6 +3856,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -3384,6 +3872,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -3467,6 +3961,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -3477,6 +3977,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -3602,6 +4108,12 @@
                 "$ref": "#/definitions/write_into_fileIterableActionModel"
               },
               {
+                "$ref": "#/definitions/find_todosActionModel"
+              },
+              {
+                "$ref": "#/definitions/find_todosIterableActionModel"
+              },
+              {
                 "$ref": "#/definitions/insert_content_into_textActionModel"
               },
               {
@@ -3612,6 +4124,12 @@
               },
               {
                 "$ref": "#/definitions/promptIterableActionModel"
+              },
+              {
+                "$ref": "#/definitions/publish_issueActionModel"
+              },
+              {
+                "$ref": "#/definitions/publish_issueIterableActionModel"
               },
               {
                 "$ref": "#/definitions/read_fileActionModel"
@@ -3687,6 +4205,12 @@
                       "$ref": "#/definitions/write_into_fileIterableActionModel"
                     },
                     {
+                      "$ref": "#/definitions/find_todosActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/find_todosIterableActionModel"
+                    },
+                    {
                       "$ref": "#/definitions/insert_content_into_textActionModel"
                     },
                     {
@@ -3697,6 +4221,12 @@
                     },
                     {
                       "$ref": "#/definitions/promptIterableActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/publish_issueActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/publish_issueIterableActionModel"
                     },
                     {
                       "$ref": "#/definitions/read_fileActionModel"

@@ -1,0 +1,4 @@
+triggers:
+  - type: "push"
+    branch_name: main
+    run: list_todos
