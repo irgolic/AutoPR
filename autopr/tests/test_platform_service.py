@@ -1,6 +1,6 @@
 import json
 import os
-from unittest.mock import patch, Mock
+from unittest.mock import MagicMock, patch, Mock
 
 import pytest
 from aioresponses import aioresponses
@@ -10,7 +10,6 @@ from autopr.models.events import EventUnion, LabelEvent
 from autopr.services.platform_service import GitHubPlatformService
 from autopr.services.publish_service import GitHubPublishService
 from datetime import datetime
-import requests_mock
 
 @pytest.fixture
 def platform_service():
@@ -375,15 +374,14 @@ async def test_get_file_url(mocker, file_path, branch, start_line, end_line, mar
     assert url == expected_url
 
 @pytest.mark.parametrize(
-    "owner, repo, branch, expected_url",
+    "owner, repo, branch, expected_sha",
     [
-        ("owner1", "repo1", "branch1", "https://api.github.com/repos/owner1/repo1/git/ref/heads/branch1"),
-        # Add other combinations if needed
+        ("owner1", "repo1", "branch1", "12345abcdef"),
     ]
 )
-def test_get_latest_commit_hash_url_construction(owner, repo, branch, expected_url, platform_service):
-    with requests_mock.Mocker() as m:
-        m.get(expected_url, json={'object': {'sha': '12345abcdef'}})
-        platform_service.get_latest_commit_hash(owner, repo, branch)
-        assert m.last_request.url == expected_url
-
+@patch("requests.get")
+def test_get_latest_commit_hash(get_mock, owner, repo, branch, expected_sha, platform_service):
+    mock_json = MagicMock(return_value={'object': {'sha': '12345abcdef'}})
+    get_mock.return_value = MagicMock(json=mock_json)
+    res = platform_service.get_latest_commit_hash(owner, repo, branch)
+    assert res == expected_sha
