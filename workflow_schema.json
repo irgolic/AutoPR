@@ -2256,6 +2256,32 @@
             }
           ]
         },
+        "issue_labels": {
+          "title": "Issue Labels",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
         "update_if_exists": {
           "title": "Update If Exists",
           "anyOf": [

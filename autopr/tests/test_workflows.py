@@ -174,14 +174,14 @@ from autopr.tests.utils import create_ephemeral_main_service
             None,
         ),
         (
-            "reformat_todos.yaml",
-            "reformat_todos",
+            "list_and_publish_todos.yaml",
+            "list_todos",
             {
                 "comment": "//",
+                "todo_keywords": ["FIXME"],
             },
             {
-                "task_list": ['FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED'],
-                "issue_body_list": ['## FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED\n\n\nhttps://github.com/\n\nhttps://github.com/\n\n\nEstimated difficulty: hard'],
+                "issue_number_list": [1],
             },
             "repo_with_todos",
         )
