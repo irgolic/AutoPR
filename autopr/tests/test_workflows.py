@@ -173,6 +173,18 @@ from autopr.tests.utils import create_ephemeral_main_service
             {},
             None,
         ),
+        (
+            "list_todos.yaml",
+            "list_todos",
+            {
+                "comment": "//",
+            },
+            {
+                "task_list": ['FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED'],
+                "issue_body_list": ['## FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED\n\n\nhttps://github.com/\n\nhttps://github.com/\n\n\nEstimated difficulty: hard'],
+            },
+            "repo_with_todos",
+        )
     ]
 )
 @pytest.mark.asyncio
