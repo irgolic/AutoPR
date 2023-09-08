@@ -178,7 +178,7 @@ class PlatformService:
         """
         raise NotImplementedError
     
-    async def create_issue(self, title: str, body: str) -> Optional[int]:
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         """
         Create an issue.
 
@@ -188,6 +188,8 @@ class PlatformService:
             The title of the issue
         body: str
             The body of the issue
+        labels: Optional[list[str]]
+            The labels to add to the issue
         """
         raise NotImplementedError
     
@@ -202,7 +204,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def update_issue_body(self, issue_number: int, body: str):
+    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
         """
         Update the body of the issue.
 
@@ -212,6 +214,8 @@ class PlatformService:
             The issue number
         body: str
             The new body
+        labels: Optional[list[str]]
+            The labels to add to the issue
         """
         raise NotImplementedError
 
@@ -622,13 +626,15 @@ class GitHubPlatformService(PlatformService):
             )
         raise NotImplementedError(f"Unknown event action: {event['action']}")
     
-    async def create_issue(self, title: str, body: str) -> Optional[int]:
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
         headers = self._get_headers()
         data = {
             'title': title,
             'body': body,
         }
+        if labels is None:
+            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
@@ -644,7 +650,7 @@ class GitHubPlatformService(PlatformService):
                     response=response,
                 )
         return None
-    
+
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
         headers = self._get_headers()
@@ -665,12 +671,16 @@ class GitHubPlatformService(PlatformService):
                         return self._extract_issue(issue_json)
                 return None
     
-    async def update_issue_body(self, issue_number: int, body: str) -> None:
+    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
         headers = self._get_headers()
 
+        data = {'body': body}
+        if labels is not None:
+            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
+
         async with ClientSession() as session:
-            async with session.patch(url, json={'body': body}, headers=headers) as response:
+            async with session.patch(url, json=data, headers=headers) as response:
                 if response.status == 200:
                     self.log.debug('Issue updated successfully')
                     return
@@ -679,7 +689,7 @@ class GitHubPlatformService(PlatformService):
                     'Failed to update issue',
                     request_url=url,
                     request_headers=headers,
-                    request_body={'body': body},
+                    request_body=data,
                     response=response,
                 )
     
@@ -754,3 +764,9 @@ class DummyPlatformService(PlatformService):
 
     async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
         return "https://github.com/"
+
+    async def get_issue_by_title(self, title: str) -> Optional[Issue]:
+        return None
+    
+    async def create_issue(self, title: str, body: str, labels: list[str] | None = None) -> int | None:
+        return 1
