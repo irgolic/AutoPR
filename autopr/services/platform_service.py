@@ -714,8 +714,6 @@ class GitHubPlatformService(PlatformService):
         return output
 
 
-
-
 class DummyPlatformService(PlatformService):
     def __init__(self):
         super().__init__(

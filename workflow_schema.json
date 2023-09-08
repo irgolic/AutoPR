@@ -2256,8 +2256,8 @@
             }
           ]
         },
-        "skip_if_exists": {
-          "title": "Skip If Exists",
+        "update_if_exists": {
+          "title": "Update If Exists",
           "anyOf": [
             {
               "type": "boolean"

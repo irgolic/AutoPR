@@ -10,6 +10,7 @@ from autopr.models.events import EventUnion, LabelEvent
 from autopr.services.platform_service import GitHubPlatformService
 from autopr.services.publish_service import GitHubPublishService
 from datetime import datetime
+import requests_mock
 
 @pytest.fixture
 def platform_service():
@@ -302,7 +303,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             1,
             2,
             0,
-            "https://github.com/user/repo/tree/branch1/file1#L1-L2"
+            'https://github.com/user/repo/blob/123abcd/file1#L1-L2'
         ),
         # Case 2: Only start_line is not None, and end_line is None.
         (
@@ -311,7 +312,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             3,
             None,
             0,
-            "https://github.com/user/repo/tree/branch2/file2#L3-L3"
+            'https://github.com/user/repo/blob/123abcd/file2#L3-L3'
         ),
         # Case 3: Only end_line is not None, and start_line is None.
         (
@@ -320,7 +321,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             None,
             4,
             0,
-            "https://github.com/user/repo/tree/branch3/file3#L4-L4"
+            'https://github.com/user/repo/blob/123abcd/file3#L4-L4'
         ),
         # Case 4: Both start_line and end_line are None.
         (
@@ -329,7 +330,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             None,
             None,
             0,
-            "https://github.com/user/repo/tree/branch4/file4"
+            'https://github.com/user/repo/blob/123abcd/file4'
         ),
         # Additional cases with margin
         (
@@ -338,7 +339,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             1,
             2,
             1,
-            "https://github.com/user/repo/tree/branch1/file5#L1-L3"
+            'https://github.com/user/repo/blob/123abcd/file5#L1-L3'
         ),
         (
             "file6",
@@ -346,7 +347,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             3,
             None,
             2,
-            "https://github.com/user/repo/tree/branch2/file6#L1-L5"
+            'https://github.com/user/repo/blob/123abcd/file6#L1-L5'
         ),
         (
             "file7",
@@ -354,7 +355,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             None,
             4,
             3,
-            "https://github.com/user/repo/tree/branch3/file7#L1-L7"
+            'https://github.com/user/repo/blob/123abcd/file7#L1-L7'
         ),
         # In case there's space in the file path
         (
@@ -363,11 +364,26 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             None,
             1,
             1,
-            "https://github.com/user/repo/tree/branch4/path/to/file%208#L1-L2"
+            'https://github.com/user/repo/blob/123abcd/path/to/file%208#L1-L2'
         )
     ]
 )
 @pytest.mark.asyncio
 async def test_get_file_url(mocker, file_path, branch, start_line, end_line, margin, expected_url, platform_service):
-    url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
+    with patch.object(GitHubPlatformService, 'get_latest_commit_hash', return_value='123abcd'):
+        url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
     assert url == expected_url
+
+@pytest.mark.parametrize(
+    "owner, repo, branch, expected_url",
+    [
+        ("owner1", "repo1", "branch1", "https://api.github.com/repos/owner1/repo1/git/ref/heads/branch1"),
+        # Add other combinations if needed
+    ]
+)
+def test_get_latest_commit_hash_url_construction(owner, repo, branch, expected_url, platform_service):
+    with requests_mock.Mocker() as m:
+        m.get(expected_url, json={'object': {'sha': '12345abcdef'}})
+        platform_service.get_latest_commit_hash(owner, repo, branch)
+        assert m.last_request.url == expected_url
+
