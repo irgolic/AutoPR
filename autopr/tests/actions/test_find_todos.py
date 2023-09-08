@@ -11,7 +11,7 @@ from autopr.models.executable import ContextDict, ExecutableId
 from autopr.services.platform_service import DummyPlatformService
 from autopr.tests.mock_openai import mock_openai
 
-from autopr.actions.find_todos import TodoLocation
+from autopr.actions.find_todos import TodoLocation, Todo
 
 from autopr.tests.utils import run_action_manually
 
@@ -22,60 +22,75 @@ from autopr.tests.utils import run_action_manually
         (
             {},
             {
-                "todos": {
-                    "# TODO write a ... with #TOO or #FIXME in them ...": [
-                        TodoLocation(
-                            filepath='todos.py', 
-                            start_line=1, 
-                            end_line=1,
-                            url="github.com",
-                            )
-                        ],
-                    "# TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED": [
-                        TodoLocation(
-                            filepath='subfolder1/todo-example.py',
-                            start_line=1, 
-                            end_line=2,
-                            url="github.com",
-                            ), 
-                        TodoLocation(
-                            filepath='subfolder1/todo-example.py',
-                            start_line=7,
-                            end_line=8,
-                            url="github.com",
-                            )
-                        ],
-                    "# TODO: PART1:this is whatever": [
-                        TodoLocation(
-                            filepath='subfolder1/todo-example.py', 
-                            start_line=4, 
-                            end_line=4,
-                            url="github.com",
-                            )
-                        ],
-                    "# FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED": [
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.py', 
-                            start_line=1, 
-                            end_line=2,
-                            url="github.com",
-                            ),
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.py', 
-                            start_line=13, 
-                            end_line=14,
-                            url="github.com",
-                            )
-                        ],
-                    "# FIXME: PART1:this is whatever": [
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.py', 
-                            start_line=4, 
-                            end_line=4,
-                            url="github.com",
+                "todos": [
+                    Todo(
+                        task="# TODO write a ... with #TOO or #FIXME in them ...",
+                        locations=[
+                            TodoLocation(
+                                filepath='todos.py', 
+                                start_line=1, 
+                                end_line=1,
+                                url="github.com"
                             )
                         ]
-                }
+                    ),
+                    Todo(
+                        task="# TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=1, 
+                                end_line=2,
+                                url="github.com",
+                            ),
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=7,
+                                end_line=8,
+                                url="github.com",
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="# TODO: PART1:this is whatever",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=4,
+                                end_line=4,
+                                url="github.com",
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="# FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.py', 
+                                start_line=1, 
+                                end_line=2,
+                                url="github.com",
+                            ),
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.py', 
+                                start_line=13, 
+                                end_line=14,
+                                url="github.com",
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="# FIXME: PART1:this is whatever",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.py', 
+                                start_line=4, 
+                                end_line=4,
+                                url="github.com",
+                            )
+                        ]
+                    ),                 
+                ]
             },
             "repo_with_todos",
         ),
@@ -85,8 +100,10 @@ from autopr.tests.utils import run_action_manually
                 "todo_keywords": ["TODO", "FIXME", "WHATEVER"],
             },
             {
-                "todos": {
-                    "// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED": [
+                "todos": [
+                    Todo(
+                        task="// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.js', 
                                 start_line=1, 
@@ -100,15 +117,19 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                                 )
                         ],
-                    "// WHATEVER: PART1: THIS SHOULD GET RETURNED": [
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.js', 
-                            start_line=4, 
-                            end_line=4,
-                            url="github.com",
-                            )
-                        ]
-                }
+                    ),
+                    Todo(
+                        task="// WHATEVER: PART1: THIS SHOULD GET RETURNED",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.js', 
+                                start_line=4, 
+                                end_line=4,
+                                url="github.com",
+                                )
+                            ]
+                    )
+                ]
             },
             "repo_with_todos",
         ),
@@ -117,22 +138,25 @@ from autopr.tests.utils import run_action_manually
                 "comment": "//",
             },
             {
-                "todos": {
-                    "// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED": [
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.js', 
-                            start_line=1,
-                            end_line=2,
-                            url="github.com",
-                            ),
-                        TodoLocation(
-                            filepath='subfolder1/fixme-example.js', 
-                            start_line=7, 
-                            end_line=7,
-                            url="github.com",
-                            )
-                    ],
-                }
+                "todos": [
+                    Todo(
+                        task="// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.js', 
+                                start_line=1,
+                                end_line=2,
+                                url="github.com",
+                                ),
+                            TodoLocation(
+                                filepath='subfolder1/fixme-example.js', 
+                                start_line=7, 
+                                end_line=7,
+                                url="github.com",
+                                )
+                            ],
+                    )
+                ]
             },
             "repo_with_todos",
         ),
@@ -141,7 +165,7 @@ from autopr.tests.utils import run_action_manually
                 "comment": "€",
             },
             {
-                "todos": {}
+                "todos": []
             },
             "repo_with_todos",
         )

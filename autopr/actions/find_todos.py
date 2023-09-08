@@ -9,18 +9,26 @@ from typing import List
 
 from autopr.services.platform_service import PlatformService
 
+
 class TodoLocation(pydantic.BaseModel):
     filepath: str
     start_line: int
     end_line: int
     url: str
 
+
+class Todo(pydantic.BaseModel):
+    task: str
+    locations: List[TodoLocation]
+
+
 class Inputs(pydantic.BaseModel):
     comment: str = "#"
     todo_keywords: list[str] = ["TODO", "FIXME"]
 
+
 class Outputs(pydantic.BaseModel):
-    todos: dict[str, List[TodoLocation]]
+    todos: List[Todo]
 
 
 class FindTodos(Action[Inputs, Outputs]):
@@ -32,7 +40,8 @@ class FindTodos(Action[Inputs, Outputs]):
     id = "find_todos"
 
     async def process_file(self, file, inputs) -> dict[str, List[TodoLocation]]:
-        todos_dict = {}
+        task_to_locations = {}
+
         with open(file, "r", encoding="utf-8", errors="ignore") as f:
             contents = f.readlines()
 
@@ -44,12 +53,10 @@ class FindTodos(Action[Inputs, Outputs]):
             for line_number, line in enumerate(contents):
                 stripped_line = line.strip()
 
-                # use regex to find correct comments
                 combined_todo_keywords = "|".join(inputs.todo_keywords)
                 comment_type = inputs.comment
 
-                pattern = re.compile(
-                    rf'{comment_type}\s*({combined_todo_keywords})')
+                pattern = re.compile(rf'{comment_type}\s*({combined_todo_keywords})')
 
                 if pattern.search(stripped_line) and not in_multiline_comment:
                     in_multiline_comment = True
@@ -61,26 +68,26 @@ class FindTodos(Action[Inputs, Outputs]):
 
                 elif in_multiline_comment:
                     location = await self.get_todo_location(file, multiline_start_line, line_number)
-                    todos_dict.setdefault(task, []).append(location)
+                    task_to_locations.setdefault(task, []).append(location)
                     in_multiline_comment = False
                     task = ""
 
             if in_multiline_comment:
                 location = await self.get_todo_location(file, multiline_start_line, line_number + 1)
-                todos_dict.setdefault(task, []).append(location)
+                task_to_locations.setdefault(task, []).append(location)
 
-        return todos_dict
-    
+        return task_to_locations
+
     async def get_todo_location(self, file, start_line, end_line) -> TodoLocation:
-        branch_name =  self.publish_service.base_branch
+        branch_name = self.publish_service.base_branch
         url = await self.platform_service.get_file_url(file, branch_name, start_line=start_line, end_line=end_line)
         location = TodoLocation(filepath=file, start_line=start_line, end_line=end_line, url=url)
         return location
 
     async def run(self, inputs: Inputs) -> Outputs:
-        # Obtain the todos
         current_dir = os.getcwd()
-        todos = {}
+        all_task_to_locations = {}
+
         for root, dirs, files in os.walk(current_dir):
             if ".git" in dirs:
                 dirs.remove(".git")
@@ -89,9 +96,12 @@ class FindTodos(Action[Inputs, Outputs]):
 
             for file in files:
                 relative_path = os.path.relpath(os.path.join(root, file), current_dir)
-                file_todos = await self.process_file(relative_path, inputs)
-                for task, locations in file_todos.items():
-                    todos.setdefault(task, []).extend(locations)
+                file_task_to_locations = await self.process_file(relative_path, inputs)
+
+                for task, locations in file_task_to_locations.items():
+                    all_task_to_locations.setdefault(task, []).extend(locations)
+
+        todos = [Todo(task=task, locations=locations) for task, locations in all_task_to_locations.items()]
         return Outputs(todos=todos)
 
 

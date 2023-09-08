@@ -1,63 +1,63 @@
-list_todos:
-  outputs:
-    - issue_number_list
-  steps:
-    - action: find_todos
-      outputs:
-        todos: todos # dict[str, List[TodoLocation]]
-    - set_vars:
-        zipped_todos:
-          lambda: |
-            list(zip(todos.keys(), todos.values()))
-    - iterate: zipped_todos
-      as: task_and_todos_list_tupple
-      workflow: reformat_and_publish_todo
-      inputs:
-        task_and_todos_list_tupple:
-          var: task_and_todos_list_tupple
-      list_outputs:
-        issue_number: issue_number_list # list[str]
+# list_todos:
+#   outputs:
+#     - issue_number_list
+#   steps:
+#     - action: find_todos
+#       outputs:
+#         todos: todos # dict[str, List[TodoLocation]]
+#     - set_vars:
+#         zipped_todos:
+#           lambda: |
+#             list(zip(todos.keys(), todos.values()))
+#     - iterate: zipped_todos
+#       as: task_and_todos_list_tupple
+#       workflow: reformat_and_publish_todo
+#       inputs:
+#         task_and_todos_list_tupple:
+#           var: task_and_todos_list_tupple
+#       list_outputs:
+#         issue_number: issue_number_list # list[str]
 
-reformat_and_publish_todo:
-  inputs:
-    - task_and_todos_list_tupple
-  outputs:
-    - issue_number
-  steps:
-    - set_vars:
-        task:
-          lambda: task_and_todos_list_tupple[0]
-        todos:
-          lambda: task_and_todos_list_tupple[1]
-        truncated_task:
-          lambda: f"{task[:50]} ..." if len(task) > 50 else task
-        issue_title:
-          template: |
-            [AutoPR] {{ truncated_task }}
-        issue_body:
-          template: |
-            ## Annotation detected in your code
+# reformat_and_publish_todo:
+#   inputs:
+#     - task_and_todos_list_tupple
+#   outputs:
+#     - issue_number
+#   steps:
+#     - set_vars:
+#         task:
+#           lambda: task_and_todos_list_tupple[0]
+#         todos:
+#           lambda: task_and_todos_list_tupple[1]
+#         truncated_task:
+#           lambda: f"{task[:50]} ..." if len(task) > 50 else task
+#         issue_title:
+#           template: |
+#             [AutoPR] {{ truncated_task }}
+#         issue_body:
+#           template: |
+#             ## Annotation detected in your code
 
-            AutoPR detected annotation (TODO, FIXME, etc.) in your code with the following message:
+#             AutoPR detected annotation (TODO, FIXME, etc.) in your code with the following message:
 
-            `{{ task }}`
+#             `{{ task }}`
 
-            It was found in the following places in your code:
+#             It was found in the following places in your code:
 
-            {% for todo in todos %}
-            - `{{ todo.filepath }}`
-              The task appeared on lines {{ todo.start_line }}-{{ todo.end_line }}.
+#             {% for todo in todos %}
+#             - `{{ todo.filepath }}`
+#               The task appeared on lines {{ todo.start_line }}-{{ todo.end_line }}.
 
-            {{ todo.url }}
+#             {{ todo.url }}
             
-            {% endfor %}
-    - action: publish_issue 
-      inputs:
-        issue_title: 
-          var: issue_title
-        issue_body: 
-          var: issue_body
-        update_if_exists:
-          const: true
-      outputs:
-        issue_number: issue_number
+#             {% endfor %}
+#     - action: publish_issue 
+#       inputs:
+#         issue_title: 
+#           var: issue_title
+#         issue_body: 
+#           var: issue_body
+#         update_if_exists:
+#           const: true
+#       outputs:
+#         issue_number: issue_number
