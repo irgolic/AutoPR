@@ -682,19 +682,38 @@ class GitHubPlatformService(PlatformService):
                     request_body={'body': body},
                     response=response,
                 )
+    
+    def get_latest_commit_hash(self, owner, repo, branch):
+        url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
+        headers = self._get_headers()
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        return data['object']['sha']
+
 
     async def get_file_url(
-            self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0
+            self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
         ) -> str:
-        # If end_line + margin is larger than the total number of lines in the file, Github API handles it
-        output = f"https://github.com/{self.owner}/{self.repo_name}/tree/{base_branch}/{file_path}/"
+        # Get the latest commit hash for the base branch
+        commit_hash = self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
+        
+        # Github API does not support spaces in file paths
+        formatted_file_path = file_path.replace(" ", "%20")
+        
+        # Form the base URL using the commit hash instead of the branch name
+        output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
+        
+        # Append the line number information to the URL
         if start_line is not None and end_line is not None:
-            return output + f"#L{max(1, start_line - margin)}-L{end_line + margin}"
-        if start_line is not None and end_line is None:
-            return output + f"#L{max(1, start_line - margin)}-L{start_line + margin}"
-        if start_line is None and end_line is not None:
-            return output + f"#L{max(1, end_line - margin)}-L{end_line + margin}"
+            output += f"#L{max(1, start_line - margin)}-L{end_line + margin}"
+        elif start_line is not None and end_line is None:
+            output += f"#L{max(1, start_line - margin)}-L{start_line + margin}"
+        elif start_line is None and end_line is not None:
+            output += f"#L{max(1, end_line - margin)}-L{end_line + margin}"
+
         return output
+
+
 
 
 class DummyPlatformService(PlatformService):
