@@ -42,10 +42,6 @@ build_and_publish_todo:
           param:
             default: "How hard is this task?"
             name: TASK_DIFFICULTY_PROMPT
-        instructions:
-          param:
-            default: "Choose one of the following: easy, medium, hard."
-            name: TASK_DIFFICULTY_INSTRUCTIONS
       outputs:
         choice: task_difficulty
 
