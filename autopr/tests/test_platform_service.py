@@ -292,9 +292,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
         issue = await platform_service.get_issue_by_title('test_title')
         assert issue == expected_issue
 
-
 @pytest.mark.parametrize(
-    "file_path, branch, start_line, end_line, expected_url",
+    "file_path, branch, start_line, end_line, margin, expected_url",
     [
         # Case 1: Both start_line and end_line are not None.
         (
@@ -302,6 +301,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch1",
             1,
             2,
+            0,
             "https://github.com/user/repo/tree/branch1/file1/#L1-L2"
         ),
         # Case 2: Only start_line is not None, and end_line is None.
@@ -310,7 +310,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch2",
             3,
             None,
-            "https://github.com/user/repo/tree/branch2/file2/#L3"
+            0,
+            "https://github.com/user/repo/tree/branch2/file2/#L3-L3"
         ),
         # Case 3: Only end_line is not None, and start_line is None.
         (
@@ -318,7 +319,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch3",
             None,
             4,
-            "https://github.com/user/repo/tree/branch3/file3/#L4"
+            0,
+            "https://github.com/user/repo/tree/branch3/file3/#L4-L4"
         ),
         # Case 4: Both start_line and end_line are None.
         (
@@ -326,11 +328,37 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch4",
             None,
             None,
+            0,
             "https://github.com/user/repo/tree/branch4/file4/"
+        ),
+        # Additional cases with margin
+        (
+            "file5",
+            "branch1",
+            1,
+            2,
+            1,
+            "https://github.com/user/repo/tree/branch1/file5/#L1-L3"
+        ),
+        (
+            "file6",
+            "branch2",
+            3,
+            None,
+            2,
+            "https://github.com/user/repo/tree/branch2/file6/#L1-L5"
+        ),
+        (
+            "file7",
+            "branch3",
+            None,
+            4,
+            3,
+            "https://github.com/user/repo/tree/branch3/file7/#L1-L7"
         )
     ]
 )
 @pytest.mark.asyncio
-async def test_get_file_url(mocker, file_path, branch, start_line, end_line, expected_url, platform_service):
-    url = await platform_service.get_file_url(file_path, branch, start_line, end_line)
+async def test_get_file_url(mocker, file_path, branch, start_line, end_line, margin, expected_url, platform_service):
+    url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
     assert url == expected_url

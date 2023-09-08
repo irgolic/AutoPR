@@ -215,7 +215,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
+    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
         """
         Get the url of a file in the repository.
 
@@ -229,6 +229,8 @@ class PlatformService:
             The start line of the file
         end_line: Optional[int]
             The end line of the file
+        margin: int
+            The margin to add to the start and end lines so they provide more context
         """
         raise NotImplementedError
 
@@ -681,14 +683,17 @@ class GitHubPlatformService(PlatformService):
                     response=response,
                 )
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
+    async def get_file_url(
+            self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0
+        ) -> str:
+        # If end_line + margin is larger than the total number of lines in the file, Github API handles it
         output = f"https://github.com/{self.owner}/{self.repo_name}/tree/{base_branch}/{file_path}/"
         if start_line is not None and end_line is not None:
-            return output + f"#L{start_line}-L{end_line}"
+            return output + f"#L{max(1, start_line - margin)}-L{end_line + margin}"
         if start_line is not None and end_line is None:
-            return output + f"#L{start_line}"
+            return output + f"#L{max(1, start_line - margin)}-L{start_line + margin}"
         if start_line is None and end_line is not None:
-            return output + f"#L{end_line}"
+            return output + f"#L{max(1, end_line - margin)}-L{end_line + margin}"
         return output
 
 
@@ -730,5 +735,5 @@ class DummyPlatformService(PlatformService):
     async def update_pr_body(self, pr_number: int, body: str):
         pass
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
+    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
         return "https://github.com/"

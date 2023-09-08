@@ -81,7 +81,7 @@ class FindTodos(Action[Inputs, Outputs]):
 
     async def get_todo_location(self, file, start_line, end_line) -> TodoLocation:
         branch_name = self.publish_service.base_branch
-        url = await self.platform_service.get_file_url(file, branch_name, start_line=start_line, end_line=end_line)
+        url = await self.platform_service.get_file_url(file, branch_name, start_line=start_line, end_line=end_line, margin=5)
         location = TodoLocation(filepath=file, start_line=start_line, end_line=end_line, url=url)
         return location
 
