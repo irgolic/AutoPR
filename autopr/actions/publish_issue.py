@@ -25,7 +25,7 @@ class Outputs(BaseModel):
     issue_number: Optional[int]
 
 
-class CrawlFolder(Action[Inputs, Outputs]):
+class PublishIssue(Action[Inputs, Outputs]):
     """
     Publishes issue with the specified title if it doesn't exist yet.
     """
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         asyncio.run(
             # Run the action manually
             run_action_manually(
-                action=CrawlFolder,
+                action=PublishIssue,
                 inputs=Inputs(
                     issue_title="Test Issue",
                     issue_body="This is a test issue",
