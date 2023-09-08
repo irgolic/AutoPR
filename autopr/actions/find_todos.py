@@ -39,9 +39,15 @@ class FindTodos(Action[Inputs, Outputs]):
     """
     id = "find_todos"
 
-    async def process_file(self, file, inputs) -> dict[str, List[TodoLocation]]:
-        task_to_locations = {}
+    @staticmethod
+    def is_binary(path):
+        return b"\x00" in open(path, "rb").read(1024)
 
+    async def process_file(self, file, inputs) -> dict[str, List[TodoLocation]]:
+        if self.is_binary(file):
+            return {}
+        
+        task_to_locations = {}
         with open(file, "r", encoding="utf-8", errors="ignore") as f:
             contents = f.readlines()
 
