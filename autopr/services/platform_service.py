@@ -633,11 +633,12 @@ class GitHubPlatformService(PlatformService):
             'title': title,
             'body': body,
         }
-        if labels is None:
+        if labels is not None:
             data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
+                self.log.debug('Creating issue with title: %s, body %s and labels %s', title, body, ", ".join(labels or []))
                 if response.status == 201:
                     self.log.debug('Issue created successfully')
                     return (await response.json())['number']
