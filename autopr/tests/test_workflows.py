@@ -174,8 +174,8 @@ from autopr.tests.utils import create_ephemeral_main_service
             None,
         ),
         (
-            "list_todos.yaml",
-            "list_todos",
+            "reformat_todos.yaml",
+            "reformat_todos",
             {
                 "comment": "//",
             },

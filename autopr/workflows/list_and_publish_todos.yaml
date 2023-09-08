@@ -1,14 +1,9 @@
 list_todos:
-  inputs:
-    - comment
   outputs:
     - task_list
     - issue_body_list
   steps:
     - action: find_todos
-      inputs: 
-        comment: 
-          var: comment
       outputs:
         todos: todos # dict[str, List[TodoLocation]]
     - iterate: todos
@@ -18,8 +13,9 @@ list_todos:
         todo:
           var: todo
       list_outputs:
-        task: task_list # list[str]
-        issue_body: issue_body_list # list[str]
+        task: task_list
+        issue_body: issue_body_list
+        issue_number: issue_number_list
 
 build_and_publish_todo:
   inputs:
@@ -27,8 +23,8 @@ build_and_publish_todo:
   outputs:
     - task
     - issue_body
+    - issue_number
   steps:
-
     - action: choice
       inputs:
         choices:
@@ -68,4 +64,15 @@ build_and_publish_todo:
             {% endfor %}
 
             Estimated difficulty: {{ task_difficulty }}
+    
+    - action: publish_issue
+      inputs:
+        issue_title:
+          var: issue_title
+        issue_body:
+          var: issue_body
+        update_if_exists:
+          const: true
+      outputs:
+        issue_number: issue_number
 
