@@ -28,10 +28,12 @@ build_and_publish_todo:
     - action: choice
       inputs:
         choices:
-          const:
-            - "easy"
-            - "medium"
-            - "hard"
+          param:
+            default:
+              - "easy"
+              - "medium"
+              - "hard"
+            name: TASK_DIFFICULTY_CHOICES
         prompt_context: 
           - lambda: |
               todo.task
