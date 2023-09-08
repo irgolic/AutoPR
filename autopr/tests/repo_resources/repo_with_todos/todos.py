@@ -1,1 +1,3 @@
 # TODO write a ... with #TOO or #FIXME in them ...
+
+language="python"  # FIXME does nice syntax highlighting for tracebacks, but should be made configurable 

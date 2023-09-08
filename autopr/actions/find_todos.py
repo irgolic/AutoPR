@@ -64,9 +64,11 @@ class FindTodos(Action[Inputs, Outputs]):
 
                 pattern = re.compile(rf'{comment_type}\s*({combined_todo_keywords})')
 
-                if pattern.search(stripped_line) and not in_multiline_comment:
+                re_match = pattern.search(stripped_line)
+                if re_match and not in_multiline_comment:
                     in_multiline_comment = True
-                    task = stripped_line.lstrip(comment_type).lstrip()
+                    task_start_position = re_match.start()
+                    task = stripped_line[task_start_position:].lstrip(comment_type).lstrip()
                     multiline_start_line = line_number + 1
 
                 elif in_multiline_comment and stripped_line.startswith(comment_type + "  "):

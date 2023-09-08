@@ -35,6 +35,17 @@ from autopr.tests.utils import run_action_manually
                         ]
                     ),
                     Todo(
+                        task='FIXME does nice syntax highlighting for tracebacks, but should be made configurable',
+                        locations=[
+                            TodoLocation(
+                                filepath='todos.py', 
+                                start_line=3, 
+                                end_line=3, 
+                                url='github.com'
+                            )
+                        ]
+                    ),
+                    Todo(
                         task="TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
@@ -89,7 +100,7 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             )
                         ]
-                    ),                 
+                    ),
                 ]
             },
             "repo_with_todos",
