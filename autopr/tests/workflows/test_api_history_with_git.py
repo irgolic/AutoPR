@@ -28,7 +28,7 @@ async def test_autogenerate_readmes(
             os.path.dirname(__file__),
             "..",
             "data",
-            "gh_push_event.json",
+            "gh_cron_event.json",
         )
     ) as f:
         event_json = json.load(f)
@@ -38,7 +38,7 @@ async def test_autogenerate_readmes(
         repo_name="",
         owner="",
     )
-    event = platform_service.parse_event(event_json, "push")
+    event = platform_service.parse_event(event_json, "schedule")
 
     main = create_ephemeral_main_service(
         triggers_filename="api_git_history.yaml",

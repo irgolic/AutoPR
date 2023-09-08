@@ -1,5 +1,5 @@
 triggers:
-  - branch_name: main
+  - cron_schedule: "0 0 * * *"
     run: 
       workflow: api_git_history
       inputs: 
