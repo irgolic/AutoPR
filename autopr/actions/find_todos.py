@@ -60,7 +60,7 @@ class FindTodos(Action[Inputs, Outputs]):
 
                 if pattern.search(stripped_line) and not in_multiline_comment:
                     in_multiline_comment = True
-                    task = stripped_line.lstrip()
+                    task = stripped_line.lstrip(comment_type).lstrip()
                     multiline_start_line = line_number + 1
 
                 elif in_multiline_comment and stripped_line.startswith(comment_type + "  "):
@@ -77,6 +77,7 @@ class FindTodos(Action[Inputs, Outputs]):
                 task_to_locations.setdefault(task, []).append(location)
 
         return task_to_locations
+
 
     async def get_todo_location(self, file, start_line, end_line) -> TodoLocation:
         branch_name = self.publish_service.base_branch

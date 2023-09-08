@@ -24,7 +24,7 @@ from autopr.tests.utils import run_action_manually
             {
                 "todos": [
                     Todo(
-                        task="# TODO write a ... with #TOO or #FIXME in them ...",
+                        task="TODO write a ... with #TOO or #FIXME in them ...",
                         locations=[
                             TodoLocation(
                                 filepath='todos.py', 
@@ -35,7 +35,7 @@ from autopr.tests.utils import run_action_manually
                         ]
                     ),
                     Todo(
-                        task="# TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        task="TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/todo-example.py',
@@ -52,7 +52,7 @@ from autopr.tests.utils import run_action_manually
                         ]
                     ),
                     Todo(
-                        task="# TODO: PART1:this is whatever",
+                        task="TODO: PART1:this is whatever",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/todo-example.py',
@@ -63,7 +63,7 @@ from autopr.tests.utils import run_action_manually
                         ]
                     ),
                     Todo(
-                        task="# FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        task="FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.py', 
@@ -80,7 +80,7 @@ from autopr.tests.utils import run_action_manually
                         ]
                     ),
                     Todo(
-                        task="# FIXME: PART1:this is whatever",
+                        task="FIXME: PART1:this is whatever",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.py', 
@@ -102,7 +102,7 @@ from autopr.tests.utils import run_action_manually
             {
                 "todos": [
                     Todo(
-                        task="// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        task="FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.js', 
@@ -119,7 +119,7 @@ from autopr.tests.utils import run_action_manually
                         ],
                     ),
                     Todo(
-                        task="// WHATEVER: PART1: THIS SHOULD GET RETURNED",
+                        task="WHATEVER: PART1: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.js', 
@@ -140,7 +140,7 @@ from autopr.tests.utils import run_action_manually
             {
                 "todos": [
                     Todo(
-                        task="// FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        task="FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
                         locations=[
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.js', 
