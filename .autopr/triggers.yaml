@@ -5,7 +5,7 @@ triggers:
     run: summarize_pr
   - type: "push"
     branch_name: main
-    run: invoke_list_todos_workflow
+    run: publish_todos
     parameters:
       TASK_DIFFICULTY_CHOICES:
         - "easy"

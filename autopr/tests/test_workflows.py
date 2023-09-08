@@ -175,7 +175,7 @@ from autopr.tests.utils import create_ephemeral_main_service
         ),
         (
             "list_and_publish_todos.yaml",
-            "list_todos",
+            "list_todos_test",
             {
                 "comment": "//",
                 "todo_keywords": ["FIXME"],

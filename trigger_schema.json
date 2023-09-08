@@ -2706,6 +2706,375 @@
       ],
       "additionalProperties": false
     },
+    "list_todosInputs": {
+      "title": "list_todosInputs",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "title": "Comment",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "todo_keywords": {
+          "title": "Todo Keywords",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "comment",
+        "todo_keywords"
+      ],
+      "additionalProperties": false
+    },
+    "list_todosOutputs": {
+      "title": "list_todosOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number_list": {
+          "title": "Issue Number List",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "list_todosWorkflowModel": {
+      "title": "list_todosWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_todosInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/list_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "list_todos"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "list_todosIterableWorkflowModel": {
+      "title": "list_todosIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_todosInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/list_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "list_todos"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoInputs": {
+      "title": "build_and_publish_todoInputs",
+      "type": "object",
+      "properties": {
+        "todo": {
+          "title": "Todo",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "todo"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoOutputs": {
+      "title": "build_and_publish_todoOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "title": "Issue Number",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "build_and_publish_todoWorkflowModel": {
+      "title": "build_and_publish_todoWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/build_and_publish_todoInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/build_and_publish_todoOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "build_and_publish_todo"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoIterableWorkflowModel": {
+      "title": "build_and_publish_todoIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "$ref": "#/definitions/build_and_publish_todoInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/build_and_publish_todoOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "build_and_publish_todo"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "publish_todosOutputs": {
+      "title": "publish_todosOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number_list": {
+          "title": "Issue Number List",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_todosWorkflowModel": {
+      "title": "publish_todosWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "outputs": {
+          "$ref": "#/definitions/publish_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "publish_todos"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "publish_todosIterableWorkflowModel": {
+      "title": "publish_todosIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/publish_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "publish_todos"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "iterate",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
     "reformat_resultsInputs": {
       "title": "reformat_resultsInputs",
       "type": "object",
@@ -5030,6 +5399,9 @@
                 "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "reformat_results",
                 "summarize_file",
                 "summarize_folder",
@@ -5118,6 +5490,24 @@
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
             },
             {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+            },
+            {
               "$ref": "#/definitions/reformat_resultsWorkflowModel"
             },
             {
@@ -5184,6 +5574,9 @@
                       "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "reformat_results",
                       "summarize_file",
                       "summarize_folder",
@@ -5270,6 +5663,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/reformat_resultsWorkflowModel"
@@ -5379,6 +5790,9 @@
                 "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "reformat_results",
                 "summarize_file",
                 "summarize_folder",
@@ -5467,6 +5881,24 @@
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
             },
             {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+            },
+            {
               "$ref": "#/definitions/reformat_resultsWorkflowModel"
             },
             {
@@ -5533,6 +5965,9 @@
                       "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "reformat_results",
                       "summarize_file",
                       "summarize_folder",
@@ -5619,6 +6054,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/reformat_resultsWorkflowModel"
@@ -5728,6 +6181,9 @@
                 "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "reformat_results",
                 "summarize_file",
                 "summarize_folder",
@@ -5816,6 +6272,24 @@
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
             },
             {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+            },
+            {
               "$ref": "#/definitions/reformat_resultsWorkflowModel"
             },
             {
@@ -5882,6 +6356,9 @@
                       "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "reformat_results",
                       "summarize_file",
                       "summarize_folder",
@@ -5968,6 +6445,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/reformat_resultsWorkflowModel"
@@ -6067,6 +6562,9 @@
                 "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "reformat_results",
                 "summarize_file",
                 "summarize_folder",
@@ -6155,6 +6653,24 @@
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
             },
             {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+            },
+            {
               "$ref": "#/definitions/reformat_resultsWorkflowModel"
             },
             {
@@ -6221,6 +6737,9 @@
                       "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "reformat_results",
                       "summarize_file",
                       "summarize_folder",
@@ -6307,6 +6826,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/reformat_resultsWorkflowModel"

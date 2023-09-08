@@ -1,4 +1,4 @@
-list_todos_test:
+list_todos:
   inputs:
     - comment
     - todo_keywords
@@ -15,14 +15,14 @@ list_todos_test:
         todos: todos # dict[str, List[TodoLocation]]
     - iterate: todos
       as: todo
-      workflow: build_and_publish_todo_test
+      workflow: build_and_publish_todo
       inputs:
         todo:
           var: todo
       list_outputs:
         issue_number: issue_number_list
 
-build_and_publish_todo_test:
+build_and_publish_todo:
   inputs:
     - todo
   outputs:
@@ -96,3 +96,18 @@ build_and_publish_todo_test:
           var: label_list
       outputs:
         issue_number: issue_number
+
+publish_todos:
+  outputs:
+    - issue_number_list
+  steps:
+    - workflow: list_todos
+      inputs:
+        comment:
+          const: "#"
+        todo_keywords:
+          const:
+            - "TODO"
+            - "FIXME"
+      outputs:
+        issue_number_list: issue_number_list
