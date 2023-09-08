@@ -35,8 +35,7 @@ build_and_publish_todo:
               - "hard"
             name: TASK_DIFFICULTY_CHOICES
         prompt_context: 
-          - lambda: |
-              todo.task
+          - var: todo.task
             heading: "Task"
         prompt:
           param:
@@ -47,7 +46,7 @@ build_and_publish_todo:
 
     - set_vars:
         task:
-          lambda: todo.task
+          var: todo.task
         truncated_task:
           lambda: f"{task[:50]} ..." if len(task) > 50 else task
         issue_title:
@@ -55,7 +54,7 @@ build_and_publish_todo:
             [AutoPR] {{ truncated_task }}
         issue_body:
           template: |
-            ## {{ task }}
+            ## {{ todo.task }}
 
             {% for todo_location in todo.locations %}
             {{ todo_location.url }}
