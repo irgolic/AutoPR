@@ -768,5 +768,5 @@ class DummyPlatformService(PlatformService):
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
         return None
     
-    async def create_issue(self, title: str, body: str, labels: list[str] | None = None) -> int | None:
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         return 1
