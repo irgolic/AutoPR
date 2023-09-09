@@ -370,7 +370,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
 @pytest.mark.asyncio
 async def test_get_file_url(mocker, file_path, branch, start_line, end_line, margin, expected_url, platform_service):
     with patch.object(GitHubPlatformService, 'get_latest_commit_hash', return_value='123abcd'):
-        url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
+        with patch.object(GitHubPlatformService, "get_num_lines_in_file", return_value=100):
+            url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
     assert url == expected_url
 
 @pytest.mark.parametrize(

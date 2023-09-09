@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import sys
 import traceback
@@ -707,22 +708,34 @@ class GitHubPlatformService(PlatformService):
         ) -> str:
         # Get the latest commit hash for the base branch
         commit_hash = self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
+        file_num_lines = self.get_num_lines_in_file(file_path, base_branch)
         
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
         
         # Form the base URL using the commit hash instead of the branch name
         output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
-        
-        # Append the line number information to the URL
-        if start_line is not None and end_line is not None:
-            output += f"#L{max(1, start_line - margin)}-L{end_line + margin}"
-        elif start_line is not None and end_line is None:
-            output += f"#L{max(1, start_line - margin)}-L{start_line + margin}"
-        elif start_line is None and end_line is not None:
-            output += f"#L{max(1, end_line - margin)}-L{end_line + margin}"
+        return output + await self._format_start_and_end_line(start_line, end_line, file_num_lines, margin)
 
-        return output
+    async def _format_start_and_end_line(self, start_line : Optional[int], end_line : Optional[int], file_num_lines : int, margin : int) -> str:
+        if start_line is not None and end_line is not None:
+            return f"#L{max(1, start_line - margin)}-L{min(end_line + margin, file_num_lines)}"
+        elif start_line is not None and end_line is None:
+            return f"#L{max(1, start_line - margin)}-L{min(start_line + margin, file_num_lines)}"
+        elif start_line is None and end_line is not None:
+            return f"#L{max(1, end_line - margin)}-L{min(end_line + margin, file_num_lines)}"
+        return ""
+
+    def get_num_lines_in_file(self, file_path: str, branch: str) -> int:
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/contents/{file_path}?ref={branch}"
+        response = requests.get(url, headers=self._get_headers())
+        response.raise_for_status()
+        json_data = json.loads(response.text)
+        decoded_content = base64.b64decode(json_data['content']).decode("utf-8")
+        lines = decoded_content.split("\n")
+        num_lines = len(lines)
+        return num_lines
+
 
 
 class DummyPlatformService(PlatformService):
