@@ -57,3 +57,36 @@ triggers:
 ```
 
 The above trigger will run the workflow whenever the `main` branch is updated.
+
+
+## `list_todos`
+
+The `list_todos` manages code annotations by: 
+- Scanning the repository for all occurrences of TODOs and FIXMEs.
+- Leveraging LLM to obtain suggestions for solving them and assesing their difficulty.
+- posting them on the platform as an issue.
+
+The following parameters are available:
+- `TASK_DIFFICULTY_CHOICES`: the choices to use when asking for the difficulty of a task.
+- `TASK_DIFFICULTY_PROMPT`: the prompt to use when asking for the difficulty of a task.
+- `TODO_RESOLVE_PROMPT`: the prompt to use when asking for a resolution of a TODO.
+- `TODO_RESOLVE_INSTRUCTIONS`: the instructions to use when asking for a resolution of a TODO.
+
+You can invoke it by using the following trigger:
+
+```yaml
+triggers:
+  - branch_name: main
+    run: publish_todos
+    parameters:
+      TASK_DIFFICULTY_CHOICES:
+        - "easy"
+        - "medium"
+        - "hard"
+      TASK_DIFFICULTY_PROMPT: |
+        How hard is this task?
+      TODO_RESOLVE_PROMPT: |
+        What tips can you give to someone that's resolving this TODO?
+      TODO_RESOLVE_INSTRUCTIONS: |
+        Respond in 1-3 sentences.
+```

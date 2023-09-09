@@ -3,8 +3,7 @@ triggers:
     on_issue: false
     on_pull_request: true
     run: summarize_pr
-  - type: "push"
-    branch_name: main
+  - branch_name: main
     run: publish_todos
     parameters:
       TASK_DIFFICULTY_CHOICES:

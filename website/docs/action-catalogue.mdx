@@ -99,3 +99,27 @@ Inputs:
 
 Outputs:
 - `success`: If the file was written to successfully.
+
+## `find_todos.py`
+
+Scan through all files in a directory and its subdirectories and returns a list of all annotation tags (TODO, FIXME, ...). Found
+Annotations are grouped based on their content.
+
+Inputs:
+- `comment`: The comment in which we're going to be looking for annotation tags. Default to `"#"`.
+- `todo_keywords`: The list of keywords to look for. Defaults to `["TODO", "FIXME"]`.
+
+Outputs:
+- `todos`: The list of pydantic models representing the found annotation tags.
+
+## `publish_issue.py`
+
+Publishes or updates issue with the specified title and body.
+
+Inputs:
+- `issue_title`: The title of the issue.
+- `issue_body`: The body of the issue.
+- `update_if_exists`: Whether to update the issue if it already exists. Optional, defaults to `True`.
+
+Outputs:
+- `issue_number`: If the issue was successfully created or updated, the number of the issue. Otherwise, `None`.

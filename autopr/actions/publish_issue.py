@@ -19,7 +19,7 @@ class Inputs(BaseModel):
     # Labels to add to the issue
     issue_labels: Optional[list[str]] = None
 
-    # Whether to duplicate the issue if its title already exists
+    # Whether to update the issue if it already exists
     update_if_exists: bool = True
 
 
