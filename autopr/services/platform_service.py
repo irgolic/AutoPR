@@ -733,7 +733,11 @@ class GitHubPlatformService(PlatformService):
         json_data = json.loads(response.text)
         decoded_content = base64.b64decode(json_data['content']).decode("utf-8")
         lines = decoded_content.split("\n")
+        # In case of line ending with a newline character, the split function returns an empty string as the last element,
+        # making the total line count one more than the actual number of lines in the file.
         num_lines = len(lines)
+        if lines[-1] == "":
+            num_lines -= 1
         return num_lines
 
 
