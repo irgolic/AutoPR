@@ -5,8 +5,6 @@ from unittest.mock import patch
 import pydantic
 from autopr.actions.base import Action
 
-from typing import List
-
 from autopr.services.platform_service import PlatformService
 
 
@@ -19,7 +17,7 @@ class TodoLocation(pydantic.BaseModel):
 
 class Todo(pydantic.BaseModel):
     task: str
-    locations: List[TodoLocation]
+    locations: list[TodoLocation]
 
 
 class Inputs(pydantic.BaseModel):
@@ -28,7 +26,7 @@ class Inputs(pydantic.BaseModel):
 
 
 class Outputs(pydantic.BaseModel):
-    todos: List[Todo]
+    todos: list[Todo]
 
 
 class FindTodos(Action[Inputs, Outputs]):
@@ -43,7 +41,7 @@ class FindTodos(Action[Inputs, Outputs]):
     def is_binary(path):
         return b"\x00" in open(path, "rb").read(1024)
 
-    async def process_file(self, file, inputs) -> dict[str, List[TodoLocation]]:
+    async def process_file(self, file, inputs) -> dict[str, list[TodoLocation]]:
         if self.is_binary(file):
             return {}
         
@@ -111,7 +109,8 @@ class FindTodos(Action[Inputs, Outputs]):
                     all_task_to_locations.setdefault(task, []).extend(locations)
 
         todos = [Todo(task=task, locations=locations) for task, locations in all_task_to_locations.items()]
-        return Outputs(todos=todos)
+        sorted_todos = sorted(todos, key=lambda todo: todo.task)  # This simplifies testing
+        return Outputs(todos=sorted_todos)
 
 
 # When you run this file

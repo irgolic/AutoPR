@@ -24,17 +24,6 @@ from autopr.tests.utils import run_action_manually
             {
                 "todos": [
                     Todo(
-                        task="TODO write a ... with #TOO or #FIXME in them ...",
-                        locations=[
-                            TodoLocation(
-                                filepath='todos.py', 
-                                start_line=1, 
-                                end_line=1,
-                                url="github.com"
-                            )
-                        ]
-                    ),
-                    Todo(
                         task='FIXME does nice syntax highlighting for tracebacks, but should be made configurable',
                         locations=[
                             TodoLocation(
@@ -42,34 +31,6 @@ from autopr.tests.utils import run_action_manually
                                 start_line=3, 
                                 end_line=3, 
                                 url='github.com'
-                            )
-                        ]
-                    ),
-                    Todo(
-                        task="TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
-                        locations=[
-                            TodoLocation(
-                                filepath='subfolder1/todo-example.py',
-                                start_line=1, 
-                                end_line=2,
-                                url="github.com",
-                            ),
-                            TodoLocation(
-                                filepath='subfolder1/todo-example.py',
-                                start_line=7,
-                                end_line=8,
-                                url="github.com",
-                            )
-                        ]
-                    ),
-                    Todo(
-                        task="TODO: PART1:this is whatever",
-                        locations=[
-                            TodoLocation(
-                                filepath='subfolder1/todo-example.py',
-                                start_line=4,
-                                end_line=4,
-                                url="github.com",
                             )
                         ]
                     ),
@@ -96,6 +57,45 @@ from autopr.tests.utils import run_action_manually
                             TodoLocation(
                                 filepath='subfolder1/fixme-example.py', 
                                 start_line=4, 
+                                end_line=4,
+                                url="github.com",
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="TODO write a ... with #TOO or #FIXME in them ...",
+                        locations=[
+                            TodoLocation(
+                                filepath='todos.py', 
+                                start_line=1, 
+                                end_line=1,
+                                url="github.com"
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=1, 
+                                end_line=2,
+                                url="github.com",
+                            ),
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=7,
+                                end_line=8,
+                                url="github.com",
+                            )
+                        ]
+                    ),
+                    Todo(
+                        task="TODO: PART1:this is whatever",
+                        locations=[
+                            TodoLocation(
+                                filepath='subfolder1/todo-example.py',
+                                start_line=4,
                                 end_line=4,
                                 url="github.com",
                             )
