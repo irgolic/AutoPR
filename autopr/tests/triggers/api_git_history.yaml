@@ -1,0 +1,12 @@
+triggers:
+  - cron_schedule: "0 0 * * *"
+    run: 
+      workflow: api_git_history
+      inputs: 
+        endpoint_url: 
+          const: "https://jsonplaceholder.typicode.com/todos"
+        headers: 
+          const: {"Content-type": "application/json; charset=UTF-8"}
+        filepath:
+          const: "test/todos.txt"
+
