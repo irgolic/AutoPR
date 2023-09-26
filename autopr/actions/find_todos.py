@@ -6,6 +6,19 @@ import pydantic
 from autopr.actions.base import Action
 
 from autopr.services.platform_service import PlatformService
+from tree_sitter import Language, Parser
+
+# Initialize the tree-sitter language parser
+Language.build_library(
+    'build/my-languages.so',
+    [
+        'tree-sitter-languages/tree-sitter-python'
+    ]
+)
+
+PY_LANGUAGE = Language('build/my-languages.so', 'python')
+parser = Parser()
+parser.set_language(PY_LANGUAGE)
 
 
 class TodoLocation(pydantic.BaseModel):
@@ -44,44 +57,47 @@ class FindTodos(Action[Inputs, Outputs]):
     async def process_file(self, file, inputs) -> dict[str, list[TodoLocation]]:
         if self.is_binary(file):
             return {}
-        
+
         task_to_locations = {}
+
         with open(file, "r", encoding="utf-8", errors="ignore") as f:
-            contents = f.readlines()
+            file_content = f.read()
 
-            in_multiline_comment = False
-            task = ""
-            multiline_start_line = 0
+        # Parse the file with Tree-sitter
+        tree = parser.parse(bytes(file_content, "utf8"))
+        root_node = tree.root_node
 
-            line_number = 0
-            for line_number, line in enumerate(contents):
-                stripped_line = line.strip()
-
+        # A simple recursive function to traverse all nodes and find comments
+        async def traverse(node):
+            nonlocal file_content
+            if node.type == "comment":
+                comment_text = file_content[node.start_byte:node.end_byte].strip()
                 combined_todo_keywords = "|".join(inputs.todo_keywords)
-                comment_type = inputs.comment
+                pattern = re.compile(rf'({combined_todo_keywords})')
 
-                pattern = re.compile(rf'{comment_type}\s*({combined_todo_keywords})')
+                if pattern.search(comment_text):
+                    # Check if this comment continues in the next line
+                    task = re.sub(rf'^{re.escape(inputs.comment)}\s*', '', comment_text)
+                    start_line = node.start_point[0] + 1
+                    end_line = node.end_point[0] + 1
+                    next_node = node.next_named_sibling
+                    if next_node is not None:
+                        comment_text_next = file_content[next_node.start_byte:next_node.end_byte].strip()
+                        comment_pattern_next = re.compile(rf'^{re.escape(inputs.comment)} {2,}*') # next line starts with 2 spaces or more
 
-                re_match = pattern.search(stripped_line)
-                if re_match and not in_multiline_comment:
-                    in_multiline_comment = True
-                    task_start_position = re_match.start()
-                    task = stripped_line[task_start_position:].lstrip(comment_type).lstrip()
-                    multiline_start_line = line_number + 1
+                        while next_node and next_node.type == "comment" and node.start_point[0] + 1 == next_node.start_point[0] and comment_pattern_next.search(comment_text_next):
+                            task += " " + re.sub(rf'^{re.escape(inputs.comment)}\s*', '', comment_text_next)
+                            end_line = next_node.end_point[0] + 1
+                            next_node = next_node.next_named_sibling
 
-                elif in_multiline_comment and stripped_line.startswith(comment_type + "  "):
-                    task += " " + stripped_line[len(comment_type) + 2:].lstrip()
-
-                elif in_multiline_comment:
-                    location = await self.get_todo_location(file, multiline_start_line, line_number)
+                    location = await self.get_todo_location(file, start_line, end_line)
                     task_to_locations.setdefault(task, []).append(location)
-                    in_multiline_comment = False
-                    task = ""
 
-            if in_multiline_comment:
-                location = await self.get_todo_location(file, multiline_start_line, line_number + 1)
-                task_to_locations.setdefault(task, []).append(location)
+            # Recursively traverse children
+            for child in node.children:
+                await traverse(child)
 
+        await traverse(root_node)
         return task_to_locations
 
 
