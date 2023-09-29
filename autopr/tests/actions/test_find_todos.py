@@ -171,15 +171,6 @@ from autopr.tests.utils import run_action_manually
             },
             "repo_with_todos",
         ),
-        (
-            {
-                "comment": "€",
-            },
-            {
-                "todos": []
-            },
-            "repo_with_todos",
-        )
     ]
 )
 @pytest.mark.asyncio
@@ -200,3 +191,16 @@ async def test_actions(
     )
 
     assert outputs == expected_outputs
+
+
+@pytest.mark.asyncio
+async def test_comment_not_found():
+    inputs = {"comment": "€"}
+    repo_resource = "repo_with_todos"
+
+    with pytest.raises(ValueError):
+        await run_action_manually(
+            action=ExecutableId("find_todos"),
+            inputs=ContextDict(inputs),
+            repo_resource=repo_resource
+        )

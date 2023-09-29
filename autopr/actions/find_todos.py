@@ -8,17 +8,24 @@ from autopr.actions.base import Action
 from autopr.services.platform_service import PlatformService
 from tree_sitter import Language, Parser
 
+
 # Initialize the tree-sitter language parser
 Language.build_library(
     'build/my-languages.so',
     [
-        'tree-sitter-languages/tree-sitter-python'
+        'tree-sitter-languages/tree-sitter-python',
+        'tree-sitter-languages/tree-sitter-javascript'
     ]
 )
 
-PY_LANGUAGE = Language('build/my-languages.so', 'python')
+comment_treesitter_language_mapping = {
+    "#": "python",
+    "//": "javascript",
+    "/*": "javascript",
+}
+
 parser = Parser()
-parser.set_language(PY_LANGUAGE)
+# The language gets set in the method run
 
 
 class TodoLocation(pydantic.BaseModel):
@@ -73,7 +80,7 @@ class FindTodos(Action[Inputs, Outputs]):
             if node.type == "comment":
                 comment_text = file_content[node.start_byte:node.end_byte].strip()
                 combined_todo_keywords = "|".join(inputs.todo_keywords)
-                pattern = re.compile(rf'({combined_todo_keywords})')
+                pattern = re.compile(rf'^{re.escape(inputs.comment)}\s*({combined_todo_keywords})')
 
                 if pattern.search(comment_text):
                     # Check if this comment continues in the next line
@@ -81,10 +88,9 @@ class FindTodos(Action[Inputs, Outputs]):
                     start_line = node.start_point[0] + 1
                     end_line = node.end_point[0] + 1
                     next_node = node.next_named_sibling
-                    if next_node is not None:
+                    if next_node:
                         comment_text_next = file_content[next_node.start_byte:next_node.end_byte].strip()
-                        comment_pattern_next = re.compile(rf'^{re.escape(inputs.comment)} {2,}*') # next line starts with 2 spaces or more
-
+                        comment_pattern_next = re.compile(rf'^{re.escape(inputs.comment)}\s{{2,}}(.+)$')
                         while next_node and next_node.type == "comment" and node.start_point[0] + 1 == next_node.start_point[0] and comment_pattern_next.search(comment_text_next):
                             task += " " + re.sub(rf'^{re.escape(inputs.comment)}\s*', '', comment_text_next)
                             end_line = next_node.end_point[0] + 1
@@ -108,6 +114,11 @@ class FindTodos(Action[Inputs, Outputs]):
         return location
 
     async def run(self, inputs: Inputs) -> Outputs:
+        # Set the parsing language
+        if not comment_treesitter_language_mapping.get(inputs.comment):
+            raise ValueError(f"Comment {inputs.comment} not supported. Current supported comments are: {', '.join(list(comment_treesitter_language_mapping.keys()))}")
+        PARSER_LANGUAGE = Language('build/my-languages.so', comment_treesitter_language_mapping[inputs.comment])
+        parser.set_language(PARSER_LANGUAGE)
         current_dir = os.getcwd()
         all_task_to_locations = {}
 
