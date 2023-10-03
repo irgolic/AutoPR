@@ -239,6 +239,17 @@ class PlatformService:
         """
         raise NotImplementedError
 
+    async def close_issue(self, issue_number: int) -> None:
+        """
+        Close an issue.
+
+        Parameters
+        ----------
+        issue_number: int
+            The issue number
+        """
+        raise NotImplementedError
+
 class GitHubPlatformService(PlatformService):
     """
     Publishes the PR to GitHub.
@@ -702,7 +713,6 @@ class GitHubPlatformService(PlatformService):
         data = response.json()
         return data['object']['sha']
 
-
     async def get_file_url(
             self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
         ) -> str:
@@ -740,6 +750,25 @@ class GitHubPlatformService(PlatformService):
             num_lines -= 1
         return num_lines
 
+    async def close_issue(self, issue_number: int) -> None:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+        headers = self._get_headers()
+
+        data = {'state': 'closed'}
+
+        async with ClientSession() as session:
+            async with session.patch(url, json=data, headers=headers) as response:
+                if response.status == 200:
+                    self.log.debug('Issue closed successfully')
+                    return
+
+                await self._log_failed_request(
+                    'Failed to close issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body=data,
+                    response=response,
+                )
 
 
 class DummyPlatformService(PlatformService):
@@ -788,3 +817,6 @@ class DummyPlatformService(PlatformService):
     
     async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         return 1
+
+    async def close_issue(self, issue_number: int) -> None:
+        return None

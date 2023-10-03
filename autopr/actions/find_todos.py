@@ -99,6 +99,23 @@ class FindTodos(Action[Inputs, Outputs]):
         url = await self.platform_service.get_file_url(file, branch_name, start_line=start_line, end_line=end_line, margin=5)
         location = TodoLocation(filepath=file, start_line=start_line, end_line=end_line, url=url)
         return location
+    
+    async def filter_closed_issues(self, todos: list[Todo]) -> list[Todo]:
+        closed_issues_list = await self.platform_service.get_issues(state="closed")
+        closed_issue_bodies = [closed_issue.messages[0].body for closed_issue in closed_issues_list]
+        filtered_todos = [
+            todo for todo in todos 
+            if not any(todo.task in closed_issue_body for closed_issue_body in closed_issue_bodies)
+            ]
+        return filtered_todos
+    
+    async def close_not_used_issues(self, todos: list[Todo]) -> None:
+        open_issues_list = await self.platform_service.get_issues(state="open")
+        for open_issue in open_issues_list:
+            open_issue_body = open_issue.messages[0].body
+            if not any(todo.task in open_issue_body for todo in todos):
+                self.commit_service.log.debug(f"Closing issue {open_issue.number} because it is not used anymore.")
+                await self.platform_service.close_issue(open_issue.number)
 
     async def run(self, inputs: Inputs) -> Outputs:
         # Set the parsing language
@@ -124,10 +141,8 @@ class FindTodos(Action[Inputs, Outputs]):
 
         todos = [Todo(task=task, locations=locations) for task, locations in all_task_to_locations.items()]
         sorted_todos = sorted(todos, key=lambda todo: todo.task)  # This simplifies testing
-
-        closed_issues_list = await self.platform_service.get_issues(state="closed")
-        closed_issue_bodies = [closed_issue.messages[0].body for closed_issue in closed_issues_list]
-        filtered_todos = [todo for todo in sorted_todos if not any(todo.task in closed_issue_body for closed_issue_body in closed_issue_bodies)]
+        filtered_todos = await self.filter_closed_issues(sorted_todos)
+        await self.close_not_used_issues(filtered_todos)
         return Outputs(todos=filtered_todos)
 
 
