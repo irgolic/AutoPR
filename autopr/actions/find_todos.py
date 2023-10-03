@@ -6,26 +6,14 @@ import pydantic
 from autopr.actions.base import Action
 
 from autopr.services.platform_service import PlatformService
-from tree_sitter import Language, Parser
+from tree_sitter_languages import get_parser
 
-
-# Initialize the tree-sitter language parser
-Language.build_library(
-    'build/my-languages.so',
-    [
-        'tree-sitter-languages/tree-sitter-python',
-        'tree-sitter-languages/tree-sitter-javascript'
-    ]
-)
 
 comment_treesitter_language_mapping = {
     "#": "python",
     "//": "javascript",
     "/*": "javascript",
 }
-
-parser = Parser()
-# The language gets set in the method run
 
 
 class TodoLocation(pydantic.BaseModel):
@@ -61,7 +49,7 @@ class FindTodos(Action[Inputs, Outputs]):
     def is_binary(path):
         return b"\x00" in open(path, "rb").read(1024)
 
-    async def process_file(self, file, inputs) -> dict[str, list[TodoLocation]]:
+    async def process_file(self, file, inputs, parser) -> dict[str, list[TodoLocation]]:
         if self.is_binary(file):
             return {}
 
@@ -106,7 +94,6 @@ class FindTodos(Action[Inputs, Outputs]):
         await traverse(root_node)
         return task_to_locations
 
-
     async def get_todo_location(self, file, start_line, end_line) -> TodoLocation:
         branch_name = self.publish_service.base_branch
         url = await self.platform_service.get_file_url(file, branch_name, start_line=start_line, end_line=end_line, margin=5)
@@ -117,8 +104,8 @@ class FindTodos(Action[Inputs, Outputs]):
         # Set the parsing language
         if not comment_treesitter_language_mapping.get(inputs.comment):
             raise ValueError(f"Comment {inputs.comment} not supported. Current supported comments are: {', '.join(list(comment_treesitter_language_mapping.keys()))}")
-        PARSER_LANGUAGE = Language('build/my-languages.so', comment_treesitter_language_mapping[inputs.comment])
-        parser.set_language(PARSER_LANGUAGE)
+        
+        parser = get_parser(comment_treesitter_language_mapping[inputs.comment])
         current_dir = os.getcwd()
         all_task_to_locations = {}
 
@@ -130,14 +117,18 @@ class FindTodos(Action[Inputs, Outputs]):
 
             for file in files:
                 relative_path = os.path.relpath(os.path.join(root, file), current_dir)
-                file_task_to_locations = await self.process_file(relative_path, inputs)
+                file_task_to_locations = await self.process_file(relative_path, inputs, parser)
 
                 for task, locations in file_task_to_locations.items():
                     all_task_to_locations.setdefault(task, []).extend(locations)
 
         todos = [Todo(task=task, locations=locations) for task, locations in all_task_to_locations.items()]
         sorted_todos = sorted(todos, key=lambda todo: todo.task)  # This simplifies testing
-        return Outputs(todos=sorted_todos)
+
+        closed_issues_list = await self.platform_service.get_issues(state="closed")
+        closed_issue_bodies = [closed_issue.messages[0].body for closed_issue in closed_issues_list]
+        filtered_todos = [todo for todo in sorted_todos if not any(todo.task in closed_issue_body for closed_issue_body in closed_issue_bodies)]
+        return Outputs(todos=filtered_todos)
 
 
 # When you run this file

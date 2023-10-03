@@ -37,10 +37,10 @@ class PublishIssue(Action[Inputs, Outputs]):
     async def run(self, inputs: Inputs) -> Outputs:
         issue = await self.platform_service.get_issue_by_title(inputs.issue_title)
         if issue is None:
-            issue_number = await self.platform_service.create_issue(inputs.issue_title, inputs.issue_body)
+            issue_number = await self.platform_service.create_issue(inputs.issue_title, inputs.issue_body, inputs.issue_labels)
             return Outputs(issue_number=issue_number)
         elif issue is not None and inputs.update_if_exists:
-            await self.platform_service.update_issue_body(issue.number, inputs.issue_body)
+            await self.platform_service.update_issue_body(issue.number, inputs.issue_body, inputs.issue_labels)
             return Outputs(issue_number=issue.number)
         return Outputs(issue_number=None)
 
