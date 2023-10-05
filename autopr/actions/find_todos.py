@@ -9,6 +9,8 @@ from autopr.services.platform_service import PlatformService
 from tree_sitter_languages import get_parser
 
 
+TODO_ISSUE_BODY = re.compile(r'<!--\ninfo: AutoPR fingerprint\nissue type: TODO\ntask: [^\n]*\n-->', re.DOTALL)
+
 comment_treesitter_language_mapping = {
     "#": "python",
     "//": "javascript",
@@ -109,11 +111,17 @@ class FindTodos(Action[Inputs, Outputs]):
             ]
         return filtered_todos
     
+    @staticmethod
+    def get_todo_fingerprint(todo: Todo) -> str:
+        return rf"<!--\ninfo: AutoPR fingerprint\nissue type: TODO\ntask: {todo.task}\n-->\n"
+
     async def close_not_used_issues(self, todos: list[Todo]) -> None:
         open_issues_list = await self.platform_service.get_issues(state="open")
         for open_issue in open_issues_list:
+            if not TODO_ISSUE_BODY.search(open_issue.messages[0].body):
+                continue
             open_issue_body = open_issue.messages[0].body
-            if not any(todo.task in open_issue_body for todo in todos):
+            if not any(re.compile(self.get_todo_fingerprint(todo)).search(open_issue_body) for todo in todos):
                 self.commit_service.log.debug(f"Closing issue {open_issue.number} because it is not used anymore.")
                 await self.platform_service.close_issue(open_issue.number)
 

@@ -610,6 +610,7 @@ class GitHubPlatformService(PlatformService):
                     issue
                     for issue_json in await response.json()
                     if (issue := self._extract_issue(issue_json)) is not None
+                    and not issue_json.get("pull_request")
                 ]
 
     def parse_event(self, event: dict[str, Any], event_name: str) -> EventUnion:

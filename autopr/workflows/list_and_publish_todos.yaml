@@ -75,9 +75,16 @@ build_and_publish_todo:
         issue_title:
           template: |
             [AutoPR] {{ truncated_task }}
+        fingerprint:
+          template: |
+            <!--
+            info: AutoPR fingerprint
+            issue type: TODO
+            task: {{ todo.task }}
+            -->
         issue_body:
           template: |
-            <!-- {{ todo.task }} -->
+            {{ fingerprint }}
 
             ## {{ todo.task }}
 
