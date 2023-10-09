@@ -4,6 +4,14 @@ import os
 from typing import Optional
 from autopr.actions.base import Action
 
+default_ignore_files = [
+    ".git",
+]
+
+default_ignore_directories = [
+    ".git",
+]
+
 class SearchHit(pydantic.BaseModel):
     filepath: str
     line_number: int
@@ -13,27 +21,11 @@ class SearchHit(pydantic.BaseModel):
 class Inputs(pydantic.BaseModel):
     query: str
     directory_path: Optional[str] = None
+    entries_to_ignore: list[str] = []
 
 # The action's outputs
 class Outputs(pydantic.BaseModel):
     hits: list[SearchHit]
-
-async def search_file(filepath: str, query: str, directory_path: str) -> list[SearchHit]:
-    hits = []
-    try:
-        with open(filepath, "r") as f:
-            for line_number, line in enumerate(f.readlines()):
-                if query in line:
-                    hits.append(
-                        SearchHit(
-                            filepath=os.path.relpath(filepath, start=directory_path),
-                            line_number=line_number + 1,
-                            char_number=line.index(query),
-                        )
-                    )
-    except Exception as e:
-        print(f"An error occurred while processing {filepath}: {e}")
-    return hits
 
 class Search(Action[Inputs, Outputs]):
     """
@@ -42,6 +34,23 @@ class Search(Action[Inputs, Outputs]):
 
     id = "search"
 
+    async def search_file(self, filepath: str, query: str) -> list[SearchHit]:
+        hits = []
+        try:
+            with open(filepath, "r") as f:
+                for line_number, line in enumerate(f.readlines()):
+                    if query in line:
+                        hits.append(
+                            SearchHit(
+                                filepath=os.path.relpath(filepath),
+                                line_number=line_number + 1,
+                                char_number=line.index(query),
+                            )
+                        )
+        except Exception as e:
+            self.log.warning(f"An error occurred while processing {filepath}: {e}")
+        return hits
+
     async def run(self, inputs: Inputs) -> Outputs:
         # Get the directory path to search
         directory_path = os.path.join(os.getcwd(), inputs.directory_path) if inputs.directory_path else os.getcwd()
@@ -49,14 +58,16 @@ class Search(Action[Inputs, Outputs]):
         # Run the search
         hits = []
         for root, dirs, files in os.walk(directory_path):
-            if ".git" in dirs:
-                dirs.remove(".git")
-            if ".git" in files:
-                files.remove(".git")
+            for entry in inputs.entries_to_ignore + default_ignore_directories:
+                if entry in dirs:
+                    dirs.remove(entry)
+            for entry in inputs.entries_to_ignore + default_ignore_files:
+                if entry in files:
+                    files.remove(entry)
                 
             for filename in files:
                 filepath = os.path.abspath(os.path.join(root, filename))
-                hits += await search_file(filepath, inputs.query, directory_path)
+                hits += await self.search_file(filepath, inputs.query)
 
         return Outputs(hits=hits)
 
@@ -69,9 +80,9 @@ if __name__ == "__main__":
         run_action_manually(
             action=Search,
             inputs=Inputs(
-                query="TEST",
-                directory_path="subfolder",
+                query="FILE",
+                entries_to_ignore=[],
             ),
-            repo_resource="repo_for_searching"
+            repo_resource="repo_for_searching",
         )
     )
