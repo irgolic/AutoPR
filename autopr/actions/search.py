@@ -21,7 +21,7 @@ class SearchHit(pydantic.BaseModel):
 class Inputs(pydantic.BaseModel):
     query: str
     directory_path: Optional[str] = None
-    entries_to_ignore: list[str] = []
+    entries_to_ignore: list[str] = pydantic.Field(default_factory=list)
 
 # The action's outputs
 class Outputs(pydantic.BaseModel):
