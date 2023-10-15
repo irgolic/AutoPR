@@ -59,7 +59,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
         """
         Get a list of issues.
 
@@ -586,8 +586,10 @@ class GitHubPlatformService(PlatformService):
             base_commit_sha=pr_json['base']['sha'],
         )
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues?state={state}'
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        if state:
+            url += f"?state={state}"
 
         # Check if 'since' is provided and add it to the URL
         if since:
@@ -782,7 +784,7 @@ class DummyPlatformService(PlatformService):
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
