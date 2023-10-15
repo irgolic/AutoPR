@@ -1699,10 +1699,14 @@
       "title": "find_todosInputsActionFieldTemplate",
       "type": "object",
       "properties": {
-        "comment": {
-          "title": "Comment",
+        "language": {
+          "title": "Language",
           "anyOf": [
             {
+              "enum": [
+                "python",
+                "javascript"
+              ],
               "type": "string"
             },
             {

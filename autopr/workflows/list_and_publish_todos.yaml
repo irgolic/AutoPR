@@ -7,8 +7,8 @@ list_todos:
   steps:
     - action: find_todos
       inputs:
-        comment:
-          var: comment
+        language:
+          var: language
         todo_keywords:
           var: todo_keywords
       outputs:
@@ -57,7 +57,7 @@ build_and_publish_todo:
       inputs:
         prompt_context:
           - var: todo.task
-            heading: "I have a TODO in my code."
+            heading: "I have a TODO in my code:"
         prompt:
           param:
             default: "What tips can you give to someone that's resolving this TODO?"
@@ -116,7 +116,7 @@ publish_todos:
   steps:
     - workflow: list_todos
       inputs:
-        comment:
+        language:
           const: "#"
         todo_keywords:
           const:
