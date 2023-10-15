@@ -58,7 +58,6 @@ triggers:
 
 The above trigger will run the workflow whenever the `main` branch is updated.
 
-
 ## `list_todos`
 
 The `list_todos` manages code annotations by: 
@@ -89,4 +88,32 @@ triggers:
         What tips can you give to someone that's resolving this TODO?
       ISSUE_DESCRIPTION_INSTRUCTIONS: |
         Respond in 1-3 sentences.
+```
+
+## `api_git_history`
+
+The `api_git_history` workflow creates a history of selected API GET requests payloads by:
+- fetching an API GET request,
+- saving the response payload to a file,
+- committing the file to the repository.
+
+The following inputs are available:
+- `endpoint_url`: the URL of the API endpoint to fetch
+- `headers`: the headers to use when fetching the API endpoint
+- `filepath`: the path of the file to save the response payload to
+
+You can invoke it by using [Cron Trigger](/reference/triggers#-properties-of-different-triggers):
+
+```yaml
+triggers:
+  - cron_schedule: "0 0 * * *"
+    run: 
+      workflow: api_git_history
+      inputs: 
+        endpoint_url: 
+          const: "https://jsonplaceholder.typicode.com/todos"
+        headers: 
+          const: {"Content-type": "application/json; charset=UTF-8"}
+        filepath:
+          const: "todos.json"
 ```

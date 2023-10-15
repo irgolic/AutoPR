@@ -1,0 +1,12 @@
+// THIS
+// IS
+// A
+// TEST
+// JS 
+// FILE
+// IN
+// THE
+// SUBFOLDER
+// OF
+// THE
+// REPO

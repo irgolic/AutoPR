@@ -585,6 +585,173 @@
       ],
       "additionalProperties": false
     },
+    "make_api_callInputsActionFieldTemplate": {
+      "title": "make_api_callInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "endpoint_url": {
+          "title": "Endpoint Url",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "headers": {
+          "title": "Headers",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "endpoint_url"
+      ],
+      "additionalProperties": false
+    },
+    "make_api_callOutputsActionFieldTemplate": {
+      "title": "make_api_callOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "make_api_callActionModel": {
+      "title": "make_api_callActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "make_api_call"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/make_api_callInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/make_api_callOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "make_api_callIterableActionModel": {
+      "title": "make_api_callIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "make_api_call"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/make_api_callInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/make_api_callOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "bashBashInputsActionFieldTemplate": {
       "title": "bashBashInputsActionFieldTemplate",
       "type": "object",
@@ -1894,6 +2061,196 @@
       ],
       "additionalProperties": false
     },
+    "searchInputsActionFieldTemplate": {
+      "title": "searchInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "query": {
+          "title": "Query",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "directory_path": {
+          "title": "Directory Path",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "entries_to_ignore": {
+          "title": "Entries To Ignore",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "searchOutputsActionFieldTemplate": {
+      "title": "searchOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "hits": {
+          "title": "Hits",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "searchActionModel": {
+      "title": "searchActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "search"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/searchInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/searchOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "searchIterableActionModel": {
+      "title": "searchIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "allow_finish_early": {
+          "title": "Allow Finish Early",
+          "default": false,
+          "type": "boolean"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "search"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/searchInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/searchOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "promptInputsActionFieldTemplate": {
       "title": "promptInputsActionFieldTemplate",
       "type": "object",
@@ -2738,6 +3095,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -2772,6 +3135,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -2843,6 +3212,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -2877,6 +3252,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -2952,6 +3333,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -2986,6 +3373,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -3057,6 +3450,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -3091,6 +3490,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -3191,6 +3596,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -3225,6 +3636,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -3296,6 +3713,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -3330,6 +3753,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -3405,6 +3834,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -3439,6 +3874,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -3510,6 +3951,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -3544,6 +3991,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -3644,6 +4097,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -3678,6 +4137,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -3749,6 +4214,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -3783,6 +4254,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -3858,6 +4335,12 @@
                   "$ref": "#/definitions/crawl_folderIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/make_api_callActionModel"
+                },
+                {
+                  "$ref": "#/definitions/make_api_callIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/bashActionModel"
                 },
                 {
@@ -3892,6 +4375,12 @@
                 },
                 {
                   "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchActionModel"
+                },
+                {
+                  "$ref": "#/definitions/searchIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/promptActionModel"
@@ -3963,6 +4452,12 @@
                         "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/make_api_callActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/make_api_callIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/bashActionModel"
                       },
                       {
@@ -3997,6 +4492,12 @@
                       },
                       {
                         "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/searchIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/promptActionModel"
@@ -4110,6 +4611,12 @@
                 "$ref": "#/definitions/crawl_folderIterableActionModel"
               },
               {
+                "$ref": "#/definitions/make_api_callActionModel"
+              },
+              {
+                "$ref": "#/definitions/make_api_callIterableActionModel"
+              },
+              {
                 "$ref": "#/definitions/bashActionModel"
               },
               {
@@ -4144,6 +4651,12 @@
               },
               {
                 "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+              },
+              {
+                "$ref": "#/definitions/searchActionModel"
+              },
+              {
+                "$ref": "#/definitions/searchIterableActionModel"
               },
               {
                 "$ref": "#/definitions/promptActionModel"
@@ -4207,6 +4720,12 @@
                       "$ref": "#/definitions/crawl_folderIterableActionModel"
                     },
                     {
+                      "$ref": "#/definitions/make_api_callActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/make_api_callIterableActionModel"
+                    },
+                    {
                       "$ref": "#/definitions/bashActionModel"
                     },
                     {
@@ -4241,6 +4760,12 @@
                     },
                     {
                       "$ref": "#/definitions/insert_content_into_textIterableActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/searchActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/searchIterableActionModel"
                     },
                     {
                       "$ref": "#/definitions/promptActionModel"
