@@ -58,7 +58,7 @@ class TriggerService:
         if not triggers_and_context:
             return []
         if len(triggers_and_context) == 1:
-            self.publish_service.title = f"AutoPR: {self._get_name_for_executable(triggers_and_context[0][0].run)}"
+            self.publish_service.title = f"[AutoPR] {self._get_name_for_executable(triggers_and_context[0][0].run)}"
             return [
                 self.handle_trigger(
                     trigger,
@@ -68,7 +68,7 @@ class TriggerService:
                 for trigger, context in triggers_and_context
             ]
         trigger_titles = [self._get_name_for_executable(trigger.run) for trigger, context in triggers_and_context]
-        self.publish_service.title = f"AutoPR: {', '.join(truncate_strings(trigger_titles))}"
+        self.publish_service.title = f"[AutoPR] {', '.join(truncate_strings(trigger_titles))}"
         return [
             self.handle_trigger(
                 trigger,

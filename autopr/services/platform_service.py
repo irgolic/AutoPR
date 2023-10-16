@@ -111,6 +111,8 @@ class PlatformService:
     async def merge_pr(
         self,
         pr_number: int,
+        commit_title: Optional[str] = None,
+        commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
     ):
         """
@@ -120,6 +122,12 @@ class PlatformService:
         ----------
         pr_number: int
             The PR number
+        commit_title: Optional[str]
+            The title of the merge commit
+        commit_message: str
+            An additional message of the merge commit
+        merge_method: str
+            The merge method to use
         """
         raise NotImplementedError
 
@@ -397,14 +405,18 @@ class GitHubPlatformService(PlatformService):
     async def merge_pr(
         self,
         pr_number: int,
+        commit_title: Optional[str] = None,
+        commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
     ):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}/merge'
         headers = self._get_headers()
         data = {
-            'commit_message': 'Merged automatically by AutoPR',
+            'commit_message': commit_message,
             'merge_method': merge_method,
         }
+        if commit_title is not None:
+            data['commit_title'] = commit_title
 
         async with ClientSession() as session:
             async with session.put(url, json=data, headers=headers) as response:
@@ -768,6 +780,8 @@ class DummyPlatformService(PlatformService):
     async def merge_pr(
         self,
         pr_number: int,
+        commit_title: Optional[str] = None,
+        commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
     ):
         pass
