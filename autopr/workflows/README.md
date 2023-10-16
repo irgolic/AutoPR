@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python scripts and YAML files related to workflow configurations. The `__init__.py` script provides functions for loading and collecting workflows from YAML files. The `autogenerate_readmes.yaml` file defines a workflow for generating summaries of files and folders in a directory. The `insert_into_readme.yaml` file defines a task for inserting content into a file using tag-based delimiters. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
+This folder contains a collection of files related to workflow automation. The `__init__.py` file provides functions for loading and collecting workflows from YAML files. The `api_git_history.yaml` file defines a workflow for making API calls, saving the response to a file, and pushing it to a Git repository. The `autogenerate_readmes.yaml` file contains workflows for summarizing files and folders and generating README summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/__init__.py/)
@@ -16,9 +16,32 @@ This folder contains Python scripts and YAML files related to workflow configura
 🔄 The purpose of this file is to provide a way to load and gather workflow configurations for further processing.
 
 
+### [`api_git_history.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/api_git_history.yaml/)
+
+💡 This file defines a series of steps for making an API call, saving the response to a file, and committing and pushing the file to a Git repository.
+💡 The file is structured using a YAML format.
+💡 The file specifies the inputs required for the API call, such as the endpoint URL, headers, and file path.
+💡 The API call is made using the "make_api_call" action, which performs a GET request.
+💡 The response content is then saved to a file using the "write_into_file" action.
+💡 The "commit_and_push" action is used to commit and push the file to a Git repository, with a customizable commit message.
+💡 The file paths and other values can be provided as variables using the "var" keyword.
+💡 The file can be used as a template for automating API calls and version control.
+💡 The file can be customized by modifying the inputs, actions, and templates.
+💡 If the file is empty, there are no defined steps or actions.
+
+
 ### [`autogenerate_readmes.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/autogenerate_readmes.yaml/)
 
-📝 This file contains a workflow for generating summaries of files and folders in a given directory. It includes steps for reading files, summarizing their contents, and generating a formatted summary for a folder. The results are then written to a README file and committed to a repository.
+📄 This file contains a set of workflows for summarizing files and folders and generating README summaries. 
+📝 The workflows include steps for reading file contents, prompting for file summaries, and generating folder summaries. 
+💻 The file also includes steps for reformatting the summary results and inserting them into a README file. 
+📂 The workflows can handle both files and folders, and they ignore certain files like README.md. 
+⚙️ The file also includes a workflow for generating multiple README summaries. 
+🔑 The file relies on certain input parameters and outputs results like file summaries and URLs. 
+🚀 The workflows are designed to be executed and the results can be committed and pushed to a repository. 
+📝 The file provides default prompts and instructions for generating file and folder summaries. 
+🔗 The file makes use of variables, lambda functions, and conditional statements to handle different scenarios. 
+📑 The file ends with a workflow for committing and pushing the cache of README summaries.
 
 
 ### [`insert_into_readme.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/insert_into_readme.yaml/)
