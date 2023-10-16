@@ -10,7 +10,7 @@ from .services.action_service import ActionService
 from .services.commit_service import CommitService
 from .services.platform_service import PlatformService
 from .services.publish_service import PublishService
-
+from .services.trigger_service import TriggerService
 
 from .services.workflow_service import WorkflowService
 from .triggers import get_all_triggers
@@ -75,15 +75,19 @@ class MainService:
             repo_path=self.get_repo_path(),
         )
         self.workflow_service = WorkflowService(
-            triggers=triggers,
             workflows=workflows,
             action_service=action_service,
             publish_service=self.publish_service,
         )
+        self.trigger_service = TriggerService(
+            triggers=triggers,
+            publish_service=self.publish_service,
+            workflow_service=self.workflow_service,
+        )
 
     async def run(self):
         # Run the triggers
-        return await self.workflow_service.trigger_event(self.event)
+        return await self.trigger_service.trigger_event(self.event)
 
     def get_repo_path(self):
         raise NotImplementedError

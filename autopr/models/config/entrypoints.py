@@ -115,6 +115,7 @@ StrictExecutableId = Literal[tuple(ids_)] if (ids_ := get_all_executable_ids()) 
 class TriggerModel(ContextModel):
     type: str
     run: StrictExecutable = Field()  # pyright: ignore[reportGeneralTypeIssues]
+    automerge: bool = False
     parameters: Optional[dict[str, Any]] = Field(default=None)
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:

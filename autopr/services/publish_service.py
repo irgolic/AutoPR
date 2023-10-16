@@ -289,6 +289,17 @@ class PublishService:
 
         await self.update()
 
+    async def merge(self):
+        """
+        Merge the pull request.
+        """
+        if self.root_publish_service is not None:
+            return await self.root_publish_service.merge()
+        if self.pr_number is None:
+            self.log.warning("PR merge requested, but does not exist")
+            return
+        return await self.platform_service.merge_pr(self.pr_number)
+
     def _contains_last_code_block(self, parent: UpdateSection) -> bool:
         for section in reversed(parent.updates):
             if isinstance(section, CodeBlock):

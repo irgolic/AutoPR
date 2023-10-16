@@ -5,6 +5,7 @@ triggers:
     run: summarize_pr
   - branch_name: main
     run: generate_readme_summaries
+    automerge: true
     parameters:
       FILE_SUMMARY_PROMPT: |
         Write an executive summary of this file, intended for someone seeing it for the first time.

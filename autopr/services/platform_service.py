@@ -108,6 +108,21 @@ class PlatformService:
         """
         raise NotImplementedError
 
+    async def merge_pr(
+        self,
+        pr_number: int,
+        merge_method: str = "squash",
+    ):
+        """
+        Merge the pull request.
+
+        Parameters
+        ----------
+        pr_number: int
+            The PR number
+        """
+        raise NotImplementedError
+
     async def update_pr_body(self, pr_number: int, body: str):
         """
         Update the body of the pull request.
@@ -378,6 +393,31 @@ class GitHubPlatformService(PlatformService):
             comment_ids.append(id_)
 
         return pr_number, comment_ids
+
+    async def merge_pr(
+        self,
+        pr_number: int,
+        merge_method: str = "squash",
+    ):
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}/merge'
+        headers = self._get_headers()
+        data = {
+            'commit_message': 'Merged automatically by AutoPR',
+        }
+
+        async with ClientSession() as session:
+            async with session.put(url, json=data, headers=headers) as response:
+                if response.status != 200:
+                    await self._log_failed_request(
+                        'Failed to merge pull request',
+                        request_url=url,
+                        request_headers=headers,
+                        request_body=data,
+                        response=response,
+                    )
+                    raise RuntimeError('Failed to merge pull request')
+
+                self.log.debug('Pull request merged successfully')
 
     async def _patch_pr(self, pr_number: int, data: dict[str, Any]):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
@@ -723,6 +763,13 @@ class DummyPlatformService(PlatformService):
         base_branch: str
     ) -> tuple[Optional[int], list[Union[str, Type[PlatformService.PRBodySentinel]]]]:
         return 1, [PlatformService.PRBodySentinel]
+
+    async def merge_pr(
+        self,
+        pr_number: int,
+        merge_method: str = "squash",
+    ):
+        pass
 
     async def update_pr_title(self, pr_number: int, title: str):
         pass

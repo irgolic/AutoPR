@@ -100,7 +100,7 @@ async def test_event_triggers(
     )
 
     # It's assumed that the event only has one trigger
-    triggers = await main.workflow_service._get_trigger_coros_for_event(event)
+    triggers = main.trigger_service._get_triggers_and_contexts_for_event(event)
     assert len(triggers) == 1
 
     outputs = await main.run()
