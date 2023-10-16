@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains two files: "__init__.py" and "prompt_context.py". "__init__.py" is an empty file. "prompt_context.py" is a Python file that implements a prompt context model for auto PR (pull request) generation. It includes classes and functions related to defining and transforming prompt contexts, and also defines different types of declarations for prompt context in config. The file imports modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
+This folder contains Python code for managing prompt context in a chatbot application. The `prompt_context.py` file defines a `PromptContext` class that represents a dictionary mapping headings to context variable values. It provides methods for formatting the context as a string and calculating the token length. The file also includes declarations for prompt context in a config file and functions for trimming the context and invoking the OpenAI Chat Completion API.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/__init__.py/)
@@ -13,15 +13,15 @@ This file is empty.
 
 ### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/prompt_context.py/)
 
-📄 This file contains Python code implementing a prompt context model for auto PR generation.
-🔧 It includes classes and functions related to defining and transforming prompt contexts.
-📝 The `PromptContext` class represents a dictionary mapping headings to context variable values.
-🔢 The `PromptContextEntry` class represents a single entry in the context heading dictionary.
-🧩 The file also defines different types of declarations for prompt context in config.
-🔀 The `PromptContextInConfig` class transforms prompt context declarations from config into `PromptContext` instances.
-🔍 The `get_string_token_length` function calculates the token length of a string based on a given model.
-📝 The file includes docstrings and comments explaining the purpose and usage of the code.
-🧪 The code seems to be part of a larger project related to auto PR generation and configuration.
-🔧 It imports modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.    
+📄 This file contains Python code for a prompt context class and related declarations.
+🔄 The `PromptContext` class represents a dictionary mapping heading strings to context variable values.
+🔢 It provides methods for formatting the context as a string and calculating the token length.
+📝 The file also includes various declarations for prompt context in a config file.
+✂️ The `trim_context` function is used to trim the context based on a maximum token length and a trimming strategy.
+🔁 The `invoke_openai` function is an async function that invokes the OpenAI Chat Completion API.
+⚠️ The file includes import statements for various libraries and modules used in the code.
+🔧 The code uses type hints and annotations to specify the expected types of variables and function return values.
+🧪 The code includes some test-related imports and decorators from the `tenacity` library.
+📚 The code relies on external libraries such as `openai`, `pydantic`, and `tiktoken`.
 
 <!-- Living README Summary -->
