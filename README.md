@@ -31,7 +31,7 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and subfolders related to building an autonomous agent system. It includes a Dockerfile for setting up the environment, a Makefile for running different tasks, an action.yml file for configuring an "Automatic Pull Request" action, and various Python files and subfolders for implementing actions, services, models, and workflows. Additionally, there are configuration files for managing dependencies (pyproject.toml and poetry.lock) and JSON schemas for defining workflows and trigger configurations. Overall, this folder provides a comprehensive set of components for building and automating complex tasks or processes in an autonomous agent system.
+This folder contains various files and folders related to a Python project. It includes a Dockerfile for setting up the project environment, a Makefile for running different tasks, an action.yml file for configuring an automatic pull request action, and several other files related to the project's code structure, licensing, and configuration. The files serve different purposes, such as defining project dependencies, organizing code into logical categories, specifying workflows, and providing standardized schemas for defining triggers and workflows in an automation system.
 
 
 ### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./Dockerfile/)
@@ -81,7 +81,7 @@ This folder contains files and subfolders related to building an autonomous agen
 
 ### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/)
 
-This folder contains a collection of Python files and subfolders that implement various actions, services, models, and workflows for an autonomous agent system. The "actions" folder contains files for performing tasks such as running commands, making API calls, and reading/writing files. The "services" folder provides functionalities for managing actions, branches, and pull requests, interacting with the GitHub platform, and executing workflows. The "models" folder defines data models and actions for a workflow system and an automated PR system. The "workflows" folder contains YAML files that define different automation workflows. Overall, this folder provides a comprehensive set of components for building an autonomous agent system.
+This folder contains a collection of Python files and folders that implement various actions, utilities, services, models, triggers, and workflows for a larger codebase. The files define classes and functions for performing tasks such as running commands, making API calls, generating prompts, reading and writing files, and searching for content within files. They also provide reusable components and base classes for building autonomous agent systems. The folder structure organizes the code into logical categories, making it easier to navigate and understand the functionality of the system.
 
 
 ### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./entrypoint.sh/)

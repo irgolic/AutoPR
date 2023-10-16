@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and subfolders that implement various actions, services, models, and workflows for an autonomous agent system. The "actions" folder contains files for performing tasks such as running commands, making API calls, and reading/writing files. The "services" folder provides functionalities for managing actions, branches, and pull requests, interacting with the GitHub platform, and executing workflows. The "models" folder defines data models and actions for a workflow system and an automated PR system. The "workflows" folder contains YAML files that define different automation workflows. Overall, this folder provides a comprehensive set of components for building an autonomous agent system.
+This folder contains a collection of Python files and folders that implement various actions, utilities, services, models, triggers, and workflows for a larger codebase. The files define classes and functions for performing tasks such as running commands, making API calls, generating prompts, reading and writing files, and searching for content within files. They also provide reusable components and base classes for building autonomous agent systems. The folder structure organizes the code into logical categories, making it easier to navigate and understand the functionality of the system.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/__init__.py/)
@@ -54,7 +54,7 @@ This folder contains Python code files that define data models and actions for a
 
 ### [`services/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/)
 
-This folder contains a collection of Python files that provide various services and functionalities. The files include implementations for managing and running actions in an automated process, providing a caching service, managing commits and branches in a Git repository, handling diffs in a repository, interacting with the GitHub platform, managing and updating pull request descriptions, handling triggers and executing workflows, and formatting and truncating nested Python objects for publishing purposes. These files can be used together to create an automated pull request workflow or individually for specific functionalities.
+This folder contains various Python files that serve different purposes. Some files provide services for managing actions, caching data, handling commits and branches in a Git repository, and interacting with a platform's API. Other files provide utility functions for formatting and truncating nested Python objects and publishing updates to a pull request description. There are also files related to triggers and workflows, as well as a file containing empty initialization code. Each file has a specific role in the overall functionality of the system.
 
 
 ### [`triggers.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/triggers.py/)
