@@ -7,7 +7,7 @@ list_todos_test:
   steps:
     - action: find_todos
       inputs:
-        comment:
+        language:
           var: comment
         todo_keywords:
           var: todo_keywords
@@ -47,36 +47,29 @@ build_and_publish_todo_test:
       outputs:
         choice: task_difficulty
     
-    - action: prompt
-      inputs:
-        prompt_context:
-          - var: todo.task
-            heading: "I have a TODO in my code."
-        prompt:
-          param:
-            default: "What tips can you give to someone that's resolving this TODO?"
-            name: ISSUE_DESCRIPTION_PROMPT
-        instructions:
-          param:
-            default: "Respond in 1-3 sentences."
-            name: ISSUE_DESCRIPTION_INSTRUCTIONS
-      outputs:
-        result: prompt_suggestions
-
     - set_vars:
         truncated_task:
           lambda: f"{todo.task[:50]} ..." if len(todo.task) > 50 else todo.task
         issue_title:
           template: |
             [AutoPR] {{ truncated_task }}
+        fingerprint:
+          template: |
+            <!--
+            info: AutoPR fingerprint
+            issue type: TODO
+            task: {{ todo.task }}
+            -->
         issue_body:
           template: |
+            {{ fingerprint }}
+
             ## {{ todo.task }}
 
             {% for todo_location in todo.locations %}
             {{ todo_location.url }}
             {% endfor %}
-            
+
             {{ prompt_suggestions }}
         label_list:
           lambda: |
@@ -94,3 +87,4 @@ build_and_publish_todo_test:
           var: label_list
       outputs:
         issue_number: issue_number
+

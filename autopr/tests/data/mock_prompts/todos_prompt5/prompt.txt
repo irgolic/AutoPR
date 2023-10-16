@@ -1,6 +1,6 @@
 I have a TODO in my code.:
 ```
-FIXME: PART1:this is whatever
+FIXME does nice syntax highlighting for tracebacks, but should be made configurable
 ```
 
 What tips can you give to someone that's resolving this TODO?

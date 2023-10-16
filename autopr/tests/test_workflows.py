@@ -177,11 +177,11 @@ from autopr.tests.utils import create_ephemeral_main_service
             "list_and_publish_todos.yaml",
             "list_todos_test",
             {
-                "comment": "//",
+                "comment": "python",
                 "todo_keywords": ["FIXME"],
             },
             {
-                "issue_number_list": [1],
+                "issue_number_list": [1, 1, 1],
             },
             "repo_with_todos",
         )

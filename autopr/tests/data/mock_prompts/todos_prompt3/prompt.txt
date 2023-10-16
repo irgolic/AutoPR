@@ -1,6 +1,6 @@
 Task:
 ```
-FIXME: PART1:this is whatever
+FIXME does nice syntax highlighting for tracebacks, but should be made configurable
 ```
 
 How hard is this task?
