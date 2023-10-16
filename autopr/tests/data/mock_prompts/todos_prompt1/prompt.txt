@@ -1,6 +1,6 @@
-I have a TODO in my code.:
+I have a TODO in my code::
 ```
-FIXME: PART1:this is whatever
+FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED
 ```
 
 What tips can you give to someone that's resolving this TODO?
