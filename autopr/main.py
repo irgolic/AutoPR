@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import Type
 
@@ -32,7 +33,9 @@ class MainService:
     def __init__(self):
         self.log = get_logger(service="main")
 
-        self.config_dir = ".autopr"  # TODO: Make this configurable
+        # TODO make these configurable
+        self.config_dir = ".autopr"
+        self.cache_dir = os.path.join(self.config_dir, "cache")
 
         self.settings = self.settings_class.parse_obj({})  # pyright workaround
         self.repo_path = self.get_repo_path()
@@ -56,13 +59,14 @@ class MainService:
             repo_path=self.repo_path,
             branch_name=self.branch_name,
             base_branch_name=self.base_branch_name,
+            cache_dir=self.cache_dir,
         )
         self.commit_service.ensure_branch_exists()
 
         # Create action service and agent service
         action_service = ActionService(
             repo=self.repo,
-            config_dir=self.config_dir,
+            cache_dir=self.cache_dir,
             platform_service=self.platform_service,
             commit_service=self.commit_service,
         )
