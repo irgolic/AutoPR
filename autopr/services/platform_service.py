@@ -403,6 +403,7 @@ class GitHubPlatformService(PlatformService):
         headers = self._get_headers()
         data = {
             'commit_message': 'Merged automatically by AutoPR',
+            'merge_method': merge_method,
         }
 
         async with ClientSession() as session:
