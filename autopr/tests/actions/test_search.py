@@ -21,17 +21,12 @@ from autopr.actions.search import SearchHit
             {
                 "hits": [
                     SearchHit(
-                        filepath="rootTestFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
-                    SearchHit(
                         filepath="rootTestFile.html",
                         line_number=7,
                         char_number=3
                     ),
                     SearchHit(
-                        filepath="subfolder/subfolderFile.js",
+                        filepath="rootTestFile.js",
                         line_number=6,
                         char_number=3
                     ),
@@ -39,6 +34,11 @@ from autopr.actions.search import SearchHit
                         filepath="subfolder/subfolderFile.html",
                         line_number=7,
                         char_number=5
+                    ),
+                    SearchHit(
+                        filepath="subfolder/subfolderFile.js",
+                        line_number=6,
+                        char_number=3
                     ),
                 ]
             },
@@ -52,14 +52,14 @@ from autopr.actions.search import SearchHit
             {
                 "hits": [
                     SearchHit(
-                        filepath="subfolder/subfolderFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
-                    SearchHit(
                         filepath="subfolder/subfolderFile.html",
                         line_number=7,
                         char_number=5
+                    ),
+                    SearchHit(
+                        filepath="subfolder/subfolderFile.js",
+                        line_number=6,
+                        char_number=3
                     ),
                 ]
             },
@@ -73,13 +73,13 @@ from autopr.actions.search import SearchHit
             {
                 "hits": [
                     SearchHit(
-                        filepath="rootTestFile.js",
-                        line_number=6,
+                        filepath="rootTestFile.html",
+                        line_number=7,
                         char_number=3
                     ),
                     SearchHit(
-                        filepath="rootTestFile.html",
-                        line_number=7,
+                        filepath="rootTestFile.js",
+                        line_number=6,
                         char_number=3
                     ),
                 ]
