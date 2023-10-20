@@ -69,7 +69,10 @@ class Search(Action[Inputs, Outputs]):
                 filepath = os.path.abspath(os.path.join(root, filename))
                 hits += await self.search_file(filepath, inputs.query)
 
-        return Outputs(hits=hits)
+        # Sort the hits by filepath, line number, and character number
+        sorted_hits = sorted(hits, key=lambda hit: (hit.filepath, hit.line_number, hit.char_number))
+
+        return Outputs(hits=sorted_hits)
 
 # When you run this file
 if __name__ == "__main__":
