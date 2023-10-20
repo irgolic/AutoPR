@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and folders that implement various actions, utilities, services, models, triggers, and workflows for a larger codebase. The files define classes and functions for performing tasks such as running commands, making API calls, generating prompts, reading and writing files, and searching for content within files. They also provide reusable components and base classes for building autonomous agent systems. The folder structure organizes the code into logical categories, making it easier to navigate and understand the functionality of the system.
+This folder contains a collection of files and subfolders that serve different purposes in an automation system. The "actions" folder contains Python files that define base classes, reusable components, and specific actions for autonomous agent systems. The "gh_actions_entrypoint.py" file is the entry point for a GitHub Actions workflow. The "log_config.py" file configures logging. The "main.py" file is the main entry point for the application and handles triggers and workflows. The "models" folder contains code files that define data models and actions. The "services" folder contains files that provide various services and utility functions. The "triggers.py" file provides a way to retrieve and process trigger configurations. The "workflows" folder contains files related to workflow automation. Overall, this folder represents a diverse set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/__init__.py/)
@@ -13,7 +13,7 @@ This file is empty.
 
 ### [`actions/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/)
 
-This folder contains a collection of Python files that implement various actions and utilities. These files define classes and functions for performing tasks such as running bash commands, making API calls, generating prompts, reading and writing files, and searching for content within files. They also provide reusable components and base classes for building autonomous agent systems. Each file has a specific purpose and can be used independently or as part of a larger codebase.
+This folder contains a collection of Python files that serve different purposes. Some files define base classes and actions for autonomous agent systems, such as performing tasks and making API calls. Other files provide reusable components for running bash commands, generating prompts, reading and writing files, and searching for specific queries in directories. There are also files that implement specific actions, like publishing comments on GitHub issues or setting issue titles. Additionally, there is a folder called "utils" that contains code for managing prompt context in a chatbot application. Overall, this folder represents a diverse set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`gh_actions_entrypoint.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/gh_actions_entrypoint.py/)

@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that implement various actions and utilities. These files define classes and functions for performing tasks such as running bash commands, making API calls, generating prompts, reading and writing files, and searching for content within files. They also provide reusable components and base classes for building autonomous agent systems. Each file has a specific purpose and can be used independently or as part of a larger codebase.
+This folder contains a collection of Python files that serve different purposes. Some files define base classes and actions for autonomous agent systems, such as performing tasks and making API calls. Other files provide reusable components for running bash commands, generating prompts, reading and writing files, and searching for specific queries in directories. There are also files that implement specific actions, like publishing comments on GitHub issues or setting issue titles. Additionally, there is a folder called "utils" that contains code for managing prompt context in a chatbot application. Overall, this folder represents a diverse set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/__init__.py/)
@@ -152,16 +152,15 @@ This folder contains a collection of Python files that implement various actions
 
 ### [`search.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/search.py/)
 
-📄 This file contains code for a search action that searches for a given query across all files in a directory and its subdirectories.
-🔍 The purpose of the file is to provide a way to search for specific content within files in a specified directory.
-💡 The file defines a class called `Search` which implements the search functionality.
-⚙️ The `Search` class has a method called `search_file` that searches for the query in a specific file.
-📥 The search action takes inputs including the query, directory path, and entries to ignore.
-📤 The search action returns a list of search hits, which include the file path, line number, and character number.
-📂 The search action recursively searches through all files in the specified directory and its subdirectories.
-🛠️ The search action allows for ignoring specific files and directories using default and custom entries to ignore.
-⚡️ The file also includes a main block that demonstrates how to run the search action manually.
-🔧 The file imports necessary modules and defines a `SearchHit` model and `Inputs` and `Outputs` models for the search action.
+📄 This file contains a Python script for searching for a given query across all files in a directory and its subdirectories.
+🔍 The script defines a class called "Search" that inherits from a base class called "Action".
+🔑 The "Search" class has an async method called "run" which performs the search operation.
+📥 The search inputs include the query string, directory path, and a list of entries to ignore.
+📤 The search outputs include a list of "SearchHit" objects containing the file path, line number, and character number of each hit.
+📂 The search is performed by recursively walking through the directory and its subdirectories, excluding the specified entries to ignore.
+🔍 Each file is opened and searched line by line to find matches with the query.
+📃 The hits are sorted based on the file path, line number, and character number.
+🚀 The script can be run independently by executing the main block at the end of the file.
 
 
 ### [`set_issue_title.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/set_issue_title.py/)
