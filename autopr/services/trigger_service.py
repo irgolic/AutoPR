@@ -1,5 +1,6 @@
 import asyncio
-from typing import Coroutine, Any, Optional, assert_never
+from typing import Coroutine, Any, Optional
+from typing_extensions import assert_never
 
 from autopr.log_config import get_logger
 from autopr.models.config.elements import ActionConfig, WorkflowInvocation, IterableWorkflowInvocation, ContextAction
