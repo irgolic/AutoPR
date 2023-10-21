@@ -458,11 +458,11 @@ class PublishService:
         for child in self.children:
             child_progress_text += child._build_concise_progress() + "\n"
 
-        if self is self.root_publish_service:
+        if self.root_publish_service is None or self is self.root_publish_service:
             return child_progress_text
 
         linesplit = child_progress_text.splitlines()
-        child_progress_text = "\n".join([f"'> {line}"
+        child_progress_text = "\n".join([f"> {line}"
                                          for line in linesplit])
 
         return f"""
