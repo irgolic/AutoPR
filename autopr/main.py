@@ -74,10 +74,7 @@ class MainService:
             config_dir=self.config_dir,
             repo_path=self.get_repo_path(),
         )
-        workflows = get_all_workflows(
-            config_dir=self.config_dir,
-            repo_path=self.get_repo_path(),
-        )
+        workflows = get_all_workflows()
         self.workflow_service = WorkflowService(
             workflows=workflows,
             action_service=action_service,

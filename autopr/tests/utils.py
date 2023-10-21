@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import pydantic
 
+import autopr.workflows
 from autopr.main import MainService
 from autopr.models.artifacts import Issue, Message
 from autopr.models.config.elements import ActionConfig, WorkflowDefinition, ExtraModel
@@ -118,23 +119,20 @@ def create_ephemeral_main_service(
     else:
         triggers_config = None
 
-    # load workflows config
+    repo_dir = create_repo(
+        triggers_config=triggers_config,
+        repo_resource=repo_resource,
+    )
+
+    # load any test workflow resources
     if workflows_filename is not None:
         workflows_path = os.path.join(
             os.path.dirname(__file__),
             "workflow_resources",
             workflows_filename
         )
-        with open(workflows_path, "r") as f:
-            workflows_config = f.read()
-    else:
-        workflows_config = None
-
-    repo_dir = create_repo(
-        triggers_config=triggers_config,
-        workflows_config=workflows_config,
-        repo_resource=repo_resource,
-    )
+        # inject test workflows into autopr.workflows
+        autopr.workflows._test_workflow_paths[:] = [workflows_path]
 
     # because autopr.models.config.entrypoints.StrictExecutableId (which is used by TopLevelTriggerConfig),
     # is created upon module import, and it's constructed from a list of available actions and workflows,
@@ -146,7 +144,10 @@ def create_ephemeral_main_service(
         "TopLevelTriggerConfig",
         entrypoints.TopLevelTriggerConfig
     ):
-        return TestMainService(test_event=event, repo_path=repo_dir)
+        return TestMainService(
+            test_event=event,
+            repo_path=repo_dir,
+        )
 
 
 async def run_workflow_manually(

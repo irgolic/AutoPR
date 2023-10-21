@@ -68,15 +68,7 @@ def _load_workflows_in_folder(
     return existing_workflows
 
 
-def get_all_workflows(
-    config_dir: str = ".autopr",
-    repo_path: str = ".",
-) -> TopLevelWorkflowConfig:
-    """
-    Crawl all YAML files in this folder and its subfolders,
-    and return a TopLevelWorkflowConfig
-    """
-
+def get_all_workflows() -> TopLevelWorkflowConfig:
     # load default workflows
     default_workflows_folder = os.path.dirname(__file__)
     existing_actions = list(get_actions_dict())
@@ -85,16 +77,8 @@ def get_all_workflows(
         existing_actions=existing_actions,
     )
 
-    # load custom workflows
-    workflow_paths = []
-    for path in [
-        os.path.join(repo_path, config_dir, "workflows.yaml"),
-        os.path.join(repo_path, config_dir, "workflows.yml"),
-        os.path.join(repo_path, config_dir, "workflows", "*.yaml"),
-        os.path.join(repo_path, config_dir, "workflows", "*.yml"),
-    ]:
-        workflow_paths.extend(glob.glob(path))
-    for path in workflow_paths:
+    # load test workflows (if any)
+    for path in _test_workflow_paths:
         workflows = _collect_workflows(
             path,
             existing_actions=existing_actions,
@@ -102,6 +86,9 @@ def get_all_workflows(
         )
 
     return workflows
+
+
+_test_workflow_paths = []
 
 
 if __name__ == "__main__":
