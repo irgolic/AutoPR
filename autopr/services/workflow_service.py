@@ -208,7 +208,7 @@ class WorkflowService:
                     executable,
                     input_context,
                     await publish_service.create_child(
-                        title=f"🌊 Iteration: `{truncate_strings(str(item), length=40)}`"
+                        title=f"🌊 {truncate_strings(str(item), length=40)}"
                     ),
                 ))
 
