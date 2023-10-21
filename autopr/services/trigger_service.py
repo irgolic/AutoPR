@@ -33,6 +33,17 @@ class TriggerService:
 
         self.log = get_logger(service="trigger")
 
+    def _get_id_for_executable(self, executable: Executable) -> ExecutableId:
+        if isinstance(executable, str):
+            return ExecutableId(executable)
+        if isinstance(executable, ActionConfig):
+            return ExecutableId(executable.action)
+        if isinstance(executable, WorkflowInvocation) or isinstance(executable, IterableWorkflowInvocation):
+            return ExecutableId(executable.workflow)
+        if isinstance(executable, ContextAction):
+            raise RuntimeError("Meaningless trigger! Whatchu tryina do :)")
+        raise ValueError(f"Unknown executable type {executable}")
+
     def _get_name_for_executable(self, executable: Executable) -> str:
         if isinstance(executable, str):
             workflow_definition = self.workflow_service.get_executable_by_id(ExecutableId(executable))
@@ -142,10 +153,16 @@ class TriggerService:
         elif changes_status == "modified":
             # TODO split out multiple triggered workflows into separate PRs,
             #  so that automerge can be evaluated separately for each
-            if any(trigger.automerge for trigger in triggers):
+            automerge_triggers = [trigger for trigger in triggers if trigger.automerge]
+            if automerge_triggers:
+                automerge_ids = [
+                    self._get_id_for_executable(trigger.run)
+                    for trigger in automerge_triggers
+                ]
                 await self.publish_service.merge(
                     "Merging because automerge is enabled.\n\n"
-                    "To disable automerge, set `automerge: false` on this workflow in `.autopr/triggers.yaml`.",
+                    f"To disable automerge, set `automerge: false` "
+                    f"on {', '.join([f'`{id_}`' for id_ in automerge_ids])}."
                 )
         else:
             assert_never(changes_status)
