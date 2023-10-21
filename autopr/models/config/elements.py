@@ -112,7 +112,7 @@ ContextActions = Union[tuple(ContextAction.__subclasses__())]  # pyright: ignore
 
 
 class ExecModel(ContextModel):
-    #: You can override name and description in the config (for purposes of choosing by LLM)
+    #: You can override name and description in the config (for title in UI, maybe also for choice?)
     name: Optional[str] = Field(default=None)
     description: Optional[str] = Field(default=None)
 

@@ -39,6 +39,11 @@ class TriggerService:
         if isinstance(executable, ActionConfig):
             return executable.action
         if isinstance(executable, WorkflowInvocation) or isinstance(executable, IterableWorkflowInvocation):
+            if executable.name:
+                return executable.name
+            workflow_definition = self.workflow_service.get_executable_by_id(executable.workflow)
+            if workflow_definition.name:
+                return workflow_definition.name
             return executable.workflow
         if isinstance(executable, ContextAction):
             raise RuntimeError("Meaningless trigger! Whatchu tryina do :)")

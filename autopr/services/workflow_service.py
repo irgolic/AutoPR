@@ -35,7 +35,10 @@ class WorkflowService:
 
         self.log = get_logger(service="workflow")
 
-    def get_executable_by_id(self, id_: ExecutableId, context: ContextDict) -> Union[ActionConfig, WorkflowDefinition]:
+    def get_executable_by_id(self, id_: ExecutableId, context: Optional[ContextDict] = None) -> Union[ActionConfig, WorkflowDefinition]:
+        if context is None:
+            context = ContextDict()
+
         # Look in actions
         action = self.action_service.find_action(id_)
         if action is not None:
