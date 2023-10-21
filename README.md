@@ -31,7 +31,7 @@ See below for an example of AutoPR's README summary:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and folders related to a Python project. The Dockerfile is used to build a Docker image for the project. The LICENSE.md file contains the MIT License for the software. The Makefile defines targets for different tasks in the project. The action.yml file configures an "Automatic Pull Request" action. The autopr/ folder contains Python files and subfolders related to an AutoPR system. The entrypoint.sh file is a shell script that sets up the project's Git configuration and runs a Python module. The poetry.lock and pyproject.toml files are used for dependency management. The strict_workflow_schema.json, trigger_schema.json, and workflow_schema.json files define the structure and properties of workflows and trigger configurations.
+This folder contains files and folders that serve different purposes in a project. The main files include a Dockerfile for setting up the project environment, a Makefile for running tasks, an action.yml file for configuring an automatic pull request action, a shell script for running the app, and configuration files for managing dependencies and workflows. Additionally, there is a folder called "autopr" that contains various files and folders related to automation tasks, such as actions, components, and services. Overall, this folder represents a comprehensive set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./Dockerfile/)
@@ -81,7 +81,7 @@ This folder contains files and folders related to a Python project. The Dockerfi
 
 ### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/)
 
-This folder contains a collection of Python files and subfolders that serve different purposes. The `actions/` folder contains reusable components and specific actions for autonomous agent systems. The `gh_actions_entrypoint.py` file is the entry point for a GitHub Actions workflow. The `log_config.py` file configures logging for the module. The `main.py` file implements a `MainService` class for handling events and triggering actions. The `models/` folder contains code and configuration files for an AutoPR system. The `services/` folder implements various services for the AutoPR system. The `triggers.py` file provides a way to retrieve and process trigger configurations. The `workflows/` folder contains YAML files defining workflows for automation tasks.
+This folder contains a diverse collection of files and folders that serve different purposes. It includes actions for autonomous agent systems, reusable components for automation tasks, code for managing prompt context in a chatbot application, logging configuration, implementation of a main service for handling events and triggering actions, models for an AutoPR system, services for managing and running actions within the AutoPR system, trigger configurations, and workflow automation files. Overall, this folder represents a comprehensive set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./entrypoint.sh/)

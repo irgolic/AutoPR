@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains several Python files that make up an AutoPR system. The files implement various services and functionality, such as managing and running actions, providing a caching service, handling commits and diffs in a Git repository, making API calls to a platform (e.g., GitHub), publishing updates to pull requests, handling triggers and executing workflows, and providing utility functions for formatting and truncating nested Python objects. Each file has a specific purpose and contributes to the overall functionality of the AutoPR system.
+This folder contains a collection of Python files that provide various services and functionalities for managing and running actions within the AutoPR system. These services include a caching service for storing key-value pairs, a commit service for handling Git repository operations, a diff service for getting and applying diffs in a Git repository, a platform service for making API calls to a platform like GitHub, a publish service for publishing updates to a pull request description, a trigger service for handling triggers and executing workflows, a utility module for formatting and truncating nested Python objects, and a workflow service for executing workflows. Each file has a specific purpose and provides functionality that is essential for the AutoPR system.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/__init__.py/)
@@ -65,29 +65,31 @@ This file is empty.
 
 ### [`publish_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/publish_service.py/)
 
-📝 This file contains the implementation of a service called `PublishService` and its subclasses `GitHubPublishService` and `DummyPublishService`.
-📋 The purpose of the `PublishService` class is to provide functionality for publishing updates to the pull request description.
-🚀 It allows for creating sections, updating section titles, publishing text updates, and publishing code blocks.
-📦 It also provides methods for merging and closing the pull request.
-📝 The `GitHubPublishService` subclass specifically provides functionality for publishing the PR to GitHub, including setting it as a draft and adding a shield linking to the action logs.
-💡 The `DummyPublishService` subclass is a dummy implementation used for testing purposes.
-🔗 The file also includes some import statements and the definition of two Pydantic models (`CodeBlock` and `UpdateSection`).
-⚠️ There are some additional helper methods and attributes in the `PublishService` class that are not explained in this summary.
-📖 The file is well-documented with docstrings and comments to provide further details on the implementation.
-🚀 Overall, this file is the core implementation of the publishing functionality for pull requests.
+📝 This file contains the implementation of a service called "PublishService" and its subclasses "GitHubPublishService" and "DummyPublishService".
+📝 The purpose of this file is to provide functionality for publishing updates to a pull request description.
+📝 The "PublishService" class allows control over update sections and provides methods for publishing text updates and code blocks.
+📝 The "GitHubPublishService" subclass adds functionality specific to GitHub, such as setting the PR as a draft and adding shields to the PR description.
+📝 The "DummyPublishService" subclass is a dummy implementation of the service for testing purposes.
+📝 The file also includes the definition of two data models: "CodeBlock" and "UpdateSection".
+📝 The "CodeBlock" model represents a block of text to be shown as a code block in the pull request description.
+📝 The "UpdateSection" model represents a section of the pull request description used to keep state while publishing updates.
+📝 The file also imports various modules and defines some helper functions and variables.
+📝 The implementation includes methods for creating child instances of the service, setting the PR title and body, merging and closing the PR, and updating the PR description.
+📝 The file includes error handling and logging functionality.
 
 
 ### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/trigger_service.py/)
 
-📝 This file contains the implementation of the `TriggerService` class.  
-🔫 The `TriggerService` class is responsible for handling triggers and executing workflows based on events.  
-🎯 It receives events, matches them with triggers, and executes the associated workflows.  
-📋 The class has methods for getting the name of an executable, getting triggers and contexts for an event, and handling triggers.  
-🔁 It also has methods for triggering events, finalizing triggers, and executing the workflows.  
-🚀 The `TriggerService` class relies on other services such as `PublishService`, `WorkflowService`, and `CommitService`.  
-💡 It uses asyncio for asynchronous execution and logging for debugging.  
-📚 The file also includes some utility functions for formatting and truncating strings.  
-🔒 The file is part of a larger codebase and is imported by other modules.
+📝 This file contains the implementation of the `TriggerService` class. 
+🔗 The `TriggerService` class is responsible for handling triggers and executing workflows based on events. 
+🔀 Triggers are objects that define conditions and actions to be taken when certain events occur. 
+📣 The `trigger_event` method is used to trigger a workflow based on an event. 
+🎬 The `handle_trigger` method is responsible for executing a workflow based on a trigger and its associated context. 
+🏁 The `finalize_trigger` method is called after the execution of a trigger to handle the finalization of the workflow. 
+🔧 The class also has private methods for getting triggers and contexts for an event, and for getting the name of an executable. 
+📚 The file contains imports for various modules and classes used in the implementation. 
+🚧 There are also some utility functions and services imported and used within the class. 
+🔍 The file is well-documented with comments explaining the purpose and behavior of each method.
 
 
 ### [`utils.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/utils.py/)
