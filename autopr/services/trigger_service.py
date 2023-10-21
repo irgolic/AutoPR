@@ -142,7 +142,7 @@ class TriggerService:
             if any(trigger.automerge for trigger in triggers):
                 await self.publish_service.merge(
                     "Merging because automerge is enabled.\n\n"
-                    "To disable automerge, set `automerge: false` in the trigger config.",
+                    "To disable automerge, set `automerge: false` on this workflow in `.autopr/triggers.yaml`.",
                 )
         else:
             assert_never(changes_status)
