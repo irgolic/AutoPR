@@ -70,6 +70,7 @@ class PublishService:
         title: Optional[str] = None,
         loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
         overwrite_existing: bool = False,
+        verbose: bool = False,
         **kwargs,
     ):
         self.platform_service = platform_service
@@ -82,6 +83,7 @@ class PublishService:
 
         self.loading_gif_url = loading_gif_url
         self.overwrite_existing = overwrite_existing
+        self.verbose = verbose
 
         # GitHub comment length limit is ~262144, not 65536 as stated in the docs
         # sometimes this changes? it's weird
@@ -107,6 +109,7 @@ class PublishService:
         self.sections_stack: list[UpdateSection] = [self.root_section]
 
         self.child_count = 0
+        self.children = []
 
         self.log = get_logger(service="publish")
 
@@ -130,17 +133,22 @@ class PublishService:
         Create another instance of publish service, with its root in the current section.
         """
         await self.start_section(title)
-        child = type(self)(**self.__dict__)
+        child = type(self)(
+            **self.__dict__ | {
+                "title": title,
+            }
+        )
         child.root_publish_service = self.root_publish_service or self
         child.root_section = self.root_section
         child.sections_stack = [self.sections_stack[-1]]
 
-        self.child_count += 1
+        self.children.append(child)
 
+        child_count = len(self.children)
         if "path" in self.log._context:
-            log_id = self.log._context["path"] + f".{self.child_count}"
+            log_id = self.log._context["path"] + f".{child_count}"
         else:
-            log_id = f"{self.child_count}"
+            log_id = str(child_count)
         child.log = self.log.bind(path=log_id)
 
         await self.end_section()
@@ -403,6 +411,48 @@ class PublishService:
                 num -= 1
         return num
 
+    def _build_verbose_bodies(self, success: Optional[bool] = None) -> list[str]:
+        body = ""
+        bodies = []
+        # Iteratively try adding n sections to the body until we hit the max length
+        root = copy.deepcopy(self.root_section)
+        n = 0
+        while root.updates:
+            new_body = body
+            finished = False
+            while len(new_body) < self.max_comment_length and not finished:
+                n += 1
+                progress_update, finished = self._build_progress_update(
+                    n,
+                    root,
+                    open_default=(
+                        not success
+                    ),
+                    is_root=True,
+                )
+                new_body = body + f"\n\n{progress_update}"
+            bodies += [new_body]
+            self._pop_leaf_nodes(root, n)
+            if finished:
+                break
+            body = f"## Status (continued)"
+            n = 0
+        if not bodies:
+            bodies += [body]
+        return bodies
+
+    def _build_concise_progress(self, indent: int = 0) -> str:
+        is_in_progress = bool(self.sections_stack)
+        progress_text = "‎ " * indent
+        if is_in_progress:
+            progress_text += "🏃"
+        else:
+            progress_text += "✅"
+        progress_text += f" {self.title}  \n"
+        for child in self.children:
+            progress_text += child._build_concise_progress(indent=indent + 1) + "\n"
+        return progress_text
+
     def _build_bodies(self, success: Optional[bool] = None, exceptions: Optional[list[Exception]] = None) -> list[str]:
         """
         Builds the body of the pull request, splitting it into multiple bodies if necessary.
@@ -433,32 +483,16 @@ class PublishService:
                     f"If there's a problem with this pull request, please " \
                     f"[open an issue]({self._build_issue_template_link()})."
 
-        # Iteratively try adding n sections to the body until we hit the max length
-        root = copy.deepcopy(self.root_section)
-        n = 0
-        while root.updates:
-            new_body = body
-            finished = False
-            while len(new_body) < self.max_comment_length and not finished:
-                n += 1
-                progress_update, finished = self._build_progress_update(
-                    n,
-                    root,
-                    open_default=(
-                        not success
-                    ),
-                    is_root=True,
-                )
-                new_body = body + f"\n\n{progress_update}"
-            bodies += [new_body]
-            self._pop_leaf_nodes(root, n)
-            if finished:
-                break
-            body = f"## Status (continued)"
-            n = 0
-        if not bodies:
-            bodies += [body]
+        # Build concise progress hierarchy
+        body += self._build_concise_progress()
 
+        bodies.append(body)
+
+        # Build detailed status
+        if self.verbose:
+            bodies += self._build_verbose_bodies(success=success)
+
+        # Add loading gif
         if success is None:
             bodies[-1] += f"\n\n" \
                           f'<img src="{self.loading_gif_url}"' \
@@ -632,6 +666,7 @@ class GitHubPublishService(PublishService):
         title: Optional[str] = None,
         loading_gif_url: str = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
         overwrite_existing: bool = False,
+        verbose: bool = False,
         **kwargs,
     ):
         super().__init__(
@@ -645,6 +680,7 @@ class GitHubPublishService(PublishService):
             overwrite_existing=overwrite_existing,
             head_branch=head_branch,
             base_branch=base_branch,
+            verbose=verbose,
             **kwargs,
         )
         self.run_id = run_id
