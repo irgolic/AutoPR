@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that provide various services and utilities for managing and interacting with different aspects of a Git repository and a platform like GitHub. The files include implementations for handling actions, caching data, managing commits and branches, applying diffs, making API calls to the platform, publishing pull request updates, handling triggers and workflows, and formatting nested Python objects for publishing purposes. Each file serves a specific purpose and can be used independently or in conjunction with others to perform different tasks related to software development and collaboration.
+This folder contains a collection of Python files that provide various services and utilities for managing and automating tasks within the AutoPR system. The files include implementations for services such as managing actions, caching data, handling commits and branches in a Git repository, applying and getting diffs, making API calls to a platform like GitHub, publishing updates to a pull request, handling triggers and executing workflows, and formatting and truncating nested Python objects. These files are designed to work together to provide a comprehensive set of functionality for automating and managing tasks within the AutoPR system.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/__init__.py/)
@@ -73,15 +73,17 @@ This file is empty.
 
 ### [`publish_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/publish_service.py/)
 
-📄 This file defines classes and functions related to publishing updates to a pull request description.
-📝 It provides a service for controlling the structure and content of the pull request description.
-🔧 The service allows you to start and end sections, update section titles, and publish updates and code blocks within sections.
-🔄 It also provides methods for updating the pull request description and finalizing the pull request.
-📋 The classes in this file are used to build and manage the structure of the pull request description.
-📨 The service can be used to publish updates and code blocks to the pull request description.
-🔀 It supports creating child instances of the service to manage nested sections within the pull request description.
-📝 The service can also set the title of the pull request and publish comments.
-🚀 The service is designed to be used with the GitHub platform, but a dummy implementation is provided for testing purposes.
+📄 This file contains the implementation of a service for publishing updates to a pull request description. 
+
+🔹 The service allows for creating sections and updating their titles.
+🔹 It supports publishing simple textual updates and code blocks in the pull request description.
+🔹 The service can set the title and body of the pull request.
+🔹 It can merge or close the pull request.
+🔹 The service can create child instances to manage updates within specific sections.
+🔹 It provides methods for updating the pull request description and finalizing the pull request.
+🔹 The service supports publishing comments on the pull request.
+🔹 There are subclasses for publishing to GitHub and a dummy implementation for testing.
+🔹 The file also includes model classes for CodeBlock and UpdateSection.
 
 
 ### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/trigger_service.py/)
