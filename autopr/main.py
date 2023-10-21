@@ -87,6 +87,7 @@ class MainService:
             triggers=triggers,
             publish_service=self.publish_service,
             workflow_service=self.workflow_service,
+            commit_service=self.commit_service,
         )
 
     async def run(self):

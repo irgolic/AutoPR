@@ -1,11 +1,12 @@
 import asyncio
-from typing import Coroutine, Any
+from typing import Coroutine, Any, Optional, assert_never
 
 from autopr.log_config import get_logger
 from autopr.models.config.elements import ActionConfig, WorkflowInvocation, IterableWorkflowInvocation, ContextAction
 from autopr.models.config.entrypoints import Trigger
 from autopr.models.events import EventUnion
 from autopr.models.executable import Executable, ContextDict
+from autopr.services.commit_service import CommitService
 from autopr.services.platform_service import PlatformService
 from autopr.services.publish_service import PublishService
 from autopr.services.utils import truncate_strings, format_for_publishing
@@ -18,10 +19,12 @@ class TriggerService:
         triggers: list[Trigger],
         publish_service: PublishService,
         workflow_service: WorkflowService,
+        commit_service: CommitService,
     ):
         self.triggers = triggers
         self.publish_service = publish_service
         self.workflow_service = workflow_service
+        self.commit_service = commit_service
 
         print("Loaded triggers:")
         for t in self.triggers:
@@ -97,16 +100,39 @@ class TriggerService:
                 self.log.error("Error in trigger", exc_info=r)
                 exceptions.append(r)
 
-        if exceptions:
-            await self.publish_service.finalize(False, exceptions)
-        else:
-            await self.publish_service.finalize(True)
-            # TODO split out multiple triggered workflows into separate PRs,
-            #  so that automerge can be evaluated separately for each
-            if any(trigger.automerge for trigger, _ in triggers_and_contexts):
-                await self.publish_service.merge()
+        await self.finalize_trigger(
+            [trigger for trigger, _ in triggers_and_contexts],
+            exceptions=exceptions,
+        )
 
         return results
+
+    async def finalize_trigger(
+        self,
+        triggers: list[Trigger],
+        exceptions: Optional[list[Exception]] = None,
+    ):
+        if exceptions:
+            await self.publish_service.finalize(False, exceptions)
+            return
+
+        await self.publish_service.finalize(True)
+
+        changes_status = self.commit_service.get_changes_status()
+        # If the PR only makes changes to the cache, merge it
+        if changes_status == "cache_only":
+            await self.publish_service.merge()
+        # Else, if there are no changes, close the PR
+        elif changes_status == "no_changes":
+            await self.publish_service.close()
+        # Else, if there are material changes
+        elif changes_status == "modified":
+            # TODO split out multiple triggered workflows into separate PRs,
+            #  so that automerge can be evaluated separately for each
+            if any(trigger.automerge for trigger in triggers):
+                await self.publish_service.merge()
+        else:
+            assert_never(changes_status)
 
     async def handle_trigger(
         self,
