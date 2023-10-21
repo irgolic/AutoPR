@@ -442,16 +442,29 @@ class PublishService:
         return bodies
 
     def _build_concise_progress(self, indent: int = 0) -> str:
-        is_in_progress = bool(self.sections_stack)
-        progress_text = "‎ " * indent
+        is_in_progress = len(self.sections_stack) > 1
+
+        progress_text = ""
         if is_in_progress:
             progress_text += "🏃"
         else:
             progress_text += "✅"
         progress_text += f" {self.title}  \n"
+
+        if not self.children:
+            return progress_text
+
+        child_progress_text = ""
         for child in self.children:
-            progress_text += child._build_concise_progress(indent=indent + 1) + "\n"
-        return progress_text
+            child_progress_text += child._build_concise_progress(indent=indent + 1) + "\n"
+
+        return f"""<details>
+<summary>{progress_text}</summary>
+
+{child_progress_text}
+
+</details>
+"""
 
     def _build_bodies(self, success: Optional[bool] = None, exceptions: Optional[list[Exception]] = None) -> list[str]:
         """
