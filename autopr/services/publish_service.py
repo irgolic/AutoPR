@@ -506,7 +506,7 @@ class PublishService:
 
         # Build concise progress hierarchy
         # TODO if it gets too large, iteratively try setting a lower maximum indentation depth
-        body += self._build_concise_progress()
+        body += "\n\n## Progress\n\n" + self._build_concise_progress()
 
         bodies.append(body)
 
