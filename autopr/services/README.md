@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various Python files that provide different functionalities for managing and automating tasks within the AutoPR system. These functionalities include managing actions, caching key-value pairs, handling commits and branches in a Git repository, getting and applying diffs, making API calls to a platform (e.g., GitHub), publishing updates to pull request descriptions, handling triggers and executing workflows, and formatting and truncating nested Python objects for publishing purposes. Each file focuses on a specific aspect of the system and provides classes and methods to perform the corresponding tasks.
+This folder contains several Python files that provide different services and functionalities for managing and working with various aspects of a Git repository and interacting with a platform like GitHub. These services include managing actions, caching data, handling commits and branches, getting and applying diffs, making API calls to a platform, publishing updates to pull requests, handling triggers and executing workflows, and formatting and truncating nested Python objects for publishing purposes. Each file contains classes and methods that implement specific functionalities related to the respective service.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/__init__.py/)
@@ -73,16 +73,15 @@ This file is empty.
 
 ### [`publish_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/publish_service.py/)
 
-✏️ This file contains the implementation of a service called "PublishService" and its subclasses.
-✏️ The purpose of this file is to provide functionality for publishing updates to the pull request description.
-✏️ The "PublishService" class handles the main logic for creating and updating pull requests.
-✏️ The "CodeBlock" and "UpdateSection" classes are models used to represent different components of the pull request description.
-✏️ The "GitHubPublishService" class is a subclass of "PublishService" specifically for publishing to GitHub.
-✏️ The "DummyPublishService" class is a dummy implementation of "PublishService" used for testing purposes.
-✏️ The file also imports various modules and defines some constants and utility functions.
-✏️ The code in this file is written in Python and utilizes libraries such as pydantic and requests.
-✏️ The file includes type annotations and docstrings to provide clarity and maintainability.
-✏️ The implementation of the classes and functions in this file is well-structured and organized.
+📝 The file contains the definition of a class called `PublishService`.
+📌 The purpose of this class is to provide a service for publishing updates to a pull request description.
+📌 The class has methods for creating child instances, setting the pull request title and body, publishing updates and code blocks, starting and ending sections, merging and closing the pull request, and updating the pull request description.
+📌 The class also has methods for finalizing the pull request, publishing comments, and building the body of the pull request.
+📌 The class is designed to work with different platform services, such as GitHub, by providing an abstract interface for interacting with the platform-specific APIs.
+📌 The class handles the creation and updating of the pull request, as well as managing the state and structure of the pull request description.
+📌 The class supports both concise and verbose progress updates in the pull request description.
+📌 The class provides error handling and reporting functionalities, including the ability to open an issue to report errors.
+📌 The class also includes a dummy implementation for testing purposes.
 
 
 ### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/trigger_service.py/)
