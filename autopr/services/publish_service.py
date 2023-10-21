@@ -84,7 +84,8 @@ class PublishService:
         self.overwrite_existing = overwrite_existing
 
         # GitHub comment length limit is ~262144, not 65536 as stated in the docs
-        self.max_comment_length = 200000
+        # sometimes this changes? it's weird
+        self.max_comment_length = 65536
 
         # Root publish service instance is used to perform operations
         self.root_publish_service: Optional[PublishService] = None
