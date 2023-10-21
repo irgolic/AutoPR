@@ -127,16 +127,23 @@ class TriggerService:
         changes_status = self.commit_service.get_changes_status()
         # If the PR only makes changes to the cache, merge it
         if changes_status == "cache_only":
-            await self.publish_service.merge()
+            await self.publish_service.merge(
+                "Merging because the PR only makes changes in the cache",
+            )
         # Else, if there are no changes, close the PR
         elif changes_status == "no_changes":
-            await self.publish_service.close()
+            await self.publish_service.close(
+                "Closing because the PR makes no changes",
+            )
         # Else, if there are material changes
         elif changes_status == "modified":
             # TODO split out multiple triggered workflows into separate PRs,
             #  so that automerge can be evaluated separately for each
             if any(trigger.automerge for trigger in triggers):
-                await self.publish_service.merge()
+                await self.publish_service.merge(
+                    "Merging because automerge is enabled.\n\n"
+                    "To disable automerge, set `automerge: false` in the trigger config.",
+                )
         else:
             assert_never(changes_status)
 

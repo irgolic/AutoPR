@@ -289,7 +289,10 @@ class PublishService:
 
         await self.update()
 
-    async def merge(self):
+    async def merge(
+        self,
+        reason: Optional[str] = None,
+    ):
         """
         Merge the pull request.
         """
@@ -298,12 +301,17 @@ class PublishService:
         if self.pr_number is None:
             self.log.warning("PR merge requested, but does not exist")
             return
+        if reason is not None:
+            await self.publish_comment(reason)
         return await self.platform_service.merge_pr(
             self.pr_number,
             commit_title=self.title,
         )
 
-    async def close(self):
+    async def close(
+        self,
+        reason: Optional[str] = None,
+    ):
         """
         Close the pull request.
         """
@@ -312,6 +320,8 @@ class PublishService:
         if self.pr_number is None:
             self.log.warning("PR close requested, but does not exist")
             return
+        if reason is not None:
+            await self.publish_comment(reason)
         return await self.platform_service.close_pr(self.pr_number)
 
     def _contains_last_code_block(self, parent: UpdateSection) -> bool:
