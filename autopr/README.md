@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and folders that serve different purposes. The `actions/` folder contains reusable components and specific actions for autonomous agent systems. The `gh_actions_entrypoint.py` file is the entry point for a GitHub Actions workflow. The `log_config.py` file configures logging for the module. The `main.py` file contains the implementation of a `MainService` class for handling events and triggering actions. The `models/` folder contains code and configuration files for an AutoPR system. The `services/` folder provides various services and functionalities for managing a Git repository and interacting with platforms. The `triggers.py` file defines a function for retrieving and processing trigger configurations. The `workflows/` folder contains files related to workflow automation.
+This folder contains a diverse set of functionalities and actions that can be used in various automation tasks. It includes Python files for managing autonomous agent systems, performing tasks, making API calls, running bash commands, generating prompts, reading and writing files, and searching directories. There are also files for configuring and running GitHub Actions workflows, handling logging, and defining services and classes for managing actions, caching, commits, diffs, platforms, publishing, triggers, utilities, and workflows. Additionally, there are files for defining data models, event classes, and executable actions for an AutoPR system. Overall, this folder provides a range of tools and components for building and automating processes.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/__init__.py/)
@@ -55,7 +55,7 @@ This folder contains Python code and configuration files for an AutoPR system. T
 
 ### [`services/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/)
 
-This folder contains several Python files that provide different services and functionalities for managing and working with various aspects of a Git repository and interacting with a platform like GitHub. These services include managing actions, caching data, handling commits and branches, getting and applying diffs, making API calls to a platform, publishing updates to pull requests, handling triggers and executing workflows, and formatting and truncating nested Python objects for publishing purposes. Each file contains classes and methods that implement specific functionalities related to the respective service.
+This folder contains various Python files that implement different services and classes for managing actions, caching, commits, diffs, platforms, publishing, triggers, utilities, and workflows. Each file serves a specific purpose, such as handling API calls to a platform, managing commits and branches in a Git repository, applying and getting diffs, and formatting and truncating nested Python objects. These files can be used together to build and automate processes within the AutoPR system.
 
 
 ### [`triggers.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/triggers.py/)
