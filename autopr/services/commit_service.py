@@ -113,7 +113,7 @@ class CommitService:
         """
         # Get status of changes
         args = ["git", "diff", self.base_branch_name, "--name-only"]
-        status = self.repo.git.execute(args)
+        status = str(self.repo.git.execute(args))
         if not status:
             return "no_changes"
         elif len(status.splitlines()) == 1 and self.cache_dir in status:
