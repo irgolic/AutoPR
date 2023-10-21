@@ -28,7 +28,7 @@ Below is an example of AutoPR's Living README:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains various files and folders related to a Python project using Docker, Poetry, and workflow automation. The files include a Dockerfile for setting up the project environment, a Makefile for running different tasks, a license file for the software, and configuration files for workflow automation. The "autopr" folder contains reusable components and actions for automation tasks, while the other files define project dependencies, workflow schemas, and trigger configurations. Overall, the folder represents a comprehensive setup for building and automating a Python project.
+This folder contains files related to a Python project. It includes a Dockerfile for setting up the project environment, a license file specifying the permissions and warranty for the software, a Makefile for running different tasks in the project, an action configuration file for automating pull requests, a shell script for setting up Git and running the project, and configuration files for managing project dependencies and workflows. There is also a folder containing various automation tools and actions for different tasks. Overall, this folder provides a comprehensive set of tools and configurations for building and automating the project.
 
 
 ### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./Dockerfile/)
@@ -78,7 +78,7 @@ This folder contains various files and folders related to a Python project using
 
 ### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/)
 
-This folder contains a diverse set of functionalities and actions that can be used in various automation tasks. It includes files for defining base classes and actions for autonomous agent systems, as well as reusable components for running bash commands, generating prompts, reading and writing files, and searching for specific queries in directories. There are also files that implement specific actions, like publishing comments on GitHub issues or setting issue titles. Additionally, the folder contains code for managing prompt context in a chatbot application, as well as files related to workflow automation and an AutoPR system.
+This folder contains a diverse set of functionalities and actions that can be used in various automation tasks. It includes files for defining base classes and actions for autonomous agent systems, reusable components for running bash commands and manipulating files, specific actions like publishing comments on GitHub issues or setting issue titles, code for managing prompt context in a chatbot application, data models for an AutoPR system, services for handling Git repositories and making API calls, and files related to workflow automation. Overall, this folder provides a comprehensive set of tools for automating various tasks.
 
 
 ### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./entrypoint.sh/)
