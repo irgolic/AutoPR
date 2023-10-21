@@ -442,17 +442,6 @@ class PublishService:
         return bodies
 
     def _build_concise_progress(self, indent: int = -1) -> str:
-        child_progress_text = ""
-        for child in self.children:
-            child_progress_text += child._build_concise_progress(indent=indent + 1) + "\n"
-
-        if indent == -1:
-            return child_progress_text
-
-        linesplit = child_progress_text.splitlines()
-        child_progress_text = "\n".join([f"{'> ' * indent}{line}"
-                                         for line in linesplit])
-
         is_in_progress = len(self.sections_stack) > 1
 
         progress_text = ""
@@ -465,7 +454,19 @@ class PublishService:
         if not self.children:
             return progress_text
 
-        return f"""<details>
+        child_progress_text = ""
+        for child in self.children:
+            child_progress_text += child._build_concise_progress(indent=indent + 1) + "\n"
+
+        if indent == -1:
+            return child_progress_text
+
+        linesplit = child_progress_text.splitlines()
+        child_progress_text = "\n".join([f"{'> ' * indent}{line}"
+                                         for line in linesplit])
+
+        return f"""
+<details>
 <summary>{progress_text}</summary>
 
 {child_progress_text}
@@ -504,6 +505,7 @@ class PublishService:
                     f"[open an issue]({self._build_issue_template_link()})."
 
         # Build concise progress hierarchy
+        # TODO if it gets too large, iteratively try setting a lower maximum indentation depth
         body += self._build_concise_progress()
 
         bodies.append(body)
