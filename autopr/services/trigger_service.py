@@ -6,7 +6,7 @@ from autopr.log_config import get_logger
 from autopr.models.config.elements import ActionConfig, WorkflowInvocation, IterableWorkflowInvocation, ContextAction
 from autopr.models.config.entrypoints import Trigger
 from autopr.models.events import EventUnion
-from autopr.models.executable import Executable, ContextDict
+from autopr.models.executable import Executable, ContextDict, ExecutableId
 from autopr.services.commit_service import CommitService
 from autopr.services.platform_service import PlatformService
 from autopr.services.publish_service import PublishService
@@ -35,6 +35,9 @@ class TriggerService:
 
     def _get_name_for_executable(self, executable: Executable) -> str:
         if isinstance(executable, str):
+            workflow_definition = self.workflow_service.get_executable_by_id(ExecutableId(executable))
+            if workflow_definition.name:
+                return workflow_definition.name
             return executable
         if isinstance(executable, ActionConfig):
             return executable.action
