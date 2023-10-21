@@ -289,9 +289,7 @@ class PublishService:
 
         await self.update()
 
-    async def merge(
-        self,
-    ):
+    async def merge(self):
         """
         Merge the pull request.
         """
@@ -304,6 +302,17 @@ class PublishService:
             self.pr_number,
             commit_title=self.title,
         )
+
+    async def close(self):
+        """
+        Close the pull request.
+        """
+        if self.root_publish_service is not None:
+            return await self.root_publish_service.close()
+        if self.pr_number is None:
+            self.log.warning("PR close requested, but does not exist")
+            return
+        return await self.platform_service.close_pr(self.pr_number)
 
     def _contains_last_code_block(self, parent: UpdateSection) -> bool:
         for section in reversed(parent.updates):

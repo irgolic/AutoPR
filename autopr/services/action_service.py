@@ -31,13 +31,13 @@ class ActionService:
     def __init__(
         self,
         repo: Repo,
-        config_dir: str,
+        cache_dir: str,
         platform_service: PlatformService,
         commit_service: CommitService,
         num_reasks: int = 3
     ):
         self.repo = repo
-        self.config_dir = config_dir
+        self.cache_dir = cache_dir
         self.platform_service = platform_service
         self.commit_service = commit_service
         self.num_reasks = num_reasks
@@ -58,7 +58,7 @@ class ActionService:
         publish_service: PublishService,
     ) -> Action[Inputs, Outputs]:
         cache_service = ShelveCacheService(
-            config_dir=self.config_dir,
+            cache_dir=self.cache_dir,
             action_id=action_type.id,
         )
         return action_type(

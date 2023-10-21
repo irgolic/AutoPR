@@ -14,11 +14,11 @@ class CacheService:
 class ShelveCacheService(CacheService):
     def __init__(
         self,
-        config_dir: str,
+        cache_dir: str,
         action_id: str
     ):
-        self.cache_folder = os.path.join(config_dir, "cache")
-        os.makedirs(self.cache_folder, exist_ok=True)
+        self.cache_dir = cache_dir
+        os.makedirs(self.cache_dir, exist_ok=True)
 
         self.default_namespace = action_id
 
@@ -28,7 +28,7 @@ class ShelveCacheService(CacheService):
     def _load_shelf(self, namespace: str):
         return shelve.open(
             os.path.join(
-                self.cache_folder,
+                self.cache_dir,
                 f"{namespace}.db"
             ),
             writeback=True,

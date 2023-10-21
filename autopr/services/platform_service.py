@@ -131,6 +131,20 @@ class PlatformService:
         """
         raise NotImplementedError
 
+    async def close_pr(
+        self,
+        pr_number: int,
+    ):
+        """
+        Close the pull request.
+
+        Parameters
+        ----------
+        pr_number: int
+            The PR number
+        """
+        raise NotImplementedError
+
     async def update_pr_body(self, pr_number: int, body: str):
         """
         Update the body of the pull request.
@@ -449,6 +463,12 @@ class GitHubPlatformService(PlatformService):
                     request_body=data,
                     response=response,
                 )
+
+    async def close_pr(
+        self,
+        pr_number: int,
+    ):
+        await self._patch_pr(pr_number, {'state': 'closed'})
 
     def _is_draft_error(self, response_text: str):
         response_obj = json.loads(response_text)
