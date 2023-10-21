@@ -3,17 +3,20 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of files related to workflow automation. The `__init__.py` file provides functions for loading and collecting workflows from YAML files. The `api_git_history.yaml` file defines steps for making API calls, saving responses to files, and committing and pushing files to a Git repository. The `autogenerate_readmes.yaml` file contains workflows and actions for generating and formatting summaries for files and folders, and updating README files with the summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
+This folder contains a collection of files related to workflow configuration and execution. The main file, `__init__.py`, defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders. The other files contain specific workflow configurations, such as making API calls, generating README summaries, inserting content into files, and summarizing changes in pull requests. Each file serves a specific purpose and can be customized to automate various tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/__init__.py/)
 
-📋 This file contains a Python script that defines functions related to loading and collecting workflows from YAML files.
-📁 It imports necessary modules and defines a logger.
-🔍 The main functions are `_collect_workflows` and `_load_workflows_in_folder`, which recursively collect workflows from YAML files in a folder and its subfolders.
-🔧 The `get_all_workflows` function is the entry point, which loads default workflows and custom workflows from specified paths.
-📃 The script also includes a test to print all the loaded workflows.
-🔄 The purpose of this file is to provide a way to load and gather workflow configurations for further processing.
+📝 This file is a Python script that defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders.
+📂 It imports various modules and defines a class and functions related to workflow configuration and execution.
+📄 The main function, `get_all_workflows()`, loads default workflows from a specified folder and also allows for the loading of test workflows.
+📥 The workflow configurations are parsed from YAML files using the `pydantic` library.
+🌐 The loaded workflows are stored in a `TopLevelWorkflowConfig` object, which is a data model defined in another module.
+🔁 The `_collect_workflows()` function is used to collect and validate individual workflow configurations.
+📁 The `_load_workflows_in_folder()` function recursively loads workflows from YAML files in a specified folder and its subfolders.
+⚠️ Error handling is included for invalid workflow configurations and duplicate workflow IDs.
+🖨️ When executed as a standalone script, the `get_all_workflows()` function is called and the loaded workflows are printed.
 
 
 ### [`api_git_history.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/api_git_history.yaml/)
