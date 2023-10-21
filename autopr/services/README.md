@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that provide various services and functionalities for managing and running actions within the AutoPR system. These services include a caching service for storing key-value pairs, a commit service for handling Git repository operations, a diff service for getting and applying diffs in a Git repository, a platform service for making API calls to a platform like GitHub, a publish service for publishing updates to a pull request description, a trigger service for handling triggers and executing workflows, a utility module for formatting and truncating nested Python objects, and a workflow service for executing workflows. Each file has a specific purpose and provides functionality that is essential for the AutoPR system.
+This folder contains several Python files that provide different services for managing actions, caching, commits, diffs, platforms, publishing, triggers, utilities, and workflows within the AutoPR system. Each file contains a class or classes that implement specific functionality related to the respective service. These services are designed to work together to facilitate the automation of pull request processes, including managing branches, applying diffs, making API calls to platforms like GitHub, and executing workflows based on events. The utility file provides functions for formatting and truncating nested Python objects for publishing purposes.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/__init__.py/)
@@ -32,7 +32,15 @@ This file is empty.
 
 ### [`commit_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/commit_service.py/)
 
-✏️ This file contains a class called `CommitService` that provides functionality for creating branches, committing changes, and pushing them to a Git repository. It ensures that there is always a commit on the branch and handles scenarios such as overwriting an existing branch and checking out and pulling changes from the remote repository. The class also has a method to determine the status of the changes on the branch.
+📝 This file contains a class called `CommitService` which is responsible for managing branches, committing changes, and pushing changes to a Git repository.
+📁 It imports necessary modules and defines a type `CHANGES_STATUS` for representing different states of changes on a branch.
+🔧 The `CommitService` class has methods for creating a new branch, ensuring that a branch exists, committing changes, and checking the status of changes.
+🗂️ The `overwrite_new_branch` method creates a new branch based on a base branch and makes an empty commit on it.
+🔄 The `ensure_branch_exists` method checks if a branch exists and pulls the latest changes if it does. If the branch doesn't exist, it creates a new branch based on a remote branch.
+💾 The `commit` method adds and commits changes to the branch, with an option to push the changes to the remote repository.
+🔍 The `get_changes_status` method returns the status of changes on the branch, indicating whether there are no changes, only cached changes, or modified changes.
+🔒 The class uses a logger for logging debug and info messages.
+📝 The purpose of this file is to provide a service for managing commits and branches in a Git repository, ensuring that there is always a commit on the branch.
 
 
 ### [`diff_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/diff_service.py/)
@@ -80,16 +88,15 @@ This file is empty.
 
 ### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/trigger_service.py/)
 
-📝 This file contains the implementation of the `TriggerService` class. 
-🔗 The `TriggerService` class is responsible for handling triggers and executing workflows based on events. 
-🔀 Triggers are objects that define conditions and actions to be taken when certain events occur. 
-📣 The `trigger_event` method is used to trigger a workflow based on an event. 
-🎬 The `handle_trigger` method is responsible for executing a workflow based on a trigger and its associated context. 
-🏁 The `finalize_trigger` method is called after the execution of a trigger to handle the finalization of the workflow. 
-🔧 The class also has private methods for getting triggers and contexts for an event, and for getting the name of an executable. 
-📚 The file contains imports for various modules and classes used in the implementation. 
-🚧 There are also some utility functions and services imported and used within the class. 
-🔍 The file is well-documented with comments explaining the purpose and behavior of each method.
+📚 This file contains the implementation of the `TriggerService` class.  
+🔗 The `TriggerService` class is responsible for handling triggers and executing workflows based on events.  
+🔁 It has methods for getting the name of an executable, getting triggers and contexts for an event, and handling trigger events.  
+💡 The `finalize_trigger` method is used to handle the finalization of a trigger, including merging or closing a pull request.  
+📣 The `handle_trigger` method is responsible for executing a trigger and publishing the trigger and context information.  
+🔧 The class relies on other services such as `PublishService`, `WorkflowService`, and `CommitService` for its functionality.  
+🔗 Triggers are defined in a list and passed to the `TriggerService` constructor.  
+🚀 The `trigger_event` method is called to trigger the execution of workflows based on an event.  
+📝 The file also includes some helper methods and logging functionality.
 
 
 ### [`utils.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/utils.py/)
