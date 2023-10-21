@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code files that define models, actions, and transformations for a workflow system. The "common.py" file defines base model classes for handling extra fields and smart coercion of values. The "elements.py" file defines models and actions related to workflow execution. The "entrypoints.py" file builds workflow models and triggers for an automated PR system. The "transform.py" file provides a framework for converting between different representations of IO types in the config. The "value_declarations.py" file defines classes and declarations related to variables and parameters.
+This folder contains a collection of Python files that serve different purposes. The `common.py` file defines two base model classes with different configuration settings for handling extra fields. The `elements.py` file provides a framework for defining and executing actions and workflows in a configurable and flexible manner. The `entrypoints.py` file contains code for building workflow models and triggers for an automated PR system. The `transform.py` file provides a framework for converting between different representations of IO types in the config. The `value_declarations.py` file defines classes and declarations related to variables and parameters for rendering and evaluating values within a given context.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/__init__.py/)
@@ -24,7 +24,11 @@ This file is empty.
 
 ### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/elements.py/)
 
-📜 This file contains Python code for defining models and actions related to workflow execution and context manipulation.
+📝 This file contains Python code for defining and configuring actions, workflows, and context variables. 
+🔄 It provides models and classes for executing actions, setting variables, and conditional execution. 
+🔀 It also includes models for iterating over values and invoking workflows. 
+📚 The file dynamically builds action models based on currently defined actions for better type hints and autocompletion. 
+💡 The purpose of this file is to provide a framework for defining and executing actions and workflows in a configurable and flexible manner.
 
 
 ### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/entrypoints.py/)

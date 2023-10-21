@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code files that define data models and actions for a workflow system and an automated PR system. The "artifacts.py" file provides a structured way to represent and manipulate messages, threads, issues, and pull requests. The "config" folder contains files that define models, actions, and transformations for the workflow system. The "events.py" file defines classes for different types of events that can trigger the automated PR system. The "executable.py" file contains types and classes related to context variables, templates, and executable actions.
+This folder contains Python code and configuration files for an AutoPR system. The `artifacts.py` file defines data models for messages, threads, issues, and pull requests. The `config` folder contains files for handling extra fields, defining and executing actions and workflows, building workflow models and triggers, and converting between different representations of IO types. The `events.py` file defines classes for different types of events that can trigger the AutoPR system. The `executable.py` file contains types and classes related to context variables, templates, and executable actions.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/__init__.py/)
@@ -26,7 +26,7 @@ This file is empty.
 
 ### [`config/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/)
 
-This folder contains Python code files that define models, actions, and transformations for a workflow system. The "common.py" file defines base model classes for handling extra fields and smart coercion of values. The "elements.py" file defines models and actions related to workflow execution. The "entrypoints.py" file builds workflow models and triggers for an automated PR system. The "transform.py" file provides a framework for converting between different representations of IO types in the config. The "value_declarations.py" file defines classes and declarations related to variables and parameters.
+This folder contains a collection of Python files that serve different purposes. The `common.py` file defines two base model classes with different configuration settings for handling extra fields. The `elements.py` file provides a framework for defining and executing actions and workflows in a configurable and flexible manner. The `entrypoints.py` file contains code for building workflow models and triggers for an automated PR system. The `transform.py` file provides a framework for converting between different representations of IO types in the config. The `value_declarations.py` file defines classes and declarations related to variables and parameters for rendering and evaluating values within a given context.
 
 
 ### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/events.py/)

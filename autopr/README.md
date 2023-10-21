@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of files and subfolders that serve different purposes in an automation system. The "actions" folder contains Python files that define base classes, reusable components, and specific actions for autonomous agent systems. The "gh_actions_entrypoint.py" file is the entry point for a GitHub Actions workflow. The "log_config.py" file configures logging. The "main.py" file is the main entry point for the application and handles triggers and workflows. The "models" folder contains code files that define data models and actions. The "services" folder contains files that provide various services and utility functions. The "triggers.py" file provides a way to retrieve and process trigger configurations. The "workflows" folder contains files related to workflow automation. Overall, this folder represents a diverse set of functionalities and actions that can be used in various automation tasks.
+This folder contains a collection of Python files and subfolders that serve different purposes. The `actions/` folder contains reusable components and specific actions for autonomous agent systems. The `gh_actions_entrypoint.py` file is the entry point for a GitHub Actions workflow. The `log_config.py` file configures logging for the module. The `main.py` file implements a `MainService` class for handling events and triggering actions. The `models/` folder contains code and configuration files for an AutoPR system. The `services/` folder implements various services for the AutoPR system. The `triggers.py` file provides a way to retrieve and process trigger configurations. The `workflows/` folder contains YAML files defining workflows for automation tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/__init__.py/)
@@ -36,25 +36,26 @@ This folder contains a collection of Python files that serve different purposes.
 
 ### [`main.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/main.py/)
 
-📝 This file contains the implementation of the `MainService` class, which is the main entry point for the autopr application. 
-🔧 It initializes various services and handles the execution of triggers and workflows based on events received from the platform service. 
-🔀 The `run` method triggers the execution of the workflows based on the event received. 
-🔧 The `get_repo_path` method needs to be implemented by subclasses. 
-🔧 The `get_event` method also needs to be implemented by subclasses and should return the event received from the platform service. 
-🔧 The `get_platform_service` method initializes the platform service with the owner and repo name. 
-🔧 The `get_publish_service` method initializes the publish service with the platform service, owner, repo name, and other parameters. 
-🔧 The `get_branch_name` method generates a branch name based on the event and settings. 
-🔧 The `get_base_branch_name` method returns the base branch name based on the event and settings.
+📝 The file contains the implementation of a `MainService` class and a `Settings` class. 
+📝 The `MainService` class is responsible for handling events and triggering actions based on those events. 
+📝 It initializes various services such as `ActionService`, `CommitService`, `PlatformService`, `PublishService`, `TriggerService`, and `WorkflowService`. 
+📝 It also defines methods for retrieving repository information, event information, and branch names. 
+📝 The `Settings` class defines the configuration settings used by the `MainService` class. 
+📝 The `MainService` class has a `run` method that runs the triggers and returns the result. 
+📝 The `get_repo_path` method is not implemented and needs to be overridden in subclasses. 
+📝 The `get_event` method is not implemented and needs to be overridden in subclasses. 
+📝 The `get_platform_service` and `get_publish_service` methods return instances of the `PlatformService` and `PublishService` classes respectively. 
+📝 The `get_branch_name` and `get_base_branch_name` methods determine the names of the branch and base branch respectively.
 
 
 ### [`models/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/)
 
-This folder contains Python code files that define data models and actions for a workflow system and an automated PR system. The "artifacts.py" file provides a structured way to represent and manipulate messages, threads, issues, and pull requests. The "config" folder contains files that define models, actions, and transformations for the workflow system. The "events.py" file defines classes for different types of events that can trigger the automated PR system. The "executable.py" file contains types and classes related to context variables, templates, and executable actions.
+This folder contains Python code and configuration files for an AutoPR system. The `artifacts.py` file defines data models for messages, threads, issues, and pull requests. The `config` folder contains files for handling extra fields, defining and executing actions and workflows, building workflow models and triggers, and converting between different representations of IO types. The `events.py` file defines classes for different types of events that can trigger the AutoPR system. The `executable.py` file contains types and classes related to context variables, templates, and executable actions.
 
 
 ### [`services/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/services/)
 
-This folder contains various Python files that serve different purposes. Some files provide services for managing actions, caching data, handling commits and branches in a Git repository, and interacting with a platform's API. Other files provide utility functions for formatting and truncating nested Python objects and publishing updates to a pull request description. There are also files related to triggers and workflows, as well as a file containing empty initialization code. Each file has a specific role in the overall functionality of the system.
+This folder contains several Python files that make up an AutoPR system. The files implement various services and functionality, such as managing and running actions, providing a caching service, handling commits and diffs in a Git repository, making API calls to a platform (e.g., GitHub), publishing updates to pull requests, handling triggers and executing workflows, and providing utility functions for formatting and truncating nested Python objects. Each file has a specific purpose and contributes to the overall functionality of the AutoPR system.
 
 
 ### [`triggers.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/triggers.py/)
@@ -72,6 +73,6 @@ This folder contains various Python files that serve different purposes. Some fi
 
 ### [`workflows/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/)
 
-This folder contains a collection of files related to workflow automation. The `__init__.py` file provides functions for loading and collecting workflows from YAML files. The `api_git_history.yaml` file defines a workflow for making API calls, saving the response to a file, and pushing it to a Git repository. The `autogenerate_readmes.yaml` file contains workflows for summarizing files and folders and generating README summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
+This folder contains a collection of files related to workflow automation. The `__init__.py` file provides functions for loading and collecting workflows from YAML files. The `api_git_history.yaml` file defines steps for making API calls, saving responses to files, and committing and pushing files to a Git repository. The `autogenerate_readmes.yaml` file contains workflows and actions for generating and formatting summaries for files and folders, and updating README files with the summaries. The `insert_into_readme.yaml` file defines a task for inserting content into a file. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
 
 <!-- Living README Summary -->
