@@ -441,8 +441,7 @@ class PublishService:
             bodies += [body]
         return bodies
 
-    def _build_concise_progress(self, indent: int = -1) -> str:
-        indent += 1
+    def _build_concise_progress(self) -> str:
         is_in_progress = len(self.sections_stack) > 1
 
         progress_text = ""
@@ -457,13 +456,13 @@ class PublishService:
 
         child_progress_text = ""
         for child in self.children:
-            child_progress_text += child._build_concise_progress(indent=indent) + "\n"
+            child_progress_text += child._build_concise_progress() + "\n"
 
-        if indent == -1:
+        if self is self.root_publish_service:
             return child_progress_text
 
         linesplit = child_progress_text.splitlines()
-        child_progress_text = "\n".join([f"{'> ' * indent}{line}"
+        child_progress_text = "\n".join([f"'> {line}"
                                          for line in linesplit])
 
         return f"""
