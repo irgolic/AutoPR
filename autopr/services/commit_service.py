@@ -112,11 +112,11 @@ class CommitService:
         Returns the status of the changes on the branch.
         """
         # Get status of changes
-        status = self.repo.git.execute(["git", "status", "--porcelain"])
-        status_text = str(status)
-        if status == "":
+        args = ["git", "diff", self.base_branch_name, "--name-only"]
+        status = self.repo.git.execute(args)
+        if not status:
             return "no_changes"
-        elif len(status_text.splitlines()) == 1 and self.cache_dir in status_text:
+        elif len(status.splitlines()) == 1 and self.cache_dir in status:
             return "cache_only"
         else:
             return "modified"
