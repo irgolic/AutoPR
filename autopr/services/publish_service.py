@@ -446,7 +446,7 @@ class PublishService:
 
         progress_text = ""
         if is_in_progress:
-            progress_text += "🏃"
+            progress_text += "🏄"
         else:
             progress_text += "✅"
         progress_text += f" {self.title}  \n"
