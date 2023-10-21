@@ -11,8 +11,9 @@ Breathe life into your codebase, configurably
 
 ## 🌟 Features
 
-📄 Summarize changes by adding a "summarize" label to a PR  
 🌳 Living summaries of your code in nested READMEs
+📄 Summarize changes by adding a "summarize" label to a PR  
+
 
 ... more coming soon!
 
@@ -20,13 +21,9 @@ Breathe life into your codebase, configurably
 
 Please see the [installation guide](https://docs.autopr.com/installing/github).
 
-## 🐞 Known Bugs
+---
 
-We're pre-alpha, so expect bugs. Here are some known ones:
-
-- Caching is not working properly, so living summaries get regenerated on every push.
-
-See below for an example of AutoPR's README summary:
+Below is an example of AutoPR's Living README:
 
 <!-- Living README Summary -->
 ## 🌳 Living Summary
