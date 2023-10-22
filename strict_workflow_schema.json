@@ -2509,6 +2509,16 @@
           "title": "Pull Request",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2633,6 +2643,16 @@
           "title": "Endpoint Url",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2653,6 +2673,16 @@
           "title": "Headers",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2672,6 +2702,16 @@
         "filepath": {
           "title": "Filepath",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -2799,6 +2839,16 @@
           "title": "Folder Name",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2819,6 +2869,16 @@
           "title": "Summary List",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2838,6 +2898,16 @@
         "folder_summary": {
           "title": "Folder Summary",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -2973,6 +3043,16 @@
         "path": {
           "title": "Path",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3131,6 +3211,16 @@
           "title": "Path",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -3150,6 +3240,16 @@
         "ls_folder": {
           "title": "Ls Folder",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3316,6 +3416,16 @@
         "path": {
           "title": "Path",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3616,6 +3726,16 @@
           "title": "Filepath",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -3636,6 +3756,16 @@
           "title": "Tag",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -3655,6 +3785,16 @@
         "content": {
           "title": "Content",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },

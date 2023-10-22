@@ -3,10 +3,8 @@ triggers:
     run: 
       workflow: api_git_history
       inputs: 
-        endpoint_url: 
-          const: "https://jsonplaceholder.typicode.com/todos"
+        endpoint_url: "https://jsonplaceholder.typicode.com/todos"
         headers: 
-          const: {"Content-type": "application/json; charset=UTF-8"}
-        filepath:
-          const: "test/todos.txt"
+          "Content-type": "application/json; charset=UTF-8"
+        filepath: "test/todos.txt"
 

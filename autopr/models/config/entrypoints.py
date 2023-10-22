@@ -109,7 +109,7 @@ def build_workflows():
                 __base__=StrictModel,
                 __module__=__name__,
                 **{
-                    name: (ValueDeclaration, Field(default=...))
+                    name: (TemplateObject | ValueDeclaration, Field(default=...))
                     for name in workflow.inputs
                 },  # pyright: ignore[reportGeneralTypeIssues]
             )
