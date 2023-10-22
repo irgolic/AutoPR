@@ -45,15 +45,16 @@ You can invoke it by using the following trigger:
 ```yaml
 triggers:
   - branch_name: main
-    run: generate_readme_summaries
-    parameters:
-      FILE_SUMMARY_PROMPT: "Write an executive summary of this file, intended for someone seeing it for the first time. Write 3-6 bullet points, prefixed with emojis."
-      FILE_SUMMARY_INSTRUCTIONS: "Respond in 3-6 bullet points, using plenty of emojis."
-      FOLDER_SUMMARY_PROMPT: "Write an executive summary of this folder, intended for someone seeing it for the first time. Respond in 3-5 sentences."
-      FOLDER_SUMMARY_INSTRUCTIONS: "Respond in simple sentences, using plenty of emojis."
-      IGNORE_FILES:
-        - docs
-      EMPTY_FILE_SUMMARY: "This file is empty."
+    run:
+      workflow: generate_readme_summaries
+      parameters:
+        FILE_SUMMARY_PROMPT: "Write an executive summary of this file, intended for someone seeing it for the first time. Write 3-6 bullet points, prefixed with emojis."
+        FILE_SUMMARY_INSTRUCTIONS: "Respond in 3-6 bullet points, using plenty of emojis."
+        FOLDER_SUMMARY_PROMPT: "Write an executive summary of this folder, intended for someone seeing it for the first time. Respond in 3-5 sentences."
+        FOLDER_SUMMARY_INSTRUCTIONS: "Respond in simple sentences, using plenty of emojis."
+        IGNORE_FILES:
+          - docs
+        EMPTY_FILE_SUMMARY: "This file is empty."
 ```
 
 The above trigger will run the workflow whenever the `main` branch is updated.

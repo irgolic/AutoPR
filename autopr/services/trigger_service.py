@@ -186,10 +186,6 @@ class TriggerService:
 
         executable = trigger.run
 
-        # Add params
-        if trigger.parameters:
-            context["__params__"] = trigger.parameters
-
         try:
             context = await self.workflow_service.execute(
                 executable,

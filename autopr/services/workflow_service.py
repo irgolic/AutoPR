@@ -79,20 +79,28 @@ class WorkflowService:
             return await self.publish_and_execute_workflow(id_, executable, context, publish_service)
         raise ValueError(f"`{id_}` is not an executable")
 
-    def _prepare_workflow_inputs(
+    def _prepare_workflow_context(
         self,
         inputs: Optional[pydantic.BaseModel],  # [str, TemplateObject]
+        parameters: Optional[pydantic.BaseModel],  # dict[str, TemplateObject]]
         context: ContextDict,
     ):
         # Pass __params__ through
-        input_values = {
+        prepared_context = {
             k: v
             for k, v in context.items()
             if k.startswith("__") and k.endswith("__")
         }
 
+        if parameters is not None:
+            params_dict = parameters.dict()
+            if "__params__" in context:
+                # Add params without overwriting existing values
+                params_dict |= context["__params__"]
+            prepared_context["__params__"] = params_dict
+
         if inputs is None:
-            return ContextDict(input_values)
+            return ContextDict(prepared_context)
 
         for key, template in inputs:
 
@@ -103,11 +111,11 @@ class WorkflowService:
                 pass
 
             if any(isinstance(template, t) for t in typing.get_args(ValueDeclaration)):
-                input_values[key] = template.render(context)
+                prepared_context[key] = template.render(context)
             else:
-                input_values[key] = context.render_nested_template(template)
+                prepared_context[key] = context.render_nested_template(template)
 
-        return ContextDict(input_values)
+        return ContextDict(prepared_context)
 
     async def publish_and_execute_workflow(
         self,
@@ -130,7 +138,11 @@ class WorkflowService:
         publish_service: PublishService,
     ):
         # Prepare inputs
-        input_context = self._prepare_workflow_inputs(workflow_invocation.inputs, context)
+        input_context = self._prepare_workflow_context(
+            workflow_invocation.inputs,
+            workflow_invocation.parameters,
+            context
+        )
 
         # Execute workflow
         workflow_definition = self.get_executable_by_id(workflow_invocation.workflow, input_context)
@@ -174,8 +186,9 @@ class WorkflowService:
                 # Prepare inputs
                 if item_name is not None:
                     iter_context = ContextDict(iter_context | {item_name: i})
-                input_context = self._prepare_workflow_inputs(
+                input_context = self._prepare_workflow_context(
                     iter_workflow_invocation.inputs,
+                    iter_workflow_invocation.parameters,
                     iter_context,
                 )
                 # Prepare coroutine
@@ -199,8 +212,9 @@ class WorkflowService:
             for item in list_var:
                 # Prepare inputs
                 iter_context = ContextDict(context | {item_name: item})
-                input_context = self._prepare_workflow_inputs(
+                input_context = self._prepare_workflow_context(
                     iter_workflow_invocation.inputs,
+                    iter_workflow_invocation.parameters,
                     iter_context,
                 )
                 # Prepare coroutine

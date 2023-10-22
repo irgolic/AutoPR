@@ -9,7 +9,9 @@ from pydantic import Field
 from autopr.actions.base import get_actions_dict, Action as ActionBase
 from autopr.models.config.elements import ExecModel, ActionConfig, TopLevelWorkflowConfig, StrictModel, \
     WorkflowInvocation, IterableWorkflowInvocation, IOSpecModel, WorkflowDefinition, IfLambda, IfContextNotExists, \
-    IfExistsContext, SetVars, ContextModel, IOValuesModel, ActionConfigs, ContextActions, ValueDeclaration
+    IfExistsContext, SetVars, ContextModel, IOValuesModel, ActionConfigs, ContextActions, ValueDeclaration, \
+    IterableActionConfig, Conditional
+from autopr.models.config.value_declarations import ParamDeclaration
 from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent, CronEvent
 
 from autopr.models.executable import LambdaString, ContextVarPath, ExecutableId, Executable, \
@@ -21,6 +23,60 @@ from autopr.workflows import get_all_workflows
 ### For strict config, build workflow definitions
 ###
 
+def get_params(
+    executable: Executable,
+    all_workflows: TopLevelWorkflowConfig,
+    inspected_workflows: Optional[set[ExecutableId]] = None,
+) -> dict[str, Any]:
+    if inspected_workflows is None:
+        inspected_workflows = set()
+
+    if isinstance(executable, str) and executable not in all_workflows:
+        return {}
+
+    value_defs = []
+    if isinstance(executable, (
+        ActionConfig,
+        IterableActionConfig,
+        WorkflowInvocation,
+        IterableWorkflowInvocation,
+    )):
+        if executable.inputs:
+            # the values of the model are the default values
+            for _, val in executable.inputs:
+                value_defs.append(val)
+            # value_defs.extend(executable.inputs.dict().values())
+    elif isinstance(executable, SetVars):
+        value_defs.extend(executable.set_vars.values())
+
+    params = {}
+    for value_def in value_defs:
+        if isinstance(value_def, ParamDeclaration):
+            params[value_def.param.name] = value_def.param.default
+
+    if isinstance(executable, list):
+        for substep in executable:
+            params |= get_params(substep, all_workflows, inspected_workflows)
+    elif isinstance(executable, str):
+        if executable in inspected_workflows:
+            return {}
+        inspected_workflows.add(executable)
+        target_workflow = all_workflows[ExecutableId(executable)]
+        for executable in target_workflow.steps:
+            params |= get_params(executable, all_workflows, inspected_workflows)
+    elif isinstance(executable, (WorkflowInvocation, IterableWorkflowInvocation)):
+        if executable.workflow in inspected_workflows:
+            return {}
+        inspected_workflows.add(executable.workflow)
+        target_workflow = all_workflows[executable.workflow]
+        for executable in target_workflow.steps:
+            params |= get_params(executable, all_workflows, inspected_workflows)
+    elif isinstance(executable, Conditional):
+        params |= get_params(executable.then, all_workflows, inspected_workflows)
+        if executable.else_:
+            params |= get_params(executable.else_, all_workflows, inspected_workflows)
+    return params
+
 
 def build_workflows():
     # Dynamically build workflow models from currently defined workflows
@@ -31,6 +87,22 @@ def build_workflows():
         fields = {
             "workflow": (Literal[workflow_id], ...)  # type: ignore
         }
+
+        # Build the params model for each workflow, depending on all nested workflows
+        params = get_params(workflow_id, workflows)
+        params_model = pydantic.create_model(
+            workflow_id + "Params",
+            __base__=StrictModel,
+            __module__=__name__,
+            **{
+                name: (type(default_value), Field(default=default_value))
+                for name, default_value in params.items()
+            },  # pyright: ignore[reportGeneralTypeIssues]
+        )
+        fields |= {
+            "parameters": (params_model, None)
+        }
+
         if workflow.inputs is not None:
             input_fields_model = pydantic.create_model(
                 workflow_id + "Inputs",
@@ -86,6 +158,7 @@ def build_workflows():
         )
         workflow_models.append(iterable_workflow_basemodel)
 
+
     return workflow_models
 
 
@@ -116,7 +189,6 @@ class TriggerModel(ContextModel):
     type: str
     run: StrictExecutable = Field()  # pyright: ignore[reportGeneralTypeIssues]
     automerge: bool = False
-    parameters: Optional[dict[str, Any]] = Field(default=None)
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
         raise NotImplementedError

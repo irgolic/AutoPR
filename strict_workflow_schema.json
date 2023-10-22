@@ -244,11 +244,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -363,11 +358,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -553,11 +543,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -720,11 +705,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -864,11 +844,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1325,11 +1300,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -1477,11 +1447,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1665,11 +1630,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1855,11 +1815,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2044,11 +1999,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -2352,11 +2302,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2529,11 +2474,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2591,6 +2531,12 @@
       ],
       "additionalProperties": false
     },
+    "summarize_prParams": {
+      "title": "summarize_prParams",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
     "summarize_prWorkflowModel": {
       "title": "summarize_prWorkflowModel",
       "type": "object",
@@ -2616,6 +2562,9 @@
             "summarize_pr"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_prParams"
         }
       },
       "required": [
@@ -2651,11 +2600,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_prInputs"
         },
@@ -2669,6 +2613,9 @@
             "summarize_pr"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_prParams"
         }
       },
       "required": [
@@ -2750,6 +2697,12 @@
       ],
       "additionalProperties": false
     },
+    "api_git_historyParams": {
+      "title": "api_git_historyParams",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
     "api_git_historyWorkflowModel": {
       "title": "api_git_historyWorkflowModel",
       "type": "object",
@@ -2775,6 +2728,9 @@
             "api_git_history"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/api_git_historyParams"
         }
       },
       "required": [
@@ -2810,11 +2766,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/api_git_historyInputs"
         },
@@ -2828,6 +2779,9 @@
             "api_git_history"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/api_git_historyParams"
         }
       },
       "required": [
@@ -2920,6 +2874,12 @@
       },
       "additionalProperties": false
     },
+    "reformat_resultsParams": {
+      "title": "reformat_resultsParams",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
     "reformat_resultsWorkflowModel": {
       "title": "reformat_resultsWorkflowModel",
       "type": "object",
@@ -2944,6 +2904,9 @@
             "reformat_results"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/reformat_resultsParams"
         }
       },
       "required": [
@@ -2979,11 +2942,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/reformat_resultsInputs"
         },
@@ -2996,6 +2954,9 @@
             "reformat_results"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/reformat_resultsParams"
         }
       },
       "required": [
@@ -3054,6 +3015,28 @@
       },
       "additionalProperties": false
     },
+    "summarize_fileParams": {
+      "title": "summarize_fileParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "summarize_fileWorkflowModel": {
       "title": "summarize_fileWorkflowModel",
       "type": "object",
@@ -3078,6 +3061,9 @@
             "summarize_file"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_fileParams"
         }
       },
       "required": [
@@ -3113,11 +3099,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_fileInputs"
         },
@@ -3130,6 +3111,9 @@
             "summarize_file"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_fileParams"
         }
       },
       "required": [
@@ -3201,6 +3185,44 @@
       },
       "additionalProperties": false
     },
+    "summarize_folderParams": {
+      "title": "summarize_folderParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "summarize_folderWorkflowModel": {
       "title": "summarize_folderWorkflowModel",
       "type": "object",
@@ -3225,6 +3247,9 @@
             "summarize_folder"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_folderParams"
         }
       },
       "required": [
@@ -3260,11 +3285,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_folderInputs"
         },
@@ -3277,6 +3297,9 @@
             "summarize_folder"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_folderParams"
         }
       },
       "required": [
@@ -3335,6 +3358,44 @@
       },
       "additionalProperties": false
     },
+    "generate_summaryParams": {
+      "title": "generate_summaryParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "generate_summaryWorkflowModel": {
       "title": "generate_summaryWorkflowModel",
       "type": "object",
@@ -3359,6 +3420,9 @@
             "generate_summary"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_summaryParams"
         }
       },
       "required": [
@@ -3394,11 +3458,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/generate_summaryInputs"
         },
@@ -3411,6 +3470,9 @@
             "generate_summary"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_summaryParams"
         }
       },
       "required": [
@@ -3418,6 +3480,44 @@
         "inputs",
         "workflow"
       ],
+      "additionalProperties": false
+    },
+    "generate_readme_summariesParams": {
+      "title": "generate_readme_summariesParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     },
     "generate_readme_summariesWorkflowModel": {
@@ -3446,6 +3546,9 @@
             "generate_readme_summaries"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_readme_summariesParams"
         }
       },
       "required": [
@@ -3480,11 +3583,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "title": "Inputs",
           "type": "null"
@@ -3499,6 +3597,9 @@
             "generate_readme_summaries"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_readme_summariesParams"
         }
       },
       "required": [
@@ -3579,6 +3680,12 @@
       ],
       "additionalProperties": false
     },
+    "insert_into_readmeParams": {
+      "title": "insert_into_readmeParams",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
     "insert_into_readmeWorkflowModel": {
       "title": "insert_into_readmeWorkflowModel",
       "type": "object",
@@ -3604,6 +3711,9 @@
             "insert_into_readme"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/insert_into_readmeParams"
         }
       },
       "required": [
@@ -3639,11 +3749,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
@@ -3657,6 +3762,9 @@
             "insert_into_readme"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/insert_into_readmeParams"
         }
       },
       "required": [
@@ -3725,6 +3833,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [
@@ -3759,11 +3870,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/ExtraModel"
         },
@@ -3773,6 +3879,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [

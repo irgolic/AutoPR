@@ -131,7 +131,7 @@ class IterableExecModel(ExecModel):
     as_: Optional[str] = Field(None, alias="as")
 
     #: Whether to allow allow finishing iteration early (include "Finished" as an action)
-    allow_finish_early: bool = False
+    # allow_finish_early: bool = False
 
     # Ensure `as` is used with a varpath `iterate`
     @pydantic.validator("as_")
@@ -294,10 +294,12 @@ class IterableIOValuesModel(IterableExecModel):
 
 class WorkflowInvocation(IOValuesModel):
     workflow: ExecutableId
+    parameters: Optional[ExtraModel] = Field(default=None)
 
 
 class IterableWorkflowInvocation(IterableIOValuesModel):
     workflow: ExecutableId
+    parameters: Optional[ExtraModel] = Field(default=None)
 
 
 # class Choice(IOValuesModel):
@@ -305,7 +307,6 @@ class IterableWorkflowInvocation(IterableIOValuesModel):
 
 
 # Structures that specify what inputs and outputs they require and return
-
 
 
 class IOSpecModel(ExecModel):
