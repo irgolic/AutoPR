@@ -35,15 +35,16 @@ triggers:
           - tests
         EMPTY_FILE_SUMMARY: "This file is empty."
   - branch_name: main
-    run: publish_todos
-    parameters:
-      ISSUE_LABEL_CHOICES:
-        - "easy"
-        - "medium"
-        - "hard"
-      ISSUE_LABEL_PROMPT: |
-        How hard is this task?
-      ISSUE_DESCRIPTION_PROMPT: |
-        What tips can you give to someone that's resolving this TODO?
-      ISSUE_DESCRIPTION_INSTRUCTIONS: |
-        Respond in 1-3 sentences.
+    run: 
+      workflow: publish_todos
+      parameters:
+        ISSUE_LABEL_CHOICES:
+          - "easy"
+          - "medium"
+          - "hard"
+        ISSUE_LABEL_PROMPT: |
+          How hard is this task?
+        ISSUE_DESCRIPTION_PROMPT: |
+          What tips can you give to someone that's resolving this TODO?
+        ISSUE_DESCRIPTION_INSTRUCTIONS: |
+          Respond in 1-3 sentences.
