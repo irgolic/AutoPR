@@ -617,7 +617,10 @@ class GitHubPlatformService(PlatformService):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         comments_json = response.json()
-        self.log.info("Got issue comments", comments=comments_json)
+        self.log.info(
+            "Got issue comments",
+            # comments=comments_json,
+        )
 
         # Get body
         comments_list = []
