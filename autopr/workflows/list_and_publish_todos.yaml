@@ -79,7 +79,7 @@ build_and_publish_todo:
           template: |
             <!--
             info: AutoPR fingerprint
-            issue type: TODO
+            issue_type: TODO
             task: {{ todo.task }}
             -->
         issue_body:

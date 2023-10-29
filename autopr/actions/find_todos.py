@@ -12,7 +12,7 @@ from tree_sitter_languages import get_parser
 from tree_sitter import Parser
 
 
-TODO_ISSUE_BODY = re.compile(r'<!--\ninfo: AutoPR fingerprint\nissue type: TODO\ntask: [^\n]*\n-->', re.DOTALL)
+TODO_ISSUE_BODY = re.compile(r'<!--\ninfo: AutoPR fingerprint\nissue_type: TODO\ntask: [^\n]*\n-->', re.DOTALL)
 
 comment_treesitter_language_mapping = {
     "python": ["#"],
@@ -124,7 +124,7 @@ class FindTodos(Action[Inputs, Outputs]):
     
     @staticmethod
     def get_todo_fingerprint(todo: Todo) -> str:
-        return rf"<!--\ninfo: AutoPR fingerprint\nissue type: TODO\ntask: {todo.task}\n-->\n"
+        return rf"<!--\ninfo: AutoPR fingerprint\nissue_type: TODO\ntask: {todo.task}\n-->\n"
 
     async def close_not_used_issues(self, todos: list[Todo]) -> None:
         open_issues_list = await self.platform_service.get_issues(state="open")
