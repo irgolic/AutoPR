@@ -106,7 +106,7 @@ def create_ephemeral_main_service(
     triggers_filename: Optional[str] = None,
     workflows_filename: Optional[str] = None,
     repo_resource: Optional[str] = None,
-    event: Optional[EventUnion | str] = None,
+    event: Optional[Union[EventUnion, str]] = None,
 ):
     # load triggers config
     if triggers_filename is not None:
