@@ -11,9 +11,9 @@ insert_into_readme:
     #: The content to insert
     - content
 
-  # outputs:
+  outputs:
     #: The content of the file after the insertion
-    # - content
+    - content
 
   steps:
     # Read the file

@@ -1,6 +1,6 @@
 import json
 import os
-from unittest.mock import patch, Mock
+from unittest.mock import MagicMock, patch, Mock
 
 import pytest
 from aioresponses import aioresponses
@@ -145,11 +145,7 @@ async def test_github_platform_service(
     'event_json_path, expected_event',
     [
         (
-            os.path.join(
-                os.path.dirname(__file__),
-                'data',
-                'gh_pr_label_event.json',
-            ),
+            'gh_pr_label_event.json',
             LabelEvent(
                 issue=None,
                 pull_request=PullRequest(
@@ -175,11 +171,7 @@ async def test_github_platform_service(
             ),
         ),
         (
-            os.path.join(
-                os.path.dirname(__file__),
-                'data',
-                'gh_pr_label_event_2.json',
-            ),
+            'gh_pr_label_event_2.json',
             # Actual   :LabelEvent(event_type='label', pull_request=PullRequest(messages=[Message(body='', author='irgolic'), Message(body='123', author='user1')], number=5, title='Fixup docs', author='irgolic', timestamp='2023-08-19T17:38:34Z', base_branch='main', head_bra ...
             LabelEvent(
                 issue=None,
@@ -223,7 +215,8 @@ def test_parse_event(
 
     abs_path = os.path.join(
         os.path.dirname(__file__),
-        'data',
+        'resources',
+        'events',
         event_json_path,
     )
     with open(abs_path) as f:
@@ -292,9 +285,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
         issue = await platform_service.get_issue_by_title('test_title')
         assert issue == expected_issue
 
-
 @pytest.mark.parametrize(
-    "file_path, branch, start_line, end_line, expected_url",
+    "file_path, branch, start_line, end_line, margin, expected_url",
     [
         # Case 1: Both start_line and end_line are not None.
         (
@@ -302,7 +294,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch1",
             1,
             2,
-            "https://github.com/user/repo/tree/branch1/file1/#L1-L2"
+            0,
+            'https://github.com/user/repo/blob/123abcd/file1#L1-L2'
         ),
         # Case 2: Only start_line is not None, and end_line is None.
         (
@@ -310,7 +303,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch2",
             3,
             None,
-            "https://github.com/user/repo/tree/branch2/file2/#L3"
+            0,
+            'https://github.com/user/repo/blob/123abcd/file2#L3-L3'
         ),
         # Case 3: Only end_line is not None, and start_line is None.
         (
@@ -318,7 +312,8 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch3",
             None,
             4,
-            "https://github.com/user/repo/tree/branch3/file3/#L4"
+            0,
+            'https://github.com/user/repo/blob/123abcd/file3#L4-L4'
         ),
         # Case 4: Both start_line and end_line are None.
         (
@@ -326,11 +321,61 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
             "branch4",
             None,
             None,
-            "https://github.com/user/repo/tree/branch4/file4/"
+            0,
+            'https://github.com/user/repo/blob/123abcd/file4'
+        ),
+        # Additional cases with margin
+        (
+            "file5",
+            "branch1",
+            1,
+            2,
+            1,
+            'https://github.com/user/repo/blob/123abcd/file5#L1-L3'
+        ),
+        (
+            "file6",
+            "branch2",
+            3,
+            None,
+            2,
+            'https://github.com/user/repo/blob/123abcd/file6#L1-L5'
+        ),
+        (
+            "file7",
+            "branch3",
+            None,
+            4,
+            3,
+            'https://github.com/user/repo/blob/123abcd/file7#L1-L7'
+        ),
+        # In case there's space in the file path
+        (
+            "path/to/file 8",
+            "branch4",
+            None,
+            1,
+            1,
+            'https://github.com/user/repo/blob/123abcd/path/to/file%208#L1-L2'
         )
     ]
 )
 @pytest.mark.asyncio
-async def test_get_file_url(mocker, file_path, branch, start_line, end_line, expected_url, platform_service):
-    url = await platform_service.get_file_url(file_path, branch, start_line, end_line)
+async def test_get_file_url(mocker, file_path, branch, start_line, end_line, margin, expected_url, platform_service):
+    with patch.object(GitHubPlatformService, 'get_latest_commit_hash', return_value='123abcd'):
+        with patch.object(GitHubPlatformService, "get_num_lines_in_file", return_value=100):
+            url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
     assert url == expected_url
+
+@pytest.mark.parametrize(
+    "owner, repo, branch, expected_sha",
+    [
+        ("owner1", "repo1", "branch1", "12345abcdef"),
+    ]
+)
+@patch("requests.get")
+def test_get_latest_commit_hash(get_mock, owner, repo, branch, expected_sha, platform_service):
+    mock_json = MagicMock(return_value={'object': {'sha': '12345abcdef'}})
+    get_mock.return_value = MagicMock(json=mock_json)
+    res = platform_service.get_latest_commit_hash(owner, repo, branch)
+    assert res == expected_sha

@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import sys
 import traceback
@@ -58,7 +59,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
         """
         Get a list of issues.
 
@@ -215,7 +216,7 @@ class PlatformService:
         """
         raise NotImplementedError
     
-    async def create_issue(self, title: str, body: str) -> Optional[int]:
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         """
         Create an issue.
 
@@ -225,6 +226,8 @@ class PlatformService:
             The title of the issue
         body: str
             The body of the issue
+        labels: Optional[list[str]]
+            The labels to add to the issue
         """
         raise NotImplementedError
     
@@ -239,7 +242,7 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def update_issue_body(self, issue_number: int, body: str):
+    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
         """
         Update the body of the issue.
 
@@ -249,10 +252,12 @@ class PlatformService:
             The issue number
         body: str
             The new body
+        labels: Optional[list[str]]
+            The labels to add to the issue
         """
         raise NotImplementedError
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
+    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
         """
         Get the url of a file in the repository.
 
@@ -266,6 +271,19 @@ class PlatformService:
             The start line of the file
         end_line: Optional[int]
             The end line of the file
+        margin: int
+            The margin to add to the start and end lines so they provide more context
+        """
+        raise NotImplementedError
+
+    async def close_issue(self, issue_number: int) -> None:
+        """
+        Close an issue.
+
+        Parameters
+        ----------
+        issue_number: int
+            The issue number
         """
         raise NotImplementedError
 
@@ -641,8 +659,10 @@ class GitHubPlatformService(PlatformService):
             base_commit_sha=pr_json['base']['sha'],
         )
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues?state={state}'
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        if state:
+            url += f"?state={state}"
 
         # Check if 'since' is provided and add it to the URL
         if since:
@@ -665,6 +685,7 @@ class GitHubPlatformService(PlatformService):
                     issue
                     for issue_json in await response.json()
                     if (issue := self._extract_issue(issue_json)) is not None
+                    and not issue_json.get("pull_request")
                 ]
 
     def parse_event(self, event: dict[str, Any], event_name: str) -> EventUnion:
@@ -693,16 +714,19 @@ class GitHubPlatformService(PlatformService):
             )
         raise NotImplementedError(f"Unknown event action: {event['action']}")
     
-    async def create_issue(self, title: str, body: str) -> Optional[int]:
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
         headers = self._get_headers()
         data = {
             'title': title,
             'body': body,
         }
+        if labels is not None:
+            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
+                self.log.debug('Creating issue with title: %s, body %s and labels %s', title, body, ", ".join(labels or []))
                 if response.status == 201:
                     self.log.debug('Issue created successfully')
                     return (await response.json())['number']
@@ -715,7 +739,7 @@ class GitHubPlatformService(PlatformService):
                     response=response,
                 )
         return None
-    
+
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
         headers = self._get_headers()
@@ -736,12 +760,16 @@ class GitHubPlatformService(PlatformService):
                         return self._extract_issue(issue_json)
                 return None
     
-    async def update_issue_body(self, issue_number: int, body: str) -> None:
+    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
         headers = self._get_headers()
 
+        data = {'body': body}
+        if labels is not None:
+            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
+
         async with ClientSession() as session:
-            async with session.patch(url, json={'body': body}, headers=headers) as response:
+            async with session.patch(url, json=data, headers=headers) as response:
                 if response.status == 200:
                     self.log.debug('Issue updated successfully')
                     return
@@ -750,19 +778,73 @@ class GitHubPlatformService(PlatformService):
                     'Failed to update issue',
                     request_url=url,
                     request_headers=headers,
-                    request_body={'body': body},
+                    request_body=data,
                     response=response,
                 )
+    
+    def get_latest_commit_hash(self, owner, repo, branch):
+        url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
+        headers = self._get_headers()
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        return data['object']['sha']
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
-        output = f"https://github.com/{self.owner}/{self.repo_name}/tree/{base_branch}/{file_path}/"
+    async def get_file_url(
+            self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
+        ) -> str:
+        # Get the latest commit hash for the base branch
+        commit_hash = self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
+        file_num_lines = self.get_num_lines_in_file(file_path, base_branch)
+        
+        # Github API does not support spaces in file paths
+        formatted_file_path = file_path.replace(" ", "%20")
+        
+        # Form the base URL using the commit hash instead of the branch name
+        output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
+        return output + await self._format_start_and_end_line(start_line, end_line, file_num_lines, margin)
+
+    async def _format_start_and_end_line(self, start_line : Optional[int], end_line : Optional[int], file_num_lines : int, margin : int) -> str:
         if start_line is not None and end_line is not None:
-            return output + f"#L{start_line}-L{end_line}"
-        if start_line is not None and end_line is None:
-            return output + f"#L{start_line}"
-        if start_line is None and end_line is not None:
-            return output + f"#L{end_line}"
-        return output
+            return f"#L{max(1, start_line - margin)}-L{min(end_line + margin, file_num_lines)}"
+        elif start_line is not None and end_line is None:
+            return f"#L{max(1, start_line - margin)}-L{min(start_line + margin, file_num_lines)}"
+        elif start_line is None and end_line is not None:
+            return f"#L{max(1, end_line - margin)}-L{min(end_line + margin, file_num_lines)}"
+        return ""
+
+    def get_num_lines_in_file(self, file_path: str, branch: str) -> int:
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/contents/{file_path}?ref={branch}"
+        response = requests.get(url, headers=self._get_headers())
+        response.raise_for_status()
+        json_data = json.loads(response.text)
+        decoded_content = base64.b64decode(json_data['content']).decode("utf-8")
+        lines = decoded_content.split("\n")
+        # In case of line ending with a newline character, the split function returns an empty string as the last element,
+        # making the total line count one more than the actual number of lines in the file.
+        num_lines = len(lines)
+        if lines[-1] == "":
+            num_lines -= 1
+        return num_lines
+
+    async def close_issue(self, issue_number: int) -> None:
+        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+        headers = self._get_headers()
+
+        data = {'state': 'closed'}
+
+        async with ClientSession() as session:
+            async with session.patch(url, json=data, headers=headers) as response:
+                if response.status == 200:
+                    self.log.debug('Issue closed successfully')
+                    return
+
+                await self._log_failed_request(
+                    'Failed to close issue',
+                    request_url=url,
+                    request_headers=headers,
+                    request_body=data,
+                    response=response,
+                )
 
 
 class DummyPlatformService(PlatformService):
@@ -775,7 +857,7 @@ class DummyPlatformService(PlatformService):
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: str = "open", since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
@@ -812,5 +894,14 @@ class DummyPlatformService(PlatformService):
     async def update_pr_body(self, pr_number: int, body: str):
         pass
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None) -> str:
+    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
         return "https://github.com/"
+
+    async def get_issue_by_title(self, title: str) -> Optional[Issue]:
+        return None
+    
+    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
+        return 1
+
+    async def close_issue(self, issue_number: int) -> None:
+        return None

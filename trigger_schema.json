@@ -1655,6 +1655,179 @@
       ],
       "additionalProperties": false
     },
+    "find_todosInputsActionFieldTemplate": {
+      "title": "find_todosInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "language": {
+          "title": "Language",
+          "anyOf": [
+            {
+              "enum": [
+                "python",
+                "javascript"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "todo_keywords": {
+          "title": "Todo Keywords",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "find_todosOutputsActionFieldTemplate": {
+      "title": "find_todosOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "todos": {
+          "title": "Todos",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "find_todosActionModel": {
+      "title": "find_todosActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "find_todos"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "find_todosIterableActionModel": {
+      "title": "find_todosIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "find_todos"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/find_todosOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
     "insert_content_into_textInputsActionFieldTemplate": {
       "title": "insert_content_into_textInputsActionFieldTemplate",
       "type": "object",
@@ -2331,6 +2504,215 @@
       ],
       "additionalProperties": false
     },
+    "publish_issueInputsActionFieldTemplate": {
+      "title": "publish_issueInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "issue_title": {
+          "title": "Issue Title",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "issue_body": {
+          "title": "Issue Body",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "issue_labels": {
+          "title": "Issue Labels",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "update_if_exists": {
+          "title": "Update If Exists",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "issue_title",
+        "issue_body"
+      ],
+      "additionalProperties": false
+    },
+    "publish_issueOutputsActionFieldTemplate": {
+      "title": "publish_issueOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "title": "Issue Number",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_issueActionModel": {
+      "title": "publish_issueActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "publish_issue"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/publish_issueInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/publish_issueOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "publish_issueIterableActionModel": {
+      "title": "publish_issueIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "publish_issue"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/publish_issueInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/publish_issueOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "read_fileInputsActionFieldTemplate": {
       "title": "read_fileInputsActionFieldTemplate",
       "type": "object",
@@ -2628,6 +3010,504 @@
       "required": [
         "iterate",
         "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "list_todosInputs": {
+      "title": "list_todosInputs",
+      "type": "object",
+      "properties": {
+        "language": {
+          "title": "Language",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "todo_keywords": {
+          "title": "Todo Keywords",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "language",
+        "todo_keywords"
+      ],
+      "additionalProperties": false
+    },
+    "list_todosOutputs": {
+      "title": "list_todosOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number_list": {
+          "title": "Issue Number List",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "list_todosParams": {
+      "title": "list_todosParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "list_todosWorkflowModel": {
+      "title": "list_todosWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_todosInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/list_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "list_todos"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/list_todosParams"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "list_todosIterableWorkflowModel": {
+      "title": "list_todosIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_todosInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/list_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "list_todos"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/list_todosParams"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoInputs": {
+      "title": "build_and_publish_todoInputs",
+      "type": "object",
+      "properties": {
+        "todo": {
+          "title": "Todo",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "todo"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoOutputs": {
+      "title": "build_and_publish_todoOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "title": "Issue Number",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "build_and_publish_todoParams": {
+      "title": "build_and_publish_todoParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "build_and_publish_todoWorkflowModel": {
+      "title": "build_and_publish_todoWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/build_and_publish_todoInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/build_and_publish_todoOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "build_and_publish_todo"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/build_and_publish_todoParams"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "build_and_publish_todoIterableWorkflowModel": {
+      "title": "build_and_publish_todoIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/build_and_publish_todoInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/build_and_publish_todoOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "build_and_publish_todo"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/build_and_publish_todoParams"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "publish_todosOutputs": {
+      "title": "publish_todosOutputs",
+      "type": "object",
+      "properties": {
+        "issue_number_list": {
+          "title": "Issue Number List",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_todosParams": {
+      "title": "publish_todosParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_todosWorkflowModel": {
+      "title": "publish_todosWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "outputs": {
+          "$ref": "#/definitions/publish_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "publish_todos"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/publish_todosParams"
+        }
+      },
+      "required": [
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "publish_todosIterableWorkflowModel": {
+      "title": "publish_todosIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "type": "null"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/publish_todosOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "publish_todos"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/publish_todosParams"
+        }
+      },
+      "required": [
+        "iterate",
         "workflow"
       ],
       "additionalProperties": false
@@ -3817,6 +4697,17 @@
       ],
       "additionalProperties": false
     },
+    "insert_into_readmeOutputs": {
+      "title": "insert_into_readmeOutputs",
+      "type": "object",
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "insert_into_readmeParams": {
       "title": "insert_into_readmeParams",
       "type": "object",
@@ -3839,8 +4730,7 @@
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
         "outputs": {
-          "title": "Outputs",
-          "type": "null"
+          "$ref": "#/definitions/insert_into_readmeOutputs"
         },
         "workflow": {
           "title": "Workflow",
@@ -3890,8 +4780,7 @@
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
         "list_outputs": {
-          "title": "List Outputs",
-          "type": "null"
+          "$ref": "#/definitions/insert_into_readmeOutputs"
         },
         "workflow": {
           "title": "Workflow",
@@ -4088,6 +4977,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -4104,6 +4999,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -4193,6 +5094,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -4209,6 +5116,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -4302,6 +5215,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -4318,6 +5237,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -4407,6 +5332,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -4423,6 +5354,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -4541,6 +5478,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -4557,6 +5500,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -4646,6 +5595,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -4662,6 +5617,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -4755,6 +5716,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -4771,6 +5738,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -4860,6 +5833,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -4876,6 +5855,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -4994,6 +5979,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -5010,6 +6001,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -5099,6 +6096,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -5115,6 +6118,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -5208,6 +6217,12 @@
                   "$ref": "#/definitions/write_into_fileIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/find_todosActionModel"
+                },
+                {
+                  "$ref": "#/definitions/find_todosIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/insert_content_into_textActionModel"
                 },
                 {
@@ -5224,6 +6239,12 @@
                 },
                 {
                   "$ref": "#/definitions/promptIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueActionModel"
+                },
+                {
+                  "$ref": "#/definitions/publish_issueIterableActionModel"
                 },
                 {
                   "$ref": "#/definitions/read_fileActionModel"
@@ -5313,6 +6334,12 @@
                         "$ref": "#/definitions/write_into_fileIterableActionModel"
                       },
                       {
+                        "$ref": "#/definitions/find_todosActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/find_todosIterableActionModel"
+                      },
+                      {
                         "$ref": "#/definitions/insert_content_into_textActionModel"
                       },
                       {
@@ -5329,6 +6356,12 @@
                       },
                       {
                         "$ref": "#/definitions/promptIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/publish_issueIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/read_fileActionModel"
@@ -5402,11 +6435,16 @@
                 "choice",
                 "commit_and_push",
                 "write_into_file",
+                "find_todos",
                 "insert_content_into_text",
                 "search",
                 "prompt",
+                "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -5466,6 +6504,12 @@
               "$ref": "#/definitions/write_into_fileIterableActionModel"
             },
             {
+              "$ref": "#/definitions/find_todosActionModel"
+            },
+            {
+              "$ref": "#/definitions/find_todosIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/insert_content_into_textActionModel"
             },
             {
@@ -5484,6 +6528,12 @@
               "$ref": "#/definitions/promptIterableActionModel"
             },
             {
+              "$ref": "#/definitions/publish_issueActionModel"
+            },
+            {
+              "$ref": "#/definitions/publish_issueIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/read_fileActionModel"
             },
             {
@@ -5494,6 +6544,24 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -5563,11 +6631,16 @@
                       "choice",
                       "commit_and_push",
                       "write_into_file",
+                      "find_todos",
                       "insert_content_into_text",
                       "search",
                       "prompt",
+                      "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -5627,6 +6700,12 @@
                     "$ref": "#/definitions/write_into_fileIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/find_todosActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/find_todosIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/insert_content_into_textActionModel"
                   },
                   {
@@ -5645,6 +6724,12 @@
                     "$ref": "#/definitions/promptIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/publish_issueActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_issueIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/read_fileActionModel"
                   },
                   {
@@ -5655,6 +6740,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -5766,11 +6869,16 @@
                 "choice",
                 "commit_and_push",
                 "write_into_file",
+                "find_todos",
                 "insert_content_into_text",
                 "search",
                 "prompt",
+                "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -5830,6 +6938,12 @@
               "$ref": "#/definitions/write_into_fileIterableActionModel"
             },
             {
+              "$ref": "#/definitions/find_todosActionModel"
+            },
+            {
+              "$ref": "#/definitions/find_todosIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/insert_content_into_textActionModel"
             },
             {
@@ -5848,6 +6962,12 @@
               "$ref": "#/definitions/promptIterableActionModel"
             },
             {
+              "$ref": "#/definitions/publish_issueActionModel"
+            },
+            {
+              "$ref": "#/definitions/publish_issueIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/read_fileActionModel"
             },
             {
@@ -5858,6 +6978,24 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -5927,11 +7065,16 @@
                       "choice",
                       "commit_and_push",
                       "write_into_file",
+                      "find_todos",
                       "insert_content_into_text",
                       "search",
                       "prompt",
+                      "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -5991,6 +7134,12 @@
                     "$ref": "#/definitions/write_into_fileIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/find_todosActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/find_todosIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/insert_content_into_textActionModel"
                   },
                   {
@@ -6009,6 +7158,12 @@
                     "$ref": "#/definitions/promptIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/publish_issueActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_issueIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/read_fileActionModel"
                   },
                   {
@@ -6019,6 +7174,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6130,11 +7303,16 @@
                 "choice",
                 "commit_and_push",
                 "write_into_file",
+                "find_todos",
                 "insert_content_into_text",
                 "search",
                 "prompt",
+                "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -6194,6 +7372,12 @@
               "$ref": "#/definitions/write_into_fileIterableActionModel"
             },
             {
+              "$ref": "#/definitions/find_todosActionModel"
+            },
+            {
+              "$ref": "#/definitions/find_todosIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/insert_content_into_textActionModel"
             },
             {
@@ -6212,6 +7396,12 @@
               "$ref": "#/definitions/promptIterableActionModel"
             },
             {
+              "$ref": "#/definitions/publish_issueActionModel"
+            },
+            {
+              "$ref": "#/definitions/publish_issueIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/read_fileActionModel"
             },
             {
@@ -6222,6 +7412,24 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6291,11 +7499,16 @@
                       "choice",
                       "commit_and_push",
                       "write_into_file",
+                      "find_todos",
                       "insert_content_into_text",
                       "search",
                       "prompt",
+                      "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -6355,6 +7568,12 @@
                     "$ref": "#/definitions/write_into_fileIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/find_todosActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/find_todosIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/insert_content_into_textActionModel"
                   },
                   {
@@ -6373,6 +7592,12 @@
                     "$ref": "#/definitions/promptIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/publish_issueActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_issueIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/read_fileActionModel"
                   },
                   {
@@ -6383,6 +7608,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6484,11 +7727,16 @@
                 "choice",
                 "commit_and_push",
                 "write_into_file",
+                "find_todos",
                 "insert_content_into_text",
                 "search",
                 "prompt",
+                "publish_issue",
                 "read_file",
                 "summarize_pr",
+                "list_todos",
+                "build_and_publish_todo",
+                "publish_todos",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -6548,6 +7796,12 @@
               "$ref": "#/definitions/write_into_fileIterableActionModel"
             },
             {
+              "$ref": "#/definitions/find_todosActionModel"
+            },
+            {
+              "$ref": "#/definitions/find_todosIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/insert_content_into_textActionModel"
             },
             {
@@ -6566,6 +7820,12 @@
               "$ref": "#/definitions/promptIterableActionModel"
             },
             {
+              "$ref": "#/definitions/publish_issueActionModel"
+            },
+            {
+              "$ref": "#/definitions/publish_issueIterableActionModel"
+            },
+            {
               "$ref": "#/definitions/read_fileActionModel"
             },
             {
@@ -6576,6 +7836,24 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/list_todosIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosWorkflowModel"
+            },
+            {
+              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6645,11 +7923,16 @@
                       "choice",
                       "commit_and_push",
                       "write_into_file",
+                      "find_todos",
                       "insert_content_into_text",
                       "search",
                       "prompt",
+                      "publish_issue",
                       "read_file",
                       "summarize_pr",
+                      "list_todos",
+                      "build_and_publish_todo",
+                      "publish_todos",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -6709,6 +7992,12 @@
                     "$ref": "#/definitions/write_into_fileIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/find_todosActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/find_todosIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/insert_content_into_textActionModel"
                   },
                   {
@@ -6727,6 +8016,12 @@
                     "$ref": "#/definitions/promptIterableActionModel"
                   },
                   {
+                    "$ref": "#/definitions/publish_issueActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_issueIterableActionModel"
+                  },
+                  {
                     "$ref": "#/definitions/read_fileActionModel"
                   },
                   {
@@ -6737,6 +8032,24 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/list_todosIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                  },
+                  {
+                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"

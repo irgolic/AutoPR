@@ -23,26 +23,9 @@ async def test_autogenerate_readmes(
     mock_get.return_value = Mock(
         status_code=200, content=mock_content.encode())
 
-    with open(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "data",
-            "gh_cron_event.json",
-        )
-    ) as f:
-        event_json = json.load(f)
-
-    platform_service = GitHubPlatformService(
-        token="",
-        repo_name="",
-        owner="",
-    )
-    event = platform_service.parse_event(event_json, "schedule")
-
     main = create_ephemeral_main_service(
         triggers_filename="api_git_history.yaml",
-        event=event,
+        event="gh_cron_event.json",
     )
 
     await main.run()

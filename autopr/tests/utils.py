@@ -1,4 +1,5 @@
 import importlib
+import json
 import os
 import sys
 import tempfile
@@ -14,7 +15,7 @@ from autopr.models.config.elements import ActionConfig, WorkflowDefinition, Extr
 from autopr.models.events import LabelEvent, Event, EventUnion
 from autopr.models.executable import ExecutableId, ContextDict
 from autopr.services.action_service import ActionSubclass
-from autopr.services.platform_service import PlatformService, DummyPlatformService
+from autopr.services.platform_service import PlatformService, DummyPlatformService, GitHubPlatformService
 from autopr.services.publish_service import DummyPublishService
 
 
@@ -71,7 +72,7 @@ def create_repo(
 
     # copy repo resource
     if repo_resource is not None:
-        real_resource_path = os.path.join(os.path.dirname(__file__), "repo_resources", repo_resource)
+        real_resource_path = os.path.join(os.path.dirname(__file__), "resources", "repos", repo_resource)
         os.system(f"rsync -a --include '.*' {real_resource_path}/ {repo_dir}/")
 
     # create .autopr dir
@@ -105,12 +106,13 @@ def create_ephemeral_main_service(
     triggers_filename: Optional[str] = None,
     workflows_filename: Optional[str] = None,
     repo_resource: Optional[str] = None,
-    event: Optional[Event] = None,
+    event: Optional[EventUnion | str] = None,
 ):
     # load triggers config
     if triggers_filename is not None:
         triggers_path = os.path.join(
             os.path.dirname(__file__),
+            "resources",
             "triggers",
             triggers_filename
         )
@@ -128,11 +130,36 @@ def create_ephemeral_main_service(
     if workflows_filename is not None:
         workflows_path = os.path.join(
             os.path.dirname(__file__),
-            "workflow_resources",
+            "resources",
+            "workflows",
             workflows_filename
         )
         # inject test workflows into autopr.workflows
         autopr.workflows._test_workflow_paths[:] = [workflows_path]
+
+    # load event
+    if isinstance(event, str):
+        event_path = os.path.join(
+            os.path.dirname(__file__),
+            "resources",
+            "events",
+            event
+        )
+        with open(event_path, "r") as f:
+            event_json = json.load(f)
+        platform_service = GitHubPlatformService(
+            token="",
+            repo_name="",
+            owner="",
+        )
+        # TODO this depends on the filename of the event json, which is not ideal
+        if "cron" in event:
+            event_name = "schedule"
+        elif "push" in event:
+            event_name = "push"
+        else:
+            event_name = ""
+        event = platform_service.parse_event(event_json, event_name)
 
     # because autopr.models.config.entrypoints.StrictExecutableId (which is used by TopLevelTriggerConfig),
     # is created upon module import, and it's constructed from a list of available actions and workflows,

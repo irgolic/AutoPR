@@ -34,6 +34,8 @@ class ContextDict(dict[ContextVarName, Any]):
         value = self
         try:
             for part in path_parts:
+                if isinstance(value, pydantic.BaseModel):
+                    value = value.dict()
                 value = value[part]
         except KeyError:
             raise RuntimeError(f"Path {path} not found in context. "
