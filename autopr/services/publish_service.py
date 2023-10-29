@@ -319,9 +319,11 @@ class PublishService:
         if not success:
             await self.publish_comment(
                 "Failed to merge pull request, possibly due to merge conflicts with a newer run. "
-                "If you consistently see this error, "
+                "Attempting to close this pull request instead.\n\n"
+                "If you consistently encounter this error, "
                 f'please <a href="{self._build_issue_template_link()}">open an issue</a> to report it.'
             )
+            await self.platform_service.close_pr(self.pr_number)
 
     async def close(
         self,

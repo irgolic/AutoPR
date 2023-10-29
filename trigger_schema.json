@@ -3383,8 +3383,8 @@
       ],
       "additionalProperties": false
     },
-    "publish_todosOutputs": {
-      "title": "publish_todosOutputs",
+    "publish_todo_issuesOutputs": {
+      "title": "publish_todo_issuesOutputs",
       "type": "object",
       "properties": {
         "issue_number_list": {
@@ -3394,8 +3394,8 @@
       },
       "additionalProperties": false
     },
-    "publish_todosParams": {
-      "title": "publish_todosParams",
+    "publish_todo_issuesParams": {
+      "title": "publish_todo_issuesParams",
       "type": "object",
       "properties": {
         "ISSUE_LABEL_CHOICES": {
@@ -3426,8 +3426,8 @@
       },
       "additionalProperties": false
     },
-    "publish_todosWorkflowModel": {
-      "title": "publish_todosWorkflowModel",
+    "publish_todo_issuesWorkflowModel": {
+      "title": "publish_todo_issuesWorkflowModel",
       "type": "object",
       "properties": {
         "name": {
@@ -3443,17 +3443,17 @@
           "type": "null"
         },
         "outputs": {
-          "$ref": "#/definitions/publish_todosOutputs"
+          "$ref": "#/definitions/publish_todo_issuesOutputs"
         },
         "workflow": {
           "title": "Workflow",
           "enum": [
-            "publish_todos"
+            "publish_todo_issues"
           ],
           "type": "string"
         },
         "parameters": {
-          "$ref": "#/definitions/publish_todosParams"
+          "$ref": "#/definitions/publish_todo_issuesParams"
         }
       },
       "required": [
@@ -3461,8 +3461,8 @@
       ],
       "additionalProperties": false
     },
-    "publish_todosIterableWorkflowModel": {
-      "title": "publish_todosIterableWorkflowModel",
+    "publish_todo_issuesIterableWorkflowModel": {
+      "title": "publish_todo_issuesIterableWorkflowModel",
       "type": "object",
       "properties": {
         "name": {
@@ -3493,17 +3493,17 @@
           "type": "null"
         },
         "list_outputs": {
-          "$ref": "#/definitions/publish_todosOutputs"
+          "$ref": "#/definitions/publish_todo_issuesOutputs"
         },
         "workflow": {
           "title": "Workflow",
           "enum": [
-            "publish_todos"
+            "publish_todo_issues"
           ],
           "type": "string"
         },
         "parameters": {
-          "$ref": "#/definitions/publish_todosParams"
+          "$ref": "#/definitions/publish_todo_issuesParams"
         }
       },
       "required": [
@@ -6444,7 +6444,7 @@
                 "summarize_pr",
                 "list_todos",
                 "build_and_publish_todo",
-                "publish_todos",
+                "publish_todo_issues",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -6558,10 +6558,10 @@
               "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6640,7 +6640,7 @@
                       "summarize_pr",
                       "list_todos",
                       "build_and_publish_todo",
-                      "publish_todos",
+                      "publish_todo_issues",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -6754,10 +6754,10 @@
                     "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -6878,7 +6878,7 @@
                 "summarize_pr",
                 "list_todos",
                 "build_and_publish_todo",
-                "publish_todos",
+                "publish_todo_issues",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -6992,10 +6992,10 @@
               "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -7074,7 +7074,7 @@
                       "summarize_pr",
                       "list_todos",
                       "build_and_publish_todo",
-                      "publish_todos",
+                      "publish_todo_issues",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -7188,10 +7188,10 @@
                     "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -7312,7 +7312,7 @@
                 "summarize_pr",
                 "list_todos",
                 "build_and_publish_todo",
-                "publish_todos",
+                "publish_todo_issues",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -7426,10 +7426,10 @@
               "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -7508,7 +7508,7 @@
                       "summarize_pr",
                       "list_todos",
                       "build_and_publish_todo",
-                      "publish_todos",
+                      "publish_todo_issues",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -7622,10 +7622,10 @@
                     "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -7736,7 +7736,7 @@
                 "summarize_pr",
                 "list_todos",
                 "build_and_publish_todo",
-                "publish_todos",
+                "publish_todo_issues",
                 "api_git_history",
                 "reformat_results",
                 "summarize_file",
@@ -7850,10 +7850,10 @@
               "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
             },
             {
-              "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+              "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/api_git_historyWorkflowModel"
@@ -7932,7 +7932,7 @@
                       "summarize_pr",
                       "list_todos",
                       "build_and_publish_todo",
-                      "publish_todos",
+                      "publish_todo_issues",
                       "api_git_history",
                       "reformat_results",
                       "summarize_file",
@@ -8046,10 +8046,10 @@
                     "$ref": "#/definitions/build_and_publish_todoIterableWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesWorkflowModel"
                   },
                   {
-                    "$ref": "#/definitions/publish_todosIterableWorkflowModel"
+                    "$ref": "#/definitions/publish_todo_issuesIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/api_git_historyWorkflowModel"

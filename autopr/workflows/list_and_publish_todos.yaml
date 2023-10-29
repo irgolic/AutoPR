@@ -110,7 +110,8 @@ build_and_publish_todo:
       outputs:
         issue_number: issue_number
 
-publish_todos:
+publish_todo_issues:
+  name: Update TODO issues
   outputs:
     - issue_number_list
   steps:

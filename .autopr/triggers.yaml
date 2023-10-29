@@ -36,7 +36,7 @@ triggers:
         EMPTY_FILE_SUMMARY: "This file is empty."
   - branch_name: main
     run: 
-      workflow: publish_todos
+      workflow: publish_todo_issues
       parameters:
         ISSUE_LABEL_CHOICES:
           - "easy"

@@ -191,7 +191,7 @@ from autopr.tests.utils import create_ephemeral_main_service
         ),
         (
             None,
-            "publish_todos",
+            "publish_todo_issues",
             {},
             {
                 "LANGUAGE": "javascript",
