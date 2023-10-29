@@ -1,6 +1,6 @@
 list_todos:
   inputs:
-    - comment
+    - language
     - todo_keywords
   outputs:
     - issue_number_list
@@ -117,10 +117,14 @@ publish_todos:
     - workflow: list_todos
       inputs:
         language:
-          const: "#"
+          param:
+            default: "python"
+            name: LANGUAGE
         todo_keywords:
-          const:
-            - "TODO"
-            - "FIXME"
+          param:
+            default:
+              - "TODO"
+              - "FIXME"
+            name: TODO_KEYWORDS
       outputs:
         issue_number_list: issue_number_list

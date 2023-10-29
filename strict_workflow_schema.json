@@ -3021,8 +3021,8 @@
       "title": "list_todosInputs",
       "type": "object",
       "properties": {
-        "comment": {
-          "title": "Comment",
+        "language": {
+          "title": "Language",
           "anyOf": [
             {
               "type": "string"
@@ -3083,7 +3083,7 @@
         }
       },
       "required": [
-        "comment",
+        "language",
         "todo_keywords"
       ],
       "additionalProperties": false
@@ -4700,6 +4700,17 @@
       ],
       "additionalProperties": false
     },
+    "insert_into_readmeOutputs": {
+      "title": "insert_into_readmeOutputs",
+      "type": "object",
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "insert_into_readmeParams": {
       "title": "insert_into_readmeParams",
       "type": "object",
@@ -4722,8 +4733,7 @@
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
         "outputs": {
-          "title": "Outputs",
-          "type": "null"
+          "$ref": "#/definitions/insert_into_readmeOutputs"
         },
         "workflow": {
           "title": "Workflow",
@@ -4773,8 +4783,7 @@
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
         "list_outputs": {
-          "title": "List Outputs",
-          "type": "null"
+          "$ref": "#/definitions/insert_into_readmeOutputs"
         },
         "workflow": {
           "title": "Workflow",
