@@ -24,26 +24,9 @@ async def test_autogenerate_readmes(
     )
     mock_get.return_value = Mock(status_code=200, json=lambda: {})
 
-    with open(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "data",
-            "gh_push_event.json",
-        )
-    ) as f:
-        event_json = json.load(f)
-
-    platform_service = GitHubPlatformService(
-        token="",
-        repo_name="",
-        owner="",
-    )
-    event = platform_service.parse_event(event_json, "push")
-
     main = create_ephemeral_main_service(
         triggers_filename="autogenerate_readmes.yaml",
-        event=event,
+        event="gh_push_event.json",
         repo_resource="example_repo_2",
     )
 

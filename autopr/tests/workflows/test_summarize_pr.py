@@ -27,7 +27,8 @@ async def test_summarize_pr(
         os.path.join(
             os.path.dirname(__file__),
             "..",
-            "data",
+            "resources",
+            "events",
             "gh_pr_label_event.json",
         )
     ) as f:

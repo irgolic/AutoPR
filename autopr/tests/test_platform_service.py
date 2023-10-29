@@ -145,11 +145,7 @@ async def test_github_platform_service(
     'event_json_path, expected_event',
     [
         (
-            os.path.join(
-                os.path.dirname(__file__),
-                'data',
-                'gh_pr_label_event.json',
-            ),
+            'gh_pr_label_event.json',
             LabelEvent(
                 issue=None,
                 pull_request=PullRequest(
@@ -175,11 +171,7 @@ async def test_github_platform_service(
             ),
         ),
         (
-            os.path.join(
-                os.path.dirname(__file__),
-                'data',
-                'gh_pr_label_event_2.json',
-            ),
+            'gh_pr_label_event_2.json',
             # Actual   :LabelEvent(event_type='label', pull_request=PullRequest(messages=[Message(body='', author='irgolic'), Message(body='123', author='user1')], number=5, title='Fixup docs', author='irgolic', timestamp='2023-08-19T17:38:34Z', base_branch='main', head_bra ...
             LabelEvent(
                 issue=None,
@@ -223,7 +215,8 @@ def test_parse_event(
 
     abs_path = os.path.join(
         os.path.dirname(__file__),
-        'data',
+        'resources',
+        'events',
         event_json_path,
     )
     with open(abs_path) as f:

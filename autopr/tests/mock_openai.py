@@ -6,7 +6,7 @@ def build_mock_dict():
 
     mock_prompts_dir = os.path.join(
         os.path.dirname(__file__),
-        "data",
+        "resources",
         "mock_prompts",
     )
     for folder in os.listdir(mock_prompts_dir):
