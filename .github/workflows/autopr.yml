@@ -37,7 +37,7 @@ jobs:
         ref: main
         fetch-depth: 1
     - name: AutoPR
-      uses: irgolic/AutoPR@main
+      uses: raphael-francis/autopr-internal@main
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       with:
