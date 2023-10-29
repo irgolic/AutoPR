@@ -6,7 +6,7 @@
 This folder contains a collection of Python files that serve different purposes. The files include modules for importing and organizing other Python files, base classes for defining actions in an autonomous agent system, scripts for running bash commands and making API calls, classes for generating prompts and searching for specific content, and utilities for managing prompt context in a chatbot application. There are also files for reading and writing file contents, publishing comments and issues on platforms, and finding and managing TODO tasks in code. Overall, this folder provides a variety of reusable components for building automation and AI-related tasks.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/__init__.py)
 
 📂 The file imports modules from the current directory.  
 🧩 It gathers all Python files in the directory and imports them.  
@@ -15,7 +15,7 @@ This folder contains a collection of Python files that serve different purposes.
 🔍 The purpose of the file is to make all modules easily accessible.  
 
 
-### [`base.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/base.py)
+### [`base.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/base.py)
 
 📄 This file defines a base class for actions in an autonomous agent system. Actions are responsible for performing tasks, affecting the environment, and returning results.  
 🔍 The file also contains a metaclass for registering actions in a global registry.  
@@ -28,7 +28,7 @@ This folder contains a collection of Python files that serve different purposes.
 🔀 The file imports various modules and types that are used throughout the code.  
 
 
-### [`bash.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/bash.py)
+### [`bash.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/bash.py)
 
 📝 This file contains a Python script for running a bash command and returning its output.   
 🔧 It defines a class called "Bash" that extends a base class called "Action".  
@@ -41,7 +41,7 @@ This folder contains a collection of Python files that serve different purposes.
 🧪 The file can be used as a starting point for building more complex automation tasks involving bash commands.  
 
 
-### [`choice.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/choice.py)
+### [`choice.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/choice.py)
 
 📝 This file contains a Python script for generating a choice prompt using OpenAI's GPT-3.5 model.  
 🤖 The purpose of the script is to create a helpful assistant that can make a choice from a given list of options.  
@@ -55,7 +55,7 @@ This folder contains a collection of Python files that serve different purposes.
 📄 The script imports necessary modules and defines the required data models and classes.  
 
 
-### [`comment.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/comment.py)
+### [`comment.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/comment.py)
 
 📄 This file defines a class called "Comment" which represents an action to publish a comment on a GitHub issue.  
 🔑 The class has an ID of "comment" and inherits from the "Action" class.  
@@ -67,7 +67,7 @@ This folder contains a collection of Python files that serve different purposes.
 ✅ The file is part of a larger codebase and serves the purpose of implementing a specific action in an automated process.  
 
 
-### [`commit_and_push.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/commit_and_push.py)
+### [`commit_and_push.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/commit_and_push.py)
 
 📄 This file defines a class called "CommitAndPush" that represents an action to commit and push changes to a remote repository.  
 🔐 The class extends a base class called "Action" and is generic with inputs of type "Inputs" and no output.  
@@ -80,7 +80,7 @@ This folder contains a collection of Python files that serve different purposes.
 📄 The file uses the pydantic library for type validation and modeling of the "Inputs" class.  
 
 
-### [`crawl_folder.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/crawl_folder.py)
+### [`crawl_folder.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/crawl_folder.py)
 
 📄 This file defines a class called "CrawlFolder" that lists the files and subfolders in a given folder while excluding certain files and directories.  
 📂 The class takes inputs such as the folder path, a list of entries to ignore, and whether to ignore binary files.  
@@ -94,7 +94,7 @@ This folder contains a collection of Python files that serve different purposes.
 🔒 The file does not have any test cases included.  
 
 
-### [`find_todos.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/find_todos.py)
+### [`find_todos.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/find_todos.py)
 
 📝 This file contains the implementation of a class called "FindTodos".  
 🔍 The purpose of this class is to scan through all files in a directory and its subdirectories, find comments with "#TODO" or "#FIXME" in them, and return a list of tasks along with their file paths and line numbers.  
@@ -108,7 +108,7 @@ This folder contains a collection of Python files that serve different purposes.
 🛠️ The file can be used as a standalone script or as part of a larger codebase for automated code review or task management purposes.  
 
 
-### [`insert_content_into_text.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/insert_content_into_text.py)
+### [`insert_content_into_text.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/insert_content_into_text.py)
 
 📄 This file contains a Python script for inserting content into a string at a specified delimiter.  
 🔍 The purpose of the script is to insert content into a string based on the occurrence of a delimiter.  
@@ -122,7 +122,7 @@ This folder contains a collection of Python files that serve different purposes.
 📖 Overall, this script provides a convenient way to insert content into a string at a specific delimiter.  
 
 
-### [`make_api_call.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/make_api_call.py)
+### [`make_api_call.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/make_api_call.py)
 
 📝 This file defines an action class called "GetApiCallActions" that makes an API call to a specified endpoint URL and returns the response.  
 🔌 The action takes inputs such as the endpoint URL and optional headers.  
@@ -136,7 +136,7 @@ This folder contains a collection of Python files that serve different purposes.
 🔑 The headers can be customized to include additional information in the API request.  
 
 
-### [`prompt.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/prompt.py)
+### [`prompt.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/prompt.py)
 
 📝 This file contains code for generating a string using the OpenAI GPT-3 model.  
 🔤 It defines the `Inputs` and `Outputs` models for the prompt generation.  
@@ -149,7 +149,7 @@ This folder contains a collection of Python files that serve different purposes.
 📚 The purpose of this file is to provide a reusable component for generating prompts using the GPT-3 model.  
 
 
-### [`publish_issue.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/publish_issue.py)
+### [`publish_issue.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/publish_issue.py)
 
 📄 This file contains code for publishing or updating an issue on a platform.   
 🔍 It checks if the issue with the specified title already exists.   
@@ -160,7 +160,7 @@ This folder contains a collection of Python files that serve different purposes.
 🧪 The code also includes a test case where the 'publish_issue' method is mocked for testing purposes.  
 
 
-### [`read_file.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/read_file.py)
+### [`read_file.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/read_file.py)
 
 📝 The file contains a Python class called "ReadFile" that represents an action to read the contents of a file.  
 📄 It imports necessary modules and defines two Pydantic models for input and output data.  
@@ -173,7 +173,7 @@ This folder contains a collection of Python files that serve different purposes.
 🔬 There is a test section at the end that demonstrates how to manually run the "ReadFile" action.  
 
 
-### [`search.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/search.py)
+### [`search.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/search.py)
 
 📄 This file contains a Python script for searching for a given query across all files in a directory and its subdirectories.  
 🔍 The script defines a class called "Search" that inherits from a base class called "Action".  
@@ -186,7 +186,7 @@ This folder contains a collection of Python files that serve different purposes.
 🚀 The script can be run independently by executing the main block at the end of the file.  
 
 
-### [`set_issue_title.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/set_issue_title.py)
+### [`set_issue_title.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/set_issue_title.py)
 
 📝 This file defines a class named `SetIssueTitle` which represents an action to set the title of an issue.   
 📋 The class is a subclass of `Action` and takes an input of type `Inputs` which has a single field `title` of type `str`.   
@@ -194,12 +194,12 @@ This folder contains a collection of Python files that serve different purposes.
 🔑 The class has a unique identifier `id` which is set to "set_issue_title".  
 
 
-### [`utils/`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/utils)
+### [`utils/`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/utils)
 
 This folder contains Python code for managing prompt context in a chatbot application. The `prompt_context.py` file defines a `PromptContext` class that represents a dictionary mapping headings to context variable values. It provides methods for formatting the context as a string and calculating the token length. The file also includes declarations for prompt context in a config file and functions for trimming the context and invoking the OpenAI Chat Completion API.  
 
 
-### [`write_into_file.py`](https://github.com/raphael-francis/AutoPR-internal/blob/abf8a94706cbed9949282f3ad09945acb09227e5/./autopr/actions/write_into_file.py)
+### [`write_into_file.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/write_into_file.py)
 
 📝 The purpose of this file is to define an action called "WriteIntoFile" that writes content into a file.  
 🔒 The action requires the filepath, content, and append_at_the_end parameters.  
