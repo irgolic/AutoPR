@@ -11,12 +11,14 @@ reformat_results:
         newlined_summary_list:
           lambda: |
             [
-                name,
-                "\n".join(
-                    f"{line}  "
-                    for line in desc.splitlines()
-                ),
-                url
+                (
+                    name,
+                    "\n".join(
+                        f"{line}  "
+                        for line in desc.splitlines()
+                    ),
+                    url
+                )
                 for name, desc, url in summary_list
             ]
         formatted_summary:
