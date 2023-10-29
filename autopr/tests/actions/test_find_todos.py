@@ -107,7 +107,7 @@ from autopr.tests.utils import run_action_manually
         ),
         (
             {
-                "comment": "//",
+                "language": "javascript",
                 "todo_keywords": ["TODO", "FIXME", "WHATEVER"],
             },
             {
@@ -146,7 +146,7 @@ from autopr.tests.utils import run_action_manually
         ),
         (
             {
-                "comment": "//",
+                "language": "javascript",
             },
             {
                 "todos": [
@@ -194,8 +194,8 @@ async def test_actions(
 
 
 @pytest.mark.asyncio
-async def test_comment_not_found():
-    inputs = {"comment": "€"}
+async def test_language_not_found():
+    inputs = {"language": "not_a_language"}
     repo_resource = "repo_with_todos"
 
     with pytest.raises(ValueError):
