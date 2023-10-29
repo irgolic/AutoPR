@@ -782,19 +782,28 @@ class GitHubPlatformService(PlatformService):
                     response=response,
                 )
     
-    def get_latest_commit_hash(self, owner, repo, branch):
+    async def get_latest_commit_hash(self, owner, repo, branch):
         url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
         headers = self._get_headers()
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        return data['object']['sha']
+        async with ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data['object']['sha']
+
+                await self._log_failed_request(
+                    'Failed to get latest commit hash',
+                    request_url=url,
+                    request_headers=headers,
+                    response=response,
+                )
 
     async def get_file_url(
-            self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
-        ) -> str:
+        self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
+    ) -> str:
         # Get the latest commit hash for the base branch
-        commit_hash = self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
-        file_num_lines = self.get_num_lines_in_file(file_path, base_branch)
+        commit_hash = await self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
+        file_num_lines = await self.get_num_lines_in_file(file_path, base_branch)
         
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
@@ -803,7 +812,9 @@ class GitHubPlatformService(PlatformService):
         output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
         return output + await self._format_start_and_end_line(start_line, end_line, file_num_lines, margin)
 
-    async def _format_start_and_end_line(self, start_line : Optional[int], end_line : Optional[int], file_num_lines : int, margin : int) -> str:
+    async def _format_start_and_end_line(self, start_line : Optional[int], end_line : Optional[int], file_num_lines : Optional[int], margin : int) -> str:
+        if file_num_lines is None:
+            file_num_lines = sys.maxsize
         if start_line is not None and end_line is not None:
             return f"#L{max(1, start_line - margin)}-L{min(end_line + margin, file_num_lines)}"
         elif start_line is not None and end_line is None:
@@ -812,19 +823,39 @@ class GitHubPlatformService(PlatformService):
             return f"#L{max(1, end_line - margin)}-L{min(end_line + margin, file_num_lines)}"
         return ""
 
-    def get_num_lines_in_file(self, file_path: str, branch: str) -> int:
+    async def get_num_lines_in_file(self, file_path: str, branch: str) -> Optional[int]:
         url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/contents/{file_path}?ref={branch}"
-        response = requests.get(url, headers=self._get_headers())
-        response.raise_for_status()
-        json_data = json.loads(response.text)
-        decoded_content = base64.b64decode(json_data['content']).decode("utf-8")
-        lines = decoded_content.split("\n")
-        # In case of line ending with a newline character, the split function returns an empty string as the last element,
-        # making the total line count one more than the actual number of lines in the file.
-        num_lines = len(lines)
-        if lines[-1] == "":
-            num_lines -= 1
-        return num_lines
+        headers = self._get_headers()
+        async with ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    json_data = await response.json()
+                    try:
+                        content = json_data['content']
+                        decoded_content = base64.b64decode(content).decode("utf-8")
+                    except:
+                        await self._log_failed_request(
+                            'Failed to decode file content',
+                            request_url=url,
+                            request_headers=headers,
+                            response=response,
+                        )
+                        return None
+                    lines = decoded_content.split("\n")
+                    num_lines = len(lines)
+                    if lines[-1] == "":
+                        # In case of line ending with a newline character,
+                        # the split function returns an empty string as the last element,
+                        # making the total line count one more than the actual number of lines in the file.
+                        num_lines -= 1
+                    return num_lines
+
+                await self._log_failed_request(
+                    'Failed to get number of lines in file',
+                    request_url=url,
+                    request_headers=headers,
+                    response=response,
+                )
 
     async def close_issue(self, issue_number: int) -> None:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
