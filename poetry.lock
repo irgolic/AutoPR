@@ -1237,6 +1237,31 @@ files = [
 tree-sitter = "*"
 
 [[package]]
+name = "types-tree-sitter"
+version = "0.20.1.5"
+description = "Typing stubs for tree-sitter"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-tree-sitter-0.20.1.5.tar.gz", hash = "sha256:94f971599548b90b9bbb6af651d235ad795a094a07651bc565a4b8856caebab1"},
+    {file = "types_tree_sitter-0.20.1.5-py3-none-any.whl", hash = "sha256:8d7f9961febbad29789ce5c65f79b95b0702f3d34a7c12fabcd69c36c2bbe184"},
+]
+
+[[package]]
+name = "types-tree-sitter-languages"
+version = "1.8.0.0"
+description = "Typing stubs for tree-sitter-languages"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "types-tree-sitter-languages-1.8.0.0.tar.gz", hash = "sha256:a066d1c91d5fe8b8fce08669816d9e8c41bbe348085b3cb9799fa74070a30604"},
+    {file = "types_tree_sitter_languages-1.8.0.0-py3-none-any.whl", hash = "sha256:9d4a8e2a435a4a0d356e643fb53993e3c491749ce0b7a628c22cb87904c6daca"},
+]
+
+[package.dependencies]
+types-tree-sitter = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.8.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1354,4 +1379,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "2317ed4fec3e1e6a1178a531c164da8c11040318ec65568dcaa1b50058ac16d5"
+content-hash = "5653eaf148aba4871783bbd9427b9748b2a92a33bff282c47e89b71c237ef7cf"
