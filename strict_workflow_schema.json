@@ -244,11 +244,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -363,11 +358,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -553,11 +543,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -720,11 +705,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -864,11 +844,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1325,11 +1300,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -1477,11 +1447,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1666,11 +1631,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -1838,11 +1798,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -2033,11 +1988,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2222,11 +2172,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -2530,11 +2475,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2749,11 +2689,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2921,11 +2856,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2961,6 +2891,16 @@
           "title": "Pull Request",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -2981,6 +2921,12 @@
       "required": [
         "pull_request"
       ],
+      "additionalProperties": false
+    },
+    "summarize_prParams": {
+      "title": "summarize_prParams",
+      "type": "object",
+      "properties": {},
       "additionalProperties": false
     },
     "summarize_prWorkflowModel": {
@@ -3008,6 +2954,9 @@
             "summarize_pr"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_prParams"
         }
       },
       "required": [
@@ -3043,11 +2992,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_prInputs"
         },
@@ -3061,6 +3005,9 @@
             "summarize_pr"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_prParams"
         }
       },
       "required": [
@@ -3077,6 +3024,16 @@
         "comment": {
           "title": "Comment",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3097,6 +3054,16 @@
         "todo_keywords": {
           "title": "Todo Keywords",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3132,6 +3099,38 @@
       },
       "additionalProperties": false
     },
+    "list_todosParams": {
+      "title": "list_todosParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "list_todosWorkflowModel": {
       "title": "list_todosWorkflowModel",
       "type": "object",
@@ -3156,6 +3155,9 @@
             "list_todos"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/list_todosParams"
         }
       },
       "required": [
@@ -3191,11 +3193,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/list_todosInputs"
         },
@@ -3208,6 +3205,9 @@
             "list_todos"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/list_todosParams"
         }
       },
       "required": [
@@ -3224,6 +3224,16 @@
         "todo": {
           "title": "Todo",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3258,6 +3268,38 @@
       },
       "additionalProperties": false
     },
+    "build_and_publish_todoParams": {
+      "title": "build_and_publish_todoParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "build_and_publish_todoWorkflowModel": {
       "title": "build_and_publish_todoWorkflowModel",
       "type": "object",
@@ -3282,6 +3324,9 @@
             "build_and_publish_todo"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/build_and_publish_todoParams"
         }
       },
       "required": [
@@ -3317,11 +3362,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/build_and_publish_todoInputs"
         },
@@ -3334,6 +3374,9 @@
             "build_and_publish_todo"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/build_and_publish_todoParams"
         }
       },
       "required": [
@@ -3349,6 +3392,38 @@
       "properties": {
         "issue_number_list": {
           "title": "Issue Number List",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publish_todosParams": {
+      "title": "publish_todosParams",
+      "type": "object",
+      "properties": {
+        "ISSUE_LABEL_CHOICES": {
+          "title": "Issue Label Choices",
+          "default": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "array",
+          "items": {}
+        },
+        "ISSUE_LABEL_PROMPT": {
+          "title": "Issue Label Prompt",
+          "default": "How hard is this task?",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_INSTRUCTIONS": {
+          "title": "Issue Description Instructions",
+          "default": "Respond in 1-3 sentences.",
+          "type": "string"
+        },
+        "ISSUE_DESCRIPTION_PROMPT": {
+          "title": "Issue Description Prompt",
+          "default": "What tips can you give to someone that's resolving this TODO?",
           "type": "string"
         }
       },
@@ -3379,6 +3454,9 @@
             "publish_todos"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/publish_todosParams"
         }
       },
       "required": [
@@ -3413,11 +3491,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "title": "Inputs",
           "type": "null"
@@ -3431,6 +3504,9 @@
             "publish_todos"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/publish_todosParams"
         }
       },
       "required": [
@@ -3446,6 +3522,16 @@
         "endpoint_url": {
           "title": "Endpoint Url",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3467,6 +3553,16 @@
           "title": "Headers",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -3486,6 +3582,16 @@
         "filepath": {
           "title": "Filepath",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3509,6 +3615,12 @@
         "headers",
         "filepath"
       ],
+      "additionalProperties": false
+    },
+    "api_git_historyParams": {
+      "title": "api_git_historyParams",
+      "type": "object",
+      "properties": {},
       "additionalProperties": false
     },
     "api_git_historyWorkflowModel": {
@@ -3536,6 +3648,9 @@
             "api_git_history"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/api_git_historyParams"
         }
       },
       "required": [
@@ -3571,11 +3686,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/api_git_historyInputs"
         },
@@ -3589,6 +3699,9 @@
             "api_git_history"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/api_git_historyParams"
         }
       },
       "required": [
@@ -3605,6 +3718,16 @@
         "folder_name": {
           "title": "Folder Name",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3626,6 +3749,16 @@
           "title": "Summary List",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -3645,6 +3778,16 @@
         "folder_summary": {
           "title": "Folder Summary",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3681,6 +3824,12 @@
       },
       "additionalProperties": false
     },
+    "reformat_resultsParams": {
+      "title": "reformat_resultsParams",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
     "reformat_resultsWorkflowModel": {
       "title": "reformat_resultsWorkflowModel",
       "type": "object",
@@ -3705,6 +3854,9 @@
             "reformat_results"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/reformat_resultsParams"
         }
       },
       "required": [
@@ -3740,11 +3892,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/reformat_resultsInputs"
         },
@@ -3757,6 +3904,9 @@
             "reformat_results"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/reformat_resultsParams"
         }
       },
       "required": [
@@ -3773,6 +3923,16 @@
         "path": {
           "title": "Path",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3815,6 +3975,28 @@
       },
       "additionalProperties": false
     },
+    "summarize_fileParams": {
+      "title": "summarize_fileParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "summarize_fileWorkflowModel": {
       "title": "summarize_fileWorkflowModel",
       "type": "object",
@@ -3839,6 +4021,9 @@
             "summarize_file"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_fileParams"
         }
       },
       "required": [
@@ -3874,11 +4059,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_fileInputs"
         },
@@ -3891,6 +4071,9 @@
             "summarize_file"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_fileParams"
         }
       },
       "required": [
@@ -3907,6 +4090,16 @@
         "path": {
           "title": "Path",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3927,6 +4120,16 @@
         "ls_folder": {
           "title": "Ls Folder",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -3962,6 +4165,44 @@
       },
       "additionalProperties": false
     },
+    "summarize_folderParams": {
+      "title": "summarize_folderParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "summarize_folderWorkflowModel": {
       "title": "summarize_folderWorkflowModel",
       "type": "object",
@@ -3986,6 +4227,9 @@
             "summarize_folder"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_folderParams"
         }
       },
       "required": [
@@ -4021,11 +4265,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/summarize_folderInputs"
         },
@@ -4038,6 +4277,9 @@
             "summarize_folder"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/summarize_folderParams"
         }
       },
       "required": [
@@ -4054,6 +4296,16 @@
         "path": {
           "title": "Path",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -4096,6 +4348,44 @@
       },
       "additionalProperties": false
     },
+    "generate_summaryParams": {
+      "title": "generate_summaryParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "generate_summaryWorkflowModel": {
       "title": "generate_summaryWorkflowModel",
       "type": "object",
@@ -4120,6 +4410,9 @@
             "generate_summary"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_summaryParams"
         }
       },
       "required": [
@@ -4155,11 +4448,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/generate_summaryInputs"
         },
@@ -4172,6 +4460,9 @@
             "generate_summary"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_summaryParams"
         }
       },
       "required": [
@@ -4179,6 +4470,44 @@
         "inputs",
         "workflow"
       ],
+      "additionalProperties": false
+    },
+    "generate_readme_summariesParams": {
+      "title": "generate_readme_summariesParams",
+      "type": "object",
+      "properties": {
+        "EMPTY_FILE_SUMMARY": {
+          "title": "Empty File Summary",
+          "default": "This file is empty.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_INSTRUCTIONS": {
+          "title": "File Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FILE_SUMMARY_PROMPT": {
+          "title": "File Summary Prompt",
+          "default": "What is the purpose of this file? Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "FOLDER_SUMMARY_INSTRUCTIONS": {
+          "title": "Folder Summary Instructions",
+          "default": "Respond in 3-5 sentences.",
+          "type": "string"
+        },
+        "FOLDER_SUMMARY_PROMPT": {
+          "title": "Folder Summary Prompt",
+          "default": "What's this folder all about? Respond in 3-5 sentences.",
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     },
     "generate_readme_summariesWorkflowModel": {
@@ -4207,6 +4536,9 @@
             "generate_readme_summaries"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_readme_summariesParams"
         }
       },
       "required": [
@@ -4241,11 +4573,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "title": "Inputs",
           "type": "null"
@@ -4260,6 +4587,9 @@
             "generate_readme_summaries"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/generate_readme_summariesParams"
         }
       },
       "required": [
@@ -4275,6 +4605,16 @@
         "filepath": {
           "title": "Filepath",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -4296,6 +4636,16 @@
           "title": "Tag",
           "anyOf": [
             {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
               "$ref": "#/definitions/TemplateDeclaration"
             },
             {
@@ -4315,6 +4665,16 @@
         "content": {
           "title": "Content",
           "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
             {
               "$ref": "#/definitions/TemplateDeclaration"
             },
@@ -4338,6 +4698,12 @@
         "tag",
         "content"
       ],
+      "additionalProperties": false
+    },
+    "insert_into_readmeParams": {
+      "title": "insert_into_readmeParams",
+      "type": "object",
+      "properties": {},
       "additionalProperties": false
     },
     "insert_into_readmeWorkflowModel": {
@@ -4365,6 +4731,9 @@
             "insert_into_readme"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/insert_into_readmeParams"
         }
       },
       "required": [
@@ -4400,11 +4769,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/insert_into_readmeInputs"
         },
@@ -4418,6 +4782,9 @@
             "insert_into_readme"
           ],
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/insert_into_readmeParams"
         }
       },
       "required": [
@@ -4486,6 +4853,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [
@@ -4520,11 +4890,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/ExtraModel"
         },
@@ -4534,6 +4899,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [

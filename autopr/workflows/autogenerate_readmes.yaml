@@ -213,6 +213,7 @@ generate_summary:
               folder_summary: summary
 
 generate_readme_summaries:
+  name: Living README (summary)
   # Executions of the defined workflows
   steps:
     # Summarize the folders

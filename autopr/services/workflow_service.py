@@ -24,93 +24,21 @@ class WorkflowService:
     def __init__(
         self,
         workflows: TopLevelWorkflowConfig,
-        triggers: list[Trigger],
         action_service: ActionService,
         publish_service: PublishService,
         strict: bool = True,
     ):
         self.workflows = workflows
-        self.triggers = triggers
         self.action_service = action_service
         self.publish_service = publish_service
         self.strict = strict
 
-        print("Loaded triggers:")
-        for t in self.triggers:
-            print(t.json(indent=2))
-
         self.log = get_logger(service="workflow")
 
-    def _get_name_for_executable(self, executable: Executable) -> str:
-        if isinstance(executable, str):
-            return executable
-        if isinstance(executable, ActionConfig):
-            return executable.action
-        if isinstance(executable, WorkflowInvocation) or isinstance(executable, IterableWorkflowInvocation):
-            return executable.workflow
-        if isinstance(executable, ContextAction):
-            raise RuntimeError("Meaningless trigger! Whatchu tryina do :)")
-        raise ValueError(f"Unknown executable type {executable}")
+    def get_executable_by_id(self, id_: ExecutableId, context: Optional[ContextDict] = None) -> Union[ActionConfig, WorkflowDefinition]:
+        if context is None:
+            context = ContextDict()
 
-    async def _get_trigger_coros_for_event(self, event: EventUnion) -> list[Coroutine[Any, Any, ContextDict]]:
-        # Gather all triggers that match the event
-        triggers_and_context: list[tuple[Trigger, ContextDict]] = []
-        for trigger in self.triggers:
-            context = trigger.get_context_for_event(event)
-            if context is None:
-                continue
-            triggers_and_context.append((trigger, context))
-
-        # Build coroutines for each trigger
-        if not triggers_and_context:
-            return []
-        if len(triggers_and_context) == 1:
-            self.publish_service.title = f"AutoPR: {self._get_name_for_executable(triggers_and_context[0][0].run)}"
-            return [
-                self.handle_trigger(
-                    trigger,
-                    context,
-                    publish_service=self.publish_service,
-                )
-                for trigger, context in triggers_and_context
-            ]
-        trigger_titles = [self._get_name_for_executable(trigger.run) for trigger, context in triggers_and_context]
-        self.publish_service.title = f"AutoPR: {', '.join(truncate_strings(trigger_titles))}"
-        return [
-            self.handle_trigger(
-                trigger,
-                context,
-                publish_service=(await self.publish_service.create_child(title=title)),
-            )
-            for i, ((trigger, context), title) in enumerate(zip(triggers_and_context, trigger_titles))
-        ]
-
-    async def trigger_event(
-        self,
-        event: EventUnion,
-    ):
-        triggers = await self._get_trigger_coros_for_event(event)
-        if not triggers:
-            print(event)
-            self.log.debug(f"No triggers for event")
-            return
-
-        results = await asyncio.gather(*triggers)
-
-        exceptions = []
-        for r in results:
-            if isinstance(r, Exception):
-                self.log.error("Error in trigger", exc_info=r)
-                exceptions.append(r)
-
-        if exceptions:
-            await self.publish_service.finalize(False, exceptions)
-        else:
-            await self.publish_service.finalize(True)
-
-        return results
-
-    def get_executable_by_id(self, id_: ExecutableId, context: ContextDict) -> Union[ActionConfig, WorkflowDefinition]:
         # Look in actions
         action = self.action_service.find_action(id_)
         if action is not None:
@@ -151,20 +79,28 @@ class WorkflowService:
             return await self.publish_and_execute_workflow(id_, executable, context, publish_service)
         raise ValueError(f"`{id_}` is not an executable")
 
-    def _prepare_workflow_inputs(
+    def _prepare_workflow_context(
         self,
         inputs: Optional[pydantic.BaseModel],  # [str, TemplateObject]
+        parameters: Optional[pydantic.BaseModel],  # dict[str, TemplateObject]]
         context: ContextDict,
     ):
         # Pass __params__ through
-        input_values = {
+        prepared_context = {
             k: v
             for k, v in context.items()
             if k.startswith("__") and k.endswith("__")
         }
 
+        if parameters is not None:
+            params_dict = parameters.dict()
+            if "__params__" in context:
+                # Add params without overwriting existing values
+                params_dict |= context["__params__"]
+            prepared_context["__params__"] = params_dict
+
         if inputs is None:
-            return ContextDict(input_values)
+            return ContextDict(prepared_context)
 
         for key, template in inputs:
 
@@ -175,11 +111,11 @@ class WorkflowService:
                 pass
 
             if any(isinstance(template, t) for t in typing.get_args(ValueDeclaration)):
-                input_values[key] = template.render(context)
+                prepared_context[key] = template.render(context)
             else:
-                input_values[key] = context.render_nested_template(template)
+                prepared_context[key] = context.render_nested_template(template)
 
-        return ContextDict(input_values)
+        return ContextDict(prepared_context)
 
     async def publish_and_execute_workflow(
         self,
@@ -202,7 +138,11 @@ class WorkflowService:
         publish_service: PublishService,
     ):
         # Prepare inputs
-        input_context = self._prepare_workflow_inputs(workflow_invocation.inputs, context)
+        input_context = self._prepare_workflow_context(
+            workflow_invocation.inputs,
+            workflow_invocation.parameters,
+            context
+        )
 
         # Execute workflow
         workflow_definition = self.get_executable_by_id(workflow_invocation.workflow, input_context)
@@ -246,8 +186,9 @@ class WorkflowService:
                 # Prepare inputs
                 if item_name is not None:
                     iter_context = ContextDict(iter_context | {item_name: i})
-                input_context = self._prepare_workflow_inputs(
+                input_context = self._prepare_workflow_context(
                     iter_workflow_invocation.inputs,
+                    iter_workflow_invocation.parameters,
                     iter_context,
                 )
                 # Prepare coroutine
@@ -271,8 +212,9 @@ class WorkflowService:
             for item in list_var:
                 # Prepare inputs
                 iter_context = ContextDict(context | {item_name: item})
-                input_context = self._prepare_workflow_inputs(
+                input_context = self._prepare_workflow_context(
                     iter_workflow_invocation.inputs,
+                    iter_workflow_invocation.parameters,
                     iter_context,
                 )
                 # Prepare coroutine
@@ -280,7 +222,7 @@ class WorkflowService:
                     executable,
                     input_context,
                     await publish_service.create_child(
-                        title=f"🌊 Iteration: `{truncate_strings(str(item), length=40)}`"
+                        title=f"🌊 {truncate_strings(str(item), length=40)}"
                     ),
                 ))
 
@@ -359,47 +301,6 @@ class WorkflowService:
         )
 
         return output_context
-
-    async def handle_trigger(
-        self,
-        trigger: Trigger,
-        context: ContextDict,
-        publish_service: PublishService,
-    ) -> ContextDict:
-        await publish_service.publish_code_block(
-            heading="📣 Trigger",
-            code=format_for_publishing(trigger),
-            language="json",
-        )
-        await publish_service.publish_code_block(
-            heading="🎬 Starting context",
-            code=format_for_publishing(context),
-            language="json",
-        )
-
-        executable = trigger.run
-
-        # Add params
-        if trigger.parameters:
-            context["__params__"] = trigger.parameters
-
-        try:
-            context = await self.execute(
-                executable,
-                context,
-                publish_service=publish_service,
-            )
-        except Exception as e:
-            self.log.error("Error while executing", executable=executable, exc_info=e)
-            raise
-
-        await publish_service.publish_code_block(
-            heading="🏁 Final context",
-            code=format_for_publishing(context),
-            language="json",
-        )
-
-        return context
 
     async def execute(
         self,

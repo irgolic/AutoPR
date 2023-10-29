@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and a subfolder. The files define various actions and utilities for automation tasks. Each file represents a specific action, such as running a bash command, publishing a comment on a GitHub issue, committing and pushing changes to a remote repository, crawling and filtering the contents of a folder, inserting content into a string, generating prompts using the OpenAI API, reading the contents of a file, setting the title of an issue, and writing content into a file. The subfolder contains a file related to defining and transforming prompt contexts for auto PR generation. Overall, this folder provides a set of reusable components for automating different tasks.
+This folder contains a collection of Python files that serve different purposes. Some files define base classes and actions for autonomous agent systems, such as performing tasks and making API calls. Other files provide reusable components for running bash commands, generating prompts, reading and writing files, and searching for specific queries in directories. There are also files that implement specific actions, like publishing comments on GitHub issues or setting issue titles. Additionally, there is a folder called "utils" that contains code for managing prompt context in a chatbot application. Overall, this folder represents a diverse set of functionalities and actions that can be used in various automation tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/__init__.py/)
@@ -40,6 +40,20 @@ This folder contains a collection of Python files and a subfolder. The files def
 🔧 The file imports necessary modules and defines input and output models for the "Bash" action.
 🔬 The file also includes a conditional block that runs the "Bash" action with a sample command when the file is executed directly.
 🧪 The file can be used as a starting point for building more complex automation tasks involving bash commands.
+
+
+### [`choice.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/choice.py/)
+
+📝 This file contains a Python script for generating a choice prompt using OpenAI's GPT-3.5 model.
+🤖 The purpose of the script is to create a helpful assistant that can make a choice from a given list of options.
+🔢 It takes input parameters such as the list of choices, model to use, prompt context, instructions, and temperature.
+🔀 The script builds a prompt and instructions based on the input parameters and invokes the OpenAI model to generate a choice.
+🗒️ The generated choice is then validated against the input choices and returned as the output.
+📚 It also includes functions for caching and publishing the generated output and code blocks.
+📝 The script provides a main function for manually running the choice action with predefined inputs.
+🍎 The example at the end demonstrates how to use the script to generate a choice prompt for making a fruit salad.
+🔒 The script uses asyncio for asynchronous execution and pydantic for data validation.
+📄 The script imports necessary modules and defines the required data models and classes.
 
 
 ### [`comment.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/comment.py/)
@@ -96,18 +110,31 @@ This folder contains a collection of Python files and a subfolder. The files def
 📖 Overall, this script provides a convenient way to insert content into a string at a specific delimiter.
 
 
+### [`make_api_call.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/make_api_call.py/)
+
+📝 This file defines an action class called "GetApiCallActions" that makes an API call to a specified endpoint URL and returns the response.
+🔌 The action takes inputs such as the endpoint URL and optional headers.
+💼 It uses the "requests" library to make the API call.
+📥 If the API call is successful (status code 200), it returns the contents of the response.
+❌ Otherwise, it raises an exception with the corresponding status code.
+🔧 The action class is generic and extends a base class called "Action" from the "autopr.actions.base" module.
+🔄 The action can be manually run by executing the file.
+🔍 It includes a test utility function called "run_action_manually" from "autopr.tests.utils" to facilitate manual testing.
+🌐 The example endpoint URL used in the code is "https://jsonplaceholder.typicode.com/todos".
+🔑 The headers can be customized to include additional information in the API request.
+
+
 ### [`prompt.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/prompt.py/)
 
-📝 This file contains a Python script that defines a class called "PromptString".
-🧩 The purpose of the class is to generate a string using the OpenAI ChatCompletion API.
-🔒 The class has a method called "run" that takes inputs, builds a prompt and instructions, invokes the API, and returns the result.
-📄 The class also has helper methods for filtering nones, trimming the prompt context, and building the prompt and instructions.
-⚙️ The class uses various external dependencies such as openai, tenacity, and pydantic.
-📦 The class imports other modules and classes from the autopr package.
-🧪 The file includes a test case that demonstrates the usage of the PromptString class.
-🔍 The test case creates an instance of the Inputs class, sets some input values, and runs the PromptString class manually.
-⚠️ The file should be executed as a standalone script when running the test case.
-📥 The file can be used as a starting point for implementing a prompt generation functionality using the OpenAI API.
+📝 This file contains code for generating a string using the OpenAI GPT-3 model.
+🔤 It defines the `Inputs` and `Outputs` models for the prompt generation.
+🖋️ The `PromptString` class is responsible for building the prompt and instructions, and running the prompt generation.
+🔍 It checks the cache for previously generated prompts before generating a new one.
+💾 The generated prompts are stored in the cache for future use.
+🍎 The example at the bottom demonstrates how to use the `PromptString` class to generate a prompt for making a fruit salad.
+🔑 The `PromptString` class is identified by the ID "prompt".
+🔧 It depends on various imports and helper functions.
+📚 The purpose of this file is to provide a reusable component for generating prompts using the GPT-3 model.
 
 
 ### [`read_file.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/read_file.py/)
@@ -123,6 +150,19 @@ This folder contains a collection of Python files and a subfolder. The files def
 🔬 There is a test section at the end that demonstrates how to manually run the "ReadFile" action.
 
 
+### [`search.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/search.py/)
+
+📄 This file contains a Python script for searching for a given query across all files in a directory and its subdirectories.
+🔍 The script defines a class called "Search" that inherits from a base class called "Action".
+🔑 The "Search" class has an async method called "run" which performs the search operation.
+📥 The search inputs include the query string, directory path, and a list of entries to ignore.
+📤 The search outputs include a list of "SearchHit" objects containing the file path, line number, and character number of each hit.
+📂 The search is performed by recursively walking through the directory and its subdirectories, excluding the specified entries to ignore.
+🔍 Each file is opened and searched line by line to find matches with the query.
+📃 The hits are sorted based on the file path, line number, and character number.
+🚀 The script can be run independently by executing the main block at the end of the file.
+
+
 ### [`set_issue_title.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/set_issue_title.py/)
 
 📝 This file defines a class named `SetIssueTitle` which represents an action to set the title of an issue. 
@@ -131,22 +171,19 @@ This folder contains a collection of Python files and a subfolder. The files def
 🔑 The class has a unique identifier `id` which is set to "set_issue_title".
 
 
-### [`utils`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/)
+### [`utils/`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/utils/)
 
-This folder contains two files: "__init__.py" and "prompt_context.py". "__init__.py" is an empty file. "prompt_context.py" is a Python file that implements a prompt context model for auto PR (pull request) generation. It includes classes and functions related to defining and transforming prompt contexts, and also defines different types of declarations for prompt context in config. The file imports modules like `pydantic`, `tiktoken`, and `jinja2` for type checking, encoding, and template rendering.
+This folder contains Python code for managing prompt context in a chatbot application. The `prompt_context.py` file defines a `PromptContext` class that represents a dictionary mapping headings to context variable values. It provides methods for formatting the context as a string and calculating the token length. The file also includes declarations for prompt context in a config file and functions for trimming the context and invoking the OpenAI Chat Completion API.
 
 
 ### [`write_into_file.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/actions/write_into_file.py/)
 
-📝 This file defines a Python class called `WriteIntoFile` which is an action that writes content into a file.
-📄 The `Inputs` class defines the required input parameters for the `WriteIntoFile` action.
-📤 The `Outputs` class defines the output of the `WriteIntoFile` action, indicating whether the file was written to successfully.
-🖊️ The `run` method of the `WriteIntoFile` class implements the logic to write the content into the specified file.
-🔒 The file is opened in "append" mode if `append_at_the_end` is True, otherwise it is opened in "write" mode to replace the entire file content.
-✅ The `run` method returns an instance of the `Outputs` class with the `success` field set to True if the file was written to successfully.
-⚙️ The file also includes a test case that manually runs the `WriteIntoFile` action and removes the created test file afterwards.
-🔧 The purpose of this file is to provide a reusable action for writing content into a file in a specified location.
-📚 The `WriteIntoFile` action can be integrated into a larger system or workflow to automate file writing tasks.
-📝 The file shows an example usage of the `WriteIntoFile` action to write the content "Hello world!" into a test file.
+📝 The purpose of this file is to define an action called "WriteIntoFile" that writes content into a file.
+🔒 The action requires the filepath, content, and append_at_the_end parameters.
+⚙️ The action checks if the filepath is relative to the repository root and creates the necessary directories if they don't exist.
+📝 The action then opens the file and writes the content either at the end or replaces the entire file content.
+✅ The action returns a success flag indicating whether the file was written to successfully.
+🔧 The file also includes a test case to manually run the action.
+
 
 <!-- Living README Summary -->

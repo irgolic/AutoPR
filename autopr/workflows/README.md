@@ -3,22 +3,39 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python scripts and YAML files related to workflow configurations. The `__init__.py` script provides functions for loading and collecting workflows from YAML files. The `autogenerate_readmes.yaml` file defines a workflow for generating summaries of files and folders in a directory. The `insert_into_readme.yaml` file defines a task for inserting content into a file using tag-based delimiters. The `summarize_pr.yaml` file defines a workflow for summarizing changes in a pull request.
+This folder contains a collection of files related to workflow configuration and execution. The main file, `__init__.py`, defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders. The other files contain specific workflow configurations, such as making API calls, generating README summaries, inserting content into files, and summarizing changes in pull requests. Each file serves a specific purpose and can be customized to automate various tasks.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/__init__.py/)
 
-📋 This file contains a Python script that defines functions related to loading and collecting workflows from YAML files.
-📁 It imports necessary modules and defines a logger.
-🔍 The main functions are `_collect_workflows` and `_load_workflows_in_folder`, which recursively collect workflows from YAML files in a folder and its subfolders.
-🔧 The `get_all_workflows` function is the entry point, which loads default workflows and custom workflows from specified paths.
-📃 The script also includes a test to print all the loaded workflows.
-🔄 The purpose of this file is to provide a way to load and gather workflow configurations for further processing.
+📝 This file is a Python script that defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders.
+📂 It imports various modules and defines a class and functions related to workflow configuration and execution.
+📄 The main function, `get_all_workflows()`, loads default workflows from a specified folder and also allows for the loading of test workflows.
+📥 The workflow configurations are parsed from YAML files using the `pydantic` library.
+🌐 The loaded workflows are stored in a `TopLevelWorkflowConfig` object, which is a data model defined in another module.
+🔁 The `_collect_workflows()` function is used to collect and validate individual workflow configurations.
+📁 The `_load_workflows_in_folder()` function recursively loads workflows from YAML files in a specified folder and its subfolders.
+⚠️ Error handling is included for invalid workflow configurations and duplicate workflow IDs.
+🖨️ When executed as a standalone script, the `get_all_workflows()` function is called and the loaded workflows are printed.
+
+
+### [`api_git_history.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/api_git_history.yaml/)
+
+💡 This file defines a series of steps for making an API call, saving the response to a file, and committing and pushing the file to a Git repository.
+💡 The file is structured using a YAML format.
+💡 The file specifies the inputs required for the API call, such as the endpoint URL, headers, and file path.
+💡 The API call is made using the "make_api_call" action, which performs a GET request.
+💡 The response content is then saved to a file using the "write_into_file" action.
+💡 The "commit_and_push" action is used to commit and push the file to a Git repository, with a customizable commit message.
+💡 The file paths and other values can be provided as variables using the "var" keyword.
+💡 The file can be used as a template for automating API calls and version control.
+💡 The file can be customized by modifying the inputs, actions, and templates.
+💡 If the file is empty, there are no defined steps or actions.
 
 
 ### [`autogenerate_readmes.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/autogenerate_readmes.yaml/)
 
-📝 This file contains a workflow for generating summaries of files and folders in a given directory. It includes steps for reading files, summarizing their contents, and generating a formatted summary for a folder. The results are then written to a README file and committed to a repository.
+📝 This file contains a set of workflows and actions for generating and formatting summaries for files and folders, and updating a README with the summaries. It includes workflows for summarizing individual files, summarizing folders, reformatting the results, and inserting the formatted summaries into the README. The file also includes an execution workflow for generating README summaries for all folders in the current directory.
 
 
 ### [`insert_into_readme.yaml`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/workflows/insert_into_readme.yaml/)

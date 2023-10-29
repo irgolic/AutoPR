@@ -8,10 +8,33 @@ A workflow is an orchestration of actions.
 It can be triggered by an event, or it can be invoked by another workflow.
 In this section, we'll walk you through all the building blocks of a workflow.
 
-AutoPR comes with some default workflows, which you can find in [the workflow catalogue](../workflow-catalogue).
+AutoPR comes with a few workflows, which you can find in [the workflow catalogue](../workflow-catalogue).
 
-It's easy to define custom workflows to automate various tasks.
-You can define workflows in `.autopr/workflows.yaml` or `.autopr/workflows/*.yaml`.
+If you'd like to contribute a workflow, also see [the tutorial](../tutorials/writing-a-workflow).
+
+## 🌱 The Hello World Example
+
+```yaml
+hello:
+  outputs:
+    - name
+    - message
+  steps:
+    - set_vars:
+        message:
+          template: "Hello {{ name }}!"
+
+hello_world:
+  outputs:
+    - message
+  steps:
+    - workflow: hello
+      inputs:
+        name:
+          const: "world"
+      outputs:
+        message: message
+```
 
 ## 🗝️ Workflow Skeleton
 
@@ -26,7 +49,10 @@ workflow_name:
     - output1
     - output2
   steps:
-    ...
+    - action: action1
+    - workflow: workflow1
+    - action: action2
+    - ...
 ```
 
 This defines a workflow with the name `workflow_name`,

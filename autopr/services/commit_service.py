@@ -1,9 +1,12 @@
 import os
-from typing import Optional
+from typing import Optional, Literal
 
 from git.repo import Repo
 
 from autopr.log_config import get_logger
+
+
+CHANGES_STATUS = Literal["no_changes", "cache_only", "modified"]
 
 
 class CommitService:
@@ -19,11 +22,13 @@ class CommitService:
         repo_path: str,
         branch_name: str,
         base_branch_name: str,
+        cache_dir: str,
     ):
         self.repo = repo
         self.repo_path = repo_path
         self.branch_name = branch_name
         self.base_branch_name = base_branch_name
+        self.cache_dir = cache_dir
 
         self._empty_commit_message = "[placeholder]"
 
@@ -101,3 +106,17 @@ class CommitService:
         if push:
             self.log.debug(f'Pushing branch {self.branch_name} to remote...')
             self.repo.git.execute(["git", "push", "-f", "origin", self.branch_name])
+
+    def get_changes_status(self) -> CHANGES_STATUS:
+        """
+        Returns the status of the changes on the branch.
+        """
+        # Get status of changes
+        args = ["git", "diff", self.base_branch_name, "--name-only"]
+        status = str(self.repo.git.execute(args))
+        if not status:
+            return "no_changes"
+        elif len(status.splitlines()) == 1 and self.cache_dir in status:
+            return "cache_only"
+        else:
+            return "modified"

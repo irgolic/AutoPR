@@ -45,11 +45,12 @@ main = create_ephemeral_main_service(
     event=event,
 )
 
-triggers = asyncio.run(main.workflow_service._get_trigger_coros_for_event(event))
+trigger_contexts = main.trigger_service._get_triggers_and_contexts_for_event(event)
+trigger_coros = asyncio.run(main.trigger_service._get_trigger_coros_for_event(trigger_contexts))
 
-if triggers:
+if trigger_coros:
     # Run the first trigger you find
-    out = asyncio.run(triggers[0])
+    out = asyncio.run(trigger_coros[0])
 else:
     print("No trigger found for event")
     out = None

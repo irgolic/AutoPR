@@ -244,11 +244,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -363,11 +358,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -553,11 +543,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -720,11 +705,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -864,11 +844,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1325,11 +1300,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -1477,11 +1447,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -1666,11 +1631,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -1838,11 +1798,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -2033,11 +1988,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2222,11 +2172,6 @@
         "as": {
           "title": "As",
           "type": "string"
-        },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
         },
         "action": {
           "title": "Action",
@@ -2530,11 +2475,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2749,11 +2689,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2921,11 +2856,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "action": {
           "title": "Action",
           "enum": [
@@ -2979,6 +2909,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [
@@ -3013,11 +2946,6 @@
           "title": "As",
           "type": "string"
         },
-        "allow_finish_early": {
-          "title": "Allow Finish Early",
-          "default": false,
-          "type": "boolean"
-        },
         "inputs": {
           "$ref": "#/definitions/ExtraModel"
         },
@@ -3027,6 +2955,9 @@
         "workflow": {
           "title": "Workflow",
           "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/ExtraModel"
         }
       },
       "required": [

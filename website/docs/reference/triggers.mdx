@@ -14,10 +14,40 @@ Alternatively, you can also define triggers in the `.autopr/triggers/*.yaml` fol
 
 ## 🧐 Properties of different triggers
 
-Each trigger has the `run` property, which specified the workflow that should be activated when the trigger condition is met.
-The `run` property must match the name of either a [default workflow](../workflow-catalogue) or a [custom-defined workflow](../tutorials/writing-a-workflow).
+Each trigger has the `run` property, which specified the action or workflow that is activated when the trigger condition is met.
+`run` must either be an invocation of a workflow/action, or match the name of one.
 
-They also have the `parameters` property, which is an optional object that contains global variables used in the workflow.
+<Tabs>
+<TabItem value="nametrigger" label="Invocation Trigger">
+
+```yaml
+triggers:
+  - type: "label"
+    label_substring: "summarize"
+    on_issue: false
+    on_pull_request: true
+    run:
+      workflow: "summarize_pr"
+```
+
+</TabItem>
+<TabItem value="pushtrigger" label="Name Trigger">
+
+```yaml
+triggers:
+  - type: "label"
+    label_substring: "summarize"
+    on_issue: false
+    on_pull_request: true
+    run: "summarize_pr"
+```
+
+</TabItem>
+</Tabs>
+
+Use the "Invocation Trigger" syntax if you'd like to specify a workflow's inputs or parameters.
+
+A workflow's `parameters` property, is optionally used to override global variables in the workflow.
 For example, the `parameters` property can be used to define the `FILE_SUMMARY_PROMPT` variable, which is used in the
 [generate_readme_summaries](../workflow-catalogue#generate_readme_summaries) workflow.
 
@@ -53,15 +83,16 @@ Activates when a push is made to the specified branch.
 triggers:
   - type: "push"
     branch_name: "main"
-    run: "generate_readme_summaries"
-    parameters:
-      FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
-      FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
-      IGNORE_FILES:
-        - docs
-        - .github
-        - .autopr
-        - tests
+    run:
+      workflow: "generate_readme_summaries"
+      parameters:
+        FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
+        FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
+        IGNORE_FILES:
+          - docs
+          - .github
+          - .autopr
+          - tests
 ```
 
 </TabItem>
@@ -103,13 +134,14 @@ triggers:
     run: summarize_pr
   - type: push
     branch_name: main
-    run: generate_readme_summaries
-    parameters:
-      FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
-      FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
-      IGNORE_FILES:
-        - docs
-        - .github
-        - .autopr
-        - tests
+    run:
+      workflow: generate_readme_summaries
+      parameters:
+        FILE_SUMMARY_PROMPT: "Write a summary of this file for first-timers. Use 3-6 bullet points with emojis."
+        FOLDER_SUMMARY_PROMPT: "Give a quick summary of this folder in 3-5 sentences."
+        IGNORE_FILES:
+          - docs
+          - .github
+          - .autopr
+          - tests
 ```

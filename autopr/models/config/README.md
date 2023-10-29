@@ -3,7 +3,7 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code files that define models, actions, and configurations for a workflow automation system. It includes files for handling extra fields in models, defining triggers and workflows, transforming between different representations of IO types, and declaring variables and parameters. The purpose of these files is to provide a structured and type-safe way to define and configure workflows and triggers, handle transformations between different types, and render and evaluate values within a given context.
+This folder contains a collection of Python files that serve different purposes. The `common.py` file defines two base model classes with different configuration settings for handling extra fields. The `elements.py` file provides a framework for defining and executing actions and workflows in a configurable and flexible manner. The `entrypoints.py` file contains code for building workflow models and triggers for an automated PR system. The `transform.py` file provides a framework for converting between different representations of IO types in the config. The `value_declarations.py` file defines classes and declarations related to variables and parameters for rendering and evaluating values within a given context.
 
 
 ### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/__init__.py/)
@@ -24,20 +24,22 @@ This file is empty.
 
 ### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/elements.py/)
 
-📜 This file contains Python code for defining models and actions related to workflow execution and context manipulation.
+📝 This file contains Python code for defining and configuring actions, workflows, and context variables. 
+🔄 It provides models and classes for executing actions, setting variables, and conditional execution. 
+🔀 It also includes models for iterating over values and invoking workflows. 
+📚 The file dynamically builds action models based on currently defined actions for better type hints and autocompletion. 
+💡 The purpose of this file is to provide a framework for defining and executing actions and workflows in a configurable and flexible manner.
 
 
 ### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/entrypoints.py/)
 
-📝 This file defines various models and functions related to workflow configurations and triggers for a workflow automation system.
-🚀 It includes models for workflow invocations, triggers (such as labels, comments, pushes, and cron schedules), and executable actions.
-🔧 The file also contains functions to dynamically build workflow models and retrieve all executable IDs.
-📋 The `build_workflows()` function dynamically creates workflow models based on currently defined workflows.
-📌 The `get_all_executable_ids()` function retrieves all executable IDs from actions and workflows.
-📄 The file defines various trigger models, such as `LabelTrigger`, `CommentTrigger`, `PushTrigger`, and `CronTrigger`, which extend the `TriggerModel` base model.
-🔗 The `TriggerModel` base model defines common properties and methods for triggers, such as the ability to get the context for a specific event.
-📑 The file also includes models for strict workflow definitions and top-level trigger configurations.
-💡 The purpose of this file is to provide a structured and type-safe way to define and configure workflows and triggers for the workflow automation system.
+📄 This file contains code for building workflow models and triggers for an automated PR system.
+🛠️ It defines functions for dynamically generating workflow models and executable IDs.
+🔀 The file also includes definitions for different types of triggers such as label triggers, comment triggers, push triggers, and cron triggers.
+📝 It defines a strict workflow definition and top-level trigger configurations.
+🔧 There are also functions for generating JSON schemas for triggers and workflows.
+📝 The main block of code saves these JSON schemas to separate files.
+
 
 
 ### [`transform.py`](https://github.com/raphael-francis/AutoPR-internal/tree/main/./autopr/models/config/transform.py/)
