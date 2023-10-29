@@ -312,10 +312,16 @@ class PublishService:
             return
         if reason is not None:
             await self.publish_comment(reason)
-        return await self.platform_service.merge_pr(
+        success = await self.platform_service.merge_pr(
             self.pr_number,
             commit_title=self.title,
         )
+        if not success:
+            await self.publish_comment(
+                "Failed to merge pull request, possibly due to merge conflicts with a newer run. "
+                "If you consistently see this error, "
+                f'please <a href="{self._build_issue_template_link()}">open an issue</a> to report it.'
+            )
 
     async def close(
         self,

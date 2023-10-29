@@ -115,7 +115,7 @@ class PlatformService:
         commit_title: Optional[str] = None,
         commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
-    ):
+    ) -> bool:
         """
         Merge the pull request.
 
@@ -440,7 +440,7 @@ class GitHubPlatformService(PlatformService):
         commit_title: Optional[str] = None,
         commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
-    ):
+    ) -> bool:
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}/merge'
         headers = self._get_headers()
         data = {
@@ -460,9 +460,10 @@ class GitHubPlatformService(PlatformService):
                         request_body=data,
                         response=response,
                     )
-                    raise RuntimeError('Failed to merge pull request')
+                    return False
 
                 self.log.debug('Pull request merged successfully')
+                return True
 
     async def _patch_pr(self, pr_number: int, data: dict[str, Any]):
         url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
@@ -920,7 +921,7 @@ class DummyPlatformService(PlatformService):
         commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
     ):
-        pass
+        return True
 
     async def update_pr_title(self, pr_number: int, title: str):
         pass
