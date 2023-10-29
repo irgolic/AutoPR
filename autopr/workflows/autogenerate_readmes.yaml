@@ -8,6 +8,17 @@ reformat_results:
   steps:
     # Write README summary contents
     - set_vars:
+        newlined_summary_list:
+          lambda: |
+            [
+                name,
+                "\n".join(
+                    f"{line}  "
+                    for line in desc.splitlines()
+                ),
+                url
+                for name, desc, url in summary_list
+            ]
         formatted_summary:
           template: |
             
@@ -15,7 +26,7 @@ reformat_results:
             
             {{ folder_summary }}
             
-            {% for filename, description, url in summary_list %}
+            {% for filename, description, url in newlined_summary_list %}
             ### [`{{ filename }}`]({{ url }})
             
             {{ description }}
