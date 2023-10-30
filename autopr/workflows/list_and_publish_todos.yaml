@@ -133,3 +133,9 @@ publish_todo_issues:
             name: TODO_KEYWORDS
       outputs:
         issue_number_list: issue_number_list
+
+    # Commit and push the prompt cache
+    - action: commit_and_push
+      inputs:
+        commit_message:
+          const: "Save TODO issues prompt cache"

@@ -1,4 +1,5 @@
 import asyncio
+import fnmatch
 import os
 import re
 from collections import defaultdict
@@ -173,11 +174,11 @@ class FindTodos(Action[Inputs, Outputs]):
 
             for file in files:
                 relative_path = os.path.relpath(os.path.join(root, file), current_dir)
-                if any(
-                    re.compile(ignored_path).search(relative_path)
-                    for ignored_path in inputs.ignored_paths
-                ):
+
+                if any(fnmatch.fnmatch(relative_path, pattern)
+                       for pattern in inputs.ignored_paths):
                     continue
+
                 file_task_to_locations = await self.process_file(
                     relative_path, inputs.todo_keywords, comment_keywords, parser
                 )
