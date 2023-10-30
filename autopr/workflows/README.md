@@ -3,23 +3,23 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python scripts and YAML files for managing and automating various workflows. The `__init__.py` script defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders. The YAML files define different workflows, such as making API calls, generating README summaries, inserting content into files, updating TODO issues, and summarizing changes in pull requests. These workflows can be customized and executed to automate various tasks in a project.
+This folder contains Python code and YAML files for automating various workflows. The `__init__.py` file collects and loads workflows from YAML files in a given folder and its subfolders. The `api_git_history.yaml` file defines a series of steps for making an API call, saving the response to a file, and committing and pushing the file to a Git repository. The `autogenerate_readmes.yaml` file contains workflows for generating and updating README summaries for files and folders. The `insert_into_readme.yaml` file defines an action for inserting content into a file. The `list_and_publish_todos.yaml` file updates TODO issues based on specified language and keywords. The `summarize_pr.yaml` file summarizes changes in a pull request and posts the summary as a comment.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/__init__.py)
 
-📝 This file is a Python script that defines functions for collecting and loading workflows from YAML files in a specified folder and its subfolders.  
-📂 It imports various modules and defines a class and functions related to workflow configuration and execution.  
-📄 The main function, `get_all_workflows()`, loads default workflows from a specified folder and also allows for the loading of test workflows.  
-📥 The workflow configurations are parsed from YAML files using the `pydantic` library.  
-🌐 The loaded workflows are stored in a `TopLevelWorkflowConfig` object, which is a data model defined in another module.  
-🔁 The `_collect_workflows()` function is used to collect and validate individual workflow configurations.  
-📁 The `_load_workflows_in_folder()` function recursively loads workflows from YAML files in a specified folder and its subfolders.  
-⚠️ Error handling is included for invalid workflow configurations and duplicate workflow IDs.  
-🖨️ When executed as a standalone script, the `get_all_workflows()` function is called and the loaded workflows are printed.  
+📄 This file contains Python code for collecting and loading workflows from YAML files.  
+🔍 It imports necessary modules and defines functions for collecting and loading workflows.  
+📂 It recursively searches for YAML files in a given folder and its subfolders.  
+📝 The `_collect_workflows()` function parses and validates the YAML contents, then adds the workflows to an existing collection.  
+📁 The `_load_workflows_in_folder()` function calls `_collect_workflows()` for each YAML file found in the folder.  
+⚙️ The `get_all_workflows()` function loads default workflows and optional test workflows.  
+🔧 The default workflows are loaded from the same folder as the script.  
+📝 The `__main__` block prints all the loaded workflows using the `get_all_workflows()` function.  
+🔒 There are no test workflow paths defined in this file.  
 
 
-### [`api_git_history.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/api_git_history.yaml)
+### [`api_git_history.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/api_git_history.yaml)
 
 💡 This file defines a series of steps for making an API call, saving the response to a file, and committing and pushing the file to a Git repository.  
 💡 The file is structured using a YAML format.  
@@ -33,7 +33,7 @@ This folder contains Python scripts and YAML files for managing and automating v
 💡 If the file is empty, there are no defined steps or actions.  
 
 
-### [`autogenerate_readmes.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/autogenerate_readmes.yaml)
+### [`autogenerate_readmes.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/autogenerate_readmes.yaml)
 
 💡 This file contains a set of workflows for generating and updating README summaries for files and folders. It includes the following functionalities:  
        
@@ -46,7 +46,7 @@ This folder contains Python scripts and YAML files for managing and automating v
      If the file is empty, it will be marked as such in the summary.  
 
 
-### [`insert_into_readme.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/insert_into_readme.yaml)
+### [`insert_into_readme.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/insert_into_readme.yaml)
 
 📝 This file defines an insert_into_readme action that inserts content into a file between two HTML-style comments.  
 📂 The file path, tag name, and content to insert are specified as inputs.  
@@ -59,7 +59,7 @@ This folder contains Python scripts and YAML files for managing and automating v
 📝 The purpose of this file is to define a reusable action for inserting content into a file.  
 
 
-### [`list_and_publish_todos.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/list_and_publish_todos.yaml)
+### [`list_and_publish_todos.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/list_and_publish_todos.yaml)
 
 📄 This file contains a workflow for updating TODO issues.   
 🔍 It lists TODOs based on specified language and keywords.   
@@ -72,7 +72,7 @@ This folder contains Python scripts and YAML files for managing and automating v
 🚀 The workflow publishes the created issues.  
 
 
-### [`summarize_pr.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/workflows/summarize_pr.yaml)
+### [`summarize_pr.yaml`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/workflows/summarize_pr.yaml)
 
 📋 This file defines a workflow called "summarize_pr" for summarizing changes in a pull request.  
 ⌨️ It uses a bash action to get the diff of the changes in the pull request.  

@@ -3,25 +3,22 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code for managing prompt context in a chatbot application. The `prompt_context.py` file defines a `PromptContext` class that represents a dictionary mapping headings to context variable values. It provides methods for formatting the context as a string and calculating the token length. The file also includes declarations for prompt context in a config file and functions for trimming the context and invoking the OpenAI Chat Completion API.
+This folder contains two files: "__init__.py" and "prompt_context.py". The "__init__.py" file is empty. The "prompt_context.py" file is used for managing and transforming prompt context in a natural language processing application. It includes classes and functions for working with prompt context entries and configurations, as well as functions for trimming the context and invoking OpenAI's Chat Completion API.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/utils/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/actions/utils/__init__.py)
 
 This file is empty.  
 
 
-### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/blob/c479ccb445eededecd497d0d91bc86a1df0f2300/./autopr/actions/utils/prompt_context.py)
+### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/blob/f1b76ab07179745f86f1a281cdd821dd0c455e90/./autopr/actions/utils/prompt_context.py)
 
-📄 This file contains Python code for a prompt context class and related declarations.  
-🔄 The `PromptContext` class represents a dictionary mapping heading strings to context variable values.  
-🔢 It provides methods for formatting the context as a string and calculating the token length.  
-📝 The file also includes various declarations for prompt context in a config file.  
-✂️ The `trim_context` function is used to trim the context based on a maximum token length and a trimming strategy.  
-🔁 The `invoke_openai` function is an async function that invokes the OpenAI Chat Completion API.  
-⚠️ The file includes import statements for various libraries and modules used in the code.  
-🔧 The code uses type hints and annotations to specify the expected types of variables and function return values.  
-🧪 The code includes some test-related imports and decorators from the `tenacity` library.  
-📚 The code relies on external libraries such as `openai`, `pydantic`, and `tiktoken`.  
+📄 This file contains code for managing and transforming prompt context in a natural language processing application.  
+🔧 It includes classes and functions for working with prompt context entries and configurations.  
+📝 The `PromptContext` class represents a dictionary mapping context headings to values, with methods for formatting and rendering the context.  
+🔀 The `PromptContextInConfig` class represents a configuration for prompt context, with different types of declarations for variables, templates, lambdas, and constants.  
+✂️ The `trim_context` function is used to trim the prompt context if it exceeds a specified maximum token length, based on a given strategy.  
+📝 The `invoke_openai` function is an asynchronous function that invokes OpenAI's Chat Completion API with a prompt and instructions to generate a response.  
+🔧 The file also includes various imports for dependencies and type annotations.  
 
 <!-- Living README Summary -->
