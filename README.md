@@ -28,10 +28,10 @@ Below is an example of AutoPR's Living README:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and subfolders related to an automated pull request workflow system. The Dockerfile sets up the environment and runs the app. The LICENSE.md file contains the MIT License for the software. The Makefile defines commands and their dependencies. The action.yml file configures an "Automatic Pull Request" action. The autopr/ folder contains files for automating pull request workflows. The entrypoint.sh file sets up Git and runs a Python module. The poetry.lock file lists the dependencies for the project. The pyproject.toml file is a configuration file for the project. The strict_workflow_schema.json file defines a strict workflow model. The trigger_schema.json file defines different triggers and associated actions. The workflow_schema.json file defines a workflow structure.
+This folder contains files and folders related to an automated pull request workflow. It includes a Dockerfile for setting up the project, a license file outlining the permissions and conditions for using the software, a Makefile with commands for formatting, testing, and running the project, an action.yml file defining a GitHub action for creating pull requests, a folder with reusable actions and workflow-related files, a shell script for running the project, and configuration files for the project's dependencies and workflows. Overall, these files provide a structured and organized implementation for automating the process of creating and managing pull requests based on specified triggers and workflows.
 
 
-### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./Dockerfile)
+### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./Dockerfile)
 
 🔧 Install git from bullseye-backports    
 📝 Set up entrypoint    
@@ -41,7 +41,7 @@ This folder contains files and subfolders related to an automated pull request w
 🏃‍♀️ Run the app using entrypoint.sh as the command  
 
 
-### [`LICENSE.md`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./LICENSE.md)
+### [`LICENSE.md`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./LICENSE.md)
 
 📄 This file contains the MIT License for software developed by Raphael Francis Ltd.  
 🔒 The license grants permission to use, copy, modify, merge, publish, distribute, sublicense, and sell the software.  
@@ -50,7 +50,7 @@ This folder contains files and subfolders related to an automated pull request w
 📚 The license is designed to protect the rights of the authors and copyright holders.  
 
 
-### [`Makefile`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./Makefile)
+### [`Makefile`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./Makefile)
 
 📋 The file defines a set of commands and their dependencies.       
 🔧 The `format` command runs the `black` code formatter on the project.       
@@ -60,7 +60,7 @@ This folder contains files and subfolders related to an automated pull request w
 🚀 The `all` command runs all the commands in the specified order.       
 
 
-### [`action.yml`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./action.yml)
+### [`action.yml`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./action.yml)
 
 📋 This file defines the configuration for an "Automatic Pull Request" action.   
 🔧 It specifies the details of how the action should run, including using Docker and the Docker image to use.  
@@ -70,12 +70,12 @@ This folder contains files and subfolders related to an automated pull request w
 ✍️ Additionally, it includes a flag to control whether to overwrite existing branches and pull requests.  
 
 
-### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./autopr)
+### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./autopr)
 
-This folder contains files and subfolders related to an automated pull request workflow system. The "actions" folder contains Python files that define various actions, such as making API calls or generating prompts. The "models" folder contains code and configuration files for managing data models. The "services" folder contains files that implement different services and functionalities for the system. The "triggers.py" file provides a way to retrieve and process trigger configurations. The "workflows" folder contains files for managing and organizing workflows. Overall, these files and folders provide the necessary components for automating pull request workflows in a Python program.  
+This folder contains a collection of files and folders related to an automated pull request workflow. It includes a set of reusable actions for different tasks, such as running commands, making API calls, and generating prompts. There are also files for managing logging, defining triggers, orchestrating workflows, and handling configuration and models. The folder provides a centralized and organized implementation for automating the process of creating and managing pull requests based on specified triggers and workflows.  
 
 
-### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./entrypoint.sh)
+### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./entrypoint.sh)
 
 📝 This file is a shell script.  
 🔧 It sets the global configuration for Git.  
@@ -86,7 +86,7 @@ This folder contains files and subfolders related to an automated pull request w
 🐍 It runs a Python module called autopr.gh_actions_entrypoint.  
 
 
-### [`poetry.lock`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./poetry.lock)
+### [`poetry.lock`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./poetry.lock)
 
 📄 This file is intended to serve as an executive summary.  
 🔍 It provides a high-level overview of the contents of the document.  
@@ -100,7 +100,7 @@ This folder contains files and subfolders related to an automated pull request w
 📝 It serves as a guide for further exploration of the document.  
 
 
-### [`pyproject.toml`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./pyproject.toml)
+### [`pyproject.toml`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./pyproject.toml)
 
 📝 The file is a configuration file for the project "autopr"  
 📦 It uses Poetry as the package manager for the project  
@@ -113,44 +113,41 @@ This folder contains files and subfolders related to an automated pull request w
 🗒️ The "tool.black" section sets the line length and target version for the Black formatter  
 
 
-### [`strict_workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./strict_workflow_schema.json)
+### [`strict_workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./strict_workflow_schema.json)
 
-📝 This file is a JSON schema definition for a strict workflow model.  
-📋 It defines various action models and their properties.  
-🔀 The action models include comment, set_issue_title, crawl_folder, make_api_call, bash, choice, commit_and_push, write_into_file, find_todos, insert_content_into_text, search, prompt, publish_issue, read_file, and more.  
-🔄 The action models can be used in a sequence of steps to define a workflow.  
-🛠️ The workflow can be used to automate tasks in a specific order.  
-🔢 The workflow can have inputs and outputs, as well as conditional logic using if statements.  
-📥 The workflow can also include other workflows or be iterated over.  
-✨ The goal of this file is to provide a standardized way to define and execute workflows.  
-📂 It can be used in various automation tools and platforms.  
-
-
-### [`trigger_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./trigger_schema.json)
-
-📄 This file is a JSON schema definition for a configuration file.  
-🔄 It defines various action models and workflow models that can be used in a trigger-based automation system.  
-🔀 The schema includes definitions for different types of triggers, such as label triggers, comment triggers, push triggers, and cron triggers.  
-🔧 Each trigger type is associated with specific action models and workflow models that can be executed when the trigger is activated.  
-🌟 The file also includes definitions for different types of input and output fields that can be used in the action and workflow models.  
-📝 Descriptions are provided for each model and field, explaining their purpose and usage.  
-📚 The schema is structured hierarchically, with nested definitions for different types of declarations and templates.  
-🔗 References are used to link to other definitions within the schema.  
-🗂️ The schema is designed to be extensible, allowing for the addition of new action and workflow models.  
-📋 Overall, this file serves as a blueprint for creating automation workflows and defining the behavior of triggers and actions.  
+📋 The file contains a JSON schema definition for a workflow model.  
+💡 It defines various types of actions that can be performed in a workflow.  
+🔢 The actions include commenting, setting issue titles, crawling folders, making API calls, running bash commands, and more.  
+📝 Each action has its own set of inputs and outputs.  
+🌐 The schema also defines different types of declarations, such as templates, variables, constants, and lambdas.  
+🔀 There are multiple types of workflow invocations and conditional statements.  
+🗂️ The schema includes definitions for different types of workflows, including strict workflows and iterable workflows.  
+📝 Workflows can have inputs, outputs, and a series of steps that can include actions, workflow invocations, and conditional statements.  
+📚 The purpose of this file is to provide a structured definition for building and executing workflows.  
 
 
-### [`workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./workflow_schema.json)
+### [`trigger_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./trigger_schema.json)
 
-📄 This file is a JSON representation of a workflow definition.  
-🔗 It contains various definitions and models for different actions that can be performed within the workflow.  
-⚙️ The workflow definition includes the name, description, inputs, outputs, and a list of steps.  
-🔢 Each step can be a simple action or a more complex workflow invocation.  
-💼 The file also defines different types of actions such as commenting, crawling folders, making API calls, and running bash commands.  
-🔄 Some actions can be iterated over a list of items.  
-🔀 Conditional logic can be added using If statements or lambdas.  
-📝 Templates, variables, constants, and lambdas can be used to provide dynamic values to the actions.  
-🔁 The workflow can be triggered with inputs and produces outputs.  
-📚 The file provides a comprehensive structure for defining and executing workflows.  
+📋 This file is a JSON schema that defines the structure and properties of a workflow trigger configuration.  
+🔗 It contains definitions for various types of triggers, such as label, comment, push, and cron triggers.  
+📝 Each trigger type has its own properties and requirements.  
+💼 The purpose of this file is to provide a standardized format for defining triggers in a workflow configuration.  
+🖥️ It can be used by workflow automation tools to validate and enforce the structure of trigger configurations.  
+💡 The file also includes definitions for various action models, which can be used in conjunction with triggers to define workflow actions.  
+❓ The file allows for flexibility in defining the inputs and outputs of each action.  
+🧩 Overall, this file serves as a blueprint for creating and configuring triggers and actions in a workflow automation system.  
+
+
+### [`workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/8cf698d23fdb1a01845892b342672c06864b2fba/./workflow_schema.json)
+
+📋 This file is a JSON schema that defines a workflow definition.  
+🔢 It includes definitions for various types of actions that can be performed within the workflow.  
+📝 Each action has its own model with properties such as name, description, and inputs.  
+🔄 The workflow definition itself consists of a name, description, inputs, outputs, and a list of steps.  
+💼 Steps can be strings, actions, workflow invocations, or conditional statements.  
+🔀 Conditional statements can be based on a Python lambda expression.  
+🔁 Workflows can be iterative, allowing for looping over a set of actions.  
+🗃️ The file also includes definitions for various types of declarations used within the actions.  
+📄 The purpose of this file is to provide a standardized structure for defining and executing workflows.  
 
 <!-- Living README Summary -->
