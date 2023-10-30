@@ -166,7 +166,12 @@ class FindTodos(Action[Inputs, Outputs]):
 
     @staticmethod
     def get_todo_fingerprint(todo: Todo) -> str:
-        return rf"<!--\ninfo: AutoPR fingerprint\nissue_type: TODO\ntask: {todo.task}\n-->\n"
+        fingerprint_dict = {
+            "info": "AutoPR fingerprint",
+            "issue_type": "TODO",
+            "task": todo.task,
+        }
+        return yaml.dump(fingerprint_dict, sort_keys=False)
 
     async def close_not_used_issues(self, issues: list[Issue], todos: list[Todo]) -> None:
         todo_issues = [todo.issue for todo in todos if todo.issue]
