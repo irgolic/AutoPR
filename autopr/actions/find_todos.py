@@ -154,9 +154,12 @@ class FindTodos(Action[Inputs, Outputs]):
                 continue
             task = yaml_dict["task"]
 
+            self.log.info(f"Found TODO issue {issue.number} for task {task}")
+
             if task in todo_issues and todo_issues[task].open:
                 if issue.open:
                     self.log.error(f"Duplicate open TODO issue for task {task}")
+                self.log.debug(f"Skipping TODO issue {issue.number}")
                 continue
             todo_issues[task] = issue
         return todo_issues
