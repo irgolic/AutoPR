@@ -20,8 +20,8 @@ class Inputs(BaseModel):
     # Labels to add to the issue
     issue_labels: Optional[list[str]] = None
 
-    # Whether to update the issue if it already exists
-    update_if_exists: bool = True
+    # Whether to update an issue if it already exists
+    issue_number: Optional[int] = None
 
 
 class Outputs(BaseModel):
@@ -37,18 +37,15 @@ class PublishIssue(Action[Inputs, Outputs]):
     id = "publish_issue"
 
     async def run(self, inputs: Inputs) -> Outputs:
-        issue = await self.platform_service.get_issue_by_title(inputs.issue_title)
-        if issue is None:
+        if inputs.issue_number is None:
             issue_number = await self.platform_service.create_issue(
                 inputs.issue_title, inputs.issue_body, inputs.issue_labels
             )
             return Outputs(issue_number=issue_number)
-        elif issue is not None and inputs.update_if_exists:
-            await self.platform_service.update_issue_body(
-                issue.number, inputs.issue_body, inputs.issue_labels
-            )
-            return Outputs(issue_number=issue.number)
-        return Outputs(issue_number=None)
+        await self.platform_service.update_issue_body(
+            inputs.issue_number, inputs.issue_body, inputs.issue_labels
+        )
+        return Outputs(issue_number=inputs.issue_number)
 
 
 if __name__ == "__main__":
@@ -63,7 +60,6 @@ if __name__ == "__main__":
                 inputs=Inputs(
                     issue_title="Test Issue",
                     issue_body="This is a test issue",
-                    update_if_exists=True,
                 ),
             )
         )

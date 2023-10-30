@@ -41,6 +41,7 @@ async def test_github_platform_service(
         f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/pulls?base=branch2&head=user%253Abranch1&state=open",
         payload=[
             {
+                "state": "open",
                 "number": 1,
                 "node_id": "node1",
                 "body": "123",
@@ -57,6 +58,7 @@ async def test_github_platform_service(
         f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/issues?state=open&since={timestamp}",
         payload=[
             {
+                "state": "open",
                 "number": 1,
                 "node_id": "node1",
                 "title": "Ups an issue occurred.",
@@ -132,6 +134,7 @@ async def test_github_platform_service(
     issues = await platform_service.get_issues(state="open", since=since)
     assert issues == [
         Issue(
+            open=True,
             number=1,
             title="Ups an issue occurred.",
             author="user1",
@@ -154,6 +157,7 @@ async def test_github_platform_service(
             LabelEvent(
                 issue=None,
                 pull_request=PullRequest(
+                    open=True,
                     number=10,
                     title="Add find-todos action",
                     author="PireIre",
@@ -181,6 +185,7 @@ async def test_github_platform_service(
             LabelEvent(
                 issue=None,
                 pull_request=PullRequest(
+                    open=True,
                     number=5,
                     title="Fixup docs",
                     author="irgolic",
@@ -263,6 +268,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
     # Mock the response for getting issues
     issues_payload = [
         {
+            "state": "open",
             "number": 1,
             "title": "test_title",
             "body": "test_body",
@@ -280,6 +286,7 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
     )
 
     expected_issue = Issue(
+        open=True,
         messages=[Message(body="test_body", author="user1")],
         number=1,
         title="test_title",
@@ -327,6 +334,9 @@ async def test_get_file_url(
     mock = MagicMock()
     mock.commit.return_value.hexsha = "123abcd"
     platform_service.repo = mock
-    with patch.object(GitHubPlatformService, "_get_num_lines_in_file", return_value=100):
-        url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
+    with patch.object(os.path, "isfile", return_value=True):
+        with patch.object(GitHubPlatformService, "_get_num_lines_in_file", return_value=100):
+            url = await platform_service.get_file_url(
+                file_path, branch, start_line, end_line, margin
+            )
     assert url == expected_url

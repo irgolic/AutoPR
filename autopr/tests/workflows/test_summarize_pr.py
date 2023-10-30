@@ -61,6 +61,7 @@ async def test_summarize_pr(
         {
             "issue": None,
             "pull_request": PullRequest(
+                open=True,
                 messages=[Message(body="", author="PireIre")],
                 number=10,
                 title="Add find-todos action",

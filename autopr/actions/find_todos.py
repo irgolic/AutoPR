@@ -6,16 +6,15 @@ from collections import defaultdict
 from typing import Literal, Optional
 from unittest.mock import patch
 import pydantic
+import yaml
+
 from autopr.actions.base import Action
+from autopr.models.artifacts import Issue
 
 from autopr.services.platform_service import PlatformService
 from tree_sitter_languages import get_parser
 from tree_sitter import Parser
 
-
-TODO_ISSUE_BODY = re.compile(
-    r"<!--\ninfo: AutoPR fingerprint\nissue_type: TODO\ntask: [^\n]*\n-->", re.DOTALL
-)
 
 comment_treesitter_language_mapping = {
     "python": ["#"],
@@ -33,7 +32,7 @@ class TodoLocation(pydantic.BaseModel):
 class Todo(pydantic.BaseModel):
     task: str
     locations: list[TodoLocation]
-    issue_number: Optional[int] = None
+    issue: Optional[Issue] = None
 
 
 class Inputs(pydantic.BaseModel):
@@ -127,7 +126,7 @@ class FindTodos(Action[Inputs, Outputs]):
         location = TodoLocation(filepath=file, start_line=start_line, end_line=end_line, url=url)
         return location
 
-    async def filter_closed_issues(self, todos: list[Todo]) -> list[Todo]:
+    async def filter_closed_issues(self, todos: list[Todo], issues: list[Issue]) -> list[Todo]:
         closed_issues_list = await self.platform_service.get_issues(state="closed")
         closed_issue_bodies = [closed_issue.messages[0].body for closed_issue in closed_issues_list]
         filtered_todos = [
@@ -137,24 +136,40 @@ class FindTodos(Action[Inputs, Outputs]):
         ]
         return filtered_todos
 
+    def parse_todo_issues(self, issues: list[Issue]) -> dict[str, Issue]:
+        todo_issues = {}
+        for issue in issues:
+            if not issue.messages:
+                continue
+            body = issue.messages[0].body
+            if not body.startswith("<!--") or "-->" not in body:
+                continue
+            # load yaml between <!-- and -->
+            yaml_str = body.split("-->")[0].split("<!--")[1]
+            try:
+                yaml_dict = yaml.safe_load(yaml_str)
+            except yaml.YAMLError:
+                continue
+            if not yaml_dict or yaml_dict.get("issue_type") != "TODO" or "task" not in yaml_dict:
+                continue
+            task = yaml_dict["task"]
+
+            if task in todo_issues:
+                self.log.error(f"Duplicate task: {task}")
+                continue
+            todo_issues[task] = issue
+        return todo_issues
+
     @staticmethod
     def get_todo_fingerprint(todo: Todo) -> str:
         return rf"<!--\ninfo: AutoPR fingerprint\nissue_type: TODO\ntask: {todo.task}\n-->\n"
 
-    async def close_not_used_issues(self, todos: list[Todo]) -> None:
-        open_issues_list = await self.platform_service.get_issues(state="open")
-        for open_issue in open_issues_list:
-            if not TODO_ISSUE_BODY.search(open_issue.messages[0].body):
-                continue
-            open_issue_body = open_issue.messages[0].body
-            if not any(
-                re.compile(self.get_todo_fingerprint(todo)).search(open_issue_body)
-                for todo in todos
-            ):
-                self.commit_service.log.debug(
-                    f"Closing issue {open_issue.number} because it is not used anymore."
-                )
-                await self.platform_service.close_issue(open_issue.number)
+    async def close_not_used_issues(self, issues: list[Issue], todos: list[Todo]) -> None:
+        todo_issues = [todo.issue for todo in todos if todo.issue]
+        for issue in issues:
+            if issue.open and issue not in todo_issues:
+                self.log.debug(f"Closing issue {issue.number} because it is not used anymore.")
+                await self.platform_service.close_issue(issue.number)
 
     async def run(self, inputs: Inputs) -> Outputs:
         # Set the parsing language
@@ -164,7 +179,7 @@ class FindTodos(Action[Inputs, Outputs]):
         comment_keywords = comment_treesitter_language_mapping[inputs.language]
         parser = get_parser(inputs.language)
         current_dir = os.getcwd()
-        all_task_to_locations = {}
+        task_to_locations = {}
 
         for root, dirs, files in os.walk(current_dir):
             if ".git" in dirs:
@@ -175,8 +190,7 @@ class FindTodos(Action[Inputs, Outputs]):
             for file in files:
                 relative_path = os.path.relpath(os.path.join(root, file), current_dir)
 
-                if any(fnmatch.fnmatch(relative_path, pattern)
-                       for pattern in inputs.ignored_paths):
+                if any(fnmatch.fnmatch(relative_path, pattern) for pattern in inputs.ignored_paths):
                     continue
 
                 file_task_to_locations = await self.process_file(
@@ -184,15 +198,25 @@ class FindTodos(Action[Inputs, Outputs]):
                 )
 
                 for task, locations in file_task_to_locations.items():
-                    all_task_to_locations.setdefault(task, []).extend(locations)
+                    task_to_locations.setdefault(task, []).extend(locations)
+
+        issues = await self.platform_service.get_issues()
+        issue_for_task = self.parse_todo_issues(issues)
 
         todos = [
-            Todo(task=task, locations=locations)
-            for task, locations in all_task_to_locations.items()
+            Todo(
+                task=task,
+                locations=locations,
+                issue=issue_for_task.get(task),
+            )
+            for task, locations in task_to_locations.items()
         ]
+        await self.close_not_used_issues(issues, todos)
+
         sorted_todos = sorted(todos, key=lambda todo: todo.task)  # This simplifies testing
-        filtered_todos = await self.filter_closed_issues(sorted_todos)
-        await self.close_not_used_issues(filtered_todos)
+
+        filtered_todos = [todo for todo in sorted_todos if todo.issue is None or todo.issue.open]
+
         return Outputs(todos=filtered_todos)
 
 

@@ -29,6 +29,8 @@ list_todos:
           inputs:
             todo:
               var: todo
+            existing_issue_number:
+              lambda: None
           list_outputs:
             issue_number: issue_number_list
 
@@ -107,8 +109,9 @@ build_and_publish_todo:
           var: issue_title
         issue_body:
           var: issue_body
-        update_if_exists:
-          const: true
+        issue_number:
+          lambda: |
+            todo.issue.number if todo.issue else None
         issue_labels:
           var: label_list
       outputs:

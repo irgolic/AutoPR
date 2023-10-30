@@ -17,6 +17,7 @@ workflows_filename = "bash.yaml"
 event = LabelEvent(
     pull_request=None,
     issue=Issue(
+        open=True,
         number=1,
         title="Test Issue",
         author="Tester",

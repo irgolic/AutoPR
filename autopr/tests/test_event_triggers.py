@@ -12,6 +12,7 @@ from autopr.tests.utils import create_ephemeral_main_service
 issue_label_event = LabelEvent(
     pull_request=None,
     issue=Issue(
+        open=True,
         number=1,
         title="Test Issue",
         author="Tester",

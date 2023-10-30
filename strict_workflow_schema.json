@@ -2609,11 +2609,11 @@
             }
           ]
         },
-        "update_if_exists": {
-          "title": "Update If Exists",
+        "issue_number": {
+          "title": "Issue Number",
           "anyOf": [
             {
-              "type": "boolean"
+              "type": "integer"
             },
             {
               "$ref": "#/definitions/TemplateDeclaration"

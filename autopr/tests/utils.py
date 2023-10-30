@@ -38,6 +38,7 @@ class TestMainService(MainService):
             return LabelEvent(
                 pull_request=None,
                 issue=Issue(
+                    open=True,
                     number=1,
                     title="Test Issue",
                     author="Tester",

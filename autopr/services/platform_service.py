@@ -650,6 +650,7 @@ class GitHubPlatformService(PlatformService):
 
         # Create issue
         return Issue(
+            open=issue_json["state"] == "open",
             number=issue_json["number"],
             title=issue_json["title"],
             author=issue_json["user"]["login"],
@@ -662,6 +663,7 @@ class GitHubPlatformService(PlatformService):
         if issue is None:
             return issue
         return PullRequest(
+            open=issue.open,
             number=issue.number,
             title=issue.title,
             author=issue.author,

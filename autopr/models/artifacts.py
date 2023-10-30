@@ -20,6 +20,7 @@ class Thread(pydantic.BaseModel):
 
 
 class Issue(Thread):
+    open: bool
     number: int
     title: str
     author: str
