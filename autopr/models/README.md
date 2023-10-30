@@ -6,12 +6,12 @@
 This folder contains files related to a codebase for automation and configuration management. The "artifacts.py" file defines Pydantic models for messages, threads, issues, and pull requests. The "config/" folder contains Python files for handling extra fields in models, executing actions and workflows, building workflow definitions and triggers, handling config and action variable transformations, and managing and rendering variables and parameters. The "events.py" file defines classes for different types of events in AutoPR. The "executable.py" file provides types and classes for context management and template rendering in a Python project.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/models/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/models/__init__.py)
 
 This file is empty.  
 
 
-### [`artifacts.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/models/artifacts.py)
+### [`artifacts.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/models/artifacts.py)
 
 📄 This file defines several Pydantic models for representing messages, threads, issues, and pull requests.   
 📝 The `Message` model represents a message with a body and an author.   
@@ -23,12 +23,12 @@ This file is empty.
 📝 The file contains import statements for necessary modules.  
 
 
-### [`config/`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/models/config)
+### [`config/`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/models/config)
 
 This folder contains several Python files that serve different purposes in a larger codebase related to automation and configuration management. The "common.py" file defines two base model classes for handling extra fields in models. The "elements.py" file provides models and classes for executing actions and workflows. The "entrypoints.py" file is related to building workflow definitions and triggers. The "transform.py" file provides a framework for handling config and action variable transformations. The "value_declarations.py" file manages and renders variables and parameters in a Python program.  
 
 
-### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/models/events.py)
+### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/models/events.py)
 
 📋 This file defines several classes related to events in AutoPR.    
 🔧 It includes the base `Event` class and subclasses for different types of events.    
@@ -41,7 +41,7 @@ This folder contains several Python files that serve different purposes in a lar
 📄 This file is part of the `autopr.models.events` module.  
 
 
-### [`executable.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/models/executable.py)
+### [`executable.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/models/executable.py)
 
 📝 This file defines various types and classes used for context management and template rendering in a Python project.  
 📝 It imports modules such as `json`, `jinja2`, and `pydantic`.  

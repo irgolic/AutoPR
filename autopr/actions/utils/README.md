@@ -6,12 +6,12 @@
 This folder contains two files: "__init__.py" and "prompt_context.py". The "__init__.py" file is empty. The "prompt_context.py" file is used for managing and transforming prompt context in a natural language processing application. It includes classes and functions for working with prompt context entries and configurations, as well as functions for trimming the context and invoking OpenAI's Chat Completion API.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/actions/utils/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/actions/utils/__init__.py)
 
 This file is empty.  
 
 
-### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/blob/69f91c2a043ed9af1b652b178a4188d4a86fd858/./autopr/actions/utils/prompt_context.py)
+### [`prompt_context.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1370831ec7e943aa9d9a8607e62ef6f195a6f402/./autopr/actions/utils/prompt_context.py)
 
 📄 This file contains code for managing and transforming prompt context in a natural language processing application.  
 🔧 It includes classes and functions for working with prompt context entries and configurations.  
