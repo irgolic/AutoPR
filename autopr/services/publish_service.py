@@ -452,8 +452,8 @@ class PublishService:
             bodies += [body]
         return bodies
 
-    def _build_concise_progress(self) -> str:
-        is_in_progress = len(self.sections_stack) > 1
+    def _build_concise_progress(self, finalize: bool) -> str:
+        is_in_progress = len(self.sections_stack) > 1 or not finalize
 
         progress_text = ""
         if is_in_progress:
@@ -467,7 +467,7 @@ class PublishService:
 
         child_progress_text = ""
         for child in self.children:
-            child_progress_text += child._build_concise_progress() + "\n"
+            child_progress_text += child._build_concise_progress(finalize) + "\n"
 
         if self.root_publish_service is None or self is self.root_publish_service:
             return child_progress_text
@@ -524,7 +524,7 @@ class PublishService:
 
         # Build concise progress hierarchy
         # TODO if it gets too large, iteratively try setting a lower maximum indentation depth
-        body += "\n\n## Progress\n\n" + self._build_concise_progress()
+        body += "\n\n## Progress\n\n" + self._build_concise_progress(success is not None)
 
         bodies.append(body)
 
