@@ -1714,6 +1714,32 @@
               "$ref": "#/definitions/ParamDeclaration"
             }
           ]
+        },
+        "ignored_paths": {
+          "title": "Ignored Paths",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -3103,6 +3129,12 @@
       "title": "list_todosParams",
       "type": "object",
       "properties": {
+        "IGNORED_PATHS": {
+          "title": "Ignored Paths",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
         "ISSUE_LABEL_CHOICES": {
           "title": "Issue Label Choices",
           "default": [
@@ -3401,6 +3433,12 @@
       "title": "publish_todo_issuesParams",
       "type": "object",
       "properties": {
+        "IGNORED_PATHS": {
+          "title": "Ignored Paths",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
         "ISSUE_LABEL_CHOICES": {
           "title": "Issue Label Choices",
           "default": [

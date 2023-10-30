@@ -22,8 +22,13 @@ def _collect_workflows(
     if existing_workflows is None:
         existing_workflows = TopLevelWorkflowConfig()
 
-    with open(filepath) as f:
-        contents = yaml.safe_load(f)
+    try:
+        with open(filepath) as f:
+            contents = yaml.safe_load(f)
+    except Exception as e:
+        logger.error(f"Error loading workflow {filepath}: {e}")
+        return existing_workflows
+
     if contents is None:
         return existing_workflows
     try:

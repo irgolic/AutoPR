@@ -11,6 +11,10 @@ list_todos:
           var: language
         todo_keywords:
           var: todo_keywords
+        ignored_paths:
+          param:
+            default: []
+            name: IGNORED_PATHS
       outputs:
         todos: todos
     - if_lambda: "not todos"

@@ -38,6 +38,7 @@ class Todo(pydantic.BaseModel):
 class Inputs(pydantic.BaseModel):
     language: Literal[tuple(comment_treesitter_language_mapping.keys())] = "python"  # type: ignore
     todo_keywords: list[str] = ["TODO", "FIXME"]
+    ignored_paths: list[str] = pydantic.Field(default_factory=list)
 
 
 class Outputs(pydantic.BaseModel):
@@ -172,6 +173,11 @@ class FindTodos(Action[Inputs, Outputs]):
 
             for file in files:
                 relative_path = os.path.relpath(os.path.join(root, file), current_dir)
+                if any(
+                    re.compile(ignored_path).search(relative_path)
+                    for ignored_path in inputs.ignored_paths
+                ):
+                    continue
                 file_task_to_locations = await self.process_file(
                     relative_path, inputs.todo_keywords, comment_keywords, parser
                 )
