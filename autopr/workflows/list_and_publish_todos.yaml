@@ -83,7 +83,9 @@ build_and_publish_todo:
             [AutoPR] {{ truncated_task }}
         issue_body:
           template: |
+            <!--
             {{ todo.fingerprint }}
+            -->
 
             ## {{ todo.task }}
 
