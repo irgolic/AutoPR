@@ -3,15 +3,15 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains multiple Python files that implement various services and classes for managing and running actions, handling caching, working with Git repositories, making API calls to platforms like GitHub, publishing updates to pull requests, processing triggers, and executing workflows. These files provide functionality for different aspects of an automated pull request system, such as managing actions, caching data, handling commits and diffs, interacting with platforms, publishing updates, and executing workflows based on triggers. The files are well-documented and contain classes, methods, and helper functions that implement the necessary logic for each service.
+This folder contains several Python files that implement various services and functionalities for the autopr system. These files include classes for managing and running actions, caching data, creating and committing changes in a Git repository, getting and applying diffs, making API calls to platforms like GitHub, publishing updates to pull requests, handling triggers and executing workflows, and providing utility functions for formatting data. Each file has a specific purpose and provides the necessary methods and functionality for its respective service.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/__init__.py)
 
 This file is empty.  
 
 
-### [`action_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/action_service.py)
+### [`action_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/action_service.py)
 
 📝 This file contains the implementation of the `ActionService` class, which is responsible for managing and running actions in the autopr system.  
 🔧 It provides methods for finding, instantiating, and running actions.  
@@ -24,7 +24,7 @@ This file is empty.
 ❌ The file handles exceptions and logs errors when running actions, providing detailed error messages and traceback information.  
 
 
-### [`cache_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/cache_service.py)
+### [`cache_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/cache_service.py)
 
 📝 The file defines a class called `CacheService` and a subclass called `ShelveCacheService`.  
 📁 The `ShelveCacheService` class is a cache service that stores and retrieves data using the `shelve` module.  
@@ -38,7 +38,7 @@ This file is empty.
 🔍 The `retrieve` method retrieves the value associated with the given key from the shelve database.  
 
 
-### [`commit_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/commit_service.py)
+### [`commit_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/commit_service.py)
 
 📝 The file contains a class called `CommitService` that provides functionality for creating branches, committing changes, and pushing them to a Git repository.  
 🔧 The class ensures that there is always a commit on the branch.  
@@ -51,7 +51,7 @@ This file is empty.
 📜 The class uses a logger for logging debug and info messages.  
 
 
-### [`diff_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/diff_service.py)
+### [`diff_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/diff_service.py)
 
 📝 This file contains the implementation of a DiffService class and its two subclasses: GitApplyService and PatchService.  
 🔍 The purpose of this file is to provide functionality for getting and applying diffs in a git repository.  
@@ -65,7 +65,7 @@ This file is empty.
 📚 The file includes necessary imports and a logger for debugging purposes.  
 
 
-### [`platform_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/platform_service.py)
+### [`platform_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/platform_service.py)
 
 📚 The purpose of this file is to define classes for making API calls to the platform (e.g., GitHub) and provide implementations for various platform-specific operations.  
 📝 The file contains two classes: `PlatformService` and `GitHubPlatformService`.  
@@ -78,20 +78,20 @@ This file is empty.
 ⚠️ The file also includes a `DummyPlatformService` class, which is a dummy implementation of the `PlatformService` class for testing purposes.  
 
 
-### [`publish_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/publish_service.py)
+### [`publish_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/publish_service.py)
 
-📄 This file contains the implementation of a service called `PublishService`.  
-📝 The purpose of this service is to publish updates to the pull request description.  
-🔄 It allows for controlling update sections and publishing updates and code blocks.  
-📚 It includes classes for code blocks and update sections to organize the description.  
-📝 The service can create child instances with their own sections and update hierarchy.  
-🎯 The service can set the title and body of the pull request.  
-📈 It can publish updates, code blocks, and start and end sections.  
-✅ It can merge and close the pull request.  
-🚀 The service supports publishing to GitHub and includes error reporting and progress tracking features.  
+📄 This file defines classes and functions related to publishing updates to a pull request description.  
+📝 It provides a service for controlling the update sections and publishing updates to the current section.  
+🔧 The service allows for creating child instances with their own update sections.  
+🚀 The main class is `PublishService`, which handles the creation and updating of the pull request.  
+💻 There is also a subclass `GitHubPublishService` specifically for publishing to GitHub.  
+🔄 The service can publish simple text updates or code blocks as collapsible sections.  
+✅ It supports starting new sections, updating section titles, and ending sections.  
+🔗 The service can also merge or close the pull request.  
+⚡️ The file also includes a `DummyPublishService` class for testing purposes.  
 
 
-### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/trigger_service.py)
+### [`trigger_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/trigger_service.py)
 
 📜 This file contains the implementation of the `TriggerService` class.   
 🔃 The class is responsible for handling triggers that are used to initiate workflows in a larger system.  
@@ -105,7 +105,7 @@ This file is empty.
 🗂️ The file also includes imports for various modules and types used by the class.  
 
 
-### [`utils.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/utils.py)
+### [`utils.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/utils.py)
 
 📝 This file contains functions for formatting Python objects for publishing.  
 🔍 The `format_for_publishing` function takes an object and converts it into a formatted string in JSON format.  
@@ -115,7 +115,7 @@ This file is empty.
 📝 The purpose of this file is to provide utility functions for preparing data for publishing or display.  
 
 
-### [`workflow_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/services/workflow_service.py)
+### [`workflow_service.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/services/workflow_service.py)
 
 📝 This file contains the implementation of a WorkflowService class, which is responsible for executing workflows and actions based on their IDs and inputs. It also provides methods for invoking workflows iteratively and validating inputs and outputs of workflows. The class uses other services such as ActionService and PublishService for running actions and publishing logs.  
 
