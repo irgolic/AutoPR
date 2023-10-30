@@ -47,12 +47,11 @@ class Bash(Action[BashInputs, BashOutputs]):
 # When you run this file
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
+
     asyncio.run(
         # Run the action manually
         run_action_manually(
             action=Bash,
-            inputs=BashInputs(
-                command="echo 'Hello World!'"
-            ),
+            inputs=BashInputs(command="echo 'Hello World!'"),
         )
     )

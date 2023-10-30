@@ -16,9 +16,7 @@ workflows_filename = "bash.yaml"
 workflow_id = "bash_workflow"
 
 # The inputs you'd like to pass to the workflow
-inputs = {
-    "command": "echo 'Hello World!'"
-}
+inputs = {"command": "echo 'Hello World!'"}
 
 
 # ---

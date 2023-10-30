@@ -9,6 +9,7 @@ from autopr.services.platform_service import PlatformService
 
 from autopr.models.artifacts import Issue
 
+
 class Inputs(BaseModel):
     # Title of the issue
     issue_title: str
@@ -32,21 +33,28 @@ class PublishIssue(Action[Inputs, Outputs]):
     """
     Publishes issue with the specified title if it doesn't exist yet.
     """
+
     id = "publish_issue"
 
     async def run(self, inputs: Inputs) -> Outputs:
         issue = await self.platform_service.get_issue_by_title(inputs.issue_title)
         if issue is None:
-            issue_number = await self.platform_service.create_issue(inputs.issue_title, inputs.issue_body, inputs.issue_labels)
+            issue_number = await self.platform_service.create_issue(
+                inputs.issue_title, inputs.issue_body, inputs.issue_labels
+            )
             return Outputs(issue_number=issue_number)
         elif issue is not None and inputs.update_if_exists:
-            await self.platform_service.update_issue_body(issue.number, inputs.issue_body, inputs.issue_labels)
+            await self.platform_service.update_issue_body(
+                issue.number, inputs.issue_body, inputs.issue_labels
+            )
             return Outputs(issue_number=issue.number)
         return Outputs(issue_number=None)
+
 
 if __name__ == "__main__":
     # IMPORTANT: Here, method publish_issue is mocked and does not actually publish an issue to a repository.
     from autopr.tests.utils import run_action_manually
+
     with patch.object(PlatformService, "publish_issue") as mock:
         asyncio.run(
             # Run the action manually

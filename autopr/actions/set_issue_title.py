@@ -11,6 +11,7 @@ class SetIssueTitle(Action[Inputs, None]):
     """
     A class representing an action to set the title of an issue.
     """
+
     id = "set_issue_title"
 
     async def run(self, inputs: Inputs) -> None:

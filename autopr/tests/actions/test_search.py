@@ -20,26 +20,12 @@ from autopr.actions.search import SearchHit
             },
             {
                 "hits": [
+                    SearchHit(filepath="rootTestFile.html", line_number=7, char_number=3),
+                    SearchHit(filepath="rootTestFile.js", line_number=6, char_number=3),
                     SearchHit(
-                        filepath="rootTestFile.html",
-                        line_number=7,
-                        char_number=3
+                        filepath="subfolder/subfolderFile.html", line_number=7, char_number=5
                     ),
-                    SearchHit(
-                        filepath="rootTestFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
-                    SearchHit(
-                        filepath="subfolder/subfolderFile.html",
-                        line_number=7,
-                        char_number=5
-                    ),
-                    SearchHit(
-                        filepath="subfolder/subfolderFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
+                    SearchHit(filepath="subfolder/subfolderFile.js", line_number=6, char_number=3),
                 ]
             },
             "repo_for_searching",
@@ -52,15 +38,9 @@ from autopr.actions.search import SearchHit
             {
                 "hits": [
                     SearchHit(
-                        filepath="subfolder/subfolderFile.html",
-                        line_number=7,
-                        char_number=5
+                        filepath="subfolder/subfolderFile.html", line_number=7, char_number=5
                     ),
-                    SearchHit(
-                        filepath="subfolder/subfolderFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
+                    SearchHit(filepath="subfolder/subfolderFile.js", line_number=6, char_number=3),
                 ]
             },
             "repo_for_searching",
@@ -72,16 +52,8 @@ from autopr.actions.search import SearchHit
             },
             {
                 "hits": [
-                    SearchHit(
-                        filepath="rootTestFile.html",
-                        line_number=7,
-                        char_number=3
-                    ),
-                    SearchHit(
-                        filepath="rootTestFile.js",
-                        line_number=6,
-                        char_number=3
-                    ),
+                    SearchHit(filepath="rootTestFile.html", line_number=7, char_number=3),
+                    SearchHit(filepath="rootTestFile.js", line_number=6, char_number=3),
                 ]
             },
             "repo_for_searching",

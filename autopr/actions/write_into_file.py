@@ -27,12 +27,14 @@ class WriteIntoFile(Action[Inputs, Outputs]):
     """
     This action writes content into a file.
     """
+
     id = "write_into_file"
 
     async def run(self, inputs: Inputs) -> Outputs:
         if os.path.isabs(inputs.filepath):
             raise ValueError(
-                f"The filepath: {inputs.filepath} must be relative to the repository root.")
+                f"The filepath: {inputs.filepath} must be relative to the repository root."
+            )
 
         dirpath = os.path.dirname(inputs.filepath)
 
@@ -55,5 +57,4 @@ if __name__ == "__main__":
         content="Hello world!",
         append_at_the_end=False,
     )
-    outputs = asyncio.run(run_action_manually(
-        action=WriteIntoFile, inputs=inputs))
+    outputs = asyncio.run(run_action_manually(action=WriteIntoFile, inputs=inputs))

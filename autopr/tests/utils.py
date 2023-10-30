@@ -15,7 +15,11 @@ from autopr.models.config.elements import ActionConfig, WorkflowDefinition, Extr
 from autopr.models.events import LabelEvent, Event, EventUnion
 from autopr.models.executable import ExecutableId, ContextDict
 from autopr.services.action_service import ActionSubclass
-from autopr.services.platform_service import PlatformService, DummyPlatformService, GitHubPlatformService
+from autopr.services.platform_service import (
+    PlatformService,
+    DummyPlatformService,
+    GitHubPlatformService,
+)
 from autopr.services.publish_service import DummyPublishService
 
 
@@ -42,7 +46,7 @@ class TestMainService(MainService):
                             body="Test message 1",
                             author="Tester",
                         ),
-                    ]
+                    ],
                 ),
                 label="write pr",
             )
@@ -72,7 +76,9 @@ def create_repo(
 
     # copy repo resource
     if repo_resource is not None:
-        real_resource_path = os.path.join(os.path.dirname(__file__), "resources", "repos", repo_resource)
+        real_resource_path = os.path.join(
+            os.path.dirname(__file__), "resources", "repos", repo_resource
+        )
         os.system(f"rsync -a --include '.*' {real_resource_path}/ {repo_dir}/")
 
     # create .autopr dir
@@ -111,10 +117,7 @@ def create_ephemeral_main_service(
     # load triggers config
     if triggers_filename is not None:
         triggers_path = os.path.join(
-            os.path.dirname(__file__),
-            "resources",
-            "triggers",
-            triggers_filename
+            os.path.dirname(__file__), "resources", "triggers", triggers_filename
         )
         with open(triggers_path, "r") as f:
             triggers_config = f.read()
@@ -129,22 +132,14 @@ def create_ephemeral_main_service(
     # load any test workflow resources
     if workflows_filename is not None:
         workflows_path = os.path.join(
-            os.path.dirname(__file__),
-            "resources",
-            "workflows",
-            workflows_filename
+            os.path.dirname(__file__), "resources", "workflows", workflows_filename
         )
         # inject test workflows into autopr.workflows
         autopr.workflows._test_workflow_paths[:] = [workflows_path]
 
     # load event
     if isinstance(event, str):
-        event_path = os.path.join(
-            os.path.dirname(__file__),
-            "resources",
-            "events",
-            event
-        )
+        event_path = os.path.join(os.path.dirname(__file__), "resources", "events", event)
         with open(event_path, "r") as f:
             event_json = json.load(f)
         platform_service = GitHubPlatformService(
@@ -165,11 +160,10 @@ def create_ephemeral_main_service(
     # is created upon module import, and it's constructed from a list of available actions and workflows,
     # we need to reload the module after create_repo injects `.autopr/workflows.yml` and runs os.chdir
     import autopr.models.config.entrypoints as entrypoints
+
     importlib.reload(entrypoints)
     with patch.object(
-        sys.modules["autopr.triggers"],
-        "TopLevelTriggerConfig",
-        entrypoints.TopLevelTriggerConfig
+        sys.modules["autopr.triggers"], "TopLevelTriggerConfig", entrypoints.TopLevelTriggerConfig
     ):
         return TestMainService(
             test_event=event,
@@ -232,10 +226,7 @@ async def run_action_manually_with_main(
     # Pass all outputs through as named in the action
     output_type = action_type._get_outputs_type()
     if not isinstance(None, output_type):
-        action_config.outputs = ExtraModel.parse_obj({
-            key: key
-            for key in output_type.__fields__
-        })
+        action_config.outputs = ExtraModel.parse_obj({key: key for key in output_type.__fields__})
     return await action_service.run_action(
         action_config=action_config,
         context=context,

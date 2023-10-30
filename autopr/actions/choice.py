@@ -47,6 +47,7 @@ class Choice(Action[Inputs, Outputs]):
     """
     Prompt to generate a string.
     """
+
     id = "choice"
 
     def build_prompt_and_instructions(self, inputs: Inputs) -> tuple[str, str]:
@@ -57,12 +58,14 @@ class Choice(Action[Inputs, Outputs]):
         if inputs.prompt_context:
             # TODO subtract length of rest of prompt
             prompt_elements.append(
-                str(trim_context(
-                    inputs.prompt_context,
-                    inputs.max_prompt_tokens,
-                    inputs.strategy,
-                    inputs.model,
-                ))
+                str(
+                    trim_context(
+                        inputs.prompt_context,
+                        inputs.max_prompt_tokens,
+                        inputs.strategy,
+                        inputs.model,
+                    )
+                )
             )
         if inputs.prompt:
             prompt_elements.append(inputs.prompt)
@@ -83,11 +86,7 @@ You are a helpful assistant making a choice. You are ONLY allowed to respond wit
 
     async def invoke_choice(self, inputs: Inputs, prompt: str, instructions: str) -> str:
         choice = await invoke_openai(
-            prompt,
-            instructions,
-            inputs.model,
-            inputs.temperature,
-            inputs.max_response_tokens
+            prompt, instructions, inputs.model, inputs.temperature, inputs.max_response_tokens
         )
 
         await self.publish_service.publish_code_block(
@@ -134,6 +133,7 @@ You are a helpful assistant making a choice. You are ONLY allowed to respond wit
 
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
+
     inputs = Inputs(
         choices=[
             "apples",
@@ -144,9 +144,4 @@ if __name__ == "__main__":
         ],
         prompt="What should I make a fruit salad with?",
     )
-    asyncio.run(
-        run_action_manually(
-            action=Choice,
-            inputs=inputs
-        )
-    )
+    asyncio.run(run_action_manually(action=Choice, inputs=inputs))

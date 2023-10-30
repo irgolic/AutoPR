@@ -146,24 +146,19 @@ from autopr.tests.utils import create_ephemeral_main_service
             "set_vars_lambda_var",
             {},
             {},
-            {
-                "one_add_one": 2,
-                "zipped_dict": {'a': 1, 'b': 2, 'c': 3}
-            },
+            {"one_add_one": 2, "zipped_dict": {"a": 1, "b": 2, "c": 3}},
             None,
         ),
         (
             None,
             "insert_into_readme",
             {
-                'filepath': "README.md",
-                'tag': 'tag',
-                'content': 'Insert Me',
+                "filepath": "README.md",
+                "tag": "tag",
+                "content": "Insert Me",
             },
             {},
-            {
-                'content': '\n\n<!-- tag -->Insert Me<!-- tag -->'
-            },
+            {"content": "\n\n<!-- tag -->Insert Me<!-- tag -->"},
             "example_repo_1",
         ),
         (
@@ -201,8 +196,8 @@ from autopr.tests.utils import create_ephemeral_main_service
                 "issue_number_list": [1],
             },
             "repo_with_todos",
-        )
-    ]
+        ),
+    ],
 )
 @pytest.mark.asyncio
 async def test_workflow(
@@ -219,8 +214,7 @@ async def test_workflow(
         new=mock_openai,
     )
     main = create_ephemeral_main_service(
-        workflows_filename=workflows_filename,
-        repo_resource=repo_resource
+        workflows_filename=workflows_filename, repo_resource=repo_resource
     )
     executable = main.workflow_service.get_executable_by_id(workflow_id, ContextDict())
     if not isinstance(executable, WorkflowDefinition):

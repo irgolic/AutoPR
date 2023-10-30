@@ -17,8 +17,17 @@ from autopr.models.config.common import StrictModel, ExtraModel
 from autopr.models.config.transform import TransformsFrom
 from autopr.models.config.value_declarations import ValueDeclaration, EVAL_CONTEXT
 
-from autopr.models.executable import LambdaString, ContextVarPath, ExecutableId, Executable, \
-    TemplateObject, ContextVarName, ContextDict, StrictExecutable, TemplateString
+from autopr.models.executable import (
+    LambdaString,
+    ContextVarPath,
+    ExecutableId,
+    Executable,
+    TemplateObject,
+    ContextVarName,
+    ContextDict,
+    StrictExecutable,
+    TemplateString,
+)
 
 
 # Forbid extra (incorrect) fields in models for json schema validation
@@ -30,6 +39,7 @@ from autopr.models.executable import LambdaString, ContextVarPath, ExecutableId,
 
 
 # Context mixin for actions and other objects with scope (e.g. workflows)
+
 
 class ContextModel(StrictModel):
     #: Which context variables to global-style include in the scope.
@@ -98,7 +108,11 @@ class IfContextNotExists(Conditional, ContextAction):
     if_not_in_context: Union[ContextVarName, list[ContextVarName]]
 
     def get_executable(self, context: ContextDict) -> Optional[Executable]:
-        req = self.if_not_in_context if isinstance(self.if_not_in_context, list) else [self.if_not_in_context]
+        req = (
+            self.if_not_in_context
+            if isinstance(self.if_not_in_context, list)
+            else [self.if_not_in_context]
+        )
         result = all(path not in context for path in req)
         return self.executable_by_condition(result)
 
@@ -137,7 +151,9 @@ class IterableExecModel(ExecModel):
     @pydantic.validator("as_")
     def as_only_with_iterate(cls, v, values):
         if v is None and isinstance(values["iterate"], ContextVarPath):
-            raise ValueError(f"`as` must be specified when `iterate` is a context variable path ({values['iterate']})")
+            raise ValueError(
+                f"`as` must be specified when `iterate` is a context variable path ({values['iterate']})"
+            )
         return v
 
 
@@ -164,7 +180,7 @@ def build_actions():
         model: type[pydantic.BaseModel],
         field_type: Optional[type] = None,
         add_union: Optional[type] = None,
-        all_optional: bool = False
+        all_optional: bool = False,
     ) -> tuple[type[pydantic.BaseModel], Any]:
         # Create a new model, put in a field of "field_type" for each input
         template_fields = {}
@@ -190,16 +206,13 @@ def build_actions():
             if add_union is not None:
                 # check that union does not collide with existing type
                 if (
-                    isinstance(type_, type) and
-                    typing.get_origin(type_) is None and
-                    issubclass(type_, pydantic.BaseModel)
+                    isinstance(type_, type)
+                    and typing.get_origin(type_) is None
+                    and issubclass(type_, pydantic.BaseModel)
                 ):
                     for field_name in type_.__fields__.keys():
-                        if any(field_name in m.__fields__
-                               for m in typing.get_args(add_union)):
-                            raise ValueError(
-                                f"{field_name} is a restricted field name."
-                            )
+                        if any(field_name in m.__fields__ for m in typing.get_args(add_union)):
+                            raise ValueError(f"{field_name} is a restricted field name.")
                 # TODO if it's a template, enforce dict structure on the template
                 type_ = Union[type_, add_union]
             template_fields[name_] = (type_, template_field)
@@ -213,9 +226,7 @@ def build_actions():
 
         # Annotate with a good default for the inputs themselves,
         # given if any of the inputs are required
-        if not all_optional and any(
-            f.required for f in model.__fields__.values()
-        ):
+        if not all_optional and any(f.required for f in model.__fields__.values()):
             default = ...
         else:
             default = {}
@@ -226,30 +237,22 @@ def build_actions():
     action_models = []
     for action in actions.values():
         # build input fields
-        fields = {
-            "action": (Literal[action.id], ...)  # type: ignore
-        }
+        fields = {"action": (Literal[action.id], ...)}  # type: ignore
         inputs = action._get_inputs_type()
         outputs = action._get_outputs_type()
         if not isinstance(None, inputs):
             input_fields = _templatify_model(inputs, add_union=ValueDeclaration)
         else:
             input_fields = (type(None), None)
-        fields |= {
-            "inputs": input_fields
-        }
+        fields |= {"inputs": input_fields}
 
         # build output fields
         if not isinstance(None, outputs):
             output_fields = _templatify_model(outputs, field_type=ContextVarName, all_optional=True)
         else:
             output_fields = (type(None), None)
-        invocation_fields = fields | {
-            "outputs": output_fields
-        }
-        iterable_invocation_fields = fields | {
-            "list_outputs": output_fields
-        }
+        invocation_fields = fields | {"outputs": output_fields}
+        iterable_invocation_fields = fields | {"list_outputs": output_fields}
 
         # build action invocation model
         action_basemodel = pydantic.create_model(

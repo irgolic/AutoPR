@@ -26,19 +26,12 @@ prompt_to_response = build_mock_dict()
 
 
 def mock_openai(messages, **kwargs):
-    prompt = messages[-1]['content']
+    prompt = messages[-1]["content"]
     if prompt not in prompt_to_response:
         raise ValueError(f"Unexpected prompt: {prompt}")
     response = prompt_to_response[prompt]
 
     async def _():
-        return {
-            "choices": [
-                {
-                    "message": {
-                        "content": response
-                    }
-                }
-            ]
-        }
+        return {"choices": [{"message": {"content": response}}]}
+
     return _()

@@ -34,7 +34,7 @@ class ActionService:
         cache_dir: str,
         platform_service: PlatformService,
         commit_service: CommitService,
-        num_reasks: int = 3
+        num_reasks: int = 3,
     ):
         self.repo = repo
         self.cache_dir = cache_dir
@@ -106,9 +106,7 @@ class ActionService:
             try:
                 inputs = inputs_type(**input_values)  # pyright: ignore[reportGeneralTypeIssues]
             except ValidationError as e:
-                raise ValueError(
-                    f"Invalid inputs for {action_type.id}:\n\n{e}"
-                ) from e
+                raise ValueError(f"Invalid inputs for {action_type.id}:\n\n{e}") from e
 
         return inputs
 
@@ -140,7 +138,7 @@ class ActionService:
                 heading="Error",
                 code=traceback.format_exc(),
                 language="python",  # FIXME
-                                    #  does nice syntax highlighting for tracebacks, but should be made configurable
+                #  does nice syntax highlighting for tracebacks, but should be made configurable
             )
             await publish_service.end_section(f"❌ Failed {action_id}")
             raise
@@ -184,7 +182,7 @@ class ActionService:
             for output_name, context_key in action_config.outputs or {}
             if context_key is not None
         }
-        
+
         if new_context:
             # Publish outputs
             await publish_service.publish_code_block(
@@ -224,14 +222,18 @@ class ActionService:
                     iter_context = ContextDict(iter_context | {item_name: i})
 
                 # Get inputs
-                inputs = self.get_action_inputs(action_type, iter_action_config.inputs, iter_context)
+                inputs = self.get_action_inputs(
+                    action_type, iter_action_config.inputs, iter_context
+                )
 
-                coros.append(self._instantiate_and_run_action(
-                    action_type=action_type,
-                    action_id=action_id,
-                    inputs=inputs,
-                    publish_service=await publish_service.create_child(f"💧 Iteration {i+1}"),
-                ))
+                coros.append(
+                    self._instantiate_and_run_action(
+                        action_type=action_type,
+                        action_id=action_id,
+                        inputs=inputs,
+                        publish_service=await publish_service.create_child(f"💧 Iteration {i+1}"),
+                    )
+                )
         else:  # isinstance(iteration, ContextVarPath)
             # iterate over a list in the context
             list_var = context.get_path(iteration)
@@ -245,15 +247,19 @@ class ActionService:
             coros = []
             for item in list_var:
                 iter_context = ContextDict(context | {item_name: item})
-                inputs = self.get_action_inputs(action_type, iter_action_config.inputs, iter_context)
-                coros.append(self._instantiate_and_run_action(
-                    action_type=action_type,
-                    action_id=action_id,
-                    inputs=inputs,
-                    publish_service=await publish_service.create_child(
-                        title=f"💧 Iteration: `{truncate_strings(str(item), length=40)}`"
-                    ),
-                ))
+                inputs = self.get_action_inputs(
+                    action_type, iter_action_config.inputs, iter_context
+                )
+                coros.append(
+                    self._instantiate_and_run_action(
+                        action_type=action_type,
+                        action_id=action_id,
+                        inputs=inputs,
+                        publish_service=await publish_service.create_child(
+                            title=f"💧 Iteration: `{truncate_strings(str(item), length=40)}`"
+                        ),
+                    )
+                )
 
         # Gather the action runs
         outputses = await asyncio.gather(*coros)
@@ -263,10 +269,7 @@ class ActionService:
         for output_name, context_key in iter_action_config.list_outputs or {}:
             if context_key is None:
                 continue
-            new_context[context_key] = [
-                getattr(outputs, output_name)
-                for outputs in outputses
-            ]
+            new_context[context_key] = [getattr(outputs, output_name) for outputs in outputses]
 
         await publish_service.publish_code_block(
             "Outputs",

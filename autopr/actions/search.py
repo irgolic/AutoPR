@@ -12,10 +12,12 @@ default_ignore_directories = [
     ".git",
 ]
 
+
 class SearchHit(pydantic.BaseModel):
     filepath: str
     line_number: int
     char_number: int
+
 
 # The action's inputs
 class Inputs(pydantic.BaseModel):
@@ -23,9 +25,11 @@ class Inputs(pydantic.BaseModel):
     directory_path: Optional[str] = None
     entries_to_ignore: list[str] = pydantic.Field(default_factory=list)
 
+
 # The action's outputs
 class Outputs(pydantic.BaseModel):
     hits: list[SearchHit]
+
 
 class Search(Action[Inputs, Outputs]):
     """
@@ -53,7 +57,11 @@ class Search(Action[Inputs, Outputs]):
 
     async def run(self, inputs: Inputs) -> Outputs:
         # Get the directory path to search
-        directory_path = os.path.join(os.getcwd(), inputs.directory_path) if inputs.directory_path else os.getcwd()
+        directory_path = (
+            os.path.join(os.getcwd(), inputs.directory_path)
+            if inputs.directory_path
+            else os.getcwd()
+        )
 
         # Run the search
         hits = []
@@ -64,7 +72,7 @@ class Search(Action[Inputs, Outputs]):
             for entry in inputs.entries_to_ignore + default_ignore_files:
                 if entry in files:
                     files.remove(entry)
-                
+
             for filename in files:
                 filepath = os.path.abspath(os.path.join(root, filename))
                 hits += await self.search_file(filepath, inputs.query)
@@ -73,6 +81,7 @@ class Search(Action[Inputs, Outputs]):
         sorted_hits = sorted(hits, key=lambda hit: (hit.filepath, hit.line_number, hit.char_number))
 
         return Outputs(hits=sorted_hits)
+
 
 # When you run this file
 if __name__ == "__main__":

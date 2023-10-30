@@ -30,10 +30,12 @@ from autopr.tests.utils import run_action_manually
             "prompt",
             {
                 "prompt_context": PromptContext(
-                    __root__=[PromptContextEntry(
-                        value="The world is beautiful, flowers are blooming, and the birds are singing.",
-                        heading="Message to be summarized",
-                    )]
+                    __root__=[
+                        PromptContextEntry(
+                            value="The world is beautiful, flowers are blooming, and the birds are singing.",
+                            heading="Message to be summarized",
+                        )
+                    ]
                 ),
                 "prompt": "What is this message trying to convey?",
                 "instructions": "Respond in a single short sentence.",
@@ -41,7 +43,7 @@ from autopr.tests.utils import run_action_manually
             {
                 "result": "The message is trying to convey the beauty of the world and the joy of nature",
             },
-            None
+            None,
         ),
         (
             "insert_content_into_text",
@@ -63,7 +65,7 @@ from autopr.tests.utils import run_action_manually
                 "content_to_add": "INSERTED",
             },
             {
-               "content": "He<--->llo\n\n<--->INSERTED<--->",
+                "content": "He<--->llo\n\n<--->INSERTED<--->",
             },
             None,
         ),
@@ -91,7 +93,7 @@ from autopr.tests.utils import run_action_manually
             },
             None,
         ),
-    ]
+    ],
 )
 @pytest.mark.asyncio
 async def test_actions(
@@ -106,9 +108,7 @@ async def test_actions(
         new=mock_openai,
     )
     outputs = await run_action_manually(
-        action=action_id,
-        inputs=ContextDict(inputs),
-        repo_resource=repo_resource
+        action=action_id, inputs=ContextDict(inputs), repo_resource=repo_resource
     )
 
     assert outputs == expected_outputs

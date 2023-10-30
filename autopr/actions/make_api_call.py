@@ -28,13 +28,13 @@ class GetApiCallActions(Action[Inputs, Outputs]):
         if response.status_code == 200:
             return Outputs(contents=response.content.decode())
         else:
-            raise Exception(
-                f"API call failed with status code {response.status_code}")
+            raise Exception(f"API call failed with status code {response.status_code}")
 
 
 # When you run this file
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
+
     asyncio.run(
         # Run the action manually
         run_action_manually(

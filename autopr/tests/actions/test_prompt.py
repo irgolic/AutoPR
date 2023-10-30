@@ -7,7 +7,11 @@ from autopr.actions.prompt import Inputs, PromptString
 from autopr.actions.utils.prompt_context import PromptContext, PromptContextEntry, trim_context
 from autopr.models.executable import ExecutableId
 from autopr.tests.mock_openai import mock_openai
-from autopr.tests.utils import run_action_manually, create_ephemeral_main_service, run_action_manually_with_main
+from autopr.tests.utils import (
+    run_action_manually,
+    create_ephemeral_main_service,
+    run_action_manually_with_main,
+)
 
 
 @pytest.mark.asyncio
@@ -25,11 +29,7 @@ async def test_caching(mocker):
 
     main = create_ephemeral_main_service()
 
-    await run_action_manually_with_main(
-        main=main,
-        action=ExecutableId("prompt"),
-        inputs=inputs
-    )
+    await run_action_manually_with_main(main=main, action=ExecutableId("prompt"), inputs=inputs)
 
     assert my_mock.call_count == 1
 
@@ -49,11 +49,7 @@ async def test_caching(mocker):
     #     )
     # )
 
-    await run_action_manually_with_main(
-        main=main,
-        action=ExecutableId("prompt"),
-        inputs=inputs
-    )
+    await run_action_manually_with_main(main=main, action=ExecutableId("prompt"), inputs=inputs)
 
     assert my_mock.call_count == 1
 
@@ -72,13 +68,16 @@ def test_trim_context():
         ],
     )
     trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
-    assert trimmed_context.__root__[0].value == """Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoes, Apple, banana
+    assert (
+        trimmed_context.__root__[0].value
+        == """Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoes, Apple, banana
 
 
 ... (trimmed) ...
 
 
 s, tomatoes, Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoes, """
+    )
 
     max_prompt_tokens = 100
 
@@ -100,27 +99,36 @@ s, tomatoes, Apple, bananas, oranges, tomatoes, Apple, bananas, oranges, tomatoe
     )
     trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
     assert len(trimmed_context.__root__) == 3
-    assert trimmed_context.__root__[0].value == """Apple, bananas, oranges, to
+    assert (
+        trimmed_context.__root__[0].value
+        == """Apple, bananas, oranges, to
 
 
 ... (trimmed) ...
 
 
 bananas, oranges, tomatoes, """
-    assert trimmed_context.__root__[1].value == """Flour, sugar, sal
+    )
+    assert (
+        trimmed_context.__root__[1].value
+        == """Flour, sugar, sal
 
 
 ... (trimmed) ...
 
 
 ar, salt, pepper, """
-    assert trimmed_context.__root__[2].value == """Milk, eggs, cheese, Milk,
+    )
+    assert (
+        trimmed_context.__root__[2].value
+        == """Milk, eggs, cheese, Milk,
 
 
 ... (trimmed) ...
 
 
 eese, Milk, eggs, cheese, """
+    )
 
     context = PromptContext(
         __root__=[
@@ -142,10 +150,13 @@ eese, Milk, eggs, cheese, """
     trimmed_context = trim_context(context, max_prompt_tokens, strategy, model)
     assert len(trimmed_context.__root__) == 1
     assert trimmed_context.__root__[0].heading == "What I have in my fridge"
-    assert trimmed_context.__root__[0].value == """Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, chee
+    assert (
+        trimmed_context.__root__[0].value
+        == """Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, chee
 
 
 ... (trimmed) ...
 
 
 k, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, Milk, eggs, cheese, """
+    )

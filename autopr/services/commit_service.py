@@ -36,18 +36,18 @@ class CommitService:
 
     def overwrite_new_branch(self):
         # Checkout and pull base branch
-        self.log.debug(f'Checking out {self.base_branch_name}...')
+        self.log.debug(f"Checking out {self.base_branch_name}...")
         self.repo.heads[self.base_branch_name].checkout()
-        self.log.debug('Pulling latest changes...')
+        self.log.debug("Pulling latest changes...")
         self.repo.remotes.origin.pull()
 
         # If branch already exists, delete it
         if self.branch_name in self.repo.heads:
-            self.log.debug(f'Deleting existing branch {self.branch_name}...')
+            self.log.debug(f"Deleting existing branch {self.branch_name}...")
             self.repo.delete_head(self.branch_name, force=True)
 
         # Create new branch with create_new_ref
-        self.log.debug(f'Creating new branch {self.branch_name}...')
+        self.log.debug(f"Creating new branch {self.branch_name}...")
         self.repo.create_head(self.branch_name, self.base_branch_name)
 
         # Checkout new branch
@@ -58,25 +58,27 @@ class CommitService:
 
     def ensure_branch_exists(self):
         # Fetch
-        self.log.debug('Fetching...')
+        self.log.debug("Fetching...")
         self.repo.remotes.origin.fetch()
         remote = self.repo.remote()
         references = remote.fetch()
 
         # If branch already exists, checkout and pull
-        if f'{remote.name}/{self.branch_name}' in [ref.name for ref in references]:
+        if f"{remote.name}/{self.branch_name}" in [ref.name for ref in references]:
             # Check if branch exists locally
             if self.branch_name in [ref.name for ref in self.repo.heads]:
-                self.log.debug(f'Checking out {self.branch_name}...')
+                self.log.debug(f"Checking out {self.branch_name}...")
                 self.repo.heads[self.branch_name].checkout()
-                self.log.debug('Pulling latest changes...')
+                self.log.debug("Pulling latest changes...")
                 self.repo.remotes.origin.pull()
             else:
                 # If not, create a local branch that tracks the remote branch
-                self.log.debug(f'Checking out -b {self.branch_name}...')
-                self.repo.create_head(self.branch_name, f'{remote.name}/{self.branch_name}').checkout()
+                self.log.debug(f"Checking out -b {self.branch_name}...")
+                self.repo.create_head(
+                    self.branch_name, f"{remote.name}/{self.branch_name}"
+                ).checkout()
         else:
-            self.log.debug(f'Branch {self.branch_name} does not exist, creating...')
+            self.log.debug(f"Branch {self.branch_name} does not exist, creating...")
             self.overwrite_new_branch()
 
     def commit(
@@ -86,9 +88,11 @@ class CommitService:
         filepaths: Optional[list[str]] = None,
     ) -> None:
         # Remove empty commit if exists
-        if commit_message != self._empty_commit_message and \
-                self.repo.head.commit.message.rstrip() == self._empty_commit_message:
-            self.log.debug('Removing empty commit...')
+        if (
+            commit_message != self._empty_commit_message
+            and self.repo.head.commit.message.rstrip() == self._empty_commit_message
+        ):
+            self.log.debug("Removing empty commit...")
             self.repo.git.execute(["git", "reset", "HEAD^"])
 
         # Add and commit
@@ -104,7 +108,7 @@ class CommitService:
 
         # Push branch to remote
         if push:
-            self.log.debug(f'Pushing branch {self.branch_name} to remote...')
+            self.log.debug(f"Pushing branch {self.branch_name} to remote...")
             self.repo.git.execute(["git", "push", "-f", "origin", self.branch_name])
 
     def get_changes_status(self) -> CHANGES_STATUS:

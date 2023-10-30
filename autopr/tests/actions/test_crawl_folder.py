@@ -25,7 +25,7 @@ from autopr.tests.utils import run_action_manually
             ],
             "example_repo_1",
         ),
-    ]
+    ],
 )
 @pytest.mark.asyncio
 async def test_actions(
@@ -39,9 +39,7 @@ async def test_actions(
         new=mock_openai,
     )
     outputs = await run_action_manually(
-        action=ExecutableId("crawl_folder"),
-        inputs=ContextDict(inputs),
-        repo_resource=repo_resource
+        action=ExecutableId("crawl_folder"), inputs=ContextDict(inputs), repo_resource=repo_resource
     )
     assert "contents" in outputs
     assert sorted(outputs["contents"]) == sorted(expected_ls)

@@ -57,7 +57,7 @@ def test_parsing_autopr_folder():
                 "IGNORE_FILES": [],
             },
         ),
-    ]
+    ],
 )
 def test_get_params(workflow_id, expected_params):
     all_workflows = get_all_workflows()

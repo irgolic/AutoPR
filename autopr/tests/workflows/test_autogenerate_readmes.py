@@ -12,7 +12,7 @@ from autopr.tests.mock_openai import mock_openai
 from autopr.tests.utils import create_ephemeral_main_service
 
 
-@patch('requests.get')
+@patch("requests.get")
 @pytest.mark.asyncio
 async def test_autogenerate_readmes(
     mock_get,

@@ -59,7 +59,9 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(
+        self, state: Optional[str] = None, since: Optional[datetime] = None
+    ) -> list[Issue]:
         """
         Get a list of issues.
 
@@ -84,12 +86,7 @@ class PlatformService:
         raise NotImplementedError
 
     async def create_pr(
-        self,
-        title: str,
-        bodies: list[str],
-        draft: bool,
-        head_branch: str,
-        base_branch: str
+        self, title: str, bodies: list[str], draft: bool, head_branch: str, base_branch: str
     ) -> tuple[Optional[int], list[Union[str, Type[PRBodySentinel]]]]:
         """
         Create a pull request.
@@ -215,8 +212,10 @@ class PlatformService:
             The parsed event, or None if the event is not supported
         """
         raise NotImplementedError
-    
-    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
+
+    async def create_issue(
+        self, title: str, body: str, labels: Optional[list[str]] = None
+    ) -> Optional[int]:
         """
         Create an issue.
 
@@ -230,7 +229,7 @@ class PlatformService:
             The labels to add to the issue
         """
         raise NotImplementedError
-    
+
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
         """
         Get an issue by title.
@@ -242,7 +241,9 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
+    async def update_issue_body(
+        self, issue_number: int, body: str, labels: Optional[list[str]] = None
+    ) -> None:
         """
         Update the body of the issue.
 
@@ -257,7 +258,14 @@ class PlatformService:
         """
         raise NotImplementedError
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
+    async def get_file_url(
+        self,
+        file_path: str,
+        base_branch: str,
+        start_line: Optional[int] = None,
+        end_line: Optional[int] = None,
+        margin: int = 0,
+    ) -> str:
         """
         Get the url of a file in the repository.
 
@@ -286,6 +294,7 @@ class PlatformService:
             The issue number
         """
         raise NotImplementedError
+
 
 class GitHubPlatformService(PlatformService):
     """
@@ -339,9 +348,9 @@ class GitHubPlatformService(PlatformService):
 
     def _get_headers(self):
         return {
-            'Authorization': f'Bearer {self.token}',
-            'Accept': 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28',
+            "Authorization": f"Bearer {self.token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
         }
 
     async def find_existing_pr(self, head_branch: str, base_branch: str) -> Optional[int]:
@@ -349,20 +358,19 @@ class GitHubPlatformService(PlatformService):
         Returns the PR dict of the first open pull request with the same head and base branches
         """
 
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls"
         headers = self._get_headers()
-        params = {'state': 'open', 'head': f'{self.owner}:{head_branch}', 'base': base_branch}
+        params = {"state": "open", "head": f"{self.owner}:{head_branch}", "base": base_branch}
 
         async with ClientSession() as session:
             async with session.get(url, headers=headers, params=params) as response:
-
                 if response.status == 200:
                     prs = await response.json()
                     if prs:
-                        return prs[0]['number']
+                        return prs[0]["number"]
 
                 await self._log_failed_request(
-                    'Failed to get pull requests',
+                    "Failed to get pull requests",
                     request_url=url,
                     request_headers=headers,
                     request_params=params,
@@ -371,56 +379,50 @@ class GitHubPlatformService(PlatformService):
         return None
 
     async def create_pr(
-        self,
-        title: str,
-        bodies: list[str],
-        draft: bool,
-        head_branch: str,
-        base_branch: str
+        self, title: str, bodies: list[str], draft: bool, head_branch: str, base_branch: str
     ) -> tuple[Optional[int], list[Union[str, Type[PlatformService.PRBodySentinel]]]]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls"
         headers = self._get_headers()
         data = {
-            'head': head_branch,
-            'base': base_branch,
-            'title': title,
-            'body': bodies[0],
+            "head": head_branch,
+            "base": base_branch,
+            "title": title,
+            "body": bodies[0],
         }
         if self._drafts_supported:
-            data['draft'] = "true" if draft else "false"
+            data["draft"] = "true" if draft else "false"
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
                 if response.status != 201:
                     # if draft pull request is not supported
                     if self._is_draft_error(await response.text()):
-                        del data['draft']
+                        del data["draft"]
                         async with session.post(url, json=data, headers=headers) as second_response:
                             if second_response.status != 201:
                                 await self._log_failed_request(
-                                    'Failed to create pull request',
+                                    "Failed to create pull request",
                                     request_url=url,
                                     request_headers=headers,
                                     request_body=data,
                                     response=second_response,
                                 )
-                                raise RuntimeError('Failed to create pull request')
+                                raise RuntimeError("Failed to create pull request")
                             response_json = await second_response.json()
                     else:
                         await self._log_failed_request(
-                            'Failed to create pull request',
+                            "Failed to create pull request",
                             request_url=url,
                             request_headers=headers,
                             request_body=data,
                             response=response,
                         )
-                        raise RuntimeError('Failed to create pull request')
+                        raise RuntimeError("Failed to create pull request")
                 else:
                     response_json = await response.json()
 
-                self.log.debug('Pull request created successfully',
-                               headers=response.headers)
-                pr_number = response_json['number']
+                self.log.debug("Pull request created successfully", headers=response.headers)
+                pr_number = response_json["number"]
 
         comment_ids: list[Union[str, Type[PlatformService.PRBodySentinel]]] = [self.PRBodySentinel]
 
@@ -441,20 +443,20 @@ class GitHubPlatformService(PlatformService):
         commit_message: str = "Merged automatically by AutoPR",
         merge_method: str = "squash",
     ) -> bool:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}/merge'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}/merge"
         headers = self._get_headers()
         data = {
-            'commit_message': commit_message,
-            'merge_method': merge_method,
+            "commit_message": commit_message,
+            "merge_method": merge_method,
         }
         if commit_title is not None:
-            data['commit_title'] = commit_title
+            data["commit_title"] = commit_title
 
         async with ClientSession() as session:
             async with session.put(url, json=data, headers=headers) as response:
                 if response.status != 200:
                     await self._log_failed_request(
-                        'Failed to merge pull request',
+                        "Failed to merge pull request",
                         request_url=url,
                         request_headers=headers,
                         request_body=data,
@@ -462,21 +464,21 @@ class GitHubPlatformService(PlatformService):
                     )
                     return False
 
-                self.log.debug('Pull request merged successfully')
+                self.log.debug("Pull request merged successfully")
                 return True
 
     async def _patch_pr(self, pr_number: int, data: dict[str, Any]):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{pr_number}"
         headers = self._get_headers()
 
         async with ClientSession() as session:
             async with session.patch(url, json=data, headers=headers) as response:
                 if response.status == 200:
-                    self.log.debug('Pull request updated successfully')
+                    self.log.debug("Pull request updated successfully")
                     return
 
                 await self._log_failed_request(
-                    'Failed to update pull request',
+                    "Failed to update pull request",
                     request_url=url,
                     request_headers=headers,
                     request_body=data,
@@ -487,34 +489,36 @@ class GitHubPlatformService(PlatformService):
         self,
         pr_number: int,
     ):
-        await self._patch_pr(pr_number, {'state': 'closed'})
+        await self._patch_pr(pr_number, {"state": "closed"})
 
     def _is_draft_error(self, response_text: str):
         response_obj = json.loads(response_text)
-        is_draft_error = 'message' in response_obj and \
-                         'draft pull requests are not supported' in response_obj['message'].lower()
+        is_draft_error = (
+            "message" in response_obj
+            and "draft pull requests are not supported" in response_obj["message"].lower()
+        )
         if is_draft_error:
             self.log.warning("Pull request drafts error on this repo")
             self._drafts_supported = False
         return is_draft_error
 
     async def _get_pull_request_node_id(self, pr_number: int) -> str:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{str(pr_number)}'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/pulls/{str(pr_number)}"
         headers = self._get_headers()
 
         async with ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
-                    return (await response.json())['node_id']
+                    return (await response.json())["node_id"]
 
                 await self._log_failed_request(
-                    'Failed to get pull request node id',
+                    "Failed to get pull request node id",
                     request_url=url,
                     request_headers=headers,
                     response=response,
                 )
 
-        raise RuntimeError('Failed to get pull request node id')
+        raise RuntimeError("Failed to get pull request node id")
 
     async def set_pr_draft_status(self, pr_number: int, is_draft: bool):
         if not self._drafts_supported:
@@ -524,38 +528,36 @@ class GitHubPlatformService(PlatformService):
 
         # sadly this is only supported by graphQL
         if is_draft:
-            graphql_query = '''
+            graphql_query = """
                 mutation ConvertPullRequestToDraft($pullRequestId: ID!) {
                   convertPullRequestToDraft(input: { pullRequestId: $pullRequestId }) {
                     clientMutationId
                   }
                 }
-            '''
+            """
         else:
-            graphql_query = '''
+            graphql_query = """
                 mutation MarkPullRequestReadyForReview($pullRequestId: ID!) {
                   markPullRequestReadyForReview(input: { pullRequestId: $pullRequestId }) {
                     clientMutationId
                   }
                 }
-            '''
-        headers = self._get_headers() | {
-            'Content-Type': 'application/json'
-        }
+            """
+        headers = self._get_headers() | {"Content-Type": "application/json"}
 
         # Update the pull request
-        data = {'pullRequestId': self._pr_node_id}
-        url = 'https://api.github.com/graphql'
-        body = {'query': graphql_query, 'variables': data}
+        data = {"pullRequestId": self._pr_node_id}
+        url = "https://api.github.com/graphql"
+        body = {"query": graphql_query, "variables": data}
 
         async with ClientSession() as session:
             async with session.post(url, headers=headers, json=body) as response:
                 if response.status == 200:
-                    self.log.debug('Pull request draft status updated successfully')
+                    self.log.debug("Pull request draft status updated successfully")
                     return
 
                 await self._log_failed_request(
-                    'Failed to update pull request draft status',
+                    "Failed to update pull request draft status",
                     request_url=url,
                     request_headers=headers,
                     request_body=body,
@@ -565,44 +567,44 @@ class GitHubPlatformService(PlatformService):
         self._drafts_supported = False
 
     async def update_pr_body(self, pr_number: int, body: str):
-        await self._patch_pr(pr_number, {'body': body})
+        await self._patch_pr(pr_number, {"body": body})
 
     async def update_pr_title(self, pr_number: int, title: str):
-        await self._patch_pr(pr_number, {'title': title})
+        await self._patch_pr(pr_number, {"title": title})
 
     async def update_comment(self, comment_id: str, body: str):
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/comments/{comment_id}'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/comments/{comment_id}"
         headers = self._get_headers()
 
         async with ClientSession() as session:
-            async with session.patch(url, json={'body': body}, headers=headers) as response:
+            async with session.patch(url, json={"body": body}, headers=headers) as response:
                 if response.status == 200:
-                    self.log.debug('Comment updated successfully')
+                    self.log.debug("Comment updated successfully")
                     return
 
                 await self._log_failed_request(
-                    'Failed to update comment',
+                    "Failed to update comment",
                     request_url=url,
                     request_headers=headers,
-                    request_body={'body': body},
+                    request_body={"body": body},
                     response=response,
                 )
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}/comments'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}/comments"
         headers = self._get_headers()
         data = {
-            'body': text,
+            "body": text,
         }
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
                 if response.status == 201:
-                    self.log.debug('Commented on issue successfully')
-                    return (await response.json())['id']
+                    self.log.debug("Commented on issue successfully")
+                    return (await response.json())["id"]
 
                 await self._log_failed_request(
-                    'Failed to comment on issue',
+                    "Failed to comment on issue",
                     request_url=url,
                     request_headers=headers,
                     request_body=data,
@@ -611,8 +613,8 @@ class GitHubPlatformService(PlatformService):
         return None
 
     def _extract_issue(self, issue_json: dict[str, Any]) -> Optional[Issue]:
-        url = issue_json['comments_url']
-        assert url.startswith('https://api.github.com/repos/'), "Unexpected comments_url"
+        url = issue_json["comments_url"]
+        assert url.startswith("https://api.github.com/repos/"), "Unexpected comments_url"
         self.log.info("Getting issue comments", url=url)
         headers = self._get_headers()
         response = requests.get(url, headers=headers)
@@ -626,24 +628,24 @@ class GitHubPlatformService(PlatformService):
         # Get body
         comments_list = []
         body_message = Message(
-            body=issue_json['body'] or "",
-            author=issue_json['user']['login'],
+            body=issue_json["body"] or "",
+            author=issue_json["user"]["login"],
         )
         comments_list.append(body_message)
 
         # Get comments
         for comment_json in comments_json:
             comment = Message(
-                body=comment_json['body'] or "",
-                author=comment_json['user']['login'],
+                body=comment_json["body"] or "",
+                author=comment_json["user"]["login"],
             )
             comments_list.append(comment)
 
         # Create issue
         return Issue(
-            number=issue_json['number'],
-            title=issue_json['title'],
-            author=issue_json['user']['login'],
+            number=issue_json["number"],
+            title=issue_json["title"],
+            author=issue_json["user"]["login"],
             timestamp=issue_json["updated_at"],
             messages=comments_list,
         )
@@ -658,13 +660,15 @@ class GitHubPlatformService(PlatformService):
             author=issue.author,
             timestamp=issue.timestamp,
             messages=issue.messages,
-            head_branch=pr_json['head']['ref'],
-            base_branch=pr_json['base']['ref'],
-            base_commit_sha=pr_json['base']['sha'],
+            head_branch=pr_json["head"]["ref"],
+            base_branch=pr_json["base"]["ref"],
+            base_commit_sha=pr_json["base"]["sha"],
         )
 
-    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+    async def get_issues(
+        self, state: Optional[str] = None, since: Optional[datetime] = None
+    ) -> list[Issue]:
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues"
         if state:
             url += f"?state={state}"
 
@@ -678,7 +682,7 @@ class GitHubPlatformService(PlatformService):
             async with session.get(url, headers=headers) as response:
                 if response.status != 200:
                     await self._log_failed_request(
-                        'Failed to get issues',
+                        "Failed to get issues",
                         request_url=url,
                         request_headers=headers,
                         response=response,
@@ -693,50 +697,59 @@ class GitHubPlatformService(PlatformService):
                 ]
 
     def parse_event(self, event: dict[str, Any], event_name: str) -> EventUnion:
-        if event_name == 'push':
+        if event_name == "push":
             return PushEvent(
-                branch=event['ref'].split('/')[-1],
+                branch=event["ref"].split("/")[-1],
             )
-        if event_name == 'schedule':
+        if event_name == "schedule":
             return CronEvent(
-                cron_schedule=event['schedule'],
+                cron_schedule=event["schedule"],
             )
-        if event['action'] == 'labeled':
+        if event["action"] == "labeled":
             return LabelEvent(
-                pull_request=self._extract_pull_request(event['pull_request']) if 'pull_request' in event else None,
-                issue=self._extract_issue(event['issue']) if 'issue' in event else None,
-                label=event['label']['name'],
+                pull_request=self._extract_pull_request(event["pull_request"])
+                if "pull_request" in event
+                else None,
+                issue=self._extract_issue(event["issue"]) if "issue" in event else None,
+                label=event["label"]["name"],
             )
-        if event['action'] == 'comment':
+        if event["action"] == "comment":
             return CommentEvent(
-                pull_request=self._extract_pull_request(event['issue']['pull_request']),
-                issue=self._extract_issue(event['issue']),
+                pull_request=self._extract_pull_request(event["issue"]["pull_request"]),
+                issue=self._extract_issue(event["issue"]),
                 comment=Message(
-                    body=event['comment']['body'],
-                    author=event['comment']['user']['login'],
+                    body=event["comment"]["body"],
+                    author=event["comment"]["user"]["login"],
                 ),
             )
         raise NotImplementedError(f"Unknown event action: {event['action']}")
-    
-    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+
+    async def create_issue(
+        self, title: str, body: str, labels: Optional[list[str]] = None
+    ) -> Optional[int]:
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues"
         headers = self._get_headers()
         data = {
-            'title': title,
-            'body': body,
+            "title": title,
+            "body": body,
         }
         if labels is not None:
-            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
+            data["labels"] = labels  # type: ignore[reportGeneralTypeIssues]
 
         async with ClientSession() as session:
             async with session.post(url, json=data, headers=headers) as response:
-                self.log.debug('Creating issue with title: %s, body %s and labels %s', title, body, ", ".join(labels or []))
+                self.log.debug(
+                    "Creating issue with title: %s, body %s and labels %s",
+                    title,
+                    body,
+                    ", ".join(labels or []),
+                )
                 if response.status == 201:
-                    self.log.debug('Issue created successfully')
-                    return (await response.json())['number']
+                    self.log.debug("Issue created successfully")
+                    return (await response.json())["number"]
 
                 await self._log_failed_request(
-                    'Failed to create issue',
+                    "Failed to create issue",
                     request_url=url,
                     request_headers=headers,
                     request_body=data,
@@ -745,14 +758,14 @@ class GitHubPlatformService(PlatformService):
         return None
 
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues"
         headers = self._get_headers()
 
         async with ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status != 200:
                     await self._log_failed_request(
-                        'Failed to get issues',
+                        "Failed to get issues",
                         request_url=url,
                         request_headers=headers,
                         response=response,
@@ -760,32 +773,34 @@ class GitHubPlatformService(PlatformService):
                     return None
 
                 for issue_json in await response.json():
-                    if issue_json['title'] == title:
+                    if issue_json["title"] == title:
                         return self._extract_issue(issue_json)
                 return None
-    
-    async def update_issue_body(self, issue_number: int, body: str, labels: Optional[list[str]] = None) -> None:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+
+    async def update_issue_body(
+        self, issue_number: int, body: str, labels: Optional[list[str]] = None
+    ) -> None:
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}"
         headers = self._get_headers()
 
-        data = {'body': body}
+        data = {"body": body}
         if labels is not None:
-            data['labels'] = labels  # type: ignore[reportGeneralTypeIssues]
+            data["labels"] = labels  # type: ignore[reportGeneralTypeIssues]
 
         async with ClientSession() as session:
             async with session.patch(url, json=data, headers=headers) as response:
                 if response.status == 200:
-                    self.log.debug('Issue updated successfully')
+                    self.log.debug("Issue updated successfully")
                     return
 
                 await self._log_failed_request(
-                    'Failed to update issue',
+                    "Failed to update issue",
                     request_url=url,
                     request_headers=headers,
                     request_body=data,
                     response=response,
                 )
-    
+
     async def get_latest_commit_hash(self, owner, repo, branch):
         url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
         headers = self._get_headers()
@@ -793,30 +808,43 @@ class GitHubPlatformService(PlatformService):
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data['object']['sha']
+                    return data["object"]["sha"]
 
                 await self._log_failed_request(
-                    'Failed to get latest commit hash',
+                    "Failed to get latest commit hash",
                     request_url=url,
                     request_headers=headers,
                     response=response,
                 )
 
     async def get_file_url(
-        self, file_path: str, base_branch: str, start_line: Optional[int] = None, end_line: Optional[int] = None, margin: int = 0
+        self,
+        file_path: str,
+        base_branch: str,
+        start_line: Optional[int] = None,
+        end_line: Optional[int] = None,
+        margin: int = 0,
     ) -> str:
         # Get the latest commit hash for the base branch
         commit_hash = await self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
         file_num_lines = await self.get_num_lines_in_file(file_path, base_branch)
-        
+
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
-        
+
         # Form the base URL using the commit hash instead of the branch name
         output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
-        return output + await self._format_start_and_end_line(start_line, end_line, file_num_lines, margin)
+        return output + await self._format_start_and_end_line(
+            start_line, end_line, file_num_lines, margin
+        )
 
-    async def _format_start_and_end_line(self, start_line : Optional[int], end_line : Optional[int], file_num_lines : Optional[int], margin : int) -> str:
+    async def _format_start_and_end_line(
+        self,
+        start_line: Optional[int],
+        end_line: Optional[int],
+        file_num_lines: Optional[int],
+        margin: int,
+    ) -> str:
         if file_num_lines is None:
             file_num_lines = sys.maxsize
         if start_line is not None and end_line is not None:
@@ -835,11 +863,11 @@ class GitHubPlatformService(PlatformService):
                 if response.status == 200:
                     json_data = await response.json()
                     try:
-                        content = json_data['content']
+                        content = json_data["content"]
                         decoded_content = base64.b64decode(content).decode("utf-8")
                     except:
                         await self._log_failed_request(
-                            'Failed to decode file content',
+                            "Failed to decode file content",
                             request_url=url,
                             request_headers=headers,
                             response=response,
@@ -855,26 +883,26 @@ class GitHubPlatformService(PlatformService):
                     return num_lines
 
                 await self._log_failed_request(
-                    'Failed to get number of lines in file',
+                    "Failed to get number of lines in file",
                     request_url=url,
                     request_headers=headers,
                     response=response,
                 )
 
     async def close_issue(self, issue_number: int) -> None:
-        url = f'https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}'
+        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}"
         headers = self._get_headers()
 
-        data = {'state': 'closed'}
+        data = {"state": "closed"}
 
         async with ClientSession() as session:
             async with session.patch(url, json=data, headers=headers) as response:
                 if response.status == 200:
-                    self.log.debug('Issue closed successfully')
+                    self.log.debug("Issue closed successfully")
                     return
 
                 await self._log_failed_request(
-                    'Failed to close issue',
+                    "Failed to close issue",
                     request_url=url,
                     request_headers=headers,
                     request_body=data,
@@ -885,14 +913,16 @@ class GitHubPlatformService(PlatformService):
 class DummyPlatformService(PlatformService):
     def __init__(self):
         super().__init__(
-            owner='',
-            repo_name='',
+            owner="",
+            repo_name="",
         )
 
     async def set_title(self, title: str):
         pass
 
-    async def get_issues(self, state: Optional[str] = None, since: Optional[datetime] = None) -> list[Issue]:
+    async def get_issues(
+        self, state: Optional[str] = None, since: Optional[datetime] = None
+    ) -> list[Issue]:
         return []
 
     async def publish_comment(self, text: str, issue_number: int) -> Optional[str]:
@@ -905,12 +935,7 @@ class DummyPlatformService(PlatformService):
         return None
 
     async def create_pr(
-        self,
-        title: str,
-        bodies: list[str],
-        draft: bool,
-        head_branch: str,
-        base_branch: str
+        self, title: str, bodies: list[str], draft: bool, head_branch: str, base_branch: str
     ) -> tuple[Optional[int], list[Union[str, Type[PlatformService.PRBodySentinel]]]]:
         return 1, [PlatformService.PRBodySentinel]
 
@@ -929,13 +954,22 @@ class DummyPlatformService(PlatformService):
     async def update_pr_body(self, pr_number: int, body: str):
         pass
 
-    async def get_file_url(self, file_path: str, base_branch : str, start_line : Optional[int] = None, end_line : Optional[int] = None, margin : int = 0) -> str:
+    async def get_file_url(
+        self,
+        file_path: str,
+        base_branch: str,
+        start_line: Optional[int] = None,
+        end_line: Optional[int] = None,
+        margin: int = 0,
+    ) -> str:
         return "https://github.com/"
 
     async def get_issue_by_title(self, title: str) -> Optional[Issue]:
         return None
-    
-    async def create_issue(self, title: str, body: str, labels: Optional[list[str]] = None) -> Optional[int]:
+
+    async def create_issue(
+        self, title: str, body: str, labels: Optional[list[str]] = None
+    ) -> Optional[int]:
         return 1
 
     async def close_issue(self, issue_number: int) -> None:

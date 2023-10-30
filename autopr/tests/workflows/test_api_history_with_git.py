@@ -12,7 +12,7 @@ from autopr.tests.mock_openai import mock_openai
 from autopr.tests.utils import create_ephemeral_main_service
 
 
-@patch('requests.get')
+@patch("requests.get")
 @pytest.mark.asyncio
 async def test_autogenerate_readmes(
     mock_get,
@@ -20,8 +20,7 @@ async def test_autogenerate_readmes(
     mock_content = '{"hello": "world"}'
     file_name = "test/todos.txt"
 
-    mock_get.return_value = Mock(
-        status_code=200, content=mock_content.encode())
+    mock_get.return_value = Mock(status_code=200, content=mock_content.encode())
 
     main = create_ephemeral_main_service(
         triggers_filename="api_git_history.yaml",

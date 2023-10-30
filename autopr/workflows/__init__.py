@@ -55,15 +55,19 @@ def _load_workflows_in_folder(
             # if is yaml
             if filename.endswith(".yaml") or filename.endswith(".yml"):
                 filepath = os.path.join(root, filename)
-                existing_workflows = _collect_workflows(filepath,
-                                                        existing_actions=existing_actions,
-                                                        existing_workflows=existing_workflows)
+                existing_workflows = _collect_workflows(
+                    filepath,
+                    existing_actions=existing_actions,
+                    existing_workflows=existing_workflows,
+                )
             # if is folder
             elif os.path.isdir(filename):
                 folderpath = os.path.join(root, filename)
-                existing_workflows = _load_workflows_in_folder(folderpath,
-                                                               existing_actions=existing_actions,
-                                                               existing_workflows=existing_workflows)
+                existing_workflows = _load_workflows_in_folder(
+                    folderpath,
+                    existing_actions=existing_actions,
+                    existing_workflows=existing_workflows,
+                )
 
     return existing_workflows
 

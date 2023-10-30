@@ -15,11 +15,7 @@ class TransformsInto(Generic[RealType]):
     """
 
     @classmethod
-    def transform_from_config(
-        cls,
-        config_var: typing.Any,
-        context: ContextDict
-    ) -> RealType:
+    def transform_from_config(cls, config_var: typing.Any, context: ContextDict) -> RealType:
         """
         Transform a config variable into the type used in the action.
         """

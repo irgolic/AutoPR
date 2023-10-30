@@ -26,7 +26,7 @@ event = LabelEvent(
                 body="Test message 1",
                 author="Tester",
             ),
-        ]
+        ],
     ),
     label="autopr",
 )

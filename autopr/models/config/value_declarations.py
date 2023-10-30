@@ -41,6 +41,7 @@ class TemplateDeclaration(Variable):
     """
     A template declaration is a string that can be rendered within a context.
     """
+
     template: TemplateObject
 
     def render(self, context: ContextDict) -> Any:
@@ -51,6 +52,7 @@ class VarDeclaration(Variable):
     """
     A variable declaration is a string that references a variable (or path to nested variable) in the context.
     """
+
     var: ContextVarPath
 
     def render(self, context: ContextDict) -> Any:
@@ -61,6 +63,7 @@ class ConstDeclaration(Variable):
     """
     A constant declaration is a string that is interpreted as a constant value.
     """
+
     const: Any
 
     def render(self, context: ContextDict):
@@ -71,6 +74,7 @@ class LambdaDeclaration(Variable):
     """
     A lambda declaration is a python expression that can be evaluated within a context.
     """
+
     lambda_: LambdaString = Field(alias="lambda")
 
     def render(self, context: ContextDict):
@@ -79,7 +83,9 @@ class LambdaDeclaration(Variable):
 
 class Param(StrictModel):
     name: str
-    default: Union[TemplateObject, TemplateDeclaration, VarDeclaration, ConstDeclaration, LambdaDeclaration]
+    default: Union[
+        TemplateObject, TemplateDeclaration, VarDeclaration, ConstDeclaration, LambdaDeclaration
+    ]
 
 
 class ParamDeclaration(Variable):
@@ -99,4 +105,6 @@ class ParamDeclaration(Variable):
             return context["__params__"][self.param.name]
 
 
-ValueDeclaration = Union[TemplateDeclaration, VarDeclaration, ConstDeclaration, LambdaDeclaration, ParamDeclaration]
+ValueDeclaration = Union[
+    TemplateDeclaration, VarDeclaration, ConstDeclaration, LambdaDeclaration, ParamDeclaration
+]

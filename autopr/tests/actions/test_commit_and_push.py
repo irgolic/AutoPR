@@ -16,7 +16,7 @@ async def test_commit_and_push():
         action=ExecutableId("commit_and_push"),
         inputs={
             "commit_message": "My commit message",
-        }
+        },
     )
 
     def check_commit(commit):

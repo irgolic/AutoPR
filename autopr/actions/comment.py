@@ -14,6 +14,7 @@ class Comment(Action[Inputs, None]):
     """
     A class representing an action to publish a comment on a GitHub issue.
     """
+
     id = "comment"
 
     async def run(self, inputs: Inputs) -> None:

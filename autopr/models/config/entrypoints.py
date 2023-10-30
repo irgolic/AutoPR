@@ -7,21 +7,47 @@ import pydantic
 from pydantic import Field
 
 from autopr.actions.base import get_actions_dict, Action as ActionBase
-from autopr.models.config.elements import ExecModel, ActionConfig, TopLevelWorkflowConfig, StrictModel, \
-    WorkflowInvocation, IterableWorkflowInvocation, IOSpecModel, WorkflowDefinition, IfLambda, IfContextNotExists, \
-    IfExistsContext, SetVars, ContextModel, IOValuesModel, ActionConfigs, ContextActions, ValueDeclaration, \
-    IterableActionConfig, Conditional
+from autopr.models.config.elements import (
+    ExecModel,
+    ActionConfig,
+    TopLevelWorkflowConfig,
+    StrictModel,
+    WorkflowInvocation,
+    IterableWorkflowInvocation,
+    IOSpecModel,
+    WorkflowDefinition,
+    IfLambda,
+    IfContextNotExists,
+    IfExistsContext,
+    SetVars,
+    ContextModel,
+    IOValuesModel,
+    ActionConfigs,
+    ContextActions,
+    ValueDeclaration,
+    IterableActionConfig,
+    Conditional,
+)
 from autopr.models.config.value_declarations import ParamDeclaration
 from autopr.models.events import EventUnion, LabelEvent, CommentEvent, PushEvent, CronEvent
 
-from autopr.models.executable import LambdaString, ContextVarPath, ExecutableId, Executable, \
-    TemplateObject, ContextVarName, ContextDict, StrictExecutable
+from autopr.models.executable import (
+    LambdaString,
+    ContextVarPath,
+    ExecutableId,
+    Executable,
+    TemplateObject,
+    ContextVarName,
+    ContextDict,
+    StrictExecutable,
+)
 from autopr.workflows import get_all_workflows
 
 
 ###
 ### For strict config, build workflow definitions
 ###
+
 
 def get_params(
     executable: Executable,
@@ -35,12 +61,15 @@ def get_params(
         return {}
 
     value_defs = []
-    if isinstance(executable, (
-        ActionConfig,
-        IterableActionConfig,
-        WorkflowInvocation,
-        IterableWorkflowInvocation,
-    )):
+    if isinstance(
+        executable,
+        (
+            ActionConfig,
+            IterableActionConfig,
+            WorkflowInvocation,
+            IterableWorkflowInvocation,
+        ),
+    ):
         if executable.inputs:
             # the values of the model are the default values
             for _, val in executable.inputs:
@@ -84,9 +113,7 @@ def build_workflows():
     workflows: TopLevelWorkflowConfig = get_all_workflows()
     workflow_models = []
     for workflow_id, workflow in workflows.items():
-        fields = {
-            "workflow": (Literal[workflow_id], ...)  # type: ignore
-        }
+        fields = {"workflow": (Literal[workflow_id], ...)}  # type: ignore
 
         # Build the params model for each workflow, depending on all nested workflows
         params = get_params(workflow_id, workflows)
@@ -99,9 +126,7 @@ def build_workflows():
                 for name, default_value in params.items()
             },  # pyright: ignore[reportGeneralTypeIssues]
         )
-        fields |= {
-            "parameters": (params_model, None)
-        }
+        fields |= {"parameters": (params_model, None)}
 
         if workflow.inputs is not None:
             input_fields_model = pydantic.create_model(
@@ -116,9 +141,7 @@ def build_workflows():
             input_fields = (input_fields_model, ...)
         else:
             input_fields = (type(None), None)
-        fields |= {
-            "inputs": input_fields
-        }
+        fields |= {"inputs": input_fields}
 
         if workflow.outputs is not None:
             output_fields_model = pydantic.create_model(
@@ -133,12 +156,8 @@ def build_workflows():
             output_fields = (output_fields_model, None)
         else:
             output_fields = (type(None), None)
-        invocation_fields = fields | {
-            "outputs": output_fields
-        }
-        iterable_invocation_fields = fields | {
-            "list_outputs": output_fields
-        }
+        invocation_fields = fields | {"outputs": output_fields}
+        iterable_invocation_fields = fields | {"list_outputs": output_fields}
 
         # build workflow invocation model
         workflow_basemodel = pydantic.create_model(
@@ -158,11 +177,12 @@ def build_workflows():
         )
         workflow_models.append(iterable_workflow_basemodel)
 
-
     return workflow_models
 
 
-WorkflowInvocationConfigs = Union[tuple(ws)] if (ws := build_workflows()) else None  # pyright: ignore
+WorkflowInvocationConfigs = (
+    Union[tuple(ws)] if (ws := build_workflows()) else None  # pyright: ignore
+)
 
 
 def get_all_executable_ids():
@@ -177,7 +197,9 @@ def get_all_executable_ids():
     return ids
 
 
-StrictExecutableId = Literal[tuple(ids_)] if (ids_ := get_all_executable_ids()) else None  # pyright: ignore
+StrictExecutableId = (
+    Literal[tuple(ids_)] if (ids_ := get_all_executable_ids()) else None  # pyright: ignore
+)
 
 
 ###
@@ -202,11 +224,13 @@ class LabelTrigger(TriggerModel):
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
         if (
-            isinstance(event, LabelEvent) and
-            self.label_substring.lower() in event.label.lower() and
-            (
-                self.on_pull_request and event.pull_request is not None or
-                self.on_issue and not event.pull_request is not None
+            isinstance(event, LabelEvent)
+            and self.label_substring.lower() in event.label.lower()
+            and (
+                self.on_pull_request
+                and event.pull_request is not None
+                or self.on_issue
+                and not event.pull_request is not None
             )
         ):
             return ContextDict(
@@ -224,8 +248,8 @@ class CommentTrigger(TriggerModel):
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
         if (
-            isinstance(event, CommentEvent) and
-            self.comment_substring.lower() in event.comment.body.lower()
+            isinstance(event, CommentEvent)
+            and self.comment_substring.lower() in event.comment.body.lower()
         ):
             return ContextDict(
                 issue=event.issue,
@@ -239,10 +263,7 @@ class PushTrigger(TriggerModel):
     branch_name: str
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
-        if (
-            isinstance(event, PushEvent) and
-            self.branch_name == event.branch
-        ):
+        if isinstance(event, PushEvent) and self.branch_name == event.branch:
             return ContextDict(
                 issue=event.issue,
                 pull_request=event.pull_request,
@@ -279,7 +300,9 @@ StrictTopLevelWorkflowConfig = dict[ExecutableId, StrictWorkflowDefinition]
 
 
 class TopLevelTriggerConfig(StrictModel):
-    triggers: list[Trigger] = Field(default_factory=list)  # pyright: ignore[reportGeneralTypeIssues]
+    triggers: list[Trigger] = Field(
+        default_factory=list
+    )  # pyright: ignore[reportGeneralTypeIssues]
 
 
 StrictWorkflowDefinition.update_forward_refs()
@@ -288,7 +311,7 @@ trigger_schema = pydantic.schema_json_of(TopLevelTriggerConfig)
 workflow_schema = pydantic.schema_json_of(TopLevelWorkflowConfig)
 strict_workflow_schema = pydantic.schema_json_of(StrictTopLevelWorkflowConfig)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("trigger_schema.json", "w") as f:
         json.dump(json.loads(trigger_schema), f, indent=2)
     with open("workflow_schema.json", "w") as f:

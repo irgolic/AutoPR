@@ -29,8 +29,11 @@ def nested_to_dict(obj: Any) -> Any:
 def format_for_publishing(obj: Any) -> str:
     dict_obj = nested_to_dict(obj)
     if isinstance(dict_obj, dict):
-        dict_obj = {key: value for key, value in dict_obj.items()
-                    if not (key.startswith("__") and key.endswith("__"))}
+        dict_obj = {
+            key: value
+            for key, value in dict_obj.items()
+            if not (key.startswith("__") and key.endswith("__"))
+        }
     truncated_dict_obj = truncate_strings(dict_obj)
     dumped_json = json.dumps(truncated_dict_obj, indent=2)
     return dumped_json

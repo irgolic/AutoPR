@@ -12,11 +12,7 @@ class CacheService:
 
 
 class ShelveCacheService(CacheService):
-    def __init__(
-        self,
-        cache_dir: str,
-        action_id: str
-    ):
+    def __init__(self, cache_dir: str, action_id: str):
         self.cache_dir = cache_dir
         os.makedirs(self.cache_dir, exist_ok=True)
 
@@ -27,10 +23,7 @@ class ShelveCacheService(CacheService):
 
     def _load_shelf(self, namespace: str):
         return shelve.open(
-            os.path.join(
-                self.cache_dir,
-                f"{namespace}.db"
-            ),
+            os.path.join(self.cache_dir, f"{namespace}.db"),
             writeback=True,
         )
 

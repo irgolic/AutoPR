@@ -10,9 +10,18 @@ import tiktoken
 from jinja2 import Template
 from tenacity import wait_exponential_jitter, retry_if_exception_type
 
-from autopr.models.config.transform import TransformsInto, ImplementsTransformsInContext, RealType, TransformsFrom
-from autopr.models.config.value_declarations import VarDeclaration, TemplateDeclaration, LambdaDeclaration, \
-    ConstDeclaration
+from autopr.models.config.transform import (
+    TransformsInto,
+    ImplementsTransformsInContext,
+    RealType,
+    TransformsFrom,
+)
+from autopr.models.config.value_declarations import (
+    VarDeclaration,
+    TemplateDeclaration,
+    LambdaDeclaration,
+    ConstDeclaration,
+)
 from autopr.models.executable import TemplateString, ContextDict, ContextVarPath
 
 
@@ -73,12 +82,14 @@ class PromptContext(pydantic.BaseModel, TransformsFrom):
                 valstr = str(value)
 
             # Add the variable to the context string
-            context_strings.append(f"""{heading}:
+            context_strings.append(
+                f"""{heading}:
 {enclosure_mark}
 {valstr}
-{enclosure_mark}""")
+{enclosure_mark}"""
+            )
 
-        return '\n\n'.join(context_strings)
+        return "\n\n".join(context_strings)
 
     def __str__(self):
         return self.as_string()
@@ -87,6 +98,7 @@ class PromptContext(pydantic.BaseModel, TransformsFrom):
 def get_string_token_length(string: str, model: str):
     enc = tiktoken.encoding_for_model(model)
     return len(enc.encode(string))
+
 
 ###
 # Config representation
@@ -127,29 +139,34 @@ class PromptContextInConfigConst(PromptContextInConfigBase, ConstDeclaration):
 
 
 class PromptContextInConfig(pydantic.BaseModel, TransformsInto[PromptContext]):
-    __root__: list[Union[
-        PromptContextInConfigVar,
-        PromptContextInConfigTemplate,
-        PromptContextInConfigLambda,
-        PromptContextInConfigConst,
-    ]]
+    __root__: list[
+        Union[
+            PromptContextInConfigVar,
+            PromptContextInConfigTemplate,
+            PromptContextInConfigLambda,
+            PromptContextInConfigConst,
+        ]
+    ]
 
     @classmethod
     def transform_from_config(
-        cls,
-        config_var: "PromptContextInConfig",
-        context: ContextDict
+        cls, config_var: "PromptContextInConfig", context: ContextDict
     ) -> PromptContext:
-        return PromptContext(__root__=[
-            PromptContextEntry(
-                value=entry.render(context),
-                heading=context.render_string(entry.heading),
-                priority=entry.priority,
-            ) for entry in config_var.__root__
-        ])
+        return PromptContext(
+            __root__=[
+                PromptContextEntry(
+                    value=entry.render(context),
+                    heading=context.render_string(entry.heading),
+                    priority=entry.priority,
+                )
+                for entry in config_var.__root__
+            ]
+        )
 
 
-def trim_context(prompt_context: PromptContext, max_token_length: int, strategy: str, model: str) -> PromptContext:
+def trim_context(
+    prompt_context: PromptContext, max_token_length: int, strategy: str, model: str
+) -> PromptContext:
     # Count tokens in context entries
     token_length = prompt_context.get_token_length(model)
     # If context is short enough, return it
@@ -190,8 +207,9 @@ def trim_context(prompt_context: PromptContext, max_token_length: int, strategy:
                 break
             entries = list(entries)
             if len(PromptContext(__root__=entries).as_string()) <= chars_to_trim:
-                correct_order_context.__root__ = [entry for entry in correct_order_context.__root__
-                                                  if entry not in entries]
+                correct_order_context.__root__ = [
+                    entry for entry in correct_order_context.__root__ if entry not in entries
+                ]
                 chars_to_trim = get_chars_left_to_trim()
                 continue
             # iteratively halve the amount of characters to trim until it fits
@@ -200,21 +218,24 @@ def trim_context(prompt_context: PromptContext, max_token_length: int, strategy:
                     if chars_to_trim <= 0:
                         break
                     entry_char_length = len(PromptContext(__root__=[entry]).as_string())
-                    truncate_char_amount = min(entry_char_length // 2 + trimmed_text_char_length,
-                                               chars_to_trim + trimmed_text_char_length,
-                                               entry_char_length)
+                    truncate_char_amount = min(
+                        entry_char_length // 2 + trimmed_text_char_length,
+                        chars_to_trim + trimmed_text_char_length,
+                        entry_char_length,
+                    )
                     if truncate_char_amount >= entry_char_length - trimmed_text_char_length:
                         # Drop the entry
                         entries.remove(entry)
-                        correct_order_context.__root__ = [entry for entry in correct_order_context.__root__
-                                                          if entry != entry]
+                        correct_order_context.__root__ = [
+                            entry for entry in correct_order_context.__root__ if entry != entry
+                        ]
                         chars_to_trim = get_chars_left_to_trim()
                         continue
 
                     # Keep the start and end, drop the middle
                     entry_value_char_length = len(entry.value)
-                    start = entry.value[:entry_value_char_length // 2 - truncate_char_amount // 2]
-                    end = entry.value[entry_value_char_length // 2 + truncate_char_amount // 2:]
+                    start = entry.value[: entry_value_char_length // 2 - truncate_char_amount // 2]
+                    end = entry.value[entry_value_char_length // 2 + truncate_char_amount // 2 :]
                     entry.value = start + "\n\n\n... (trimmed) ...\n\n\n" + end
 
                     chars_to_trim = get_chars_left_to_trim()
@@ -229,18 +250,22 @@ def trim_context(prompt_context: PromptContext, max_token_length: int, strategy:
         max=60,
         jitter=10,
     ),
-    retry=retry_if_exception_type((
-        openai.error.APIError,
-        openai.error.TryAgain,
-        openai.error.Timeout,
-        openai.error.APIConnectionError,
-        openai.error.RateLimitError,
-        openai.error.ServiceUnavailableError,
-        openai.error.SignatureVerificationError
-    )),
+    retry=retry_if_exception_type(
+        (
+            openai.error.APIError,
+            openai.error.TryAgain,
+            openai.error.Timeout,
+            openai.error.APIConnectionError,
+            openai.error.RateLimitError,
+            openai.error.ServiceUnavailableError,
+            openai.error.SignatureVerificationError,
+        )
+    ),
     stop=tenacity.stop_after_attempt(6),
 )
-async def invoke_openai(prompt: str, instructions: str, model: str, temperature: float, max_response_tokens: int) -> str:
+async def invoke_openai(
+    prompt: str, instructions: str, model: str, temperature: float, max_response_tokens: int
+) -> str:
     result = await openai.ChatCompletion.acreate(
         messages=[
             {
@@ -256,4 +281,4 @@ async def invoke_openai(prompt: str, instructions: str, model: str, temperature:
         temperature=temperature,
         max_tokens=max_response_tokens,
     )
-    return result['choices'][0]['message']['content']  # type: ignore[reportGeneralTypeIssues]
+    return result["choices"][0]["message"]["content"]  # type: ignore[reportGeneralTypeIssues]

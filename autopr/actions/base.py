@@ -13,8 +13,8 @@ from autopr.services.platform_service import PlatformService
 from autopr.services.publish_service import PublishService
 
 
-Inputs = TypeVar('Inputs', bound=Union[pydantic.BaseModel, type(None)])
-Outputs = TypeVar('Outputs', bound=Union[pydantic.BaseModel, type(None)])
+Inputs = TypeVar("Inputs", bound=Union[pydantic.BaseModel, type(None)])
+Outputs = TypeVar("Outputs", bound=Union[pydantic.BaseModel, type(None)])
 
 
 class ActionMeta(type):
@@ -22,6 +22,7 @@ class ActionMeta(type):
     Metaclass for actions.
     Its only responsibility is to register actions in a global registry.
     """
+
     actions_registry: dict[ExecutableId, type] = {}
 
     def __new__(mcs, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> type:
@@ -96,13 +97,11 @@ class Action(Generic[Inputs, Outputs], metaclass=ActionMeta):
         self.commit_service = commit_service
 
         # Use log for more detailed debug messages
-        self.log = get_logger(service="action",
-                              id=self.id)
+        self.log = get_logger(service="action", id=self.id)
 
         # Define kwargs to pass configuration to actions via `action_config`
         if kwargs:
-            self.log.warning("Action received unexpected kwargs that it will ignore",
-                             kwargs=kwargs)
+            self.log.warning("Action received unexpected kwargs that it will ignore", kwargs=kwargs)
 
     @classmethod
     def _get_inputs_type(cls) -> type[Inputs]:

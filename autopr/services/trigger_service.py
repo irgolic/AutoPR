@@ -3,7 +3,12 @@ from typing import Coroutine, Any, Optional
 from typing_extensions import assert_never
 
 from autopr.log_config import get_logger
-from autopr.models.config.elements import ActionConfig, WorkflowInvocation, IterableWorkflowInvocation, ContextAction
+from autopr.models.config.elements import (
+    ActionConfig,
+    WorkflowInvocation,
+    IterableWorkflowInvocation,
+    ContextAction,
+)
 from autopr.models.config.entrypoints import Trigger
 from autopr.models.events import EventUnion
 from autopr.models.executable import Executable, ContextDict, ExecutableId
@@ -38,7 +43,9 @@ class TriggerService:
             return ExecutableId(executable)
         if isinstance(executable, ActionConfig):
             return ExecutableId(executable.action)
-        if isinstance(executable, WorkflowInvocation) or isinstance(executable, IterableWorkflowInvocation):
+        if isinstance(executable, WorkflowInvocation) or isinstance(
+            executable, IterableWorkflowInvocation
+        ):
             return ExecutableId(executable.workflow)
         if isinstance(executable, ContextAction):
             raise RuntimeError("Meaningless trigger! Whatchu tryina do :)")
@@ -46,13 +53,17 @@ class TriggerService:
 
     def _get_name_for_executable(self, executable: Executable) -> str:
         if isinstance(executable, str):
-            workflow_definition = self.workflow_service.get_executable_by_id(ExecutableId(executable))
+            workflow_definition = self.workflow_service.get_executable_by_id(
+                ExecutableId(executable)
+            )
             if workflow_definition.name:
                 return workflow_definition.name
             return executable
         if isinstance(executable, ActionConfig):
             return executable.action
-        if isinstance(executable, WorkflowInvocation) or isinstance(executable, IterableWorkflowInvocation):
+        if isinstance(executable, WorkflowInvocation) or isinstance(
+            executable, IterableWorkflowInvocation
+        ):
             if executable.name:
                 return executable.name
             workflow_definition = self.workflow_service.get_executable_by_id(executable.workflow)
@@ -63,7 +74,9 @@ class TriggerService:
             raise RuntimeError("Meaningless trigger! Whatchu tryina do :)")
         raise ValueError(f"Unknown executable type {executable}")
 
-    def _get_triggers_and_contexts_for_event(self, event: EventUnion) -> list[tuple[Trigger, ContextDict]]:
+    def _get_triggers_and_contexts_for_event(
+        self, event: EventUnion
+    ) -> list[tuple[Trigger, ContextDict]]:
         # Gather all triggers that match the event
         triggers_and_context: list[tuple[Trigger, ContextDict]] = []
         for trigger in self.triggers:
@@ -81,7 +94,9 @@ class TriggerService:
         if not triggers_and_context:
             return []
         if len(triggers_and_context) == 1:
-            self.publish_service.title = f"[AutoPR] {self._get_name_for_executable(triggers_and_context[0][0].run)}"
+            self.publish_service.title = (
+                f"[AutoPR] {self._get_name_for_executable(triggers_and_context[0][0].run)}"
+            )
             return [
                 self.handle_trigger(
                     trigger,
@@ -90,7 +105,9 @@ class TriggerService:
                 )
                 for trigger, context in triggers_and_context
             ]
-        trigger_titles = [self._get_name_for_executable(trigger.run) for trigger, context in triggers_and_context]
+        trigger_titles = [
+            self._get_name_for_executable(trigger.run) for trigger, context in triggers_and_context
+        ]
         self.publish_service.title = f"[AutoPR] {', '.join(truncate_strings(trigger_titles))}"
         return [
             self.handle_trigger(
@@ -98,7 +115,9 @@ class TriggerService:
                 context,
                 publish_service=(await self.publish_service.create_child(title=title)),
             )
-            for i, ((trigger, context), title) in enumerate(zip(triggers_and_context, trigger_titles))
+            for i, ((trigger, context), title) in enumerate(
+                zip(triggers_and_context, trigger_titles)
+            )
         ]
 
     async def trigger_event(
@@ -156,8 +175,7 @@ class TriggerService:
             automerge_triggers = [trigger for trigger in triggers if trigger.automerge]
             if automerge_triggers:
                 automerge_ids = [
-                    self._get_id_for_executable(trigger.run)
-                    for trigger in automerge_triggers
+                    self._get_id_for_executable(trigger.run) for trigger in automerge_triggers
                 ]
                 await self.publish_service.merge(
                     "Merging because automerge is enabled.\n\n"

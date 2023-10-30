@@ -1,6 +1,18 @@
 import json
-from typing import Union, Literal, ForwardRef, Protocol, Any, Collection, Optional, ClassVar, TypeVar, Type, \
-    runtime_checkable, Generic
+from typing import (
+    Union,
+    Literal,
+    ForwardRef,
+    Protocol,
+    Any,
+    Collection,
+    Optional,
+    ClassVar,
+    TypeVar,
+    Type,
+    runtime_checkable,
+    Generic,
+)
 import jinja2
 
 import pydantic
@@ -38,8 +50,9 @@ class ContextDict(dict[ContextVarName, Any]):
                     value = value.dict()
                 value = value[part]
         except KeyError:
-            raise RuntimeError(f"Path {path} not found in context. "
-                               f"TODO catch at static-analysis time.")
+            raise RuntimeError(
+                f"Path {path} not found in context. " f"TODO catch at static-analysis time."
+            )
         return value
 
     def _unpack_template(self, value: str):
@@ -56,11 +69,10 @@ class ContextDict(dict[ContextVarName, Any]):
         if isinstance(template, str):
             return self.render_string(template)
         if isinstance(template, dict):
-            return {key: self.render_nested_template(value)
-                    for key, value in template.items()}
+            return {key: self.render_nested_template(value) for key, value in template.items()}
         if isinstance(template, list):
             return [self.render_nested_template(item) for item in template]
-        return template  
+        return template
 
 
 control_words = [

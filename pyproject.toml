@@ -29,6 +29,10 @@ pytest-mock = "^3.11.1"
 aioresponses = "^0.7.4"
 types-tree-sitter-languages = "^1.8.0.0"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -38,3 +42,10 @@ exclude = ["**/resources/**"]
 include = ["**/autopr/**"]
 reportMissingTypeArgument = true
 reportIncompatibleMethodOverride = true
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+exclude = """
+autopr/tests/resources
+"""

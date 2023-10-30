@@ -1,3 +1,6 @@
+format:
+	black autopr
+
 type:
 	pyright 
 
@@ -7,4 +10,4 @@ test:
 schema:
 	python -m autopr.models.config.entrypoints
 
-all: type test schema
+all: format type test schema

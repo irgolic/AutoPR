@@ -19,8 +19,8 @@ from .workflows import get_all_workflows
 
 
 class Settings(BaseSettings):
-    base_branch: str = 'main'
-    target_branch_name_template: str = 'autopr/{issue_number}'
+    base_branch: str = "main"
+    target_branch_name_template: str = "autopr/{issue_number}"
     overwrite_existing: bool = False
     loading_gif_url: str = "https://media0.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif"
 
@@ -43,7 +43,7 @@ class MainService:
 
         # Get repo owner and name from remote URL
         remote_url = self.repo.remotes.origin.url
-        self.owner, self.repo_name = remote_url.removesuffix(".git").split('/')[-2:]
+        self.owner, self.repo_name = remote_url.removesuffix(".git").split("/")[-2:]
 
         self.platform_service = self.get_platform_service()
         self.event = self.get_event(self.platform_service)
@@ -104,13 +104,17 @@ class MainService:
             **additional_kwargs,
         )
 
-    def get_publish_service(self, platform_service: PlatformService, **additional_kwargs) -> PublishService:
+    def get_publish_service(
+        self, platform_service: PlatformService, **additional_kwargs
+    ) -> PublishService:
         return self.publish_service_class(
             platform_service=platform_service,
             owner=self.owner,
             repo_name=self.repo_name,
             issue=self.event.issue,
-            pr_number=self.event.pull_request.number if self.event.pull_request is not None else None,
+            pr_number=self.event.pull_request.number
+            if self.event.pull_request is not None
+            else None,
             base_branch=self.base_branch_name,
             head_branch=self.branch_name,
             loading_gif_url=self.settings.loading_gif_url,
@@ -127,14 +131,20 @@ class MainService:
             return self.settings.target_branch_name_template.format(issue_number=uuid.uuid4())
 
         # uniqueify over issue number
-        branch_name = self.settings.target_branch_name_template.format(issue_number=self.event.issue.number)
+        branch_name = self.settings.target_branch_name_template.format(
+            issue_number=self.event.issue.number
+        )
         if not self.settings.overwrite_existing:
             remote = self.repo.remote()
             references = remote.fetch()
             i = 2
-            while f'{remote.name}/{branch_name}' in [ref.name for ref in references]:
-                branch_name = self.settings.target_branch_name_template.format(
-                    issue_number=self.event.issue.number) + f'-{i}'
+            while f"{remote.name}/{branch_name}" in [ref.name for ref in references]:
+                branch_name = (
+                    self.settings.target_branch_name_template.format(
+                        issue_number=self.event.issue.number
+                    )
+                    + f"-{i}"
+                )
                 i += 1
 
         return branch_name

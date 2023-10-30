@@ -21,7 +21,7 @@ issue_label_event = LabelEvent(
                 body="Test message 1",
                 author="Tester",
             ),
-        ]
+        ],
     ),
     label="AutoPR",
 )
@@ -82,7 +82,7 @@ cron_event = CronEvent(
             },
             "example_repo_1",
         ),
-    ]
+    ],
 )
 @pytest.mark.asyncio
 async def test_event_triggers(
@@ -96,7 +96,7 @@ async def test_event_triggers(
         triggers_filename=triggers_filename,
         workflows_filename=workflows_filename,
         repo_resource=repo_resource,
-        event=event
+        event=event,
     )
 
     # It's assumed that the event only has one trigger

@@ -28,6 +28,7 @@ class ReadFile(Action[Inputs, Outputs]):
     """
     A class representing an action to read the contents of a file.
     """
+
     id = "read_file"
 
     @staticmethod
@@ -35,17 +36,17 @@ class ReadFile(Action[Inputs, Outputs]):
         with open(inputs.filepath) as f:
             data = json.load(f)
 
-        content = ''
-        for cell in data['cells']:
-            cell_type = cell['cell_type']
-            source = ''.join(cell['source'])
-            if cell_type == 'markdown':
-                content += f'Markdown Cell:\n{source}\n'
-            elif cell_type == 'code':
-                content += f'Code Cell:\n{source}\n'
-                outputs = cell.get('outputs', [])
+        content = ""
+        for cell in data["cells"]:
+            cell_type = cell["cell_type"]
+            source = "".join(cell["source"])
+            if cell_type == "markdown":
+                content += f"Markdown Cell:\n{source}\n"
+            elif cell_type == "code":
+                content += f"Code Cell:\n{source}\n"
+                outputs = cell.get("outputs", [])
                 for output in outputs:
-                    if 'text' in output:
+                    if "text" in output:
                         content += f'Output:\n{"".join(output["text"])}\n'
         return content
 
@@ -67,9 +68,11 @@ class ReadFile(Action[Inputs, Outputs]):
         """Read the contents of a file."""
         if inputs.ensure_exists:
             self.ensure_file_exists(inputs.filepath)
-        url = await self.platform_service.get_file_url(inputs.filepath, self.publish_service.base_branch)
+        url = await self.platform_service.get_file_url(
+            inputs.filepath, self.publish_service.base_branch
+        )
         try:
-            if inputs.filepath.endswith('.ipynb'):
+            if inputs.filepath.endswith(".ipynb"):
                 contents = self.load_jupyter_notebook(inputs)
             else:
                 with open(inputs.filepath, "r") as f:

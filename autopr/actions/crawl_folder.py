@@ -60,10 +60,12 @@ class Outputs(BaseModel):
     # The url of the folder to crawl
     url: str
 
+
 class CrawlFolder(Action[Inputs, Outputs]):
     """
     This action lists all the files and subfolders in a folder, excluding certain files and directories.
     """
+
     id = "crawl_folder"
 
     @staticmethod
@@ -76,7 +78,7 @@ class CrawlFolder(Action[Inputs, Outputs]):
 
         for el in sorted(all_file_entries):
             full_path = os.path.join(inputs.folder_path, el)
-            
+
             if el in inputs.entries_to_ignore:
                 continue
             if os.path.isfile(full_path) and self.is_binary(full_path):
@@ -85,22 +87,22 @@ class CrawlFolder(Action[Inputs, Outputs]):
                 continue
             if NON_INFORMATIVE_DIRECTORIES.match(el):
                 continue
-            
+
             file_entries_to_return.append(el)
 
-        url = await self.platform_service.get_file_url(inputs.folder_path, self.publish_service.base_branch)
+        url = await self.platform_service.get_file_url(
+            inputs.folder_path, self.publish_service.base_branch
+        )
         return Outputs(contents=file_entries_to_return, url=url)
-
 
 
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
+
     asyncio.run(
         # Run the action manually
         run_action_manually(
             action=CrawlFolder,
-            inputs=Inputs(
-                folder_path=os.path.join(os.getcwd(), "..")
-            ),
+            inputs=Inputs(folder_path=os.path.join(os.getcwd(), "..")),
         )
     )

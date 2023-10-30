@@ -9,6 +9,7 @@ class Event(pydantic.BaseModel):
     """
     Events trigger AutoPR to run in different ways.
     """
+
     event_type: str
 
     pull_request: Optional[PullRequest] = None
@@ -19,7 +20,8 @@ class LabelEvent(Event):
     """
     Event triggered when a label is added to an issue or pull request.
     """
-    event_type: Literal['label'] = 'label'
+
+    event_type: Literal["label"] = "label"
 
     label: str
 
@@ -28,7 +30,8 @@ class CommentEvent(Event):
     """
     Event triggered when a comment is added to an issue or pull request.
     """
-    event_type: Literal['comment'] = 'comment'
+
+    event_type: Literal["comment"] = "comment"
 
     comment: Message
 
@@ -37,7 +40,8 @@ class PushEvent(Event):
     """
     Event triggered when a push is made to a branch.
     """
-    event_type: Literal['push'] = 'push'
+
+    event_type: Literal["push"] = "push"
 
     branch: str
 
@@ -46,7 +50,8 @@ class CronEvent(Event):
     """
     Event triggered by a cron job.
     """
-    event_type: Literal['cron'] = 'cron'
+
+    event_type: Literal["cron"] = "cron"
 
     cron_schedule: str
 

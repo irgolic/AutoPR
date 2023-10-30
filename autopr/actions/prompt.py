@@ -12,8 +12,13 @@ from tenacity import wait_exponential_jitter, retry_if_exception_type
 
 from autopr.actions.base import Action
 
-from autopr.actions.utils.prompt_context import PromptContext, PromptContextEntry, get_string_token_length, \
-    trim_context, invoke_openai
+from autopr.actions.utils.prompt_context import (
+    PromptContext,
+    PromptContextEntry,
+    get_string_token_length,
+    trim_context,
+    invoke_openai,
+)
 
 
 class Inputs(BaseModel):
@@ -50,6 +55,7 @@ class PromptString(Action[Inputs, Outputs]):
     """
     Prompt to generate a string.
     """
+
     id = "prompt"
 
     def build_prompt_and_instructions(self, inputs: Inputs) -> tuple[str, str]:
@@ -58,12 +64,14 @@ class PromptString(Action[Inputs, Outputs]):
         if inputs.prompt_context:
             # TODO subtract length of rest of prompt
             prompt_elements.append(
-                str(trim_context(
-                    inputs.prompt_context,
-                    inputs.max_prompt_tokens,
-                    inputs.strategy,
-                    inputs.model,
-                ))
+                str(
+                    trim_context(
+                        inputs.prompt_context,
+                        inputs.max_prompt_tokens,
+                        inputs.strategy,
+                        inputs.model,
+                    )
+                )
             )
         if inputs.prompt:
             prompt_elements.append(inputs.prompt)
@@ -97,7 +105,9 @@ class PromptString(Action[Inputs, Outputs]):
             code=prompt,
         )
 
-        output = await invoke_openai(prompt, instructions, inputs.model, inputs.temperature, inputs.max_response_tokens)
+        output = await invoke_openai(
+            prompt, instructions, inputs.model, inputs.temperature, inputs.max_response_tokens
+        )
 
         # Cache result
         self.cache_service.store(key, output)
@@ -109,19 +119,17 @@ class PromptString(Action[Inputs, Outputs]):
 
 if __name__ == "__main__":
     from autopr.tests.utils import run_action_manually
+
     inputs = Inputs(
         prompt="What should I make a fruit salad with?",
         instructions="No chattering, be as concise as possible.",
         prompt_context=PromptContext(
-            __root__=[PromptContextEntry(
-                heading="What I have in my kitchen",
-                value="Apples, bananas, oranges, potatoes, and onions."
-            )]
+            __root__=[
+                PromptContextEntry(
+                    heading="What I have in my kitchen",
+                    value="Apples, bananas, oranges, potatoes, and onions.",
+                )
+            ]
         ),
     )
-    asyncio.run(
-        run_action_manually(
-            action=PromptString,
-            inputs=inputs
-        )
-    )
+    asyncio.run(run_action_manually(action=PromptString, inputs=inputs))

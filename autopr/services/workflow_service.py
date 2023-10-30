@@ -10,8 +10,16 @@ import pydantic
 
 from autopr.actions.base import get_actions_dict, Action
 from autopr.log_config import get_logger
-from autopr.models.config.elements import Executable, ContextAction, ActionConfig, WorkflowDefinition, \
-    WorkflowInvocation, IterableActionConfig, IterableWorkflowInvocation, ValueDeclaration
+from autopr.models.config.elements import (
+    Executable,
+    ContextAction,
+    ActionConfig,
+    WorkflowDefinition,
+    WorkflowInvocation,
+    IterableActionConfig,
+    IterableWorkflowInvocation,
+    ValueDeclaration,
+)
 from autopr.models.config.entrypoints import TopLevelWorkflowConfig, Trigger
 from autopr.models.events import EventUnion
 from autopr.models.executable import ExecutableId, ContextDict, TemplateObject
@@ -35,7 +43,9 @@ class WorkflowService:
 
         self.log = get_logger(service="workflow")
 
-    def get_executable_by_id(self, id_: ExecutableId, context: Optional[ContextDict] = None) -> Union[ActionConfig, WorkflowDefinition]:
+    def get_executable_by_id(
+        self, id_: ExecutableId, context: Optional[ContextDict] = None
+    ) -> Union[ActionConfig, WorkflowDefinition]:
         if context is None:
             context = ContextDict()
 
@@ -76,7 +86,9 @@ class WorkflowService:
         if isinstance(executable, ActionConfig):
             return await self.action_service.run_action(executable, context, publish_service)
         if isinstance(executable, WorkflowDefinition):
-            return await self.publish_and_execute_workflow(id_, executable, context, publish_service)
+            return await self.publish_and_execute_workflow(
+                id_, executable, context, publish_service
+            )
         raise ValueError(f"`{id_}` is not an executable")
 
     def _prepare_workflow_context(
@@ -87,9 +99,7 @@ class WorkflowService:
     ):
         # Pass __params__ through
         prepared_context = {
-            k: v
-            for k, v in context.items()
-            if k.startswith("__") and k.endswith("__")
+            k: v for k, v in context.items() if k.startswith("__") and k.endswith("__")
         }
 
         if parameters is not None:
@@ -103,7 +113,6 @@ class WorkflowService:
             return ContextDict(prepared_context)
 
         for key, template in inputs:
-
             # Try to parse as ValueDeclaration Union
             try:
                 template = pydantic.parse_obj_as(ValueDeclaration, template)
@@ -139,19 +148,16 @@ class WorkflowService:
     ):
         # Prepare inputs
         input_context = self._prepare_workflow_context(
-            workflow_invocation.inputs,
-            workflow_invocation.parameters,
-            context
+            workflow_invocation.inputs, workflow_invocation.parameters, context
         )
 
         # Execute workflow
         workflow_definition = self.get_executable_by_id(workflow_invocation.workflow, input_context)
         if not isinstance(workflow_definition, WorkflowDefinition):
             raise ValueError(f"`{workflow_invocation.workflow}` is not a workflow")
-        context = await self.publish_and_execute_workflow(workflow_invocation.workflow,
-                                                          workflow_definition,
-                                                          input_context,
-                                                          publish_service)
+        context = await self.publish_and_execute_workflow(
+            workflow_invocation.workflow, workflow_definition, input_context, publish_service
+        )
 
         # Grab outputs
         output_context = ContextDict()
@@ -170,7 +176,9 @@ class WorkflowService:
         context: ContextDict,
         publish_service: PublishService,
     ):
-        await publish_service.start_section(f"🌳 Iteratively invoking `{iter_workflow_invocation.workflow}`")
+        await publish_service.start_section(
+            f"🌳 Iteratively invoking `{iter_workflow_invocation.workflow}`"
+        )
 
         executable = self.get_executable_by_id(iter_workflow_invocation.workflow, context)
         if isinstance(executable, ActionConfig):
@@ -192,11 +200,13 @@ class WorkflowService:
                     iter_context,
                 )
                 # Prepare coroutine
-                coros.append(self.execute_workflow(
-                    executable,
-                    input_context,
-                    await publish_service.create_child(title=f"🌊 Iteration {i + 1}"),
-                ))
+                coros.append(
+                    self.execute_workflow(
+                        executable,
+                        input_context,
+                        await publish_service.create_child(title=f"🌊 Iteration {i + 1}"),
+                    )
+                )
         else:  # isinstance(iteration, ContextVarPath)
             # iterate over a list in the context
             list_var = context.get_path(iteration)
@@ -218,18 +228,22 @@ class WorkflowService:
                     iter_context,
                 )
                 # Prepare coroutine
-                coros.append(self.execute_workflow(
-                    executable,
-                    input_context,
-                    await publish_service.create_child(
-                        title=f"🌊 {truncate_strings(str(item), length=40)}"
-                    ),
-                ))
+                coros.append(
+                    self.execute_workflow(
+                        executable,
+                        input_context,
+                        await publish_service.create_child(
+                            title=f"🌊 {truncate_strings(str(item), length=40)}"
+                        ),
+                    )
+                )
 
         # Run all coroutines in parallel
         output_contexts = await asyncio.gather(*coros)
 
-        await publish_service.end_section(f"🌳 Iteratively invoked `{iter_workflow_invocation.workflow}`")
+        await publish_service.end_section(
+            f"🌳 Iteratively invoked `{iter_workflow_invocation.workflow}`"
+        )
 
         # Grab outputs
         output_context = ContextDict()
@@ -247,14 +261,14 @@ class WorkflowService:
         )
 
         return output_context
-    
+
     def validate_workflow_inputs_and_outputs(self, inputs_outputs_list, context, workflow):
         """Validates that all inputs and outputs are present in the inputs_outputs_list.
         This method is used for validating inputs and outputs of the workflow."""
         for element in inputs_outputs_list:
             if element in context:
                 continue
-            error_suffix = f' `{workflow.name}`' if workflow.name else ''
+            error_suffix = f" `{workflow.name}`" if workflow.name else ""
             error_msg = f"Missing input `{element}` for workflow{error_suffix}"
             if self.strict:
                 raise ValueError(error_msg)
@@ -313,20 +327,28 @@ class WorkflowService:
                 context = await self.execute(e, context, publish_service)
             output_context = context
         elif isinstance(executable, str):
-            output_context = await self.execute_by_id(ExecutableId(executable), context, publish_service)
+            output_context = await self.execute_by_id(
+                ExecutableId(executable), context, publish_service
+            )
         elif isinstance(executable, ContextAction):
             executable = executable.get_executable(context)
             if executable is None:
                 return context
             output_context = await self.execute(executable, context, publish_service)
         elif isinstance(executable, ActionConfig):
-            output_context = await self.action_service.run_action(executable, context, publish_service)
+            output_context = await self.action_service.run_action(
+                executable, context, publish_service
+            )
         elif isinstance(executable, IterableActionConfig):
-            output_context = await self.action_service.run_action_iteratively(executable, context, publish_service)
+            output_context = await self.action_service.run_action_iteratively(
+                executable, context, publish_service
+            )
         elif isinstance(executable, WorkflowInvocation):
             output_context = await self.invoke_workflow(executable, context, publish_service)
         elif isinstance(executable, IterableWorkflowInvocation):
-            output_context = await self.invoke_workflow_iteratively(executable, context, publish_service)
+            output_context = await self.invoke_workflow_iteratively(
+                executable, context, publish_service
+            )
         # elif isinstance(executable, Choice):
         #     output_context = await self.action_service.run_actions_iteratively(executable.choose, context)
         else:
