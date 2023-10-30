@@ -174,7 +174,7 @@ class FindTodos(Action[Inputs, Outputs]):
         }
         return yaml.dump(fingerprint_dict, sort_keys=False)
 
-    async def close_not_used_issues(self, issues: list[Issue], todos: list[Todo]) -> None:
+    async def close_unused_issues(self, issues: list[Issue], todos: list[Todo]) -> None:
         todo_issues = [todo.issue for todo in todos if todo.issue]
         for issue in issues:
             if issue.open and issue not in todo_issues:
@@ -222,7 +222,7 @@ class FindTodos(Action[Inputs, Outputs]):
             )
             for task, locations in task_to_locations.items()
         ]
-        await self.close_not_used_issues(issues, todos)
+        await self.close_unused_issues(list(issue_for_task.values()), todos)
 
         sorted_todos = sorted(todos, key=lambda todo: todo.task)  # This simplifies testing
 
