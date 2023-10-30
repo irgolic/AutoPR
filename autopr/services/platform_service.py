@@ -8,6 +8,8 @@ from typing import Optional, Union, Any, Type
 import aiohttp
 import requests
 from aiohttp import ClientSession
+from git import GitCommandError
+from git.repo import Repo
 
 from autopr.log_config import get_logger
 from autopr.models.artifacts import Issue, Message, PullRequest
@@ -27,9 +29,11 @@ class PlatformService:
         self,
         owner: str,
         repo_name: str,
+        repo: Optional[Repo] = None,
     ):
         self.owner = owner
         self.repo_name = repo_name
+        self.repo = repo
 
         self.log = get_logger(service="publish")
 
@@ -310,10 +314,12 @@ class GitHubPlatformService(PlatformService):
         token: str,
         owner: str,
         repo_name: str,
+        repo: Optional[Repo] = None,
     ):
         super().__init__(
             owner=owner,
             repo_name=repo_name,
+            repo=repo,
         )
         self.token = token
 
@@ -801,22 +807,6 @@ class GitHubPlatformService(PlatformService):
                     response=response,
                 )
 
-    async def get_latest_commit_hash(self, owner, repo, branch):
-        url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
-        headers = self._get_headers()
-        async with ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return data["object"]["sha"]
-
-                await self._log_failed_request(
-                    "Failed to get latest commit hash",
-                    request_url=url,
-                    request_headers=headers,
-                    response=response,
-                )
-
     async def get_file_url(
         self,
         file_path: str,
@@ -825,20 +815,23 @@ class GitHubPlatformService(PlatformService):
         end_line: Optional[int] = None,
         margin: int = 0,
     ) -> str:
+        if self.repo is None:
+            raise RuntimeError("Cannot get file url without repo")
         # Get the latest commit hash for the base branch
-        commit_hash = await self.get_latest_commit_hash(self.owner, self.repo_name, base_branch)
-        file_num_lines = await self.get_num_lines_in_file(file_path, base_branch)
+        commit_hash = self.repo.commit(base_branch).hexsha
+        # Get the number of lines in the file
+        file_num_lines = self._get_num_lines_in_file(file_path)
 
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
 
         # Form the base URL using the commit hash instead of the branch name
         output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
-        return output + await self._format_start_and_end_line(
+        return output + self._format_start_and_end_line(
             start_line, end_line, file_num_lines, margin
         )
 
-    async def _format_start_and_end_line(
+    def _format_start_and_end_line(
         self,
         start_line: Optional[int],
         end_line: Optional[int],
@@ -855,39 +848,16 @@ class GitHubPlatformService(PlatformService):
             return f"#L{max(1, end_line - margin)}-L{min(end_line + margin, file_num_lines)}"
         return ""
 
-    async def get_num_lines_in_file(self, file_path: str, branch: str) -> Optional[int]:
-        url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/contents/{file_path}?ref={branch}"
-        headers = self._get_headers()
-        async with ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                if response.status == 200:
-                    json_data = await response.json()
-                    try:
-                        content = json_data["content"]
-                        decoded_content = base64.b64decode(content).decode("utf-8")
-                    except:
-                        await self._log_failed_request(
-                            "Failed to decode file content",
-                            request_url=url,
-                            request_headers=headers,
-                            response=response,
-                        )
-                        return None
-                    lines = decoded_content.split("\n")
-                    num_lines = len(lines)
-                    if lines[-1] == "":
-                        # In case of line ending with a newline character,
-                        # the split function returns an empty string as the last element,
-                        # making the total line count one more than the actual number of lines in the file.
-                        num_lines -= 1
-                    return num_lines
-
-                await self._log_failed_request(
-                    "Failed to get number of lines in file",
-                    request_url=url,
-                    request_headers=headers,
-                    response=response,
-                )
+    def _get_num_lines_in_file(self, file_path: str) -> Optional[int]:
+        with open(file_path, "r") as file:
+            lines = file.read().splitlines()
+        num_lines = len(lines)
+        if lines[-1] == "":
+            # In case of line ending with a newline character,
+            # the split function returns an empty string as the last element,
+            # making the total line count one more than the actual number of lines in the file.
+            num_lines -= 1
+        return num_lines
 
     async def close_issue(self, issue_number: int) -> None:
         url = f"https://api.github.com/repos/{self.owner}/{self.repo_name}/issues/{issue_number}"

@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch, Mock
 
 import pytest
 from aioresponses import aioresponses
+from git import Commit
+from git.repo import Repo
 
 from autopr.models.artifacts import Issue, PullRequest, Message
 from autopr.models.events import EventUnion, LabelEvent
@@ -320,33 +322,11 @@ async def test_get_issue_by_title(mock_aioresponse, platform_service):
 )
 @pytest.mark.asyncio
 async def test_get_file_url(
-    mocker, file_path, branch, start_line, end_line, margin, expected_url, platform_service
+    file_path, branch, start_line, end_line, margin, expected_url, platform_service
 ):
-    with patch.object(GitHubPlatformService, "get_latest_commit_hash", return_value="123abcd"):
-        with patch.object(GitHubPlatformService, "get_num_lines_in_file", return_value=100):
-            url = await platform_service.get_file_url(
-                file_path, branch, start_line, end_line, margin
-            )
+    mock = MagicMock()
+    mock.commit.return_value.hexsha = "123abcd"
+    platform_service.repo = mock
+    with patch.object(GitHubPlatformService, "_get_num_lines_in_file", return_value=100):
+        url = await platform_service.get_file_url(file_path, branch, start_line, end_line, margin)
     assert url == expected_url
-
-
-@pytest.mark.parametrize(
-    "branch, expected_sha",
-    [
-        ("branch1", "12345abcdef"),
-    ],
-)
-# @patch("requests.get")
-@pytest.mark.asyncio
-async def test_get_latest_commit_hash(mock_aioresponse, branch, expected_sha, platform_service):
-    mock_json = {"object": {"sha": "12345abcdef"}}
-    # get_mock.return_value = MagicMock(json=mock_json)
-    mock_aioresponse.get(
-        f"https://api.github.com/repos/{platform_service.owner}/{platform_service.repo_name}/git/ref/heads/{branch}",
-        payload=mock_json,
-        status=200,
-    )
-    res = await platform_service.get_latest_commit_hash(
-        platform_service.owner, platform_service.repo_name, branch
-    )
-    assert res == expected_sha

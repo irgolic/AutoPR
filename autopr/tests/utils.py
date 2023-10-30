@@ -7,6 +7,7 @@ from typing import Optional, Any, Union
 from unittest.mock import patch
 
 import pydantic
+from git.repo import Repo
 
 import autopr.workflows
 from autopr.main import MainService
@@ -146,6 +147,7 @@ def create_ephemeral_main_service(
             token="",
             repo_name="",
             owner="",
+            repo=Repo(repo_dir),
         )
         # TODO this depends on the filename of the event json, which is not ideal
         if "cron" in event:

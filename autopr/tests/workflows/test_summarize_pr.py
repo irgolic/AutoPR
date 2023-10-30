@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock
 
 import git.repo
 import pytest
+from git.repo import Repo
 
 from autopr.models.artifacts import PullRequest, Message
 from autopr.services.platform_service import GitHubPlatformService

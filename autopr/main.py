@@ -101,6 +101,7 @@ class MainService:
         return self.platform_service_class(
             owner=self.owner,
             repo_name=self.repo_name,
+            repo=self.repo,
             **additional_kwargs,
         )
 
