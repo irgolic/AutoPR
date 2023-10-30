@@ -820,20 +820,20 @@ class GitHubPlatformService(PlatformService):
             raise RuntimeError("Cannot get file url without repo")
         # Get the latest commit hash for the base branch
         commit_hash = self.repo.commit(base_branch).hexsha
-        # Get the number of lines in the file
-        if os.path.isfile(file_path):
-            file_num_lines = self._get_num_lines_in_file(file_path)
-        else:
-            file_num_lines = None
 
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
 
         # Form the base URL using the commit hash instead of the branch name
-        output = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
-        return output + self._format_start_and_end_line(
-            start_line, end_line, file_num_lines, margin
-        )
+        url = f"https://github.com/{self.owner}/{self.repo_name}/blob/{commit_hash}/{formatted_file_path}"
+        if os.path.isfile(file_path):
+            # Attach the line numbers to the URL
+            file_num_lines = self._get_num_lines_in_file(file_path)
+            url_suffix = self._format_start_and_end_line(
+                start_line, end_line, file_num_lines, margin
+            )
+            url += url_suffix
+        return url
 
     def _format_start_and_end_line(
         self,
@@ -856,7 +856,7 @@ class GitHubPlatformService(PlatformService):
         with open(file_path, "r") as file:
             lines = file.read().splitlines()
         num_lines = len(lines)
-        if lines[-1] == "":
+        if lines and lines[-1] == "":
             # In case of line ending with a newline character,
             # the split function returns an empty string as the last element,
             # making the total line count one more than the actual number of lines in the file.
