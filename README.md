@@ -28,10 +28,10 @@ Below is an example of AutoPR's Living README:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and folders related to an autonomous agent system. The Dockerfile sets up the environment for running the system. The LICENSE.md file provides the MIT License for the software. The Makefile defines commands for formatting, type checking, testing, and running the system. The action.yml file configures an "Automatic Pull Request" action. The autopr/ folder contains Python files and folders for various components of the system. The entrypoint.sh file sets up Git configuration and runs the system. The poetry.lock and pyproject.toml files specify project dependencies and settings. The strict_workflow_schema.json, trigger_schema.json, and workflow_schema.json files define models and schemas for workflows and triggers.
+This folder contains files and subfolders related to an automated pull request workflow system. The Dockerfile sets up the environment and runs the app. The LICENSE.md file contains the MIT License for the software. The Makefile defines commands and their dependencies. The action.yml file configures an "Automatic Pull Request" action. The autopr/ folder contains files for automating pull request workflows. The entrypoint.sh file sets up Git and runs a Python module. The poetry.lock file lists the dependencies for the project. The pyproject.toml file is a configuration file for the project. The strict_workflow_schema.json file defines a strict workflow model. The trigger_schema.json file defines different triggers and associated actions. The workflow_schema.json file defines a workflow structure.
 
 
-### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./Dockerfile)
+### [`Dockerfile`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./Dockerfile)
 
 🔧 Install git from bullseye-backports    
 📝 Set up entrypoint    
@@ -41,7 +41,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 🏃‍♀️ Run the app using entrypoint.sh as the command  
 
 
-### [`LICENSE.md`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./LICENSE.md)
+### [`LICENSE.md`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./LICENSE.md)
 
 📄 This file contains the MIT License for software developed by Raphael Francis Ltd.  
 🔒 The license grants permission to use, copy, modify, merge, publish, distribute, sublicense, and sell the software.  
@@ -50,7 +50,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 📚 The license is designed to protect the rights of the authors and copyright holders.  
 
 
-### [`Makefile`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./Makefile)
+### [`Makefile`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./Makefile)
 
 📋 The file defines a set of commands and their dependencies.       
 🔧 The `format` command runs the `black` code formatter on the project.       
@@ -60,7 +60,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 🚀 The `all` command runs all the commands in the specified order.       
 
 
-### [`action.yml`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./action.yml)
+### [`action.yml`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./action.yml)
 
 📋 This file defines the configuration for an "Automatic Pull Request" action.   
 🔧 It specifies the details of how the action should run, including using Docker and the Docker image to use.  
@@ -70,12 +70,12 @@ This folder contains files and folders related to an autonomous agent system. Th
 ✍️ Additionally, it includes a flag to control whether to overwrite existing branches and pull requests.  
 
 
-### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./autopr)
+### [`autopr/`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./autopr)
 
-This folder contains a collection of Python files and folders related to an autonomous agent system. The "actions" folder contains reusable actions and utilities for common tasks in the system, such as running commands and making API calls. The "models" folder contains data models for messages, threads, issues, and pull requests. The "services" folder implements various services and functionalities for the system, such as interacting with platforms like GitHub. The "triggers" file provides a way to retrieve and process trigger configurations. The "workflows" folder contains scripts and YAML files for managing and organizing workflows. Overall, this folder provides the necessary components for automating and managing tasks in an autonomous agent system.  
+This folder contains files and subfolders related to an automated pull request workflow system. The "actions" folder contains Python files that define various actions, such as making API calls or generating prompts. The "models" folder contains code and configuration files for managing data models. The "services" folder contains files that implement different services and functionalities for the system. The "triggers.py" file provides a way to retrieve and process trigger configurations. The "workflows" folder contains files for managing and organizing workflows. Overall, these files and folders provide the necessary components for automating pull request workflows in a Python program.  
 
 
-### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./entrypoint.sh)
+### [`entrypoint.sh`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./entrypoint.sh)
 
 📝 This file is a shell script.  
 🔧 It sets the global configuration for Git.  
@@ -86,7 +86,7 @@ This folder contains a collection of Python files and folders related to an auto
 🐍 It runs a Python module called autopr.gh_actions_entrypoint.  
 
 
-### [`poetry.lock`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./poetry.lock)
+### [`poetry.lock`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./poetry.lock)
 
 📄 This file is intended to serve as an executive summary.  
 🔍 It provides a high-level overview of the contents of the document.  
@@ -100,7 +100,7 @@ This folder contains a collection of Python files and folders related to an auto
 📝 It serves as a guide for further exploration of the document.  
 
 
-### [`pyproject.toml`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./pyproject.toml)
+### [`pyproject.toml`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./pyproject.toml)
 
 📝 The file is a configuration file for the project "autopr"  
 📦 It uses Poetry as the package manager for the project  
@@ -113,7 +113,7 @@ This folder contains a collection of Python files and folders related to an auto
 🗒️ The "tool.black" section sets the line length and target version for the Black formatter  
 
 
-### [`strict_workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./strict_workflow_schema.json)
+### [`strict_workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./strict_workflow_schema.json)
 
 📝 This file is a JSON schema definition for a strict workflow model.  
 📋 It defines various action models and their properties.  
@@ -126,7 +126,7 @@ This folder contains a collection of Python files and folders related to an auto
 📂 It can be used in various automation tools and platforms.  
 
 
-### [`trigger_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./trigger_schema.json)
+### [`trigger_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./trigger_schema.json)
 
 📄 This file is a JSON schema definition for a configuration file.  
 🔄 It defines various action models and workflow models that can be used in a trigger-based automation system.  
@@ -140,7 +140,7 @@ This folder contains a collection of Python files and folders related to an auto
 📋 Overall, this file serves as a blueprint for creating automation workflows and defining the behavior of triggers and actions.  
 
 
-### [`workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/81ba3ea7d990d2a16a82d4b31cd41ae7c18f169d/./workflow_schema.json)
+### [`workflow_schema.json`](https://github.com/raphael-francis/AutoPR-internal/blob/03521e243e018b61236da467e94d47d89783b5e6/./workflow_schema.json)
 
 📄 This file is a JSON representation of a workflow definition.  
 🔗 It contains various definitions and models for different actions that can be performed within the workflow.  
