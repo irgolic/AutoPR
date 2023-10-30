@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import os
 import sys
 import traceback
 from typing import Optional, Union, Any, Type
@@ -820,7 +821,10 @@ class GitHubPlatformService(PlatformService):
         # Get the latest commit hash for the base branch
         commit_hash = self.repo.commit(base_branch).hexsha
         # Get the number of lines in the file
-        file_num_lines = self._get_num_lines_in_file(file_path)
+        if os.path.isfile(file_path):
+            file_num_lines = self._get_num_lines_in_file(file_path)
+        else:
+            file_num_lines = None
 
         # Github API does not support spaces in file paths
         formatted_file_path = file_path.replace(" ", "%20")
