@@ -32,6 +32,7 @@ class TodoLocation(pydantic.BaseModel):
 class Todo(pydantic.BaseModel):
     task: str
     locations: list[TodoLocation]
+    fingerprint: str
     issue: Optional[Issue] = None
 
 
@@ -165,11 +166,11 @@ class FindTodos(Action[Inputs, Outputs]):
         return todo_issues
 
     @staticmethod
-    def get_todo_fingerprint(todo: Todo) -> str:
+    def get_todo_fingerprint(task: str) -> str:
         fingerprint_dict = {
             "info": "AutoPR fingerprint",
             "issue_type": "TODO",
-            "task": todo.task,
+            "task": task,
         }
         return yaml.dump(fingerprint_dict, sort_keys=False)
 
@@ -217,6 +218,7 @@ class FindTodos(Action[Inputs, Outputs]):
                 task=task,
                 locations=locations,
                 issue=issue_for_task.get(task),
+                fingerprint=self.get_todo_fingerprint(task),
             )
             for task, locations in task_to_locations.items()
         ]
