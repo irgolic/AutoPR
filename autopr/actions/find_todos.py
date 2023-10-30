@@ -154,8 +154,9 @@ class FindTodos(Action[Inputs, Outputs]):
                 continue
             task = yaml_dict["task"]
 
-            if task in todo_issues:
-                self.log.error(f"Duplicate task: {task}")
+            if task in todo_issues and todo_issues[task].open:
+                if issue.open:
+                    self.log.error(f"Duplicate open TODO issue for task {task}")
                 continue
             todo_issues[task] = issue
         return todo_issues
@@ -168,7 +169,7 @@ class FindTodos(Action[Inputs, Outputs]):
         todo_issues = [todo.issue for todo in todos if todo.issue]
         for issue in issues:
             if issue.open and issue not in todo_issues:
-                self.log.debug(f"Closing issue {issue.number} because it is not used anymore.")
+                self.log.debug(f"Closing issue {issue.number} because it is not referenced anymore")
                 await self.platform_service.close_issue(issue.number)
 
     async def run(self, inputs: Inputs) -> Outputs:
