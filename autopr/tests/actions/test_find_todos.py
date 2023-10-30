@@ -11,7 +11,7 @@ from autopr.models.executable import ContextDict, ExecutableId
 from autopr.services.platform_service import DummyPlatformService
 from autopr.tests.mock_openai import mock_openai
 
-from autopr.actions.find_todos import TodoLocation, Todo
+from autopr.actions.find_todos import TodoLocation, Todo, FindTodos
 
 from autopr.tests.utils import run_action_manually
 
@@ -31,6 +31,9 @@ from autopr.tests.utils import run_action_manually
                                 filepath="todos.py", start_line=3, end_line=3, url="github.com"
                             )
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "FIXME does nice syntax highlighting for tracebacks, but should be made configurable"
+                        ),
                     ),
                     Todo(
                         task="FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
@@ -48,6 +51,9 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             ),
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED"
+                        ),
                     ),
                     Todo(
                         task="FIXME: PART1:this is whatever",
@@ -59,6 +65,7 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             )
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint("FIXME: PART1:this is whatever"),
                     ),
                     Todo(
                         task="TODO write a ... with #TOO or #FIXME in them ...",
@@ -67,6 +74,9 @@ from autopr.tests.utils import run_action_manually
                                 filepath="todos.py", start_line=1, end_line=1, url="github.com"
                             )
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "TODO write a ... with #TOO or #FIXME in them ..."
+                        ),
                     ),
                     Todo(
                         task="TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED",
@@ -84,6 +94,9 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             ),
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "TODO: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED"
+                        ),
                     ),
                     Todo(
                         task="TODO: PART1:this is whatever",
@@ -95,6 +108,7 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             )
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint("TODO: PART1:this is whatever"),
                     ),
                 ]
             },
@@ -123,6 +137,9 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             ),
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED"
+                        ),
                     ),
                     Todo(
                         task="WHATEVER: PART1: THIS SHOULD GET RETURNED",
@@ -134,6 +151,9 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             )
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "WHATEVER: PART1: THIS SHOULD GET RETURNED"
+                        ),
                     ),
                 ]
             },
@@ -161,6 +181,9 @@ from autopr.tests.utils import run_action_manually
                                 url="github.com",
                             ),
                         ],
+                        fingerprint=FindTodos.get_todo_fingerprint(
+                            "FIXME: PART1: THIS SHOULD GET RETURNED PART2: THIS SHOULD GET RETURNED"
+                        ),
                     )
                 ]
             },

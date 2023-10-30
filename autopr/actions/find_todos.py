@@ -127,16 +127,6 @@ class FindTodos(Action[Inputs, Outputs]):
         location = TodoLocation(filepath=file, start_line=start_line, end_line=end_line, url=url)
         return location
 
-    async def filter_closed_issues(self, todos: list[Todo], issues: list[Issue]) -> list[Todo]:
-        closed_issues_list = await self.platform_service.get_issues(state="closed")
-        closed_issue_bodies = [closed_issue.messages[0].body for closed_issue in closed_issues_list]
-        filtered_todos = [
-            todo
-            for todo in todos
-            if not any(todo.task in closed_issue_body for closed_issue_body in closed_issue_bodies)
-        ]
-        return filtered_todos
-
     def parse_todo_issues(self, issues: list[Issue]) -> dict[str, Issue]:
         todo_issues = {}
         for issue in issues:
