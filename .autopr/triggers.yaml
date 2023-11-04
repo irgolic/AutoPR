@@ -50,3 +50,10 @@ triggers:
           Respond in 1-3 sentences.
         IGNORED_PATHS:
           - "*/resources/*"
+  - label_substring: autoformat
+    on_issue: false
+    on_pull_request: true
+    run:
+      action: bash
+      inputs:
+        command: make format
