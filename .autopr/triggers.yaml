@@ -50,7 +50,7 @@ triggers:
           Respond in 1-3 sentences.
         IGNORED_PATHS:
           - "*/resources/*"
-  - label_substring: autoformat
+  - label_substring: format
     on_issue: false
     on_pull_request: true
     run:
