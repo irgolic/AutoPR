@@ -1,6 +1,6 @@
 <div align="center">
 
-![AutoPR logo](website/static/img/AutoPR_Mark_color.png)
+<img src="website/static/img/AutoPR_Mark_color.png" alt="AutoPR logo" width=300 />
 
 <h1>🌳 AutoPR 🌳</h1>
 
