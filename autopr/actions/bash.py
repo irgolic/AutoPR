@@ -37,10 +37,23 @@ class Bash(Action[BashInputs, BashOutputs]):
         # Get standard output and standard error streams
         stdout, stderr = await process.communicate()
 
+        stdout_text = stdout.decode("utf-8")
+        stderr_text = stderr.decode("utf-8")
+
+        await self.publish_service.publish_code_block(
+            heading="Stdout",
+            code=stdout_text,
+        )
+
+        await self.publish_service.publish_code_block(
+            heading="Stderr",
+            code=stderr_text,
+        )
+
         # Set the output values
         return BashOutputs(
-            stdout=stdout.decode("utf-8"),
-            stderr=stderr.decode("utf-8"),
+            stdout=stdout_text,
+            stderr=stderr_text,
         )
 
 
