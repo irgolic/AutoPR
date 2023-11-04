@@ -125,6 +125,11 @@ class TriggerService:
         event: EventUnion,
     ):
         triggers_and_contexts = self._get_triggers_and_contexts_for_event(event)
+
+        # TODO split out multiple triggered workflows into separate PRs
+        if any(trigger.verbose for trigger, _ in triggers_and_contexts):
+            self.publish_service.verbose = True
+
         trigger_coros = await self._get_trigger_coros_for_event(triggers_and_contexts)
         if not trigger_coros:
             print(event)
@@ -177,8 +182,7 @@ class TriggerService:
             )
         # Else, if there are material changes
         elif changes_status == "modified":
-            # TODO split out multiple triggered workflows into separate PRs,
-            #  so that automerge can be evaluated separately for each
+            # TODO split out multiple triggered workflows into separate PRs
             automerge_triggers = [trigger for trigger in triggers if trigger.automerge]
             if automerge_triggers:
                 automerge_ids = [

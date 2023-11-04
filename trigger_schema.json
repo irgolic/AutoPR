@@ -7162,6 +7162,11 @@
           "default": false,
           "type": "boolean"
         },
+        "verbose": {
+          "title": "Verbose",
+          "default": false,
+          "type": "boolean"
+        },
         "label_substring": {
           "title": "Label Substring",
           "type": "string"
@@ -7607,6 +7612,11 @@
         },
         "automerge": {
           "title": "Automerge",
+          "default": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "title": "Verbose",
           "default": false,
           "type": "boolean"
         },
@@ -8058,6 +8068,11 @@
           "default": false,
           "type": "boolean"
         },
+        "verbose": {
+          "title": "Verbose",
+          "default": false,
+          "type": "boolean"
+        },
         "branch_name": {
           "title": "Branch Name",
           "type": "string"
@@ -8493,6 +8508,11 @@
         },
         "automerge": {
           "title": "Automerge",
+          "default": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "title": "Verbose",
           "default": false,
           "type": "boolean"
         },

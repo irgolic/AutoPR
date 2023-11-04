@@ -211,6 +211,7 @@ class TriggerModel(ContextModel):
     type: str
     run: StrictExecutable = Field()  # pyright: ignore[reportGeneralTypeIssues]
     automerge: bool = False
+    verbose: bool = False
 
     def get_context_for_event(self, event: EventUnion) -> Optional[ContextDict]:
         raise NotImplementedError

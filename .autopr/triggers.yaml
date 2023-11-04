@@ -53,6 +53,7 @@ triggers:
   - label_substring: format
     on_issue: false
     on_pull_request: true
+    verbose: true
     run:
       action: bash
       inputs:
