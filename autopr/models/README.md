@@ -3,15 +3,15 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains Python code for a workflow automation system called AutoPR. It includes files for defining data models related to messages, threads, issues, and pull requests, as well as files for defining and executing workflows with customizable actions and context variables. There are also classes related to events in the system and types and classes related to context variables, templates, and executables. Overall, this folder provides a comprehensive system for defining, executing, and handling workflows in a Python application.
+This folder contains Python files that define and configure workflows for an automated process. It includes files for defining data models related to messages, threads, issues, and pull requests, as well as files for handling events in the system. There are also files for defining and executing customizable workflows with strict validation and flexible variable handling.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/096da5bd0357ff1bbe5486a2e192ca26c295a1d7/./autopr/models/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/__init__.py)
 
 This file is empty.  
 
 
-### [`artifacts.py`](https://github.com/raphael-francis/AutoPR-internal/blob/096da5bd0357ff1bbe5486a2e192ca26c295a1d7/./autopr/models/artifacts.py)
+### [`artifacts.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/artifacts.py)
 
 📄 This file contains Python code for defining data models related to messages, threads, issues, and pull requests.   
 🧵 The `Message` class represents a message with a body and an author.   
@@ -22,12 +22,12 @@ This file is empty.
 🔧 The file also defines a type alias `DiffStr` for a string representing code diffs.  
 
 
-### [`config/`](https://github.com/raphael-francis/AutoPR-internal/blob/096da5bd0357ff1bbe5486a2e192ca26c295a1d7/./autopr/models/config)
+### [`config/`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config)
 
-This folder contains Python code for defining and executing workflows with customizable actions and context variables. The code includes models and classes for workflow structures, actions, context actions, and variable transformations. It also provides frameworks for rendering and evaluating different types of variables within a context, as well as building workflow definitions and triggers. The code uses the Pydantic library for structure and validation, and generates JSON schemas for triggers and workflows. Overall, this folder provides a comprehensive system for defining, executing, and handling workflows in a Python application.  
+This folder contains a collection of Python files that define and configure workflows for an automated process. It includes files for defining models and classes related to workflows, actions, and context variables, as well as files for building workflow models and trigger configurations. There are also files for transforming variables between configuration and action types, and for handling variables and parameters within a specific context. Overall, this folder provides a framework for defining and executing customizable workflows with strict validation and flexible variable handling.  
 
 
-### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/blob/096da5bd0357ff1bbe5486a2e192ca26c295a1d7/./autopr/models/events.py)
+### [`events.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/events.py)
 
 📄 The file defines several classes related to events in the AutoPR system.   
 🔀 The `Event` class is the base class for all events and has a `pull_request` and `issue` attribute.  
@@ -41,7 +41,7 @@ This folder contains Python code for defining and executing workflows with custo
 🔁 The file may be used to handle and process various types of events in the AutoPR system.  
 
 
-### [`executable.py`](https://github.com/raphael-francis/AutoPR-internal/blob/096da5bd0357ff1bbe5486a2e192ca26c295a1d7/./autopr/models/executable.py)
+### [`executable.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/executable.py)
 
 📄 This file defines various types and classes related to context variables, templates, and executables in a workflow automation system.  
 📝 Types include LambdaString, ContextVarName, ContextVarPath, TemplateString, and TemplateObject.  
