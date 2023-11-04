@@ -155,6 +155,13 @@ class TriggerService:
             await self.publish_service.finalize(False, exceptions)
             return
 
+        # if there are any unstaged changes, commit them
+        if self.commit_service.unstaged_changes_exist():
+            self.commit_service.commit(
+                commit_message=f"Finalizing {self.publish_service.title}",
+                push=True,
+            )
+
         await self.publish_service.finalize(True)
 
         changes_status = self.commit_service.get_changes_status()

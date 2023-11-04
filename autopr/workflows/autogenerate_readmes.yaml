@@ -234,9 +234,3 @@ generate_readme_summaries:
       inputs:
         path:
           const: .
-
-    # Commit and push the cache
-    - action: commit_and_push
-      inputs:
-        commit_message:
-          const: "Save README summaries cache"

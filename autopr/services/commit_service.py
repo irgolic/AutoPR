@@ -81,6 +81,9 @@ class CommitService:
             self.log.debug(f"Branch {self.branch_name} does not exist, creating...")
             self.overwrite_new_branch()
 
+    def unstaged_changes_exist(self) -> bool:
+        return bool(self.repo.index.diff("HEAD"))
+
     def commit(
         self,
         commit_message: str,
