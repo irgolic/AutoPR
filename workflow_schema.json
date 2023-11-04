@@ -381,6 +381,198 @@
       ],
       "additionalProperties": false
     },
+    "walk_filesInputsActionFieldTemplate": {
+      "title": "walk_filesInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "entries_to_ignore": {
+          "title": "Entries To Ignore",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "folder_path": {
+          "title": "Folder Path",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ignore_binary_files": {
+          "title": "Ignore Binary Files",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "walk_filesOutputsActionFieldTemplate": {
+      "title": "walk_filesOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "walk_filesActionModel": {
+      "title": "walk_filesActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "walk_files"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "walk_filesIterableActionModel": {
+      "title": "walk_filesIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "walk_files"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
     "make_api_callInputsActionFieldTemplate": {
       "title": "make_api_callInputsActionFieldTemplate",
       "type": "object",
@@ -824,6 +1016,29 @@
               "items": {
                 "type": "string"
               }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "allow_multiple": {
+          "title": "Allow Multiple",
+          "anyOf": [
+            {
+              "type": "boolean"
             },
             {
               "$ref": "#/definitions/TemplateDeclaration"
@@ -3050,6 +3265,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -3165,6 +3386,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -3288,6 +3515,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -3403,6 +3636,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -3551,6 +3790,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -3666,6 +3911,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -3789,6 +4040,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -3904,6 +4161,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -4052,6 +4315,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -4167,6 +4436,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -4290,6 +4565,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -4405,6 +4686,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -4566,6 +4853,12 @@
                 "$ref": "#/definitions/set_issue_titleIterableActionModel"
               },
               {
+                "$ref": "#/definitions/walk_filesActionModel"
+              },
+              {
+                "$ref": "#/definitions/walk_filesIterableActionModel"
+              },
+              {
                 "$ref": "#/definitions/make_api_callActionModel"
               },
               {
@@ -4673,6 +4966,12 @@
                     },
                     {
                       "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/walk_filesActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/walk_filesIterableActionModel"
                     },
                     {
                       "$ref": "#/definitions/make_api_callActionModel"

@@ -378,6 +378,198 @@
       ],
       "additionalProperties": false
     },
+    "walk_filesInputsActionFieldTemplate": {
+      "title": "walk_filesInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "entries_to_ignore": {
+          "title": "Entries To Ignore",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "folder_path": {
+          "title": "Folder Path",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ignore_binary_files": {
+          "title": "Ignore Binary Files",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "walk_filesOutputsActionFieldTemplate": {
+      "title": "walk_filesOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "walk_filesActionModel": {
+      "title": "walk_filesActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "walk_files"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "walk_filesIterableActionModel": {
+      "title": "walk_filesIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "walk_files"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "title": "Inputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesInputsActionFieldTemplate"
+            }
+          ]
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/walk_filesOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action"
+      ],
+      "additionalProperties": false
+    },
     "make_api_callInputsActionFieldTemplate": {
       "title": "make_api_callInputsActionFieldTemplate",
       "type": "object",
@@ -821,6 +1013,29 @@
               "items": {
                 "type": "string"
               }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "allow_multiple": {
+          "title": "Allow Multiple",
+          "anyOf": [
+            {
+              "type": "boolean"
             },
             {
               "$ref": "#/definitions/TemplateDeclaration"
@@ -3040,303 +3255,6 @@
       ],
       "additionalProperties": false
     },
-    "read_filesInputs": {
-      "title": "read_filesInputs",
-      "type": "object",
-      "properties": {
-        "issue": {
-          "title": "Issue",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "object"
-            },
-            {
-              "type": "array",
-              "items": {}
-            },
-            {
-              "$ref": "#/definitions/TemplateDeclaration"
-            },
-            {
-              "$ref": "#/definitions/VarDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ConstDeclaration"
-            },
-            {
-              "$ref": "#/definitions/LambdaDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ParamDeclaration"
-            }
-          ]
-        }
-      },
-      "required": [
-        "issue"
-      ],
-      "additionalProperties": false
-    },
-    "read_filesOutputs": {
-      "title": "read_filesOutputs",
-      "type": "object",
-      "properties": {
-        "notes": {
-          "title": "Notes",
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "read_filesParams": {
-      "title": "read_filesParams",
-      "type": "object",
-      "properties": {
-        "IGNORE_FILES": {
-          "title": "Ignore Files",
-          "default": [],
-          "type": "array",
-          "items": {}
-        },
-        "SUMMARIZE_FILES_PROMPT": {
-          "title": "Summarize Files Prompt",
-          "default": "Summarize the contents of the files.",
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "read_filesWorkflowModel": {
-      "title": "read_filesWorkflowModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/read_filesInputs"
-        },
-        "outputs": {
-          "$ref": "#/definitions/read_filesOutputs"
-        },
-        "workflow": {
-          "title": "Workflow",
-          "enum": [
-            "read_files"
-          ],
-          "type": "string"
-        },
-        "parameters": {
-          "$ref": "#/definitions/read_filesParams"
-        }
-      },
-      "required": [
-        "inputs",
-        "workflow"
-      ],
-      "additionalProperties": false
-    },
-    "read_filesIterableWorkflowModel": {
-      "title": "read_filesIterableWorkflowModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "iterate": {
-          "title": "Iterate",
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "as": {
-          "title": "As",
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/read_filesInputs"
-        },
-        "list_outputs": {
-          "$ref": "#/definitions/read_filesOutputs"
-        },
-        "workflow": {
-          "title": "Workflow",
-          "enum": [
-            "read_files"
-          ],
-          "type": "string"
-        },
-        "parameters": {
-          "$ref": "#/definitions/read_filesParams"
-        }
-      },
-      "required": [
-        "iterate",
-        "inputs",
-        "workflow"
-      ],
-      "additionalProperties": false
-    },
-    "fix_issueInputs": {
-      "title": "fix_issueInputs",
-      "type": "object",
-      "properties": {
-        "issue": {
-          "title": "Issue",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "object"
-            },
-            {
-              "type": "array",
-              "items": {}
-            },
-            {
-              "$ref": "#/definitions/TemplateDeclaration"
-            },
-            {
-              "$ref": "#/definitions/VarDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ConstDeclaration"
-            },
-            {
-              "$ref": "#/definitions/LambdaDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ParamDeclaration"
-            }
-          ]
-        }
-      },
-      "required": [
-        "issue"
-      ],
-      "additionalProperties": false
-    },
-    "fix_issueParams": {
-      "title": "fix_issueParams",
-      "type": "object",
-      "properties": {
-        "MAX_READ_FILES_ITERATIONS": {
-          "title": "Max Read Files Iterations",
-          "default": {
-            "const": 3
-          },
-          "type": "object"
-        }
-      },
-      "additionalProperties": false
-    },
-    "fix_issueWorkflowModel": {
-      "title": "fix_issueWorkflowModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/fix_issueInputs"
-        },
-        "outputs": {
-          "title": "Outputs",
-          "type": "null"
-        },
-        "workflow": {
-          "title": "Workflow",
-          "enum": [
-            "fix_issue"
-          ],
-          "type": "string"
-        },
-        "parameters": {
-          "$ref": "#/definitions/fix_issueParams"
-        }
-      },
-      "required": [
-        "inputs",
-        "workflow"
-      ],
-      "additionalProperties": false
-    },
-    "fix_issueIterableWorkflowModel": {
-      "title": "fix_issueIterableWorkflowModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "iterate": {
-          "title": "Iterate",
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "as": {
-          "title": "As",
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/fix_issueInputs"
-        },
-        "list_outputs": {
-          "title": "List Outputs",
-          "type": "null"
-        },
-        "workflow": {
-          "title": "Workflow",
-          "enum": [
-            "fix_issue"
-          ],
-          "type": "string"
-        },
-        "parameters": {
-          "$ref": "#/definitions/fix_issueParams"
-        }
-      },
-      "required": [
-        "iterate",
-        "inputs",
-        "workflow"
-      ],
-      "additionalProperties": false
-    },
     "list_todosInputs": {
       "title": "list_todosInputs",
       "type": "object",
@@ -5276,6 +5194,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5391,6 +5315,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5514,6 +5444,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5629,6 +5565,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5777,6 +5719,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5892,6 +5840,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6015,6 +5969,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -6130,6 +6090,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6278,6 +6244,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -6393,6 +6365,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6516,6 +6494,12 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
+                  "$ref": "#/definitions/walk_filesActionModel"
+                },
+                {
+                  "$ref": "#/definitions/walk_filesIterableActionModel"
+                },
+                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -6631,6 +6615,12 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/walk_filesIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6764,6 +6754,7 @@
               "enum": [
                 "comment",
                 "set_issue_title",
+                "walk_files",
                 "make_api_call",
                 "bash",
                 "choice",
@@ -6777,8 +6768,6 @@
                 "read_file",
                 "list_folder",
                 "summarize_pr",
-                "read_files",
-                "fix_issue",
                 "list_todos",
                 "build_and_publish_todo",
                 "publish_todo_issues",
@@ -6803,6 +6792,12 @@
             },
             {
               "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesIterableActionModel"
             },
             {
               "$ref": "#/definitions/make_api_callActionModel"
@@ -6881,18 +6876,6 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/list_todosWorkflowModel"
@@ -6974,6 +6957,7 @@
                     "enum": [
                       "comment",
                       "set_issue_title",
+                      "walk_files",
                       "make_api_call",
                       "bash",
                       "choice",
@@ -6987,8 +6971,6 @@
                       "read_file",
                       "list_folder",
                       "summarize_pr",
-                      "read_files",
-                      "fix_issue",
                       "list_todos",
                       "build_and_publish_todo",
                       "publish_todo_issues",
@@ -7013,6 +6995,12 @@
                   },
                   {
                     "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/make_api_callActionModel"
@@ -7091,18 +7079,6 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/list_todosWorkflowModel"
@@ -7226,6 +7202,7 @@
               "enum": [
                 "comment",
                 "set_issue_title",
+                "walk_files",
                 "make_api_call",
                 "bash",
                 "choice",
@@ -7239,8 +7216,6 @@
                 "read_file",
                 "list_folder",
                 "summarize_pr",
-                "read_files",
-                "fix_issue",
                 "list_todos",
                 "build_and_publish_todo",
                 "publish_todo_issues",
@@ -7265,6 +7240,12 @@
             },
             {
               "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesIterableActionModel"
             },
             {
               "$ref": "#/definitions/make_api_callActionModel"
@@ -7343,18 +7324,6 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/list_todosWorkflowModel"
@@ -7436,6 +7405,7 @@
                     "enum": [
                       "comment",
                       "set_issue_title",
+                      "walk_files",
                       "make_api_call",
                       "bash",
                       "choice",
@@ -7449,8 +7419,6 @@
                       "read_file",
                       "list_folder",
                       "summarize_pr",
-                      "read_files",
-                      "fix_issue",
                       "list_todos",
                       "build_and_publish_todo",
                       "publish_todo_issues",
@@ -7475,6 +7443,12 @@
                   },
                   {
                     "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/make_api_callActionModel"
@@ -7553,18 +7527,6 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/list_todosWorkflowModel"
@@ -7688,6 +7650,7 @@
               "enum": [
                 "comment",
                 "set_issue_title",
+                "walk_files",
                 "make_api_call",
                 "bash",
                 "choice",
@@ -7701,8 +7664,6 @@
                 "read_file",
                 "list_folder",
                 "summarize_pr",
-                "read_files",
-                "fix_issue",
                 "list_todos",
                 "build_and_publish_todo",
                 "publish_todo_issues",
@@ -7727,6 +7688,12 @@
             },
             {
               "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesIterableActionModel"
             },
             {
               "$ref": "#/definitions/make_api_callActionModel"
@@ -7805,18 +7772,6 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/list_todosWorkflowModel"
@@ -7898,6 +7853,7 @@
                     "enum": [
                       "comment",
                       "set_issue_title",
+                      "walk_files",
                       "make_api_call",
                       "bash",
                       "choice",
@@ -7911,8 +7867,6 @@
                       "read_file",
                       "list_folder",
                       "summarize_pr",
-                      "read_files",
-                      "fix_issue",
                       "list_todos",
                       "build_and_publish_todo",
                       "publish_todo_issues",
@@ -7937,6 +7891,12 @@
                   },
                   {
                     "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/make_api_callActionModel"
@@ -8015,18 +7975,6 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/list_todosWorkflowModel"
@@ -8140,6 +8088,7 @@
               "enum": [
                 "comment",
                 "set_issue_title",
+                "walk_files",
                 "make_api_call",
                 "bash",
                 "choice",
@@ -8153,8 +8102,6 @@
                 "read_file",
                 "list_folder",
                 "summarize_pr",
-                "read_files",
-                "fix_issue",
                 "list_todos",
                 "build_and_publish_todo",
                 "publish_todo_issues",
@@ -8179,6 +8126,12 @@
             },
             {
               "$ref": "#/definitions/set_issue_titleIterableActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesActionModel"
+            },
+            {
+              "$ref": "#/definitions/walk_filesIterableActionModel"
             },
             {
               "$ref": "#/definitions/make_api_callActionModel"
@@ -8257,18 +8210,6 @@
             },
             {
               "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/read_filesIterableWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueWorkflowModel"
-            },
-            {
-              "$ref": "#/definitions/fix_issueIterableWorkflowModel"
             },
             {
               "$ref": "#/definitions/list_todosWorkflowModel"
@@ -8350,6 +8291,7 @@
                     "enum": [
                       "comment",
                       "set_issue_title",
+                      "walk_files",
                       "make_api_call",
                       "bash",
                       "choice",
@@ -8363,8 +8305,6 @@
                       "read_file",
                       "list_folder",
                       "summarize_pr",
-                      "read_files",
-                      "fix_issue",
                       "list_todos",
                       "build_and_publish_todo",
                       "publish_todo_issues",
@@ -8389,6 +8329,12 @@
                   },
                   {
                     "$ref": "#/definitions/set_issue_titleIterableActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesActionModel"
+                  },
+                  {
+                    "$ref": "#/definitions/walk_filesIterableActionModel"
                   },
                   {
                     "$ref": "#/definitions/make_api_callActionModel"
@@ -8467,18 +8413,6 @@
                   },
                   {
                     "$ref": "#/definitions/summarize_prIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/read_filesIterableWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueWorkflowModel"
-                  },
-                  {
-                    "$ref": "#/definitions/fix_issueIterableWorkflowModel"
                   },
                   {
                     "$ref": "#/definitions/list_todosWorkflowModel"

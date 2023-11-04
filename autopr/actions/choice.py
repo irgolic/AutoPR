@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, Literal
+from typing import Optional, Literal, Union
 
 import openai
 import openai.error
@@ -13,6 +13,9 @@ from autopr.actions.utils.prompt_context import PromptContext, trim_context, inv
 class Inputs(BaseModel):
     # the possible choices
     choices: list[str]
+
+    # whether to allow multiple choices
+    allow_multiple: bool = False
 
     # what model to use to generate the variable
     model: str = "gpt-3.5-turbo-16k"
@@ -40,7 +43,7 @@ class Inputs(BaseModel):
 
 
 class Outputs(BaseModel):
-    choice: str
+    choice: Union[str, list[str]]
 
 
 class Choice(Action[Inputs, Outputs]):
@@ -70,13 +73,24 @@ class Choice(Action[Inputs, Outputs]):
         if inputs.prompt:
             prompt_elements.append(inputs.prompt)
         prompt = "\n\n".join(prompt_elements)
-        prompt += f"""
+        if inputs.allow_multiple:
+            prompt += f"""
+            
+Respond ONLY with bullet points of choices from the following list:
+{choices_bullet_points}"""
+        else:
+            prompt += f"""
 
 Respond ONLY with a single choice from the following list:
 {choices_bullet_points}"""
 
         # Build instructions
-        instructions = f"""
+        if inputs.allow_multiple:
+            instructions = f"""
+You are a helpful assistant making a choice. You are ONLY allowed to respond with a bullet pointed list, where each bullet point is one of the following strings:
+{choices_bullet_points}"""
+        else:
+            instructions = f"""
 You are a helpful assistant making a choice. You are ONLY allowed to respond with one of the following strings: 
 {choices_bullet_points}"""
         if inputs.instructions:
@@ -84,7 +98,9 @@ You are a helpful assistant making a choice. You are ONLY allowed to respond wit
 
         return prompt, instructions
 
-    async def invoke_choice(self, inputs: Inputs, prompt: str, instructions: str) -> str:
+    async def invoke_choice(
+        self, inputs: Inputs, prompt: str, instructions: str
+    ) -> Union[list[str], str]:
         choice = await invoke_openai(
             prompt, instructions, inputs.model, inputs.temperature, inputs.max_response_tokens
         )
@@ -94,11 +110,25 @@ You are a helpful assistant making a choice. You are ONLY allowed to respond wit
             code=choice,
         )
 
-        if choice not in inputs.choices:
-            await self.publish_service.publish_update(f"Invalid choice: {choice}")
-            raise RuntimeError(f"Invalid choice: {choice}")
+        if inputs.allow_multiple:
+            choices = [
+                c.strip().removeprefix("-").removeprefix("*").removeprefix("•").lstrip()
+                for c in choice.split("\n")
+            ]
+            valid_choices = []
+            for c in choices:
+                if c in inputs.choices:
+                    valid_choices.append(c)
+                else:
+                    await self.publish_service.publish_update(f"Invalid choice: {choice}")
+            result = valid_choices
+        else:
+            if choice not in inputs.choices:
+                await self.publish_service.publish_update(f"Invalid choice: {choice}")
+                raise RuntimeError(f"Invalid choice: {choice}")
+            result = choice
 
-        return choice
+        return result
 
     async def run(self, inputs: Inputs) -> Outputs:
         prompt, instructions = self.build_prompt_and_instructions(inputs)
