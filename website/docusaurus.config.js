@@ -6,8 +6,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'AutoPR',
+  tagline: 'Breathe Life into your Codebase',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -67,11 +67,12 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'AutoPR',
-        // logo: {
-          // alt: 'My Site Logo',
-          // src: 'img/logo.svg',
-        // },
+        title: '',
+        logo: {
+          alt: 'AutoPR Logo',
+          src: 'img/AutoPR_logo_horizontal_color-T.png',
+          srcDark: 'img/AutoPR_logo_horizontal_color_whiteT.png',
+        },
         items: [
           // {
           //   type: 'docSidebar',

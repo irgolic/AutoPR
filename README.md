@@ -1,11 +1,13 @@
 <div align="center">
 
-# 🌳 AutoPR 🌳
+![AutoPR logo](website/static/img/AutoPR_Mark_color.png)
+
+<h1>🌳 AutoPR 🌳</h1>
 
 [![Discord](https://badgen.net/badge/icon/discord?icon=nope&label&color=purple)](https://discord.gg/ykk7Znt3K6)
 [![Docs](https://badgen.net/badge/icon/docs?icon=docs&label&color=blue)](https://docs.autopr.com)
 
-Breathe life into your codebase, configurably  
+Breathe life into your codebase
 
 </div>
 
