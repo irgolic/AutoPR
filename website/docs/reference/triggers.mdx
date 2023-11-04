@@ -47,7 +47,7 @@ triggers:
 
 Use the "Invocation Trigger" syntax if you'd like to specify a workflow's inputs or parameters.
 
-A workflow's `parameters` property, is optionally used to override global variables in the workflow.
+A workflow's `parameters` property is optionally used to override global variables in the workflow.
 For example, the `parameters` property can be used to define the `FILE_SUMMARY_PROMPT` variable, which is used in the
 [generate_readme_summaries](../workflow-catalogue#generate_readme_summaries) workflow.
 
@@ -120,7 +120,29 @@ on:
 </TabItem>
 </Tabs>
 
-## 📄 Example
+## 🙊 Verbosity
+
+The `verbose` property is used to show the output of the action/workflow that is run by the trigger.
+This is useful for debugging purposes, but defaults to `false` to avoid cluttering the pull request with progress updates.
+
+For example, we can observe LLM calls that the [generate_readme_summaries](../workflow-catalogue#generate_readme_summaries) workflow performs by running it with the `verbose` property set to `true`:
+
+```yaml
+triggers:
+  - type: "push"
+    branch_name: "main"
+    verbose: true
+    run:
+      workflow: "generate_readme_summaries"
+      parameters:
+        IGNORE_FILES:
+        - docs
+        - .github
+        - .autopr
+        - tests
+```
+
+## 📄 Examples
 
 Below is an example of a `.autopr/triggers.yaml` file, that summarizes pull requests when the `summarize` label is added,
 and generates README summaries when a push is made to the `main` branch.
@@ -144,4 +166,19 @@ triggers:
           - .github
           - .autopr
           - tests
+```
+
+You can also run actions directly in triggers. For example, run `black` to format Python files when a "format" label is added to a pull request. Note that the `verbose` property is set to `true` to show the output of the `black` command:
+
+```yaml
+trigger:
+  - type: label
+    label_substring: format
+    on_issue: false
+    on_pull_request: true
+    verbose: true
+    run:
+      action: bash
+      inputs:
+        command: black .
 ```
