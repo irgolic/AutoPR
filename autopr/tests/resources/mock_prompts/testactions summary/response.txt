@@ -1,7 +1,7 @@
 The purpose of this file is to:
 
 1. Import necessary modules and libraries.
-2. Define and run tests for the "crawl_folder" action.
+2. Define and run tests for the "list_folder" action.
 3. Use the `pytest.mark.parametrize` decorator to specify different test inputs and expected outputs.
 4. Mock the `openai.ChatCompletion.create` function using the `mock_openai` function.
 5. Assert the expected outputs of the action and compare them with the provided expected list of files.

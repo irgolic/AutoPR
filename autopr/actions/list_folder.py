@@ -57,16 +57,16 @@ class Inputs(BaseModel):
 class Outputs(BaseModel):
     # The contents of the folder
     contents: list[str]
-    # The url of the folder to crawl
+    # The url of the crawled folder
     url: str
 
 
-class CrawlFolder(Action[Inputs, Outputs]):
+class ListFolder(Action[Inputs, Outputs]):
     """
     This action lists all the files and subfolders in a folder, excluding certain files and directories.
     """
 
-    id = "crawl_folder"
+    id = "list_folder"
 
     @staticmethod
     def is_binary(path):
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     asyncio.run(
         # Run the action manually
         run_action_manually(
-            action=CrawlFolder,
+            action=ListFolder,
             inputs=Inputs(folder_path=os.path.join(os.getcwd(), "..")),
         )
     )

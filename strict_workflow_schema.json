@@ -381,195 +381,6 @@
       ],
       "additionalProperties": false
     },
-    "crawl_folderInputsActionFieldTemplate": {
-      "title": "crawl_folderInputsActionFieldTemplate",
-      "type": "object",
-      "properties": {
-        "entries_to_ignore": {
-          "title": "Entries To Ignore",
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "$ref": "#/definitions/TemplateDeclaration"
-            },
-            {
-              "$ref": "#/definitions/VarDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ConstDeclaration"
-            },
-            {
-              "$ref": "#/definitions/LambdaDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ParamDeclaration"
-            }
-          ]
-        },
-        "folder_path": {
-          "title": "Folder Path",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/TemplateDeclaration"
-            },
-            {
-              "$ref": "#/definitions/VarDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ConstDeclaration"
-            },
-            {
-              "$ref": "#/definitions/LambdaDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ParamDeclaration"
-            }
-          ]
-        },
-        "ignore_binary_files": {
-          "title": "Ignore Binary Files",
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "$ref": "#/definitions/TemplateDeclaration"
-            },
-            {
-              "$ref": "#/definitions/VarDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ConstDeclaration"
-            },
-            {
-              "$ref": "#/definitions/LambdaDeclaration"
-            },
-            {
-              "$ref": "#/definitions/ParamDeclaration"
-            }
-          ]
-        }
-      },
-      "required": [
-        "folder_path"
-      ],
-      "additionalProperties": false
-    },
-    "crawl_folderOutputsActionFieldTemplate": {
-      "title": "crawl_folderOutputsActionFieldTemplate",
-      "type": "object",
-      "properties": {
-        "contents": {
-          "title": "Contents",
-          "type": "string"
-        },
-        "url": {
-          "title": "Url",
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "crawl_folderActionModel": {
-      "title": "crawl_folderActionModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "action": {
-          "title": "Action",
-          "enum": [
-            "crawl_folder"
-          ],
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/crawl_folderInputsActionFieldTemplate"
-        },
-        "outputs": {
-          "title": "Outputs",
-          "default": {},
-          "allOf": [
-            {
-              "$ref": "#/definitions/crawl_folderOutputsActionFieldTemplate"
-            }
-          ]
-        }
-      },
-      "required": [
-        "action",
-        "inputs"
-      ],
-      "additionalProperties": false
-    },
-    "crawl_folderIterableActionModel": {
-      "title": "crawl_folderIterableActionModel",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "type": "string"
-        },
-        "iterate": {
-          "title": "Iterate",
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "as": {
-          "title": "As",
-          "type": "string"
-        },
-        "action": {
-          "title": "Action",
-          "enum": [
-            "crawl_folder"
-          ],
-          "type": "string"
-        },
-        "inputs": {
-          "$ref": "#/definitions/crawl_folderInputsActionFieldTemplate"
-        },
-        "list_outputs": {
-          "title": "List Outputs",
-          "default": {},
-          "allOf": [
-            {
-              "$ref": "#/definitions/crawl_folderOutputsActionFieldTemplate"
-            }
-          ]
-        }
-      },
-      "required": [
-        "iterate",
-        "action",
-        "inputs"
-      ],
-      "additionalProperties": false
-    },
     "make_api_callInputsActionFieldTemplate": {
       "title": "make_api_callInputsActionFieldTemplate",
       "type": "object",
@@ -2909,6 +2720,195 @@
       ],
       "additionalProperties": false
     },
+    "list_folderInputsActionFieldTemplate": {
+      "title": "list_folderInputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "entries_to_ignore": {
+          "title": "Entries To Ignore",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "folder_path": {
+          "title": "Folder Path",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        },
+        "ignore_binary_files": {
+          "title": "Ignore Binary Files",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "folder_path"
+      ],
+      "additionalProperties": false
+    },
+    "list_folderOutputsActionFieldTemplate": {
+      "title": "list_folderOutputsActionFieldTemplate",
+      "type": "object",
+      "properties": {
+        "contents": {
+          "title": "Contents",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "list_folderActionModel": {
+      "title": "list_folderActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "list_folder"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_folderInputsActionFieldTemplate"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/list_folderOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "list_folderIterableActionModel": {
+      "title": "list_folderIterableActionModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "enum": [
+            "list_folder"
+          ],
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/list_folderInputsActionFieldTemplate"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "default": {},
+          "allOf": [
+            {
+              "$ref": "#/definitions/list_folderOutputsActionFieldTemplate"
+            }
+          ]
+        }
+      },
+      "required": [
+        "iterate",
+        "action",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
     "summarize_prInputs": {
       "title": "summarize_prInputs",
       "type": "object",
@@ -3034,6 +3034,303 @@
         },
         "parameters": {
           "$ref": "#/definitions/summarize_prParams"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "read_filesInputs": {
+      "title": "read_filesInputs",
+      "type": "object",
+      "properties": {
+        "issue": {
+          "title": "Issue",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "issue"
+      ],
+      "additionalProperties": false
+    },
+    "read_filesOutputs": {
+      "title": "read_filesOutputs",
+      "type": "object",
+      "properties": {
+        "notes": {
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "read_filesParams": {
+      "title": "read_filesParams",
+      "type": "object",
+      "properties": {
+        "IGNORE_FILES": {
+          "title": "Ignore Files",
+          "default": [],
+          "type": "array",
+          "items": {}
+        },
+        "SUMMARIZE_FILES_PROMPT": {
+          "title": "Summarize Files Prompt",
+          "default": "Summarize the contents of the files.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "read_filesWorkflowModel": {
+      "title": "read_filesWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/read_filesInputs"
+        },
+        "outputs": {
+          "$ref": "#/definitions/read_filesOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "read_files"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/read_filesParams"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "read_filesIterableWorkflowModel": {
+      "title": "read_filesIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/read_filesInputs"
+        },
+        "list_outputs": {
+          "$ref": "#/definitions/read_filesOutputs"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "read_files"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/read_filesParams"
+        }
+      },
+      "required": [
+        "iterate",
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "fix_issueInputs": {
+      "title": "fix_issueInputs",
+      "type": "object",
+      "properties": {
+        "issue": {
+          "title": "Issue",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "$ref": "#/definitions/TemplateDeclaration"
+            },
+            {
+              "$ref": "#/definitions/VarDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ConstDeclaration"
+            },
+            {
+              "$ref": "#/definitions/LambdaDeclaration"
+            },
+            {
+              "$ref": "#/definitions/ParamDeclaration"
+            }
+          ]
+        }
+      },
+      "required": [
+        "issue"
+      ],
+      "additionalProperties": false
+    },
+    "fix_issueParams": {
+      "title": "fix_issueParams",
+      "type": "object",
+      "properties": {
+        "MAX_READ_FILES_ITERATIONS": {
+          "title": "Max Read Files Iterations",
+          "default": {
+            "const": 3
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fix_issueWorkflowModel": {
+      "title": "fix_issueWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/fix_issueInputs"
+        },
+        "outputs": {
+          "title": "Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "fix_issue"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/fix_issueParams"
+        }
+      },
+      "required": [
+        "inputs",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "fix_issueIterableWorkflowModel": {
+      "title": "fix_issueIterableWorkflowModel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "iterate": {
+          "title": "Iterate",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "as": {
+          "title": "As",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/fix_issueInputs"
+        },
+        "list_outputs": {
+          "title": "List Outputs",
+          "type": "null"
+        },
+        "workflow": {
+          "title": "Workflow",
+          "enum": [
+            "fix_issue"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/fix_issueParams"
         }
       },
       "required": [
@@ -4982,12 +5279,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5052,6 +5343,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -5097,12 +5394,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5169,6 +5460,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -5220,12 +5517,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5290,6 +5581,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -5335,12 +5632,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5407,6 +5698,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -5483,12 +5780,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5553,6 +5844,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -5598,12 +5895,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5670,6 +5961,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -5721,12 +6018,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -5791,6 +6082,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -5836,12 +6133,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -5908,6 +6199,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -5984,12 +6281,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -6054,6 +6345,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -6099,12 +6396,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6171,6 +6462,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -6222,12 +6519,6 @@
                   "$ref": "#/definitions/set_issue_titleIterableActionModel"
                 },
                 {
-                  "$ref": "#/definitions/crawl_folderActionModel"
-                },
-                {
-                  "$ref": "#/definitions/crawl_folderIterableActionModel"
-                },
-                {
                   "$ref": "#/definitions/make_api_callActionModel"
                 },
                 {
@@ -6292,6 +6583,12 @@
                 },
                 {
                   "$ref": "#/definitions/read_fileIterableActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderActionModel"
+                },
+                {
+                  "$ref": "#/definitions/list_folderIterableActionModel"
                 }
               ]
             },
@@ -6337,12 +6634,6 @@
                       },
                       {
                         "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderActionModel"
-                      },
-                      {
-                        "$ref": "#/definitions/crawl_folderIterableActionModel"
                       },
                       {
                         "$ref": "#/definitions/make_api_callActionModel"
@@ -6409,6 +6700,12 @@
                       },
                       {
                         "$ref": "#/definitions/read_fileIterableActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderActionModel"
+                      },
+                      {
+                        "$ref": "#/definitions/list_folderIterableActionModel"
                       }
                     ]
                   },
@@ -6486,7 +6783,6 @@
                 "enum": [
                   "comment",
                   "set_issue_title",
-                  "crawl_folder",
                   "make_api_call",
                   "bash",
                   "choice",
@@ -6498,7 +6794,10 @@
                   "prompt",
                   "publish_issue",
                   "read_file",
+                  "list_folder",
                   "summarize_pr",
+                  "read_files",
+                  "fix_issue",
                   "list_todos",
                   "build_and_publish_todo",
                   "publish_todo_issues",
@@ -6523,12 +6822,6 @@
               },
               {
                 "$ref": "#/definitions/set_issue_titleIterableActionModel"
-              },
-              {
-                "$ref": "#/definitions/crawl_folderActionModel"
-              },
-              {
-                "$ref": "#/definitions/crawl_folderIterableActionModel"
               },
               {
                 "$ref": "#/definitions/make_api_callActionModel"
@@ -6597,10 +6890,28 @@
                 "$ref": "#/definitions/read_fileIterableActionModel"
               },
               {
+                "$ref": "#/definitions/list_folderActionModel"
+              },
+              {
+                "$ref": "#/definitions/list_folderIterableActionModel"
+              },
+              {
                 "$ref": "#/definitions/summarize_prWorkflowModel"
               },
               {
                 "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+              },
+              {
+                "$ref": "#/definitions/read_filesWorkflowModel"
+              },
+              {
+                "$ref": "#/definitions/read_filesIterableWorkflowModel"
+              },
+              {
+                "$ref": "#/definitions/fix_issueWorkflowModel"
+              },
+              {
+                "$ref": "#/definitions/fix_issueIterableWorkflowModel"
               },
               {
                 "$ref": "#/definitions/list_todosWorkflowModel"
@@ -6682,7 +6993,6 @@
                       "enum": [
                         "comment",
                         "set_issue_title",
-                        "crawl_folder",
                         "make_api_call",
                         "bash",
                         "choice",
@@ -6694,7 +7004,10 @@
                         "prompt",
                         "publish_issue",
                         "read_file",
+                        "list_folder",
                         "summarize_pr",
+                        "read_files",
+                        "fix_issue",
                         "list_todos",
                         "build_and_publish_todo",
                         "publish_todo_issues",
@@ -6719,12 +7032,6 @@
                     },
                     {
                       "$ref": "#/definitions/set_issue_titleIterableActionModel"
-                    },
-                    {
-                      "$ref": "#/definitions/crawl_folderActionModel"
-                    },
-                    {
-                      "$ref": "#/definitions/crawl_folderIterableActionModel"
                     },
                     {
                       "$ref": "#/definitions/make_api_callActionModel"
@@ -6793,10 +7100,28 @@
                       "$ref": "#/definitions/read_fileIterableActionModel"
                     },
                     {
+                      "$ref": "#/definitions/list_folderActionModel"
+                    },
+                    {
+                      "$ref": "#/definitions/list_folderIterableActionModel"
+                    },
+                    {
                       "$ref": "#/definitions/summarize_prWorkflowModel"
                     },
                     {
                       "$ref": "#/definitions/summarize_prIterableWorkflowModel"
+                    },
+                    {
+                      "$ref": "#/definitions/read_filesWorkflowModel"
+                    },
+                    {
+                      "$ref": "#/definitions/read_filesIterableWorkflowModel"
+                    },
+                    {
+                      "$ref": "#/definitions/fix_issueWorkflowModel"
+                    },
+                    {
+                      "$ref": "#/definitions/fix_issueIterableWorkflowModel"
                     },
                     {
                       "$ref": "#/definitions/list_todosWorkflowModel"

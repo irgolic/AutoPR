@@ -39,7 +39,7 @@ async def test_actions(
         new=mock_openai,
     )
     outputs = await run_action_manually(
-        action=ExecutableId("crawl_folder"), inputs=ContextDict(inputs), repo_resource=repo_resource
+        action=ExecutableId("list_folder"), inputs=ContextDict(inputs), repo_resource=repo_resource
     )
     assert "contents" in outputs
     assert sorted(outputs["contents"]) == sorted(expected_ls)

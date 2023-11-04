@@ -70,7 +70,7 @@ This folder contains a collection of Python files that define various actions an
 📄 The file uses the pydantic library for type validation and modeling of the "Inputs" class.  
 
 
-### [`crawl_folder.py`](https://github.com/raphael-francis/AutoPR-internal/blob/cde288186d52143cd526034ab0c0cce35e24583b/./autopr/actions/crawl_folder.py)
+### [`list_folder.py`](https://github.com/raphael-francis/AutoPR-internal/blob/fb0d1e1be605da82823fc7e30870c7072884b0b8/./autopr/actions/list_folder.py)
 
 📄 This file contains Python code for crawling a folder and listing its files and subfolders.   
 🔎 The purpose of this code is to exclude certain files and directories from the crawl.  

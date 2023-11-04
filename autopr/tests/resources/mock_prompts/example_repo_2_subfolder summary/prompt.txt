@@ -17,10 +17,10 @@ This file is empty.
 
 example_repo_2_subfolder/:
 ---
-- The folder contains a Python script named "crawl_folder.py".
-- The script is used to perform a specific action called "crawl_folder".
+- The folder contains a Python script named "list_folder.py".
+- The script is used to perform a specific action called "list_folder".
 - The script imports necessary modules and libraries to execute the action.
-- It defines and runs tests for the "crawl_folder" action using the pytest framework.
+- It defines and runs tests for the "list_folder" action using the pytest framework.
 - The script uses the `pytest.mark.parametrize` decorator to specify different test inputs and expected outputs.
 - It mocks the `openai.ChatCompletion.create` function using the `mock_openai` function.
 - The script asserts the expected outputs of the action and compares them with the provided expected list of files.

@@ -199,7 +199,7 @@ generate_summary:
             reformatted_path_name:
               lambda: f"{os.path.basename(path)}/"
         # Crawl the folder
-        - action: crawl_folder
+        - action: list_folder
           inputs:
             folder_path:
               var: path
