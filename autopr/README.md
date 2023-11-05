@@ -3,20 +3,20 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of files and folders related to an autonomous agent system. The "actions" folder contains Python files that implement various actions for the system, such as running commands and making API calls. The "gh_actions_entrypoint.py" file is the entry point for a GitHub Actions workflow, orchestrating the execution of the workflow. The "log_config.py" file is used to configure logging settings. The "main.py" file contains the main service class for the application, which handles triggers and workflows. The "models" folder contains code and configuration files for managing and executing workflows. The "services" folder provides different services for managing and running actions in a workflow. The "triggers.py" file retrieves trigger configurations. The "workflows" folder contains configuration files for different workflows, such as making API calls and updating files.
+This folder contains a collection of Python files and folders related to a workflow automation system. It includes files for defining actions, triggers, and workflows, as well as services for managing and running automated actions. There are also files for configuring logging settings, defining data models, and interacting with the GitHub platform. Overall, this folder provides a range of reusable actions, triggers, and workflows for different automation scenarios, along with the necessary services and utilities to support them.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/__init__.py)
 
 This file is empty.  
 
 
-### [`actions/`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/actions)
+### [`actions/`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/actions)
 
-This folder contains a collection of Python files that implement various actions for an autonomous agent system. These actions include tasks such as running bash commands, generating choices, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into text, listing files and subfolders in a directory, making API calls, generating prompts, publishing or updating issues on a platform, reading file contents, setting issue titles, and writing content into files. The files are organized into modules and classes, with each file serving a specific purpose related to the overall functionality of the autonomous agent system.  
+This folder contains a collection of Python files that implement various actions for automating tasks. Each file represents a different action, such as running a bash command, generating choices based on user prompts, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into strings, and more. The files define classes that encapsulate the logic for each action, and they often include input and output models for data validation. Some files also include example usage and test cases. Additionally, there are utility files for managing prompt context and listing files in a folder. Overall, the folder provides a range of reusable actions for different automation scenarios.  
 
 
-### [`gh_actions_entrypoint.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/gh_actions_entrypoint.py)
+### [`gh_actions_entrypoint.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/gh_actions_entrypoint.py)
 
 📄 This file is the entry point for a GitHub Actions workflow.   
 🔧 It contains the main logic for running the workflow.  
@@ -30,7 +30,7 @@ This folder contains a collection of Python files that implement various actions
 🔒 The GitHub token is used for authentication and authorization.  
 
 
-### [`log_config.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/log_config.py)
+### [`log_config.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/log_config.py)
 
 📝 This file is used to configure logging settings and create loggers.   
 🔧 It imports the necessary modules for logging and structlog.   
@@ -42,7 +42,7 @@ This folder contains a collection of Python files that implement various actions
 🔧 The configure_logging function is called to configure logging on module import.  
 
 
-### [`main.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/main.py)
+### [`main.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/main.py)
 
 📋 This file contains the implementation of the `MainService` class, which serves as the main entry point for the application.   
 🔧 It initializes various services and handles the execution of triggers and workflows.  
@@ -56,17 +56,17 @@ This folder contains a collection of Python files that implement various actions
 🔗 The `TriggerService` class handles the interaction between triggers, workflows, and the commit service.  
 
 
-### [`models/`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/models)
+### [`models/`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models)
 
-This folder contains Python code and configuration files for a framework that manages and executes workflows in a Python application. The code defines data models for messages, threads, issues, and pull requests, as well as classes for handling events and context variables. There are also files for defining and triggering workflows, transforming variables, and handling parameters within a context. The folder provides a flexible and extensible system for managing and executing workflows with customizable actions and context variables.  
-
-
-### [`services/`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/services)
-
-This folder contains various Python files that provide different services for managing and running actions in an automated pull request (PR) workflow. These services include the `ActionService` for managing and executing actions, the `CacheService` for caching key-value pairs, the `CommitService` for creating branches and committing changes to a Git repository, the `DiffService` for getting and applying diffs, the `PlatformService` for interacting with the GitHub platform, the `PublishService` for publishing updates to a PR description, the `TriggerService` for handling triggers for events in a workflow system, and the `WorkflowService` for executing workflows and actions. There are also some utility functions for formatting and truncating data.  
+This folder contains files and folders related to a workflow automation system for handling events in the AutoPR system. It includes files for defining data models, handling events, configuring workflows, and executing automation actions. The files define classes and types for messages, threads, issues, pull requests, events, context variables, templates, and executables. Overall, this folder provides a flexible and extensible system for defining and configuring automated actions and workflows in the AutoPR system.  
 
 
-### [`triggers.py`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/triggers.py)
+### [`services/`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/services)
+
+This folder contains a collection of Python files that implement various services and classes for managing and running automated actions in a pull request workflow. These services include the `ActionService` for handling actions, the `CacheService` for caching data, the `CommitService` for managing Git commits, the `DiffService` for working with diffs, the `PlatformService` for interacting with the GitHub platform, the `PublishService` for publishing updates to pull requests, the `TriggerService` for handling triggers and executing workflows, the `Utils` module for formatting and truncating data, and the `WorkflowService` for executing workflows and actions. Each file contains detailed documentation and comments explaining the purpose and functionality of the classes and methods.  
+
+
+### [`triggers.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/triggers.py)
 
 📄 This file defines a function called `get_all_triggers`.  
 📂 It imports necessary modules and classes.  
@@ -80,8 +80,8 @@ This folder contains various Python files that provide different services for ma
 📥 The function takes optional parameters for the configuration directory and repository path.  
 
 
-### [`workflows/`](https://github.com/raphael-francis/AutoPR-internal/blob/1595b4c1b1ad54f2c8501d83388e6b3d77ea6e12/./autopr/workflows)
+### [`workflows/`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows)
 
-This folder contains a collection of files related to workflow configurations. The `__init__.py` script is used to collect and load workflow configurations from YAML files. It can recursively search for YAML files in a specified folder and its subfolders, handle exceptions, and log errors. The other YAML files define different workflows, such as making API calls, generating README summaries, inserting content into files, updating TODO issues, and summarizing pull requests. These workflows define specific steps and inputs to perform various tasks related to code management and documentation.  
+This folder contains a Python script (`__init__.py`) that collects and loads workflow configurations from YAML files. The script recursively searches for YAML files in a specified folder and its subfolders. It handles exceptions and logs errors during the loading and validation process. The loaded workflows are returned as the result of the `get_all_workflows()` function. The folder also includes several YAML files that define different workflows for tasks such as making API calls and saving responses to files, automating the process of summarizing files and folders, inserting content into files, managing TODO issues in code repositories, and summarizing changes in pull requests.  
 
 <!-- Living README Summary -->
