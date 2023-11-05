@@ -63,7 +63,6 @@ class TestMainService(MainService):
 
 def create_repo(
     triggers_config: Optional[str] = None,
-    workflows_config: Optional[str] = None,
     repo_resource: Optional[str] = None,
     quiet: bool = True,
 ):
@@ -91,13 +90,6 @@ def create_repo(
             f.write(triggers_config)
     # else:
     #     os.system(f"cd {repo_dir} && touch .autopr/triggers.yml")
-
-    # create workflows file
-    if workflows_config is not None:
-        with open(os.path.join(repo_dir, ".autopr", "workflows.yml"), "w") as f:
-            f.write(workflows_config)
-    # else:
-    #     os.system(f"cd {repo_dir} && touch .autopr/workflows.yml")
 
     os.system(f"cd {repo_dir} && git add .autopr")
     os.system(f"cd {repo_dir} && git commit{quiet_str} --allow-empty -m 'init'")
@@ -161,7 +153,7 @@ def create_ephemeral_main_service(
 
     # because autopr.models.config.entrypoints.StrictExecutableId (which is used by TopLevelTriggerConfig),
     # is created upon module import, and it's constructed from a list of available actions and workflows,
-    # we need to reload the module after create_repo injects `.autopr/workflows.yml` and runs os.chdir
+    # we need to reload the module after create_repo injects workflows
     import autopr.models.config.entrypoints as entrypoints
 
     importlib.reload(entrypoints)

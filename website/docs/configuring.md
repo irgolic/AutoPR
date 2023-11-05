@@ -26,4 +26,4 @@ See [the triggers reference](../reference/triggers) for a full list of triggers 
 And that's it! With your triggers set and workflows defined, AutoPR is ready to work its magic on your repository. 
 Remember, you can always come back and tweak these configurations as your needs evolve. AutoPR is designed to be flexible and grow with you. 🌟
 
-If you have any questions, or you need assistance with writing custom trigger files or workflows, feel free to reach out to us on [Discord](https://discord.com/invite/ykk7Znt3K6) or [post an issue on Github](https://github.com/irgolic/AutoPR/issues).
+If you have any questions, or you need assistance with writing custom configuration, feel free to reach out to us on [Discord](https://discord.com/invite/ykk7Znt3K6) or [post an issue on Github](https://github.com/irgolic/AutoPR/issues).

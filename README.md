@@ -17,7 +17,7 @@ Breathe life into your codebase
 📝 TODOs kept track of in issues  
 ⏳ Keep history of an API call's result in git    
 📄 Summarize changes by adding a "summarize" label to a PR  
-🫵 Custom workflows and actions configured in YAML
+🫵 Custom actions configured in YAML
 
 ## 🚀 Getting Started
 
