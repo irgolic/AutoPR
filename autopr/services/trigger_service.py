@@ -167,6 +167,7 @@ class TriggerService:
                 push=True,
             )
 
+        await self.publish_service.update(wait=True)
         await self.publish_service.finalize(True)
 
         changes_status = self.commit_service.get_changes_status()
