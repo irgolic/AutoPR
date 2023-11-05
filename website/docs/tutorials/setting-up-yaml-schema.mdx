@@ -40,6 +40,12 @@ If you want to set schema validation for an external repository, simply copy
 [the `.vscode` folder](https://github.com/irgolic/AutoPR/tree/docs-launch/.vscode)
 into the root of your workspace.
 
+Alternatively, include one of the following comments to the top of your yaml file:
+- for triggers: `# yaml-language-server: $schema=https://raw.githubusercontent.com/irgolic/AutoPR/triggers.schema.json`
+- for workflows: `# yaml-language-server: $schema=https://raw.githubusercontent.com/irgolic/AutoPR/workflows.schema.json`
+- for strict workflows: `# yaml-language-server: $schema=https://raw.githubusercontent.com/irgolic/AutoPR/workflows-strict.schema.json`
+
+
 ### PyCharm
 
 Head to `Preferences > Languages & Frameworks > Schemas and DTDs > JSON Schema Mappings` and add the following mappings:
