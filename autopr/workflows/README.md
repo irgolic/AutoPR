@@ -3,10 +3,10 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a Python script (`__init__.py`) that collects and loads workflow configurations from YAML files. The script recursively searches for YAML files in a specified folder and its subfolders. It handles exceptions and logs errors during the loading and validation process. The loaded workflows are returned as the result of the `get_all_workflows()` function. The folder also includes several YAML files that define different workflows for tasks such as making API calls and saving responses to files, automating the process of summarizing files and folders, inserting content into files, managing TODO issues in code repositories, and summarizing changes in pull requests.
+This folder contains a collection of Python scripts and YAML configuration files for managing and automating workflows. The scripts and configurations are designed to handle tasks such as collecting and loading workflow configurations from YAML files, making API calls and committing changes to a git repository, generating summaries for files and folders, inserting content into files, finding and publishing TODOs in code, and summarizing changes in a pull request. These files provide a flexible and customizable way to automate various workflow processes.
 
 
-### [`__init__.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/__init__.py)
 
 📝 This file contains a Python script.  
 🛠️ The purpose of the script is to collect and load workflow configurations from YAML files.  
@@ -20,7 +20,7 @@ This folder contains a Python script (`__init__.py`) that collects and loads wor
 🚀 The script can be extended or modified to fit specific workflow configuration needs.  
 
 
-### [`api_git_history.yaml`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/api_git_history.yaml)
+### [`api_git_history.yaml`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/api_git_history.yaml)
 
 📝 This file defines a set of steps for making an API call, saving the response to a file, and committing and pushing the file to a git repository.  
 🔗 The API call endpoint URL, headers, and filepath are defined as inputs.  
@@ -29,20 +29,12 @@ This folder contains a Python script (`__init__.py`) that collects and loads wor
 📦 Finally, the file is committed and pushed to a git repository, with a commit message template that includes the endpoint URL and filepath.  
 
 
-### [`autogenerate_readmes.yaml`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/autogenerate_readmes.yaml)
+### [`autogenerate_readmes.yaml`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/autogenerate_readmes.yaml)
 
-📝 This file defines a series of workflows for summarizing files and folders and generating a living README summary.  
-📁 The file contains several workflows, including "summarize_file", "summarize_folder", and "generate_summary".  
-📑 The workflows take inputs such as file paths and folder paths, and produce outputs such as summaries, URLs, and reformatted path names.  
-🧩 The workflows use actions such as reading files, prompting for user input, and committing and pushing changes.  
-📚 The "reformat_results" workflow reformats the summary results and writes them into a README file.  
-🗂️ The "summarize_folder" workflow iterates over files and folders in a given folder, summarizes them, and generates a summary for the folder itself.  
-❓ The "generate_summary" workflow is the entry point for summarizing both files and folders.  
-📜 The "generate_readme_summaries" workflow executes the "generate_summary" workflow for the current folder to generate a living README summary.  
-🚀 The file is designed to automate the process of summarizing files and folders, making it easier to maintain an up-to-date README summary.  
+📝 This file contains a YAML configuration for a set of workflows that summarize files and folders. It includes steps to read file contents, prompt for summaries, generate folder summaries, reformat the results, and update a README file with the summaries.  
 
 
-### [`insert_into_readme.yaml`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/insert_into_readme.yaml)
+### [`insert_into_readme.yaml`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/insert_into_readme.yaml)
 
 📝 This file defines a task called "insert_into_readme" that inserts content into a file between two HTML-style comments.  
 📂 The file path, tag name, and content to insert are specified as inputs.  
@@ -54,12 +46,20 @@ This folder contains a Python script (`__init__.py`) that collects and loads wor
 ✅ The task returns a success flag indicating whether the write operation was successful.  
 
 
-### [`list_and_publish_todos.yaml`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/list_and_publish_todos.yaml)
+### [`list_and_publish_todos.yaml`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/list_and_publish_todos.yaml)
 
-📄 This file defines a workflow for managing TODO issues in code repositories.  
+📋 This file is a configuration file for a workflow system.  
+🔍 It defines a workflow called "list_todos" for finding and publishing TODOs in code.  
+🔀 The workflow has steps for finding todos, checking if there are any todos, and iterating through each todo to build and publish a corresponding issue.  
+📝 The workflow "build_and_publish_todo" handles the logic for creating and publishing an issue for each todo.  
+🗃️ The "publish_todo_issues" workflow is responsible for updating the TODO issues.  
+📑 The file also includes input and output definitions for each workflow.  
+💡 The file uses various actions like "choice", "prompt", and "set_vars" to prompt for user input and perform operations.  
+🚀 The goal of this file is to automate the process of finding and managing TODOs in code repositories.  
+🔧 It provides a flexible and customizable way to handle different types of TODOs and publish them as issues.  
 
 
-### [`summarize_pr.yaml`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows/summarize_pr.yaml)
+### [`summarize_pr.yaml`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/workflows/summarize_pr.yaml)
 
 📝 This file defines a workflow called `summarize_pr` that summarizes the changes in a pull request.  
 🔍 It uses the `git diff` command to get the difference between the base commit and the pull request.  
