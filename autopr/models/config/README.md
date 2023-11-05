@@ -3,15 +3,15 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that define and configure workflows for an automated process. It includes files for defining models and classes related to workflows, actions, and context variables, as well as files for building workflow models and trigger configurations. There are also files for transforming variables between configuration and action types, and for handling variables and parameters within a specific context. Overall, this folder provides a framework for defining and executing customizable workflows with strict validation and flexible variable handling.
+This folder contains Python files that define models, classes, and declarations related to workflows, actions, and variables. The files provide a framework for defining the structure and validation rules for data in a Python application. They also enable the execution of customizable workflows with context variables and actions. Additionally, the files include functionality for transforming variables, rendering and evaluating different types of variables within a context, and handling parameters passed in trigger invocation. Overall, the folder provides a flexible and extensible system for managing and executing workflows with customizable actions and context variables.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/__init__.py)
+### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/__init__.py)
 
 This file is empty.  
 
 
-### [`common.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/common.py)
+### [`common.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/common.py)
 
 📄 This file contains two Pydantic model classes: `StrictModel` and `ExtraModel`.  
 🔒 The `StrictModel` class enforces strict validation of input data, forbidding any extra fields.  
@@ -20,7 +20,7 @@ This file is empty.
 📝 These model classes are likely used to define the structure and validation rules for data in a Python application.  
 
 
-### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/elements.py)
+### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/elements.py)
 
 📚 This file defines various models and classes related to workflows, actions, and context variables.  
 📝 It includes models for context actions such as setting variables and conditional execution.  
@@ -31,21 +31,12 @@ This file is empty.
 🚀 Overall, this file provides a framework for defining and executing workflows with customizable actions and context variables.  
 
 
-### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/entrypoints.py)
+### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/entrypoints.py)
 
-📝 This file contains code for building workflow models and trigger configurations.  
-🔧 It includes functions for dynamically building workflow models based on defined workflows.  
-🔀 The `get_params` function extracts parameters from executable objects.  
-🧩 The `build_workflows` function builds workflow models with input and output fields.  
-🔀 The `get_all_executable_ids` function retrieves all executable IDs from actions and workflows.  
-📜 The file defines trigger models for different types of triggers (label, comment, push, cron).  
-📋 The `StrictWorkflowDefinition` and `TopLevelTriggerConfig` define the structure of workflow definitions and trigger configurations.  
-🔍 The file also generates JSON schema files for triggers and workflows.  
-🗒️ The purpose of this file is to define and configure workflows and triggers for an automated process.  
-📄 The generated JSON schema files can be used for validation and documentation purposes.  
+💡 This file is responsible for building workflow definitions and trigger configurations for an automated process. It dynamically generates models for workflows based on the currently defined workflows and provides functions to retrieve all executable IDs. It also defines trigger models for different types of events, such as labels, comments, pushes, and cron schedules. The file includes the parsing entrypoints for the workflow definitions and triggers, and it generates JSON schemas for the trigger and workflow configurations.  
 
 
-### [`transform.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/transform.py)
+### [`transform.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/transform.py)
 
 📄 This file defines two generic classes for transforming variables between config and action types.   
 🔄 The `TransformsInto` class is used to transform a config variable into the type used in the action.   
@@ -57,7 +48,7 @@ This file is empty.
 📝 The file imports the `ContextDict` class from the `autopr.models.executable` module.   
 
 
-### [`value_declarations.py`](https://github.com/raphael-francis/AutoPR-internal/blob/2f0b06f314ecec7d8eddf44bf3ce5967d4ba90e1/./autopr/models/config/value_declarations.py)
+### [`value_declarations.py`](https://github.com/raphael-francis/AutoPR-internal/blob/a560a99ccc9a894499fe44852bcd0df209be923c/./autopr/models/config/value_declarations.py)
 
 📝 This file contains code that defines various classes and declarations related to variables and parameters.  
 🧩 The purpose of this file is to provide a framework for rendering and evaluating different types of variables within a context.  
