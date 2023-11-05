@@ -6,12 +6,12 @@
 This folder contains two files. The `__init__.py` file is empty. The `prompt_context.py` file provides functionality for managing and manipulating prompt context in a conversational AI system. It defines classes and functions for representing and manipulating prompt context, trimming the context if it exceeds a specified token length, calculating the token length of a string for a given model, and invoking the OpenAI Chat Completion API. The file also includes import statements and uses external libraries such as `pydantic`, `tenacity`, and `tiktoken`.
 
 
-### [`__init__.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/actions/utils/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/50cfaeeaaedc4a6529b5a363ba237dce1404ad03/./autopr/actions/utils/__init__.py)
 
 This file is empty.  
 
 
-### [`prompt_context.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/actions/utils/prompt_context.py)
+### [`prompt_context.py`](https://github.com/irgolic/AutoPR/blob/50cfaeeaaedc4a6529b5a363ba237dce1404ad03/./autopr/actions/utils/prompt_context.py)
 
 📝 This file contains code for handling prompt context in a conversational AI system.  
 🔢 It defines classes and functions related to the representation and manipulation of prompt context.  
