@@ -14,12 +14,20 @@ Inside this folder, there are a few important files and folders:
 - `.autopr/cache`: Where AutoPR stores its cache files.
   At the moment, action `prompt` (for executing LLM prompts) implements caching in the background.
 
-## 🏁 Setting Triggers in `.autopr/triggers.yaml`
-
 Triggers serve as conditions or events that, when met, initiate specific actions,
 such as pushing to a branch, or labeling a pull request.
 
-See [the triggers reference](../reference/triggers) for a full list of triggers and their descriptions.
+## 🌊 Choosing some workflows to run
+
+See [the workflows reference](../reference/workflows) for what workflows you can use. 
+Copy the configuration provided into your `triggers.yaml` file and tweak it to your needs. 
+
+## 🏁 Triggering custom actions
+
+See [the triggers reference](../reference/triggers) for what triggers are available, 
+and [the actions reference](../reference/actions) for what actions you can run.
+
+See [the triggers example](../reference/triggers#-examples) for a few examples of how to configure triggers.
 
 ## 🚀 Ready, Set, Go!
 
