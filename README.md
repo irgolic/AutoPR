@@ -13,11 +13,11 @@ Breathe life into your codebase
 
 ## 🌟 Features
 
-🌳 Living summaries of your code in nested READMEs
+🌳 Living summaries of your code in nested READMEs   
+📝 TODOs kept track of in issues  
+⏳ Keep history of an API call's result in git    
 📄 Summarize changes by adding a "summarize" label to a PR  
-
-
-... more coming soon!
+🫵 Custom workflows and actions configured in YAML
 
 ## 🚀 Getting Started
 
