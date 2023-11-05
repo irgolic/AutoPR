@@ -6,25 +6,6 @@ sidebar_position: 10
 
 See here for a list of default workflows that you can use in your own repositories.
 
-## `summarize_pr`
-
-The `summarize_pr` workflow summarizes a pull request by:
-- getting the diff of the pull request,
-- generating a summary of the diff,
-- posting a comment with the summary.
-
-You can invoke it by using the following trigger:
-
-```yaml
-triggers:
-  - type: label
-    label_substring: summarize
-    on_pull_request: true
-    workflow: summarize_pr
-```
-
-And adding a `summarize` label to a pull request.
-
 ## `generate_readme_summaries`
 
 The `generate_readme_summaries` workflow:
@@ -33,11 +14,11 @@ The `generate_readme_summaries` workflow:
 - generates a `README.md` file with the summaries in each folder.
 
 The following parameters are available:
-- `FILE_SUMMARY_PROMPT`: the prompt to use when asking for a summary of a file.
-- `FILE_SUMMARY_INSTRUCTIONS`: the instructions to use when asking for a summary of a file.
-- `FOLDER_SUMMARY_PROMPT`: the prompt to use when asking for a summary of a folder.
-- `FOLDER_SUMMARY_INSTRUCTIONS`: the instructions to use when asking for a summary of a folder.
-- `IGNORE_FILES`: a list of files to ignore when crawling the repository.
+- `FILE_SUMMARY_PROMPT`: the prompt to use when asking for a summary of a file,
+- `FILE_SUMMARY_INSTRUCTIONS`: the instructions to use when asking for a summary of a file,
+- `FOLDER_SUMMARY_PROMPT`: the prompt to use when asking for a summary of a folder,
+- `FOLDER_SUMMARY_INSTRUCTIONS`: the instructions to use when asking for a summary of a folder,
+- `IGNORE_FILES`: a list of files to ignore when crawling the repository,
 - `EMPTY_FILE_SUMMARY`: the summary to use when a file is empty.
 
 You can invoke it by using the following trigger:
@@ -59,17 +40,17 @@ triggers:
 
 The above trigger will run the workflow whenever the `main` branch is updated.
 
-## `list_todos`
+## `publish_todo_issues`
 
-The `list_todos` manages code annotations by: 
-- Scanning the repository for all occurrences of TODOs and FIXMEs.
-- Leveraging LLM to obtain suggestions for solving them and assesing their difficulty.
-- posting them on the platform as an issue.
+`publish_todo_issues` manages code annotations by:
+- Scanning the repository for all occurrences of TODOs and FIXMEs,
+- Leveraging LLM to obtain suggestions for solving them and assessing their difficulty,
+- Posting them as issues in the repository.
 
 The following parameters are available:
-- `ISSUE_LABEL_CHOICES`: the choices to use when asking for the difficulty of a task.
-- `ISSUE_LABEL_PROMPT`: the prompt to use when asking for the difficulty of a task.
-- `ISSUE_DESCRIPTION_PROMPT`: the prompt to use when asking for a resolution of a TODO.
+- `ISSUE_LABEL_CHOICES`: the choices to use when asking for the difficulty of a task,
+- `ISSUE_LABEL_PROMPT`: the prompt to use when asking for the difficulty of a task,
+- `ISSUE_DESCRIPTION_PROMPT`: the prompt to use when asking for a resolution of a TODO,
 - `ISSUE_DESCRIPTION_INSTRUCTIONS`: the instructions to use when asking for a resolution of a TODO.
 
 You can invoke it by using the following trigger:
@@ -119,3 +100,22 @@ triggers:
         filepath:
           const: "todos.json"
 ```
+
+## `summarize_pr`
+
+The `summarize_pr` workflow summarizes a pull request by:
+- getting the diff of the pull request,
+- generating a summary of the diff,
+- posting a comment with the summary.
+
+You can invoke it by using the following trigger:
+
+```yaml
+triggers:
+  - type: label
+    label_substring: summarize
+    on_pull_request: true
+    workflow: summarize_pr
+```
+
+And adding a `summarize` label to a pull request.
