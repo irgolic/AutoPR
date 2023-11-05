@@ -3,20 +3,20 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files and folders related to a workflow automation system. It includes files for defining actions, triggers, and workflows, as well as services for managing and running automated actions. There are also files for configuring logging settings, defining data models, and interacting with the GitHub platform. Overall, this folder provides a range of reusable actions, triggers, and workflows for different automation scenarios, along with the necessary services and utilities to support them.
+This folder contains a collection of Python files and directories that provide various actions, services, workflows, and configurations for automating tasks in a pull request workflow. The files include actions for running commands, generating choices, publishing comments on GitHub issues, committing changes, searching for keywords, making API calls, and more. There are also files for managing logging, defining triggers and workflows, configuring services, and defining data models. The directories contain additional files for managing and running actions, defining workflows, and handling events. Overall, this folder provides a comprehensive set of tools and functionalities for automating tasks in a pull request workflow.
 
 
-### [`__init__.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/__init__.py)
 
 This file is empty.  
 
 
-### [`actions/`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/actions)
+### [`actions/`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions)
 
-This folder contains a collection of Python files that implement various actions for automating tasks. Each file represents a different action, such as running a bash command, generating choices based on user prompts, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into strings, and more. The files define classes that encapsulate the logic for each action, and they often include input and output models for data validation. Some files also include example usage and test cases. Additionally, there are utility files for managing prompt context and listing files in a folder. Overall, the folder provides a range of reusable actions for different automation scenarios.  
+This folder contains a collection of Python files that provide various actions and functionalities for automating tasks. The files include actions for running bash commands, generating choices, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into text, listing files and subfolders in a directory, making API calls, generating prompts using OpenAI's language model, publishing or updating issues on a platform, reading file contents, setting issue titles, and more. There are also utility files for managing and manipulating prompt context, as well as for listing and filtering files and subfolders.  
 
 
-### [`gh_actions_entrypoint.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/gh_actions_entrypoint.py)
+### [`gh_actions_entrypoint.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/gh_actions_entrypoint.py)
 
 📄 This file is the entry point for a GitHub Actions workflow.   
 🔧 It contains the main logic for running the workflow.  
@@ -30,7 +30,7 @@ This folder contains a collection of Python files that implement various actions
 🔒 The GitHub token is used for authentication and authorization.  
 
 
-### [`log_config.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/log_config.py)
+### [`log_config.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/log_config.py)
 
 📝 This file is used to configure logging settings and create loggers.   
 🔧 It imports the necessary modules for logging and structlog.   
@@ -42,7 +42,7 @@ This folder contains a collection of Python files that implement various actions
 🔧 The configure_logging function is called to configure logging on module import.  
 
 
-### [`main.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/main.py)
+### [`main.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/main.py)
 
 📋 This file contains the implementation of the `MainService` class, which serves as the main entry point for the application.   
 🔧 It initializes various services and handles the execution of triggers and workflows.  
@@ -56,17 +56,17 @@ This folder contains a collection of Python files that implement various actions
 🔗 The `TriggerService` class handles the interaction between triggers, workflows, and the commit service.  
 
 
-### [`models/`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models)
+### [`models/`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/models)
 
-This folder contains files and folders related to a workflow automation system for handling events in the AutoPR system. It includes files for defining data models, handling events, configuring workflows, and executing automation actions. The files define classes and types for messages, threads, issues, pull requests, events, context variables, templates, and executables. Overall, this folder provides a flexible and extensible system for defining and configuring automated actions and workflows in the AutoPR system.  
-
-
-### [`services/`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/services)
-
-This folder contains a collection of Python files that implement various services and classes for managing and running automated actions in a pull request workflow. These services include the `ActionService` for handling actions, the `CacheService` for caching data, the `CommitService` for managing Git commits, the `DiffService` for working with diffs, the `PlatformService` for interacting with the GitHub platform, the `PublishService` for publishing updates to pull requests, the `TriggerService` for handling triggers and executing workflows, the `Utils` module for formatting and truncating data, and the `WorkflowService` for executing workflows and actions. Each file contains detailed documentation and comments explaining the purpose and functionality of the classes and methods.  
+This folder contains Python files that define data models, workflows, and events for the AutoPR system. The `artifacts.py` file defines data models for messages, threads, issues, pull requests, and code comments. The `config/` folder provides a framework for defining and executing workflows with customizable actions and context variables. The `events.py` file defines classes for different types of events in the system. The `executable.py` file defines types and classes related to context variables, templates, and executables in a workflow automation system.  
 
 
-### [`triggers.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/triggers.py)
+### [`services/`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/services)
+
+This folder contains the implementation of various services and classes for managing and running actions in an automated pull request workflow. These services include the ActionService, CacheService, CommitService, DiffService, PlatformService, PublishService, TriggerService, and WorkflowService. These classes handle tasks such as finding, instantiating, and running actions, managing caching, managing commits and branches in a Git repository, applying and getting diffs, interacting with the GitHub platform, publishing updates to pull requests, handling triggers and executing workflows, and formatting and truncating data for publishing. There are also some helper functions for resolving input values and formatting outputs.  
+
+
+### [`triggers.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/triggers.py)
 
 📄 This file defines a function called `get_all_triggers`.  
 📂 It imports necessary modules and classes.  
@@ -80,8 +80,8 @@ This folder contains a collection of Python files that implement various service
 📥 The function takes optional parameters for the configuration directory and repository path.  
 
 
-### [`workflows/`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/workflows)
+### [`workflows/`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/workflows)
 
-This folder contains a Python script (`__init__.py`) that collects and loads workflow configurations from YAML files. The script recursively searches for YAML files in a specified folder and its subfolders. It handles exceptions and logs errors during the loading and validation process. The loaded workflows are returned as the result of the `get_all_workflows()` function. The folder also includes several YAML files that define different workflows for tasks such as making API calls and saving responses to files, automating the process of summarizing files and folders, inserting content into files, managing TODO issues in code repositories, and summarizing changes in pull requests.  
+This folder contains a collection of files that define workflows for various tasks. These tasks include collecting and loading workflow configurations from YAML files, making API calls and committing changes to a git repository, summarizing files and folders and generating README summaries, inserting content into files, managing and publishing TODO issues, and summarizing changes in a pull request. Each file provides a description of its purpose and the steps involved in the workflow it defines. The files can be extended or modified to fit specific needs and rely on other modules and classes imported at the beginning of each file.  
 
 <!-- Living README Summary -->
