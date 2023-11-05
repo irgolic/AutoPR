@@ -6,12 +6,12 @@
 This folder contains several Python files that provide a framework for defining and executing workflows with customizable actions and context variables. It includes models for data validation, models and classes for workflows, actions, and context variables, code for building workflow definitions and trigger configurations for an automated PR system, classes for transforming variables between config and action types, and code for handling variables and parameters within a specific context. Overall, this folder provides a flexible and extensible system for defining and configuring automated actions and workflows.
 
 
-### [`__init__.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/__init__.py)
 
 This file is empty.  
 
 
-### [`common.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/common.py)
+### [`common.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/common.py)
 
 📄 This file contains two Pydantic model classes: `StrictModel` and `ExtraModel`.  
 🔒 The `StrictModel` class enforces strict validation of input data, forbidding any extra fields.  
@@ -20,7 +20,7 @@ This file is empty.
 📝 These model classes are likely used to define the structure and validation rules for data in a Python application.  
 
 
-### [`elements.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/elements.py)
+### [`elements.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/elements.py)
 
 📚 This file defines various models and classes related to workflows, actions, and context variables.  
 📝 It includes models for context actions such as setting variables and conditional execution.  
@@ -31,7 +31,7 @@ This file is empty.
 🚀 Overall, this file provides a framework for defining and executing workflows with customizable actions and context variables.  
 
 
-### [`entrypoints.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/entrypoints.py)
+### [`entrypoints.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/entrypoints.py)
 
 📄 This file contains code for building workflow definitions and trigger configurations for an automated PR (pull request) system. It includes the following functionality:  
      - Building workflow models dynamically based on currently defined workflows  
@@ -41,7 +41,7 @@ This file is empty.
      - The purpose of the file is to provide a framework for defining and configuring automated actions and workflows for handling PR events.  
 
 
-### [`transform.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/transform.py)
+### [`transform.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/transform.py)
 
 📄 This file defines two generic classes for transforming variables between config and action types.   
 🔄 The `TransformsInto` class is used to transform a config variable into the type used in the action.   
@@ -53,7 +53,7 @@ This file is empty.
 📝 The file imports the `ContextDict` class from the `autopr.models.executable` module.   
 
 
-### [`value_declarations.py`](https://github.com/raphael-francis/AutoPR-internal/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/value_declarations.py)
+### [`value_declarations.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config/value_declarations.py)
 
 📝 This file contains code that defines various classes and declarations related to variables and parameters.  
 🧩 The purpose of this file is to provide a framework for rendering and evaluating different types of variables within a context.  
