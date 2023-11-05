@@ -3,15 +3,15 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and folders related to a workflow automation system for handling events in the AutoPR system. It includes files for defining data models, handling events, configuring workflows, and executing automation actions. The files define classes and types for messages, threads, issues, pull requests, events, context variables, templates, and executables. Overall, this folder provides a flexible and extensible system for defining and configuring automated actions and workflows in the AutoPR system.
+This folder contains Python files and a subfolder related to a workflow automation system. The `artifacts.py` file defines data models for messages, threads, issues, and pull requests. The `config/` subfolder contains files that define the structure and behavior of the application, including models for workflows, actions, and context variables. The `events.py` file defines classes for different types of events in the system. The `executable.py` file defines various types and classes related to context variables, templates, and executables in the workflow automation system.
 
 
-### [`__init__.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/models/__init__.py)
 
 This file is empty.  
 
 
-### [`artifacts.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/artifacts.py)
+### [`artifacts.py`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/models/artifacts.py)
 
 📄 This file contains Python code for defining data models related to messages, threads, issues, and pull requests.   
 🧵 The `Message` class represents a message with a body and an author.   
@@ -22,12 +22,12 @@ This file is empty.
 🔧 The file also defines a type alias `DiffStr` for a string representing code diffs.  
 
 
-### [`config/`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/config)
+### [`config/`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/models/config)
 
-This folder contains several Python files that provide a framework for defining and executing workflows with customizable actions and context variables. It includes models for data validation, models and classes for workflows, actions, and context variables, code for building workflow definitions and trigger configurations for an automated PR system, classes for transforming variables between config and action types, and code for handling variables and parameters within a specific context. Overall, this folder provides a flexible and extensible system for defining and configuring automated actions and workflows.  
+This folder contains files that define the structure and behavior of a Python application for defining and executing workflows. The `common.py` file contains Pydantic model classes for strict and extra validation of input data. The `elements.py` file provides models for workflows, actions, and context variables. The `entrypoints.py` file builds workflow definitions and trigger configurations. The `transform.py` file defines classes for transforming variables between config and action types. The `value_declarations.py` file handles rendering and evaluating variables and parameters within a context.  
 
 
-### [`events.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/events.py)
+### [`events.py`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/models/events.py)
 
 📄 The file defines several classes related to events in the AutoPR system.   
 🔀 The `Event` class is the base class for all events and has a `pull_request` and `issue` attribute.  
@@ -41,7 +41,7 @@ This folder contains several Python files that provide a framework for defining 
 🔁 The file may be used to handle and process various types of events in the AutoPR system.  
 
 
-### [`executable.py`](https://github.com/irgolic/autopr/blob/6eca175af1a796cf6de44b15fa4a9cb81752e58c/./autopr/models/executable.py)
+### [`executable.py`](https://github.com/irgolic/AutoPR/blob/551bf9c940dc6e3e8e133ab31d31d51f02ae26bf/./autopr/models/executable.py)
 
 📄 This file defines various types and classes related to context variables, templates, and executables in a workflow automation system.  
 📝 Types include LambdaString, ContextVarName, ContextVarPath, TemplateString, and TemplateObject.  
