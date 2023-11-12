@@ -51,7 +51,7 @@ This folder contains various files and directories related to automating tasks i
 🔒 The license grants permission to use, modify, and distribute the software.  
 📝 The license requires the copyright notice and permission notice to be included in all copies.  
 🚫 The software is provided "as is" without warranty.  
-📅 The license is valid until 2023.  
+📅 The license copyright has beenupdated to the year 2023.  
 💼 The license is owned by Raphael Francis Ltd.  
 
 
