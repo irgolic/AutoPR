@@ -3,10 +3,10 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains a collection of Python files that provide various actions and functionalities for automating tasks. The files include actions for running bash commands, generating choices, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into text, listing files and subfolders in a directory, making API calls, generating prompts using OpenAI's language model, publishing or updating issues on a platform, reading file contents, setting issue titles, and more. There are also utility files for managing and manipulating prompt context, as well as for listing and filtering files and subfolders.
+This folder contains a collection of Python files that implement various actions for an autonomous agent system. These actions include running bash commands, generating choices based on user prompts, publishing comments on GitHub issues, committing and pushing changes to a remote repository, searching for specific keywords in files, inserting content into a string at a specified delimiter, listing files and subfolders in a directory, making API calls, generating string prompts, publishing or updating issues on a platform, reading the contents of a file, setting the title of an issue, and writing content into a file. There are also utility files for managing prompt context and listing files in a folder.
 
 
-### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/__init__.py)
 
 📁 This file is used to automatically import all modules within the same directory.    
 🔍 It identifies all Python files and directories within the current directory.    
@@ -15,7 +15,7 @@ This folder contains a collection of Python files that provide various actions a
 📚 The purpose is to make it easier to import and use the contents of this directory.  
 
 
-### [`base.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/base.py)
+### [`base.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/base.py)
 
 📋 This file defines a base class and metaclass for actions in an autonomous agent system.  
 🔍 The purpose of the file is to provide a framework for creating and registering actions.  
@@ -25,21 +25,18 @@ This folder contains a collection of Python files that provide various actions a
 🌟 The file also includes a function for retrieving a dictionary of registered actions.  
 
 
-### [`bash.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/bash.py)
+### [`bash.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/bash.py)
 
-📄 This file contains a Python script that defines a class called "Bash" and its associated input and output models.  
-🖥️ The purpose of this script is to run a bash command and return its output.  
-📥 The input to the "Bash" class is a command string.  
-📤 The output of the "Bash" class is the standard output and standard error of the executed command.  
-⚙️ The "run" method of the "Bash" class is responsible for executing the command and capturing the output.  
-📝 The standard output and standard error are then published as code blocks using a publish service.  
-🚀 The script includes a conditional block that runs the "Bash" action manually if the script is executed directly.  
-🔧 The "run_action_manually" function is imported from the "autopr.tests.utils" module to facilitate manual execution.  
-🔍 The example command used in the manual execution is "echo 'Hello World!'".  
-🔒 This summary provides an overview of the file's purpose and structure.  
+📝 This file contains a Python class called "Bash" that represents an action.  
+🔀 It imports necessary modules and defines input and output models.  
+🏃‍♀️ The "Bash" class has a "run" method that executes a bash command and returns its output.  
+📝 The output includes the standard output and standard error streams of the command.  
+📤 The class also publishes the output as code blocks.  
+⚙️ The file includes a main section that runs the "Bash" action manually with a sample input.  
+🔽 The purpose of this file is to provide a reusable action for running bash commands and capturing their output.  
 
 
-### [`choice.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/choice.py)
+### [`choice.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/choice.py)
 
 📄 This file contains the implementation of a Python class called "Choice".    
 🔀 The "Choice" class is an action that prompts the user to make a choice from a given list.    
@@ -52,7 +49,7 @@ This folder contains a collection of Python files that provide various actions a
 📚 The file also includes type annotations and Pydantic models for input and output data.  
 
 
-### [`comment.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/comment.py)
+### [`comment.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/comment.py)
 
 📄 This file defines a class called "Comment" that represents an action to publish a comment on a GitHub issue.  
 🔑 The class has an "id" attribute set to "comment".  
@@ -65,7 +62,7 @@ This folder contains a collection of Python files that provide various actions a
 📖 The purpose of this file is to define the "Comment" action and its associated input model.  
 
 
-### [`commit_and_push.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/commit_and_push.py)
+### [`commit_and_push.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/commit_and_push.py)
 
 📝 This file defines a class called "CommitAndPush" that represents an action to commit and push changes to a remote repository.  
 📝 The class has an "id" attribute set to "commit_and_push".  
@@ -79,7 +76,7 @@ This folder contains a collection of Python files that provide various actions a
 📝 The file has a docstring that provides a brief description of the "CommitAndPush" class.  
 
 
-### [`find_todos.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/find_todos.py)
+### [`find_todos.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/find_todos.py)
 
 📝 This file is a Python script that scans through files in a directory and its subdirectories to find comments containing specific keywords like "TODO" or "FIXME".   
 🔍 It uses Tree-sitter to parse the files and extract the comments.   
@@ -88,7 +85,7 @@ This folder contains a collection of Python files that provide various actions a
 📋 The script can be run standalone, and it includes a main function that demonstrates how to run it manually.  
 
 
-### [`insert_content_into_text.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/insert_content_into_text.py)
+### [`insert_content_into_text.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/insert_content_into_text.py)
 
 📝 This file contains a Python class called "InsertContentIntoText" that implements an action for inserting content into a string at a specified delimiter.  
 🖊️ The class takes inputs such as the existing content, delimiter, and content to add.  
@@ -102,7 +99,7 @@ This folder contains a collection of Python files that provide various actions a
 💡 The purpose of this file is to provide a reusable action for inserting content into a string at a specified delimiter.  
 
 
-### [`list_folder.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/list_folder.py)
+### [`list_folder.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/list_folder.py)
 
 📄 This file contains the implementation of a Python class called "ListFolder".  
 📂 The purpose of this class is to list all the files and subfolders in a given folder, excluding certain files and directories.  
@@ -115,7 +112,7 @@ This folder contains a collection of Python files that provide various actions a
 🔗 The ListFolder class is part of a larger codebase, as indicated by the import statements and the conditional execution check at the end of the file.  
 
 
-### [`make_api_call.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/make_api_call.py)
+### [`make_api_call.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/make_api_call.py)
 
 📝 This file contains a Python script that makes an API call to a specified endpoint URL.  
 📦 It defines two classes, `Inputs` and `Outputs`, which represent the input and output data for the API call action.  
@@ -128,7 +125,7 @@ This folder contains a collection of Python files that provide various actions a
 🔽 The API endpoint URL and headers are provided as inputs to the `run_action_manually` function, which executes the action using asyncio.  
 
 
-### [`prompt.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/prompt.py)
+### [`prompt.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/prompt.py)
 
 📝 This file contains a Python script that defines a class called "PromptString".  
 🔍 The purpose of the file is to generate a string prompt using OpenAI's GPT-3.5 Turbo model.  
@@ -142,7 +139,7 @@ This folder contains a collection of Python files that provide various actions a
 👀 The output of the script is printed to the console.  
 
 
-### [`publish_issue.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/publish_issue.py)
+### [`publish_issue.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/publish_issue.py)
 
 📝 This file contains Python code for publishing or updating an issue on a platform.  
 🔍 It defines a class called `PublishIssue` which is responsible for creating or updating issues.  
@@ -156,7 +153,7 @@ This folder contains a collection of Python files that provide various actions a
 💡 The purpose of this file is to provide a reusable action for publishing or updating issues on a platform.  
 
 
-### [`read_file.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/read_file.py)
+### [`read_file.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/read_file.py)
 
 📝 This file contains a class called "ReadFile" which represents an action to read the contents of a file.   
 🔍 It has a static method to load the contents of a Jupyter notebook file and another static method to ensure a file exists at a given file path.   
@@ -165,7 +162,7 @@ This folder contains a collection of Python files that provide various actions a
 💡 It can be run directly to test the "ReadFile" action.  
 
 
-### [`search.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/search.py)
+### [`search.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/search.py)
 
 📝 This file defines a class called "Search" that performs a search for a given query in all files within a specified directory and its subdirectories.   
 📂 The search is performed by iterating through each file, reading its contents, and checking if the query is present in any line.   
@@ -179,7 +176,7 @@ This folder contains a collection of Python files that provide various actions a
 🏃‍♀️ The file can be run as a standalone script to execute the search action manually.  
 
 
-### [`set_issue_title.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/set_issue_title.py)
+### [`set_issue_title.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/set_issue_title.py)
 
 📄 This file defines a class called `SetIssueTitle` which is an action to set the title of an issue.  
 🔑 The class has an `id` attribute with the value "set_issue_title".  
@@ -192,12 +189,12 @@ This folder contains a collection of Python files that provide various actions a
 📚 This file uses the `pydantic` library to define the data model for the `Inputs` class.  
 
 
-### [`utils/`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/utils)
+### [`utils/`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/utils)
 
 This folder contains two files. The `__init__.py` file is empty. The `prompt_context.py` file provides functionality for managing and manipulating prompt context in a conversational AI system. It defines classes and functions for representing and manipulating prompt context, trimming the context if it exceeds a specified token length, calculating the token length of a string for a given model, and invoking the OpenAI Chat Completion API. The file also includes import statements and uses external libraries such as `pydantic`, `tenacity`, and `tiktoken`.  
 
 
-### [`walk_files.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/walk_files.py)
+### [`walk_files.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/walk_files.py)
 
 📂 This file contains code for listing files and subfolders in a given folder.  
 🔍 It excludes certain files and directories based on predefined patterns.  
@@ -211,7 +208,7 @@ This folder contains two files. The `__init__.py` file is empty. The `prompt_con
 📚 The code also includes import statements and a main block for manual execution/testing.  
 
 
-### [`write_into_file.py`](https://github.com/irgolic/AutoPR/blob/b2b4a5bd4e292eda4c0821413a3477a310eca6b8/./autopr/actions/write_into_file.py)
+### [`write_into_file.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/actions/write_into_file.py)
 
 📝 This file defines a class called "WriteIntoFile" that is responsible for writing content into a file.   
 🔒 It imports necessary modules and defines input and output models using Pydantic.  
