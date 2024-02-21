@@ -7,7 +7,7 @@
 [![Discord](https://badgen.net/badge/icon/discord?icon=nope&label&color=purple)](https://discord.gg/ykk7Znt3K6)
 [![Docs](https://badgen.net/badge/icon/docs?icon=docs&label&color=blue)](https://docs.autopr.com)
 
-Breathe life into your codebase
+Run AI-powered workflows over your codebase
 
 </div>
 
@@ -22,6 +22,18 @@ Breathe life into your codebase
 ## 🚀 Getting Started
 
 Please see the [installation guide](https://docs.autopr.com/installing/github).
+
+## 📝 Maintainer Note
+
+Though used internally, this project is currently not actively maintained.
+
+Until v0.1.2, AutoPR autonomously generated pull requests from issues. 
+There's another actively maintained open-source (AGPL) solution for this use case – [Sweep](https://github.com/sweepai/sweep).
+If you'd still prefer to use AutoPR for this, set the following line in your github actions yaml:
+
+```yaml
+      uses: docker://ghcr.io/irgolic/autopr:v0.1.2
+```
 
 ---
 
