@@ -28,7 +28,6 @@ Please see the [installation guide](https://docs.autopr.com/installing/github).
 Though used internally, this project is currently not actively maintained.
 
 Until v0.1.2, AutoPR autonomously generated pull requests from issues. 
-There's another actively maintained open-source (AGPL) solution for this use case – [Sweep](https://github.com/sweepai/sweep).
 If you'd still prefer to use AutoPR for this, set the following line in your github actions yaml:
 
 ```yaml
