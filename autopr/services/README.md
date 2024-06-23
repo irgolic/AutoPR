@@ -3,15 +3,15 @@
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains multiple Python files that are part of an automated pull request (PR) workflow system. The files include implementations of various services such as `ActionService`, `CacheService`, `CommitService`, `DiffService`, `PlatformService`, `PublishService`, `TriggerService`, `Utils`, and `WorkflowService`. These services handle different aspects of the PR workflow, such as managing and running actions, caching data, interacting with Git repositories, applying and getting diffs, interacting with platforms like GitHub, publishing updates to PR descriptions, handling triggers and events, formatting and truncating data, and executing workflows based on their IDs. The code is well-documented and organized, with clear separation of concerns.
+This folder contains a collection of Python files that implement various services and classes for managing and running actions in an automated PR workflow. These services include the `ActionService` for finding, instantiating, and running actions, the `CacheService` for storing and retrieving key-value pairs in a cache directory, the `CommitService` for handling Git-related operations, the `DiffService` for getting and applying diffs, the `PlatformService` for interacting with the GitHub platform, the `PublishService` for publishing updates to a pull request description, the `TriggerService` for handling triggers for events, the `Utils` module for formatting and truncating data, and the `WorkflowService` for executing workflows and actions based on their IDs.
 
 
-### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/__init__.py)
+### [`__init__.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/__init__.py)
 
 This file is empty.  
 
 
-### [`action_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/action_service.py)
+### [`action_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/action_service.py)
 
 💼 This file contains the implementation of the `ActionService` class, which is responsible for managing and running actions in an automated PR workflow.  
 💧 The `ActionService` class provides methods for finding, instantiating, and running actions based on their configurations.  
@@ -25,7 +25,7 @@ This file is empty.
 ⚠️ If an action fails to run, an error message is displayed and the exception is raised.  
 
 
-### [`cache_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/cache_service.py)
+### [`cache_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/cache_service.py)
 
 📁 The file contains a class called `CacheService` and its subclass `ShelveCacheService`.    
 📝 The purpose of the file is to provide a caching service using the `shelve` module.    
@@ -39,21 +39,20 @@ This file is empty.
 🔒 The cache files are opened and closed using the `shelve` module.  
 
 
-### [`commit_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/commit_service.py)
+### [`commit_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/commit_service.py)
 
-📝 The file contains a class called `CommitService` that provides functionality for creating branches, committing changes, and pushing to a Git repository.  
-📝 The class ensures that there is always a commit on the branch.  
-📝 It has methods for overwriting a new branch, ensuring a branch exists, checking if unstaged changes exist, committing changes, and getting the status of changes on the branch.  
-📝 The class uses the `git` library and relies on a `Repo` object for interacting with the Git repository.  
-📝 The file also imports the `os` module and defines a type alias `CHANGES_STATUS`.  
-📝 The class logs debug and info messages using a logger from the `autopr.log_config` module.  
-📝 The file is well-documented with docstrings and comments to explain the purpose and functionality of each method.  
-📝 The code is structured and organized with clear separation of concerns.  
-📝 The file can be executed as a standalone script or imported as a module to use the `CommitService` class.  
-📝 The file is part of a larger codebase related to automating Git operations.  
+📝 This file contains a class called `CommitService` which provides methods for creating branches, committing changes, and pushing them to a Git repository.  
+🚀 The purpose of this file is to handle the Git-related operations necessary for managing commits and branches.  
+🌿 The `CommitService` class ensures that there is always a commit on the branch.  
+⚙️ It provides methods for overwriting a new branch, ensuring a branch exists, checking if unstaged changes exist, committing changes, and getting the status of changes on the branch.  
+📚 The class uses the `git` module to interact with the Git repository.  
+📝 The `overwrite_new_branch` method creates a new branch, deletes an existing branch if it exists, and checks out the base branch.  
+🔄 The `ensure_branch_exists` method checks if a branch exists, and if not, creates a new branch or checks out an existing remote branch.  
+✅ The `unstaged_changes_exist` method checks if there are any unstaged changes on the branch.  
+🔀 The `commit` method adds and commits changes, and can also push the branch to the remote repository.  
 
 
-### [`diff_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/diff_service.py)
+### [`diff_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/diff_service.py)
 
 📝 The file contains a class called `DiffService` which is a service for getting and applying diffs.  
 📝 Diffs are represented as `DiffStr`, which is an alias for `str`.  
@@ -67,7 +66,7 @@ This file is empty.
 📝 The file includes a logger for debugging purposes.  
 
 
-### [`platform_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/platform_service.py)
+### [`platform_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/platform_service.py)
 
 📄 This file contains two classes: `PlatformService` and `GitHubPlatformService`.  
 🔧 `PlatformService` is a base class for making API calls to a platform (e.g., GitHub).  
@@ -81,26 +80,25 @@ This file is empty.
 🌐 The purpose of this file is to provide a service for interacting with the GitHub platform, including creating and managing pull requests and issues.  
 
 
-### [`publish_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/publish_service.py)
+### [`publish_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/publish_service.py)
 
 💡 This file contains the implementation of a service for publishing updates to a pull request description. It includes classes like `CodeBlock` and `UpdateSection` to represent different elements in the description. The main class is `PublishService`, which provides methods for updating and finalizing the pull request description. There are also subclasses `GitHubPublishService` and `DummyPublishService` for specific platforms.  
 
 
-### [`trigger_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/trigger_service.py)
+### [`trigger_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/trigger_service.py)
 
-📝 This file contains a class called `TriggerService` that handles triggers and events in an automation system.  
-🔀 Triggers are defined as instances of the `Trigger` class and are provided to the `TriggerService` constructor.  
-📡 The `TriggerService` class has methods to handle triggering events, executing workflows, and finalizing triggers.  
-🔄 The `_get_id_for_executable` method returns the ID of an executable object.  
-📛 The `_get_name_for_executable` method returns the name of an executable object.  
-🔍 The `_get_triggers_and_contexts_for_event` method returns a list of triggers and their associated contexts for a given event.  
-🔁 The `_get_trigger_coros_for_event` method builds coroutines for each trigger and context pair.  
-⚡️ The `trigger_event` method triggers an event and executes the associated triggers.  
-🏁 The `finalize_trigger` method finalizes a trigger by updating the associated PR, merging it, closing it, or handling exceptions.  
-🎬 The `handle_trigger` method executes a trigger and publishes the code blocks and context information.  
+📚 This file contains a class called `TriggerService` which handles triggers for events.   
+🔀 Triggers are objects that match specific events and execute workflows or actions in response.   
+🔁 The `TriggerService` class has methods for handling triggers, executing workflows, and finalizing triggers.   
+📣 Triggers and their associated contexts are gathered and processed to determine which workflows or actions to execute.   
+🎬 The starting context for each trigger is logged and published.   
+🏁 The final context after executing the workflow or action is also logged and published.   
+🚀 The `trigger_event` method is the main entry point for triggering events and executing the associated workflows or actions.   
+💡 The `finalize_trigger` method handles the finalization of triggers, including committing changes and merging PRs.   
+📝 The file also includes helper methods for getting IDs and names for executables.  
 
 
-### [`utils.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/utils.py)
+### [`utils.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/utils.py)
 
 💡 This file contains functions for formatting and truncating data for publishing.   
 💡 The `truncate_strings` function truncates strings to a specified length and adds an ellipsis if necessary.   
@@ -110,7 +108,7 @@ This file is empty.
 💡 The functions are designed to be used together to prepare data for display or publication.  
 
 
-### [`workflow_service.py`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr/services/workflow_service.py)
+### [`workflow_service.py`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr/services/workflow_service.py)
 
 📄 This file contains the implementation of a WorkflowService class.   
 🌊 The WorkflowService class is responsible for executing workflows and actions based on their IDs.   

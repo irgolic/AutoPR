@@ -41,10 +41,10 @@ Below is an example of AutoPR's Living README:
 <!-- Living README Summary -->
 ## 🌳 Living Summary
 
-This folder contains files and folders related to an autonomous agent system. The Dockerfile sets up a Docker image and installs dependencies using Poetry. The LICENSE.md file contains the MIT License for the software. The Makefile is used for automating development tasks. The action.yml file configures an automatic pull request workflow. The autopr folder contains Python files and folders for the autonomous agent system. The entrypoint.sh file is a shell script that sets up Git and activates a virtual environment. The poetry.lock file provides an executive summary of the project. The pyproject.toml file is a configuration file for the Python project. The strict_workflow_schema.json file defines a strict workflow structure. The trigger_schema.json file defines trigger configurations. The workflow_schema.json file defines a workflow structure.
+This folder contains various files and folders related to automating tasks and workflows. It includes a Dockerfile for setting up a Docker image, a license file specifying the terms of use, a Makefile for automating development tasks, an action configuration file for a pull request workflow, a shell script for executing a Python module, a lock file and a configuration file for a Python project using Poetry, JSON schemas for defining strict workflows and trigger configurations, and a JSON schema for defining workflow definitions. These files and folders provide functionality for automating tasks, managing actions and Git operations, and executing customizable workflows.
 
 
-### [`Dockerfile`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./Dockerfile)
+### [`Dockerfile`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./Dockerfile)
 
 🏗️ Sets up a Docker image based on the `duffn/python-poetry:3.9-bullseye` image    
 🔧 Installs git from the bullseye-backports repository    
@@ -56,7 +56,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 🚀 Sets the entrypoint to `/entrypoint.sh` for running the app    
 
 
-### [`LICENSE.md`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./LICENSE.md)
+### [`LICENSE.md`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./LICENSE.md)
 
 📄 This file contains the MIT License.  
 🔒 The license grants permission to use, modify, and distribute the software.  
@@ -66,7 +66,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 💼 The license is owned by Raphael Francis Ltd.  
 
 
-### [`Makefile`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./Makefile)
+### [`Makefile`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./Makefile)
 
 📝 This file is a makefile-like configuration file.  
 🔧 It defines various targets and their associated commands.  
@@ -79,7 +79,7 @@ This folder contains files and folders related to an autonomous agent system. Th
 🔧 This file is meant to automate common development tasks and ensure code quality.  
 
 
-### [`action.yml`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./action.yml)
+### [`action.yml`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./action.yml)
 
 📄 This file is a configuration file for an automatic pull request workflow.  
 🔧 It specifies the details for running the workflow, such as the Docker image to use.  
@@ -90,12 +90,12 @@ This folder contains files and folders related to an autonomous agent system. Th
 🔄 It specifies whether to overwrite existing branches and pull requests when creating from issues.  
 
 
-### [`autopr/`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./autopr)
+### [`autopr/`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./autopr)
 
-This folder contains a collection of Python files and folders related to an autonomous agent system. The "actions" folder contains various Python files that implement different actions for the system, such as running commands, generating choices, and making API calls. The "gh_actions_entrypoint.py" file is the entry point for a GitHub Actions workflow and handles the execution of the workflow. The "log_config.py" file is used to configure logging settings. The "main.py" file serves as the main entry point for the application and handles triggers and workflows. The "models" folder contains data models for messages, issues, and pull requests. The "services" folder contains implementations of different services for a pull request workflow system. The "triggers.py" file retrieves trigger configurations from specified files. The "workflows" folder contains YAML files that define different workflows for automation.  
+This folder contains a collection of Python files and folders related to automating tasks and workflows. It includes files for actions and utilities, an entry point for GitHub Actions, logging configuration, the main service for running triggers and workflows, models for building and executing workflows, services for managing actions and Git operations, trigger configurations, and scripts and configuration files for managing workflows. These files and folders provide functionality for automating tasks, interacting with the GitHub platform, and executing customizable workflows.  
 
 
-### [`entrypoint.sh`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./entrypoint.sh)
+### [`entrypoint.sh`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./entrypoint.sh)
 
 📝 The file is a shell script  
 🔧 It sets the Git configuration for a specific directory  
@@ -104,7 +104,7 @@ This folder contains a collection of Python files and folders related to an auto
 🐍 It runs a Python module called `autopr.gh_actions_entrypoint`  
 
 
-### [`poetry.lock`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./poetry.lock)
+### [`poetry.lock`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./poetry.lock)
 
 📄 This file is an executive summary  of a project or report  
 🔍 It provides a high-level overview of the main points  
@@ -118,7 +118,7 @@ This folder contains a collection of Python files and folders related to an auto
 📌 It is concise and easy to read, even if the file is empty  
 
 
-### [`pyproject.toml`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./pyproject.toml)
+### [`pyproject.toml`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./pyproject.toml)
 
 📋 This file is a configuration file for a Python project using Poetry.  
 🔍 It contains information about the project's name, version, and authors.  
@@ -130,7 +130,7 @@ This folder contains a collection of Python files and folders related to an auto
 🔍 It specifies the line length and target version for the Black code formatter.  
 
 
-### [`strict_workflow_schema.json`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./strict_workflow_schema.json)
+### [`strict_workflow_schema.json`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./strict_workflow_schema.json)
 
 📄 The file is a JSON schema describing a strict workflow definition.  
 🔍 It defines various actions that can be performed within the workflow.  
@@ -144,21 +144,21 @@ This folder contains a collection of Python files and folders related to an auto
 📚 The file can serve as a reference for understanding the structure and capabilities of strict workflows.  
 
 
-### [`trigger_schema.json`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./trigger_schema.json)
+### [`trigger_schema.json`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./trigger_schema.json)
 
-📄 This file contains a JSON schema definition for a trigger configuration in a workflow.   
-🔀 The `TopLevelTriggerConfig` object is the main entry point for defining triggers.  
-🌟 Triggers can be of different types: `LabelTrigger`, `CommentTrigger`, `PushTrigger`, and `CronTrigger`.  
-📝 Each trigger type has its own set of properties and sub-objects that define the trigger behavior.  
-💡 Triggers can perform various actions such as commenting, setting issue titles, walking files, making API calls, executing bash commands, and more.  
-🔁 Some trigger actions can be performed iteratively with the help of the `IterableActionModel` objects.  
-📆 The `CronTrigger` type allows triggers to be scheduled based on a cron schedule.  
-📚 The schema also defines several supporting objects and models used within the trigger configuration.  
-👀 The `definitions` section of the schema provides detailed definitions for each object and model.  
-🔒 The schema enforces additionalProperties to be false, ensuring strict adherence to the defined structure.  
+📄 This file is a JSON document describing a trigger configuration for a workflow.    
+🔗 It defines various trigger types such as label, comment, push, and cron triggers.    
+🗒️ Each trigger type has its own set of properties and can be customized.    
+🔀 Triggers can be used to initiate specific actions or workflows based on certain events.    
+📝 The document also includes definitions for different action models and their properties.    
+🧩 These action models can be used within the triggers to specify the desired behavior.    
+📝 The file provides a comprehensive overview of the available triggers and action models.    
+🔧 It can be used as a reference guide for configuring and customizing workflows.    
+🗂️ The file structure is organized using nested objects and properties.    
+🔍 It's important to review the specific trigger and action definitions to understand their functionality and usage.  
 
 
-### [`workflow_schema.json`](https://github.com/irgolic/AutoPR/blob/dd6cdd8d0b3a21a773a5a4308a7f2991ec105d16/./workflow_schema.json)
+### [`workflow_schema.json`](https://github.com/irgolic/AutoPR/blob/1d818f4daeb78662b7d831d89a73d3258bb95e2f/./workflow_schema.json)
 
 📄 This file is a JSON schema definition for a workflow definition.  
 🔧 It defines various types and properties for different actions and declarations used in the workflow.  
