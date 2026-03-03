@@ -1,12 +1,8 @@
 import os
-from typing import Optional, Literal
 
 from git.repo import Repo
 
-from autopr.log_config import get_logger
-
-
-CHANGES_STATUS = Literal["no_changes", "cache_only", "modified"]
+import structlog
 
 
 class CommitService:
@@ -22,32 +18,30 @@ class CommitService:
         repo_path: str,
         branch_name: str,
         base_branch_name: str,
-        cache_dir: str,
     ):
         self.repo = repo
         self.repo_path = repo_path
         self.branch_name = branch_name
         self.base_branch_name = base_branch_name
-        self.cache_dir = cache_dir
 
         self._empty_commit_message = "[placeholder]"
 
-        self.log = get_logger(service="commit")
+        self.log = structlog.get_logger(service="commit")
 
     def overwrite_new_branch(self):
         # Checkout and pull base branch
-        self.log.debug(f"Checking out {self.base_branch_name}...")
+        self.log.debug(f'Checking out {self.base_branch_name}...')
         self.repo.heads[self.base_branch_name].checkout()
-        self.log.debug("Pulling latest changes...")
+        self.log.debug('Pulling latest changes...')
         self.repo.remotes.origin.pull()
 
         # If branch already exists, delete it
         if self.branch_name in self.repo.heads:
-            self.log.debug(f"Deleting existing branch {self.branch_name}...")
+            self.log.debug(f'Deleting existing branch {self.branch_name}...')
             self.repo.delete_head(self.branch_name, force=True)
 
         # Create new branch with create_new_ref
-        self.log.debug(f"Creating new branch {self.branch_name}...")
+        self.log.debug(f'Creating new branch {self.branch_name}...')
         self.repo.create_head(self.branch_name, self.base_branch_name)
 
         # Checkout new branch
@@ -58,51 +52,43 @@ class CommitService:
 
     def ensure_branch_exists(self):
         # Fetch
-        self.log.debug("Fetching...")
+        self.log.debug('Fetching...')
         self.repo.remotes.origin.fetch()
         remote = self.repo.remote()
         references = remote.fetch()
 
         # If branch already exists, checkout and pull
-        if f"{remote.name}/{self.branch_name}" in [ref.name for ref in references]:
+        if f'{remote.name}/{self.branch_name}' in [ref.name for ref in references]:
             # Check if branch exists locally
             if self.branch_name in [ref.name for ref in self.repo.heads]:
-                self.log.debug(f"Checking out {self.branch_name}...")
+                self.log.debug(f'Checking out {self.branch_name}...')
                 self.repo.heads[self.branch_name].checkout()
-                self.log.debug("Pulling latest changes...")
+                self.log.debug('Pulling latest changes...')
                 self.repo.remotes.origin.pull()
             else:
                 # If not, create a local branch that tracks the remote branch
-                self.log.debug(f"Checking out -b {self.branch_name}...")
-                self.repo.create_head(
-                    self.branch_name, f"{remote.name}/{self.branch_name}"
-                ).checkout()
+                self.log.debug(f'Checking out -b {self.branch_name}...')
+                self.repo.create_head(self.branch_name, f'{remote.name}/{self.branch_name}').checkout()
         else:
-            self.log.debug(f"Branch {self.branch_name} does not exist, creating...")
+            self.log.debug(f'Branch {self.branch_name} does not exist, creating...')
             self.overwrite_new_branch()
 
-    def unstaged_changes_exist(self) -> bool:
-        return bool(self.repo.index.diff("HEAD"))
-
-    def commit(
-        self,
-        commit_message: str,
-        push: bool = True,
-        filepaths: Optional[list[str]] = None,
-    ) -> None:
+    def commit(self, commit_message: str, push: bool = True) -> None:
         # Remove empty commit if exists
-        if (
-            commit_message != self._empty_commit_message
-            and self.repo.head.commit.message.rstrip() == self._empty_commit_message
-        ):
-            self.log.debug("Removing empty commit...")
+        if commit_message != self._empty_commit_message and \
+                self.repo.head.commit.message.rstrip() == self._empty_commit_message:
+            self.log.debug('Removing empty commit...')
             self.repo.git.execute(["git", "reset", "HEAD^"])
 
-        # Add and commit
-        if filepaths is None:
-            self.repo.git.execute(["git", "add", "-A"])
-        else:
-            self.repo.git.execute(["git", "add", *filepaths])
+        # Remove guardrails log if exists (so it's not committed later)
+        if 'guardrails.log' in self.repo.untracked_files:
+            self.log.debug('Removing guardrails.log...')
+            os.remove(
+                os.path.join(self.repo_path, 'guardrails.log')
+            )
+
+        # Add and commit all
+        self.repo.git.execute(["git", "add", "."])
         self.repo.git.execute(["git", "commit", "--allow-empty", "-m", commit_message])
 
         # Get the commit's diff for log
@@ -111,19 +97,5 @@ class CommitService:
 
         # Push branch to remote
         if push:
-            self.log.debug(f"Pushing branch {self.branch_name} to remote...")
+            self.log.debug(f'Pushing branch {self.branch_name} to remote...')
             self.repo.git.execute(["git", "push", "-f", "origin", self.branch_name])
-
-    def get_changes_status(self) -> CHANGES_STATUS:
-        """
-        Returns the status of the changes on the branch.
-        """
-        # Get status of changes
-        args = ["git", "diff", self.base_branch_name, "--name-only"]
-        status = str(self.repo.git.execute(args))
-        if not status:
-            return "no_changes"
-        elif len(status.splitlines()) == 1 and self.cache_dir in status:
-            return "cache_only"
-        else:
-            return "modified"

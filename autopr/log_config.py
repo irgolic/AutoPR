@@ -1,19 +1,13 @@
-import logging
-import structlog
-
-
 def configure_logging(pretty=True):
+    import logging
+    import structlog
+
     logging.basicConfig(
-        level=logging.DEBUG,
-    )
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+        level=logging.INFO
     )
 
     if pretty:
         processors = [
-            structlog.stdlib.add_log_level,  # add log level
-            structlog.dev.set_exc_info,  # add exception info
             structlog.dev.ConsoleRenderer(colors=True),
         ]
     else:
@@ -23,11 +17,3 @@ def configure_logging(pretty=True):
         processors=processors,
         cache_logger_on_first_use=True,
     )
-
-
-# Configure logging on module import
-configure_logging()
-
-
-def get_logger(*args, **kwargs):
-    return structlog.get_logger(*args, **kwargs)

@@ -20,11 +20,9 @@ class Thread(pydantic.BaseModel):
 
 
 class Issue(Thread):
-    open: bool
     number: int
     title: str
     author: str
-    timestamp: str
 
     def __str__(self):
         return f"#{self.number} {self.title}\n\n" + super().__str__()
@@ -33,7 +31,6 @@ class Issue(Thread):
 class PullRequest(Issue):
     base_branch: str
     head_branch: str
-    base_commit_sha: str
     # code_review: list[CodeComment]
 
     def __str__(self):

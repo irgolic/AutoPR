@@ -1,4 +1,4 @@
-from typing import Literal, Union, Optional
+from typing import Literal, Union
 
 import pydantic
 
@@ -9,51 +9,27 @@ class Event(pydantic.BaseModel):
     """
     Events trigger AutoPR to run in different ways.
     """
-
     event_type: str
 
-    pull_request: Optional[PullRequest] = None
-    issue: Optional[Issue] = None
 
-
-class LabelEvent(Event):
+class IssueLabelEvent(Event):
     """
-    Event triggered when a label is added to an issue or pull request.
+    Event triggered when a label is added to an issue.
     """
+    event_type: Literal['issue_label'] = 'issue_label'
 
-    event_type: Literal["label"] = "label"
-
+    issue: Issue
     label: str
 
 
-class CommentEvent(Event):
+class PullRequestCommentEvent(Event):
     """
-    Event triggered when a comment is added to an issue or pull request.
+    Event triggered when a comment is added to a pull request.
     """
+    event_type: Literal['pull_request_comment'] = 'pull_request_comment'
 
-    event_type: Literal["comment"] = "comment"
-
-    comment: Message
-
-
-class PushEvent(Event):
-    """
-    Event triggered when a push is made to a branch.
-    """
-
-    event_type: Literal["push"] = "push"
-
-    branch: str
-
-
-class CronEvent(Event):
-    """
-    Event triggered by a cron job.
-    """
-
-    event_type: Literal["cron"] = "cron"
-
-    cron_schedule: str
+    pull_request: PullRequest
+    new_comment: Message
 
 
 # class CodeReviewEvent(Event):
@@ -67,4 +43,4 @@ class CronEvent(Event):
 #     new_comment: Message
 
 
-EventUnion = Union[LabelEvent, CommentEvent, PushEvent, CronEvent]  # | CodeReviewEvent
+EventUnion = Union[IssueLabelEvent, PullRequestCommentEvent]  # | CodeReviewEventa

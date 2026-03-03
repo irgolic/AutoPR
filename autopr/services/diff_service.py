@@ -1,12 +1,12 @@
 import tempfile
 from typing import Optional
 
+import structlog
 from git.repo import Repo
 
-from autopr.log_config import get_logger
 from autopr.models.artifacts import DiffStr
 
-log = get_logger(__name__)
+log = structlog.get_logger()
 
 
 class DiffService:
@@ -44,8 +44,11 @@ class GitApplyService(DiffService):
         with tempfile.NamedTemporaryFile() as f:
             f.write(diff.encode())
             f.flush()
-            log.debug("Applying diff...")
-            self.repo.git.execute(["git", "apply", "--allow-empty", f.name])
+            log.debug('Applying diff...')
+            self.repo.git.execute(["git",
+                                   "apply",
+                                   "--allow-empty",
+                                   f.name])
 
 
 class PatchService(DiffService):
@@ -53,7 +56,7 @@ class PatchService(DiffService):
         with tempfile.NamedTemporaryFile(suffix=".diff") as f:
             f.write(diff.encode())
             f.flush()
-            log.debug("Applying diff...")
+            log.debug('Applying diff...')
             commands = [
                 "patch",
                 "--no-backup-if-mismatch",
@@ -61,7 +64,7 @@ class PatchService(DiffService):
                 "-p0",
                 "--force",
                 "-i",
-                f.name,
+                f.name
             ]
             if check:
                 commands += ["--dry-run"]

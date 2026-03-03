@@ -1,5 +1,0 @@
-- The purpose of this file is to define triggers for a specific branch named "main".
-- The triggers are set to execute a function or command called "generate_readme_summaries".
-- The file is likely used in a software development or automation context to specify actions that should be performed when the "main" branch is triggered.
-- The file may be part of a larger configuration or workflow system that manages the execution of tasks based on specific events or conditions.
-- The file provides a structured and easily readable way to define and manage triggers for the specified branch.

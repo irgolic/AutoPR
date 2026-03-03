@@ -1,7 +1,0 @@
-Here is a summary of the changes in the pull request for each file:
-
-📄 newscript.py:
-- Added a new file `newscript.py` with mode 100644.
-- Added a line of code `#TODO do stuff here` at line 1.
-
-Please note that the diff was trimmed for brevity.
